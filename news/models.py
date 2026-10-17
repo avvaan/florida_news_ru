@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from core.text import make_slug
 
-from .covers import pick_cover
+from .covers import all_covers, pick_cover
 
 
 class Region(models.Model):
@@ -138,6 +138,10 @@ class Article(models.Model):
     region = models.ForeignKey(Region, verbose_name="регион", null=True, blank=True, on_delete=models.SET_NULL)
     topic = models.ForeignKey(Topic, verbose_name="тема", null=True, blank=True, on_delete=models.SET_NULL)
     tags = models.ManyToManyField(Tag, verbose_name="теги", blank=True)
+    cover_image = models.CharField(
+        "обложка", max_length=100, blank=True,
+        help_text="Выбирает ИИ по смыслу заметки. Пусто — обложка из набора рубрики по очереди",
+    )
 
     status = models.CharField("статус", max_length=20, choices=Status.choices, default=Status.REVIEW, db_index=True)
     is_urgent = models.BooleanField("🚨 срочно", default=False)
@@ -176,7 +180,9 @@ class Article(models.Model):
 
     @property
     def cover_info(self):
-        """Обложка из набора рубрики (см. news/covers.py)."""
+        """Выбранная обложка или, если её нет, обложка из набора рубрики (см. news/covers.py)."""
+        if self.cover_image and (chosen := all_covers().get(self.cover_image)):
+            return chosen
         if self.is_urgent and self.topic and self.topic.slug in ("weather", "safety"):
             pool = "hurricane"
         else:

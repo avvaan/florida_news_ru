@@ -20,6 +20,7 @@ def news_sitemap(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", include("api.urls")),
     path("sitemap.xml", cache_page(600)(sitemap), {"sitemaps": SITEMAPS},
          name="django.contrib.sitemaps.views.sitemap"),
     path("news-sitemap.xml", cache_page(300)(news_sitemap), name="news_sitemap"),

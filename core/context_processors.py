@@ -4,7 +4,7 @@ from django.utils import timezone
 from news.models import Region, Topic
 
 from .models import Page, SiteSettings
-from .seed import DISCLAIMER
+from .seed import DISCLAIMER, SITE_OWNER
 
 
 def site(request):
@@ -18,6 +18,7 @@ def site(request):
         "nav_topics": Topic.objects.all(),
         "footer_pages": Page.objects.filter(in_footer=True),
         "disclaimer": DISCLAIMER,
+        "site_owner": SITE_OWNER,
         "now": timezone.localtime(),
         "demo_mode": getattr(settings, "DEMO_MODE", False),
     }

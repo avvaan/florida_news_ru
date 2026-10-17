@@ -1,11 +1,14 @@
+from django import forms
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
+from django.templatetags.static import static
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
 from pipeline.services import publish_article, reject_article
 from pipeline.telegram import build_post, post_article
 
+from .covers import all_covers, describe
 from .models import Article, ArticleSource, Region, Story, Tag, Topic
 
 
@@ -58,16 +61,35 @@ class BaseArticleAdmin(admin.ModelAdmin):
     autocomplete_fields = ("tags",)
     inlines = [ArticleSourceInline]
     readonly_fields = ("verification_box", "telegram_preview", "story_link", "created_at", "updated_at",
-                       "telegram_posted_at", "word_count")
+                       "telegram_posted_at", "word_count", "cover_preview")
     actions = [action_publish, action_reject, action_telegram]
     fieldsets = (
         (None, {"fields": ("title", "teaser", "body", "word_count")}),
         ("Разметка", {"fields": ("region", "topic", "tags", "is_urgent", "is_sensitive", "score")}),
+        ("Обложка", {"fields": ("cover_image", "cover_preview")}),
         ("Публикация", {"fields": ("status", "review_reason", "slug", "published_at")}),
         ("Проверка ИИ", {"fields": ("verification_box", "story_link")}),
         ("Telegram", {"fields": ("telegram_preview", "telegram_posted_at"), "classes": ("collapse",)}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
     )
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "cover_image":
+            choices = [("", "— автоматически из набора рубрики —")] + [
+                (base, f"{base.split('/')[-1]} — {describe(cover)}")
+                for base, cover in sorted(all_covers().items())
+            ]
+            return forms.ChoiceField(choices=choices, required=False, label="обложка",
+                                     help_text=db_field.help_text)
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+    @admin.display(description="сейчас на обложке")
+    def cover_preview(self, obj):
+        if not obj.pk:
+            return "—"
+        info = obj.cover_info
+        return format_html('<img src="{}" style="max-width:320px;border-radius:6px"><br>{}',
+                           static(f"{info.base}-640.webp"), describe(info))
 
     @admin.display(description="статус", ordering="status")
     def status_badge(self, obj):
