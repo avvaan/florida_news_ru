@@ -6,7 +6,6 @@
 
 import os
 import sys
-from decimal import Decimal
 from pathlib import Path
 
 import dj_database_url
@@ -156,23 +155,44 @@ SOURCE_MAX_FAILURES = 3
 
 # --- ИИ ----------------------------------------------------------------------
 
+# Провайдер: "deepseek" (по умолчанию) или "anthropic".
+AI_PROVIDER = os.environ.get("AI_PROVIDER", "deepseek").strip().lower()
+
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
+DEEPSEEK_BASE_URL = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-AI_CLASSIFIER_MODEL = os.environ.get("AI_CLASSIFIER_MODEL", "claude-haiku-4-5")
-AI_WRITER_MODEL = os.environ.get("AI_WRITER_MODEL", "claude-sonnet-5")
-AI_VERIFIER_MODEL = os.environ.get("AI_VERIFIER_MODEL", AI_CLASSIFIER_MODEL)
-# Уровень усилий для модели-автора (low/medium/high). Пусто — не передавать.
+
+# Модели по умолчанию для каждого провайдера. Названия моделей DeepSeek меняются —
+# сверьте их командой `python manage.py check_ai` и при необходимости задайте через env.
+_DEFAULT_MODELS = {
+    "deepseek": {"classifier": "deepseek-v4-flash", "writer": "deepseek-v4-pro"},
+    "anthropic": {"classifier": "claude-haiku-4-5", "writer": "claude-sonnet-5"},
+}.get(AI_PROVIDER, {"classifier": "", "writer": ""})
+AI_CLASSIFIER_MODEL = os.environ.get("AI_CLASSIFIER_MODEL") or _DEFAULT_MODELS["classifier"]
+AI_WRITER_MODEL = os.environ.get("AI_WRITER_MODEL") or _DEFAULT_MODELS["writer"]
+AI_VERIFIER_MODEL = os.environ.get("AI_VERIFIER_MODEL") or AI_CLASSIFIER_MODEL
+# Уровень усилий для модели-автора Anthropic (low/medium/high). Пусто — не передавать.
 AI_WRITER_EFFORT = os.environ.get("AI_WRITER_EFFORT", "medium")
 
-# Цены в долларах за 1 млн токенов: (input, output). Запись в кэш стоит 1.25×
-# от input, чтение из кэша — 0.1×. Обновляйте при смене тарифов.
+# Цены в долларах за 1 млн токенов. input — вход без попадания в кэш, cache_read — вход
+# из кэша, cache_write — запись в кэш (только Anthropic). Это оценка для лимита бюджета:
+# сверяйте с официальными тарифами и правьте здесь или через AI_PRICING_JSON.
+# Для DeepSeek взяты пиковые (более высокие) цены: вне пика реальный счёт будет ниже.
 AI_PRICING = {
-    "claude-haiku-4-5": (Decimal("1.00"), Decimal("5.00")),
-    "claude-haiku-5-5": (Decimal("0.10"), Decimal("0.50")),
-    "claude-sonnet-5": (Decimal("2.00"), Decimal("10.00")),
-    "claude-sonnet-5-5": (Decimal("2.00"), Decimal("10.00")),
-    "claude-sonnet-4-6": (Decimal("3.00"), Decimal("15.00")),
-    "claude-opus-5-5": (Decimal("4.00"), Decimal("20.00")),
+    "deepseek-v4-flash": {"input": "0.30", "cache_read": "0.03", "output": "1.20"},
+    "deepseek-flash": {"input": "0.30", "cache_read": "0.03", "output": "1.20"},
+    "deepseek-v4-pro": {"input": "1.32", "cache_read": "0.13", "output": "3.96"},
+    "deepseek-pro": {"input": "1.32", "cache_read": "0.13", "output": "3.96"},
+    "claude-haiku-4-5": {"input": "1.00", "cache_read": "0.10", "cache_write": "1.25", "output": "5.00"},
+    "claude-haiku-5-5": {"input": "0.10", "cache_read": "0.01", "cache_write": "0.125", "output": "0.50"},
+    "claude-sonnet-5": {"input": "2.00", "cache_read": "0.20", "cache_write": "2.50", "output": "10.00"},
+    "claude-sonnet-5-5": {"input": "2.00", "cache_read": "0.20", "cache_write": "2.50", "output": "10.00"},
 }
+# Пример: AI_PRICING_JSON='{"deepseek-v4-flash": {"input": "0.14", "cache_read": "0.014", "output": "0.28"}}'
+if pricing_json := os.environ.get("AI_PRICING_JSON"):
+    import json
+
+    AI_PRICING.update(json.loads(pricing_json))
 
 # --- Telegram ----------------------------------------------------------------
 

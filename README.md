@@ -6,7 +6,7 @@
 слов со ссылкой на первоисточник, проверяет её и публикует на сайте и в Telegram.
 
 Стек: Python 3.12, Django 5, PostgreSQL (локально — SQLite), серверные шаблоны и чистый CSS,
-Anthropic API, Telegram Bot API. Без Celery: фоновые задачи — management-команды по расписанию.
+ИИ DeepSeek (Anthropic можно включить настройкой), Telegram Bot API. Без Celery: фоновые задачи — management-команды по расписанию.
 
 ---
 
@@ -17,9 +17,9 @@ Anthropic API, Telegram Bot API. Без Celery: фоновые задачи — 
  1. Сбор        fetch_sources: RSS/Atom + NWS alerts API. ETag/Last-Modified, robots.txt,
                 честный User-Agent. Храним только заголовок, ссылку, дату и короткое описание.
  2. Склейка     одна история из разных СМИ → один «сюжет» (похожесть заголовков, окно 48 ч).
- 3. Отбор       Haiku: важность 0–10, тема, регион, «срочно», «чувствительно».
- 4. Написание   Sonnet: заметка 80–150 слов, заголовок до 80 знаков, анонс для Telegram, теги.
- 5. Проверка    Haiku сверяет заметку с данными источников.
+ 3. Отбор       DeepSeek Flash: важность 0–10, тема, регион, «срочно», «чувствительно».
+ 4. Написание   DeepSeek Pro: заметка 80–150 слов, заголовок до 80 знаков, анонс для Telegram, теги.
+ 5. Проверка    DeepSeek Flash сверяет заметку с данными источников.
  6. Публикация  авто — срочное от официальных источников и заметки с важностью ≥ порога
                 и чистой проверкой; всё чувствительное и сомнительное — в «На проверку».
                 Сайт + пост в Telegram (🚨 для срочного).
@@ -50,6 +50,7 @@ Anthropic API, Telegram Bot API. Без Celery: фоновые задачи — 
 | `python manage.py run_pipeline --no-write` | только сбор и склейка, без ИИ |
 | `python manage.py run_pipeline --no-fetch` | обработать уже собранное, без сети |
 | `python manage.py fetch_sources` | только сбор (можно `--source ID`) |
+| `python manage.py check_ai` (`--ping`) | проверить ключ DeepSeek и названия моделей (с `--ping` — тестовый запрос) |
 | `python manage.py check_sources --activate` | проверить все фиды, включить рабочие, выключить нерабочие |
 | `python manage.py seed_demo` / `--clear` | демо-заметки для просмотра дизайна (только `DJANGO_DEBUG=1`) |
 
@@ -87,7 +88,8 @@ Anthropic API, Telegram Bot API. Без Celery: фоновые задачи — 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-cp .env.example .env            # впишите ANTHROPIC_API_KEY (остальное можно оставить)
+cp .env.example .env            # впишите DEEPSEEK_API_KEY (остальное можно оставить)
+python manage.py check_ai       # ключ рабочий? модели из настроек существуют?
 python manage.py migrate        # создаст регионы, темы, страницы и источники-кандидаты
 python manage.py createsuperuser
 python manage.py runserver      # http://localhost:8000, админка — /admin/
@@ -147,16 +149,18 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
 В репозитории есть `render.yaml` (Blueprint): веб-сервис, PostgreSQL и cron-задача.
 
 1. Залейте репозиторий на GitHub.
-2. Render → **New → Blueprint** → выберите репозиторий. Render создаст:
+2. Render → **New → Blueprint** (не «Web Service»: Blueprint сам возьмёт команды сборки и запуска
+   из `render.yaml`) → выберите репозиторий и ветку `main`. Render создаст:
    - `florida-web`: сайт (gunicorn, статика через WhiteNoise, сборка `build.sh` с миграциями);
    - `florida-db`: PostgreSQL;
    - `florida-pipeline`: cron `7 */2 * * *` (каждые 2 часа по UTC) → `python manage.py run_pipeline`.
 3. Заполните переменные (группа `florida-shared`): `SITE_URL` (например `https://florida-web.onrender.com`,
    потом — ваш домен), `DJANGO_ALLOWED_HOSTS` (домен без https), `DJANGO_CSRF_TRUSTED_ORIGINS`
-   (`https://домен`), `ANTHROPIC_API_KEY`, `TELEGRAM_*`. `DJANGO_SECRET_KEY` сгенерируется сам.
+   (`https://домен`), `DEEPSEEK_API_KEY`, `TELEGRAM_*`. `DJANGO_SECRET_KEY` сгенерируется сам.
 4. После первого деплоя: Shell веб-сервиса →
    ```bash
    python manage.py createsuperuser
+   python manage.py check_ai                     # проверит ключ DeepSeek и названия моделей
    python manage.py check_sources --activate
    python manage.py run_pipeline --no-write      # проверить сбор без расходов на ИИ
    ```
@@ -201,11 +205,15 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | на проде | `https://домен` |
 | `SITE_URL` | да | публичный адрес: ссылки в Telegram, sitemap, canonical, Open Graph |
 | `DATABASE_URL` | на проде | PostgreSQL (Render подставляет сам) |
-| `ANTHROPIC_API_KEY` | да | ключ Anthropic |
-| `AI_CLASSIFIER_MODEL` | — | модель отбора, по умолчанию `claude-haiku-4-5` |
+| `AI_PROVIDER` | — | `deepseek` (по умолчанию) или `anthropic` |
+| `DEEPSEEK_API_KEY` | да | ключ DeepSeek (platform.deepseek.com → API keys) |
+| `DEEPSEEK_BASE_URL` | — | по умолчанию `https://api.deepseek.com` |
+| `ANTHROPIC_API_KEY` | — | только если `AI_PROVIDER=anthropic` |
+| `AI_CLASSIFIER_MODEL` | — | модель отбора, по умолчанию `deepseek-v4-flash` |
 | `AI_VERIFIER_MODEL` | — | модель проверки, по умолчанию как у отбора |
-| `AI_WRITER_MODEL` | — | модель-автор, по умолчанию `claude-sonnet-5` |
-| `AI_WRITER_EFFORT` | — | `low` / `medium` / `high`, по умолчанию `medium` |
+| `AI_WRITER_MODEL` | — | модель-автор, по умолчанию `deepseek-v4-pro` |
+| `AI_PRICING_JSON` | — | поправить цены моделей для учёта расходов, см. `.env.example` |
+| `AI_WRITER_EFFORT` | — | только для Anthropic: `low` / `medium` / `high` |
 | `TELEGRAM_BOT_TOKEN` | для Telegram | токен бота |
 | `TELEGRAM_CHANNEL_ID` | для Telegram | `@канал` или `-100…` |
 | `TELEGRAM_CHANNEL_URL` | — | ссылка для кнопок «Подписаться» (можно задать и в админке) |
@@ -215,27 +223,32 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
 
 ---
 
-## Сколько стоит ИИ
+## Сколько стоит ИИ (DeepSeek)
 
-Оценка для 20–40 заметок в день при моделях по умолчанию (Haiku 4.5: $1/$5 за млн токенов
-вход/выход; Sonnet 5: $2/$10). Отбор проходят все новые сюжеты, а не только опубликованные.
+**Названия моделей и тарифы DeepSeek в 2026 году часто менялись**, а официальная документация
+из среды разработки была недоступна. По умолчанию стоят `deepseek-v4-flash` (отбор и проверка) и
+`deepseek-v4-pro` (написание). Первым делом запустите `python manage.py check_ai`: команда покажет,
+какие модели реально есть на вашем ключе, и подсветит отсутствующие. Нужные названия задаются
+через `AI_CLASSIFIER_MODEL`, `AI_VERIFIER_MODEL`, `AI_WRITER_MODEL`, цены — в `config/settings.py`
+(`AI_PRICING`) или через `AI_PRICING_JSON`. В таблице цен — **пиковые** тарифы, поэтому учёт расходов
+в админке скорее завышен.
+
+Оценка для 20–40 заметок в день (Flash ≈ $0,30 / $1,20, Pro ≈ $1,32 / $3,96 за млн токенов
+вход/выход, вход из кэша ≈ в 10 раз дешевле). Отбор проходят все новые сюжеты, а не только опубликованные.
 
 | Этап | За вызов | В день |
 |---|---|---|
-| Отбор (Haiku), ~150–300 сюжетов × ~1,3 тыс. токенов на вход и ~100 на выход | ≈ $0,0018 | $0,30–0,55 |
-| Написание (Sonnet), ~1,5 тыс. на вход и ~0,9 тыс. на выход с размышлениями | ≈ $0,012 | $0,25–0,50 |
-| Проверка (Haiku), ~1,6 тыс. на вход и ~150 на выход | ≈ $0,0024 | $0,05–0,10 |
-| **Итого** | | **≈ $0,6–1,2 в день → $18–35 в месяц** |
+| Отбор (Flash), ~150–300 сюжетов × ~1,5 тыс. токенов на вход (большая часть из кэша) и ~100 на выход | ≈ $0,00025 | $0,04–0,08 |
+| Написание (Pro), ~1,7 тыс. на вход и до ~1 тыс. на выход | ≈ $0,005 | $0,10–0,20 |
+| Проверка (Flash), ~2 тыс. на вход и ~150 на выход | ≈ $0,0005 | $0,01–0,02 |
+| **Итого** | | **≈ $0,15–0,30 в день → $5–9 в месяц** |
 
-- Самая крупная статья расходов — отбор. Если поставить `AI_CLASSIFIER_MODEL=claude-haiku-5-5`
-  и `AI_VERIFIER_MODEL=claude-haiku-5-5` (новее и в 10 раз дешевле Haiku 4.5), итог снизится
-  примерно до **$10–20 в месяц**. По умолчанию оставлены модели из вашего ТЗ.
-- Системные промпты помечены для prompt caching. Но кэш срабатывает, только если промпт
-  длиннее минимального порога модели (у Haiku — несколько тысяч токенов). Наши промпты короче,
-  поэтому заметной экономии от кэша сейчас не будет; это видно в «Расходы на ИИ» → «прочитано из кэша».
-- Бюджет по умолчанию — $3 в день. При превышении пишутся только срочные заметки.
-
----
+- Кэш промптов у DeepSeek автоматический: системный промпт с JSON-схемой стоит в начале запроса
+  и при повторах берётся из кэша. Это видно в «Расходы на ИИ» → «прочитано из кэша».
+- Ответы просим в режиме JSON и проверяем по схеме. Если DeepSeek вернул пустой или битый JSON,
+  запрос повторяется один раз, а неудача записывается в лог расходов.
+- Бюджет по умолчанию — $3 в день, с DeepSeek его можно смело снизить до $1 (Настройки).
+- Вернуться на Anthropic: `AI_PROVIDER=anthropic`, `ANTHROPIC_API_KEY`, модели `claude-*`.
 
 ## Дизайн
 

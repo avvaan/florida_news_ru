@@ -1,4 +1,5 @@
 Django==5.2.18
+openai==3.33.0
 anthropic==1.15.0
 pydantic==2.14.1
 feedparser==6.0.14

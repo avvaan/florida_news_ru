@@ -62,7 +62,7 @@ def classify_story(story: Story) -> Story:
         system=prompts.CLASSIFY_SYSTEM,
         user=f"Сюжет:\n\n{prompts.story_brief(items)}",
         output=Classification,
-        max_tokens=400,
+        max_tokens=1500,
         story=story,
     )
     story.classification = result.model_dump()
@@ -116,7 +116,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         system=prompts.WRITE_SYSTEM,
         user=f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}",
         output=Draft,
-        max_tokens=3000,
+        max_tokens=8000,
         story=story,
         effort=settings.AI_WRITER_EFFORT or None,
     )
@@ -129,7 +129,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             f"<article>\nЗаголовок: {draft.title}\nАнонс: {draft.teaser}\n\n{draft.body}\n</article>"
         ),
         output=Verification,
-        max_tokens=800,
+        max_tokens=2000,
         story=story,
     )
 

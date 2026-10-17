@@ -63,3 +63,13 @@ def fake_ai_response(parsed, input_tokens=1000, output_tokens=200, stop_reason="
                               cache_read_input_tokens=0, cache_creation_input_tokens=0),
         _request_id="req_test",
     )
+
+
+def fake_deepseek_response(content: str, prompt_tokens=1500, hit=1200, completion_tokens=300, finish_reason="stop"):
+    """Ответ в форме OpenAI-совместимого API DeepSeek."""
+    return SimpleNamespace(
+        id="ds_test",
+        choices=[SimpleNamespace(finish_reason=finish_reason, message=SimpleNamespace(content=content))],
+        usage=SimpleNamespace(prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
+                              prompt_cache_hit_tokens=hit, prompt_cache_miss_tokens=prompt_tokens - hit),
+    )

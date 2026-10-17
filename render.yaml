@@ -19,7 +19,9 @@ envVarGroups:
         sync: false
       - key: DJANGO_CSRF_TRUSTED_ORIGINS
         sync: false
-      - key: ANTHROPIC_API_KEY
+      - key: AI_PROVIDER
+        value: deepseek
+      - key: DEEPSEEK_API_KEY
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
@@ -27,12 +29,13 @@ envVarGroups:
         sync: false
       - key: TELEGRAM_CHANNEL_URL
         sync: false
+      # Сверьте названия моделей командой `python manage.py check_ai` и поправьте здесь.
       - key: AI_CLASSIFIER_MODEL
-        value: claude-haiku-4-5
+        value: deepseek-v4-flash
       - key: AI_VERIFIER_MODEL
-        value: claude-haiku-4-5
+        value: deepseek-v4-flash
       - key: AI_WRITER_MODEL
-        value: claude-sonnet-5
+        value: deepseek-v4-pro
 
 services:
   - type: web
