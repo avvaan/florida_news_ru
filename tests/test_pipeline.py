@@ -78,8 +78,8 @@ def run_with(fake):
     return say
 
 
-@override_settings(AI_PROVIDER="deepseek", AI_CLASSIFIER_MODEL="deepseek-v4-flash",
-                   AI_VERIFIER_MODEL="deepseek-v4-flash", AI_WRITER_MODEL="deepseek-v4-pro")
+@override_settings(AI_PROVIDER="deepseek", AI_CLASSIFIER_MODEL="deepseek-flash",
+                   AI_VERIFIER_MODEL="deepseek-flash", AI_WRITER_MODEL="deepseek-v4-pro")
 def test_full_flow_publishes_and_logs_costs(stories):
     fake = FakeAI()
     run_with(fake)
@@ -97,7 +97,7 @@ def test_full_flow_publishes_and_logs_costs(stories):
     assert AICall.objects.today().total_cost() > Decimal("0")
     first = fake.calls[0]
     assert first["response_format"] == {"type": "json_object"}
-    assert first["model"] == "deepseek-v4-flash"
+    assert first["model"] == "deepseek-flash"
     assert "JSON-схема" in first["messages"][0]["content"]
 
 

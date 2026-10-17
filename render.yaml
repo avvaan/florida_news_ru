@@ -31,9 +31,9 @@ envVarGroups:
         sync: false
       # Сверьте названия моделей командой `python manage.py check_ai` и поправьте здесь.
       - key: AI_CLASSIFIER_MODEL
-        value: deepseek-v4-flash
+        value: deepseek-flash
       - key: AI_VERIFIER_MODEL
-        value: deepseek-v4-flash
+        value: deepseek-flash
       - key: AI_WRITER_MODEL
         value: deepseek-v4-pro
 

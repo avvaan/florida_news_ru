@@ -209,7 +209,7 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
 | `DEEPSEEK_API_KEY` | да | ключ DeepSeek (platform.deepseek.com → API keys) |
 | `DEEPSEEK_BASE_URL` | — | по умолчанию `https://api.deepseek.com` |
 | `ANTHROPIC_API_KEY` | — | только если `AI_PROVIDER=anthropic` |
-| `AI_CLASSIFIER_MODEL` | — | модель отбора, по умолчанию `deepseek-v4-flash` |
+| `AI_CLASSIFIER_MODEL` | — | модель отбора, по умолчанию `deepseek-flash` |
 | `AI_VERIFIER_MODEL` | — | модель проверки, по умолчанию как у отбора |
 | `AI_WRITER_MODEL` | — | модель-автор, по умолчанию `deepseek-v4-pro` |
 | `AI_PRICING_JSON` | — | поправить цены моделей для учёта расходов, см. `.env.example` |
@@ -226,7 +226,7 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
 ## Сколько стоит ИИ (DeepSeek)
 
 **Названия моделей и тарифы DeepSeek в 2026 году часто менялись**, а официальная документация
-из среды разработки была недоступна. По умолчанию стоят `deepseek-v4-flash` (отбор и проверка) и
+из среды разработки была недоступна. По умолчанию стоят `deepseek-flash` (отбор и проверка) и
 `deepseek-v4-pro` (написание). Первым делом запустите `python manage.py check_ai`: команда покажет,
 какие модели реально есть на вашем ключе, и подсветит отсутствующие. Нужные названия задаются
 через `AI_CLASSIFIER_MODEL`, `AI_VERIFIER_MODEL`, `AI_WRITER_MODEL`, цены — в `config/settings.py`
