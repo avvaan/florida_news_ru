@@ -31,6 +31,12 @@ def cover(article, size: str = "") -> str:
 
 
 @register.filter
+def guide_image(guide, number) -> str:
+    """Базовый путь иллюстрации гайда в static/ без расширения (1 — обложка, 2, 3 … — в тексте)."""
+    return guide.image(int(number))
+
+
+@register.filter
 def plural_ru(n, forms: str) -> str:
     """{{ n|plural_ru:"минута,минуты,минут" }}"""
     one, few, many = forms.split(",")
@@ -138,6 +144,7 @@ def guide_jsonld(guide) -> str:
         "author": editorial_author(),
         "publisher": publisher(),
         "citation": [s.url for s in guide.sources.all()],
+        **({"image": f"{settings.SITE_URL}{static(guide.cover + '.jpg')}"} if guide.cover else {}),
     })
 
 

@@ -1,19 +1,34 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Гайды: жизнь во Флориде — {{ site_name }}{% endblock %}
-{% block description %}Постоянные гайды на русском: водительские права, регистрация машины, SunPass, ураганы, страховка, школа, налоги и аренда во Флориде — по официальным источникам.{% endblock %}
+{% block description %}Подробные гайды на русском по официальным источникам: документы и статус, машина, жильё, ураганы, деньги и работа, медицина, дети и учёба во Флориде.{% endblock %}
 {% block content %}
 <div class="wrap">
-  <section class="story story--page guides">
+  <section class="story guides">
     <h1 class="story__title">Гайды</h1>
-    <p class="story__lede">Постоянные статьи о жизни во Флориде по официальным источникам. Мы обновляем их, когда меняются правила.</p>
-    {% if guides %}
-    <ul class="guides__list">
-      {% for g in guides %}
-      <li>
-        <a href="{{ g.get_absolute_url }}"><b>{{ g.title }}</b>{% if g.teaser %}<span>{{ g.teaser }}</span>{% endif %}</a>
-      </li>
-      {% endfor %}
-    </ul>
+    <p class="story__lede">Подробные статьи о жизни во Флориде по официальным источникам: документы, машина, жильё, ураганы, деньги, медицина и учёба. Мы обновляем их, когда меняются правила.</p>
+    {% if sections %}
+    {% if sections|length > 1 %}
+    <nav class="guides__nav" aria-label="Разделы гайдов">
+      {% for s in sections %}<a class="chip" href="#{{ s.slug }}">{{ s.name }}</a>{% endfor %}
+    </nav>
+    {% endif %}
+    {% for s in sections %}
+    <section class="guides__section" id="{{ s.slug }}" aria-labelledby="{{ s.slug }}-h">
+      <div class="section-head"><h2 class="section-head__h" id="{{ s.slug }}-h">{{ s.name }}</h2></div>
+      <ul class="guides__grid">
+        {% for g in s.guides %}
+        <li class="guide-card">
+          <a href="{{ g.get_absolute_url }}">
+            {% if g.cover %}{% with small=g.cover|add:"-640.webp" %}<img src="{% static small %}" alt="" width="640" height="360" loading="lazy" decoding="async">{% endwith %}{% endif %}
+            <b>{{ g.title }}</b>
+            {% if g.teaser %}<span>{{ g.teaser }}</span>{% endif %}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
     {% else %}
     <p>Гайды скоро появятся.</p>
     {% endif %}

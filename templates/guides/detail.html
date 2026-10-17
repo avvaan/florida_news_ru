@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load news_extras %}
+{% load static news_extras %}
 {% block title %}{{ guide.title }} — {{ site_name }}{% endblock %}
 {% block description %}{{ guide.teaser|default:guide.title }}{% endblock %}
 {% block canonical %}{{ guide.get_absolute_url|absolute }}{% endblock %}
@@ -8,26 +8,62 @@
   <meta property="og:title" content="{{ guide.title }}">
   <meta property="og:description" content="{{ guide.teaser }}">
   <meta property="og:url" content="{{ guide.get_absolute_url|absolute }}">
+  {% if guide.cover %}{% with og=guide.cover|add:".jpg" %}<meta property="og:image" content="{% static og as og_url %}{{ og_url|absolute }}">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="675">
+  <meta name="twitter:card" content="summary_large_image">{% endwith %}{% endif %}
 {% endblock %}
 {% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% else %}{% guide_jsonld guide %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
   {% if is_preview %}<p class="preview-note">Черновик: гайд не опубликован, читатели его не видят. Опубликуйте в админке после проверки.</p>{% endif %}
   <nav class="crumbs" aria-label="Навигация">
-    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'guides:list' %}">Гайды</a>
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'guides:list' %}">Гайды</a>{% if guide.section %}<span aria-hidden="true">/</span><a href="{% url 'guides:list' %}#{{ guide.section }}">{{ guide.get_section_display }}</a>{% endif %}
   </nav>
   <div class="story-layout">
-    <article class="story">
+    <article class="story guide">
       <header class="story__head">
         <h1 class="story__title">{{ guide.title }}</h1>
         {% if guide.teaser %}<p class="story__lede">{{ guide.teaser }}</p>{% endif %}
         <p class="story__meta">
-          {% with when=guide.revised_at|default:guide.published_at %}{% if when %}<span>Обновлено <time datetime="{{ when|date:'c' }}">{{ when|date:"j E Y" }}</time></span>{% endif %}{% endwith %}
+          {% with when=guide.revised_at|default:guide.published_at %}{% if when %}<span><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>Обновлено <time datetime="{{ when|date:'c' }}">{{ when|date:"j E Y" }}</time></span>{% endif %}{% endwith %}
+          <span>{{ guide.reading_minutes }} {{ guide.reading_minutes|plural_ru:"минута,минуты,минут" }} чтения</span>
         </p>
         <p class="story__byline"><a href="{% url 'core-about' %}">Редакция {{ site_name }}</a></p>
       </header>
+
+      {% if guide.cover %}
+      <figure class="story__figure">
+        {% with big=guide.cover|add:".webp" %}<img src="{% static big %}" alt="" width="1200" height="675" fetchpriority="high">{% endwith %}
+        <figcaption>Иллюстрация «{{ site_name }}»</figcaption>
+      </figure>
+      {% endif %}
+
+      {% with toc=guide.toc %}{% if toc|length > 2 %}
+      <details class="toc" open>
+        <summary class="toc__h">Содержание</summary>
+        <ol class="toc__list">{% for h in toc %}<li><a href="#{{ h.anchor }}">{{ h.text }}</a></li>{% endfor %}</ol>
+      </details>
+      {% endif %}{% endwith %}
+
       <div class="story__body guide__body">
-        {% for kind, text in guide.blocks %}{% if kind == "h" %}<h2>{{ text }}</h2>{% else %}<p>{{ text }}</p>{% endif %}{% endfor %}
+        {% for b in guide.blocks %}
+          {% if b.kind == "h2" %}<h2 id="{{ b.anchor }}">{{ b.text }}</h2>
+          {% elif b.kind == "h3" %}<h3>{{ b.text }}</h3>
+          {% elif b.kind == "ul" %}<ul>{% for item in b.items %}<li>{{ item }}</li>{% endfor %}</ul>
+          {% elif b.kind == "ol" %}<ol>{% for item in b.items %}<li>{{ item }}</li>{% endfor %}</ol>
+          {% elif b.kind == "note" %}<aside class="guide__note"><p>{{ b.text }}</p></aside>
+          {% elif b.kind == "table" %}<div class="guide__table"><table>
+            <thead><tr>{% for c in b.head %}<th scope="col">{{ c }}</th>{% endfor %}</tr></thead>
+            <tbody>{% for row in b.items %}<tr>{% for c in row %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+          </table></div>
+          {% elif b.kind == "img" %}{% with base=guide|guide_image:b.number %}{% if base %}
+            <figure class="guide__figure">
+              {% with big=base|add:".webp" small=base|add:"-640.webp" %}<img src="{% static big %}" srcset="{% static small %} 640w, {% static big %} 1200w" sizes="(min-width: 760px) 680px, 100vw" alt="{{ b.caption }}" width="1200" height="675" loading="lazy" decoding="async">{% endwith %}
+              {% if b.caption %}<figcaption>{{ b.caption }}</figcaption>{% endif %}
+            </figure>
+          {% endif %}{% endwith %}
+          {% else %}<p>{{ b.text }}</p>{% endif %}
+        {% endfor %}
       </div>
       {% with srcs=guide.sources.all %}{% if srcs %}
       <section class="sources" aria-labelledby="src-h">
@@ -44,8 +80,9 @@
     {% if others %}
     <aside class="sidebar sidebar--story" aria-labelledby="guides-h">
       <nav class="useful">
-        <h2 class="sidebar__h" id="guides-h">Другие гайды</h2>
+        <h2 class="sidebar__h" id="guides-h">{% if guide.section %}Ещё в разделе «{{ guide.get_section_display }}»{% else %}Другие гайды{% endif %}</h2>
         <ul class="useful__list">{% for g in others %}<li><a href="{{ g.get_absolute_url }}">{{ g.title }}</a></li>{% endfor %}</ul>
+        <a class="useful__all" href="{% url 'guides:list' %}">Все гайды →</a>
       </nav>
     </aside>
     {% endif %}

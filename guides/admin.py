@@ -33,8 +33,8 @@ def action_unpublish(modeladmin, request, queryset):
 
 @admin.register(Guide)
 class GuideAdmin(admin.ModelAdmin):
-    list_display = ("title", "status", "has_text", "n_sources", "revised_at", "published_at", "preview")
-    list_filter = ("status", "topics")
+    list_display = ("title", "section", "order", "status", "has_text", "n_sources", "revised_at", "published_at", "preview")
+    list_filter = ("status", "section", "topics")
     search_fields = ("title", "body")
     prepopulated_fields = {"slug": ("title",)}
     filter_horizontal = ("topics",)
@@ -42,9 +42,10 @@ class GuideAdmin(admin.ModelAdmin):
     actions = [action_publish, action_unpublish]
     readonly_fields = ("review_notes", "created_at", "updated_at", "published_at", "telegram_posted_at", "preview")
     fieldsets = (
-        (None, {"fields": ("title", "slug", "teaser", "body", "preview"),
+        (None, {"fields": ("title", "slug", "teaser", "section", "order", "cover", "body", "preview"),
                 "description": "Гайды создаются черновиками (команда draft_guide) и публикуются только вручную: "
-                               "проверьте текст и источники, затем поставьте статус «опубликован»."}),
+                               "проверьте текст и источники, затем поставьте статус «опубликован». Гайды из файлов "
+                               "guides/content/ загружает import_guides; правка здесь сохранится, пока файл не изменят."}),
         ("Публикация", {"fields": ("status", "published_at", "revised_at", "telegram_posted_at")}),
         ("Для черновика", {"fields": ("topics", "brief", "official_domains", "review_notes")}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),

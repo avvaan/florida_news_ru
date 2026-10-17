@@ -90,7 +90,7 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
         "urgent": urgent_strip(),
         "ads": ads_for(region),
         "is_home": region is None and topic is None and first_page,
-        "guides": Guide.objects.published().order_by("title")[:6],
+        "guides": Guide.objects.featured(),
         **(extra or {}),
     }
     return render(request, template, context)
