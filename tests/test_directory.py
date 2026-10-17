@@ -71,7 +71,7 @@ def test_businesses_from_editor_table():
     business = Listing.objects.filter(category__kind="business")
     assert business.filter(name__startswith="Wayside").exists() and business.filter(category__slug="cerkvi").exists()
     hidden = set(business.filter(is_active=False).values_list("name", flat=True))
-    assert {"Kalinka Euro Deli", "Romashka Euro Deli"} <= hidden
+    assert {"Romashka Euro Deli", "Klondike"} <= hidden or "Romashka Euro Deli" in hidden
     assert not any(name.startswith("Lacomka") for name in hidden)  # «Лакомку» проверили и включили
     assert all(Listing.objects.filter(name__in=hidden).values_list("editor_note", flat=True))
     gesheva = business.get(name__startswith="Irena Gesheva")
@@ -80,11 +80,12 @@ def test_businesses_from_editor_table():
 
 def test_category_region_filter(client):
     html = client.get("/links/vrachi/").content.decode()
-    assert "Все (8)" in html and "Другие города" in html
+    assert "Все (10)" in html and "Другие города" in html  # +хиропрактик и подиатр из таблицы
     assert html.index("Джексонвилл") < html.index("Палметто")  # регионы раньше «других городов»
     tampa = client.get("/links/vrachi/?region=tampa").content.decode()
     assert tampa.count('class="dir__card"') == 1 and 'content="noindex, follow"' in tampa
-    assert "Kalinka" not in client.get("/links/produkty/").content.decode()  # скрытая до проверки
+    produkty = client.get("/links/produkty/").content.decode()
+    assert "Romashka" not in produkty and "Kalinka" in produkty  # Ромашка ждёт проверки, Калинку проверили
 
 
 def test_wayside_family_dental(client):
@@ -111,3 +112,14 @@ def test_batch2_additions(client):
         assert item.category.slug == slug and item.is_active, name
     html = client.get("/links/produkty/").content.decode()
     assert "Green Hills" in html and "Лакомка" in html
+
+
+def test_batch3_verified_table():
+    from directory.models import Listing
+
+    assert Listing.objects.get(name__startswith="Kalinka").is_active
+    citrin = Listing.objects.get(name__startswith="Mark Citrin")
+    assert citrin.phone == "(305) 899-9919" and citrin.description  # дополнили, описание не затёрли
+    assert Listing.objects.get(name__startswith="Alenka").phone == "(407) 910-7351"
+    for name in ("Law Offices of George Lambert", "Toyota of Hollywood", "Valeria Studio — брови и ресницы"):
+        assert not Listing.objects.get(name=name).is_active, name

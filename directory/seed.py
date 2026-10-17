@@ -252,3 +252,7 @@ def import_batch2(apps, schema_editor):
             "kind": "business", "name": name, "description": description, "schema_type": schema_type, "order": order,
         })
     apply_business_updates(apps, schema_editor, "businesses_2026_10_batch2.json")
+
+
+def import_batch3(apps, schema_editor):
+    apply_business_updates(apps, schema_editor, "businesses_2026_10_batch3.json")
