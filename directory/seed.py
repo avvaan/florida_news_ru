@@ -256,3 +256,7 @@ def import_batch2(apps, schema_editor):
 
 def import_batch3(apps, schema_editor):
     apply_business_updates(apps, schema_editor, "businesses_2026_10_batch3.json")
+
+
+def import_batch4(apps, schema_editor):
+    apply_business_updates(apps, schema_editor, "businesses_2026_10_batch4.json")
