@@ -91,6 +91,7 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
         "ads": ads_for(region),
         "is_home": region is None and topic is None and first_page,
         "guides": Guide.objects.featured(),
+        "guide_sections": Guide.objects.by_section() if region is None and topic is None and first_page else [],
         **(extra or {}),
     }
     return render(request, template, context)

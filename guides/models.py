@@ -13,6 +13,17 @@ class GuideQuerySet(models.QuerySet):
     def published(self):
         return self.filter(status=Guide.Status.PUBLISHED, published_at__isnull=False)
 
+    def by_section(self) -> list[dict]:
+        """Опубликованные гайды по разделам в порядке разделов: [{"slug", "name", "guides"}]."""
+        guides = list(self.published().order_by("order", "title"))
+        sections = []
+        for value, label in Guide.Section.choices:
+            if items := [g for g in guides if g.section == value]:
+                sections.append({"slug": value, "name": label, "guides": items})
+        if rest := [g for g in guides if not g.section]:
+            sections.append({"slug": "other", "name": "Другие гайды", "guides": rest})
+        return sections
+
     def featured(self, limit: int = 8) -> list:
         """Блок «Полезное»: первый гайд каждого раздела в порядке разделов, затем остальные по алфавиту."""
         sections = [value for value, _ in Guide.Section.choices]
@@ -106,6 +117,12 @@ class Guide(models.Model):
         if number == 1:
             return self.cover
         return f"guides/{self.slug}-{number}" if self.cover else ""
+
+    @property
+    def short_title(self) -> str:
+        """Заголовок до двоеточия и без «во Флориде» — для компактных списков: «Florida ID для тех, кто не водит»."""
+        short = self.title.split(":", 1)[0].strip()
+        return short.replace(" во Флориде", "").strip() or short
 
     @property
     def reading_minutes(self) -> int:

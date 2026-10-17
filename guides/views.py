@@ -5,15 +5,8 @@ from .models import Guide
 
 
 def guide_list(request):
-    guides = list(Guide.objects.published().order_by("order", "title"))
-    sections = []
-    for value, label in Guide.Section.choices:
-        items = [g for g in guides if g.section == value]
-        if items:
-            sections.append({"slug": value, "name": label, "guides": items})
-    if rest := [g for g in guides if not g.section]:
-        sections.append({"slug": "other", "name": "Другие гайды", "guides": rest})
-    return render(request, "guides/list.html", {"sections": sections, "count": len(guides)})
+    sections = Guide.objects.by_section()
+    return render(request, "guides/list.html", {"sections": sections})
 
 
 def guide_detail(request, slug):

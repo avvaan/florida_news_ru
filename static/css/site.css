@@ -336,6 +336,20 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .guide-card span { color: var(--ink-2); font-size: .95rem; line-height: 1.45; }
 .guide-card { min-width: 0; }
 
+/* Гайды на главной: все разделы и ссылки */
+.home-guides { margin-top: 48px; padding-top: 4px; }
+.home-guides__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 20px; padding-bottom: 12px; border-bottom: 3px solid var(--ink); }
+.home-guides__head .feed__h { padding: 0; border: 0; margin: 0; }
+.home-guides__head .useful__all { margin-top: 0; }
+.home-guides__grid { display: grid; gap: 28px 32px; margin-top: 20px; }
+.home-guides__h { font-size: 1.05rem; line-height: 1.3; padding-bottom: 8px; border-bottom: 2px solid var(--gulf); }
+.home-guides__h a { color: var(--ink); text-decoration: none; }
+.home-guides__h a:hover { color: var(--gulf-deep); }
+.home-guides__list { display: grid; margin-top: 4px; }
+.home-guides__list a { display: block; padding: 8px 0; border-bottom: 1px solid var(--line); color: var(--ink-2); text-decoration: none; line-height: 1.35; }
+.home-guides__list li:last-child a { border-bottom: 0; }
+.home-guides__list a:hover { color: var(--gulf-deep); text-decoration: underline; }
+
 /* Гайды: страница */
 .toc { margin-top: 28px; max-width: 68ch; background: var(--mist); border-radius: 10px; padding: 16px 20px; }
 .toc__h { cursor: pointer; font: 800 .78rem/1.4 var(--display); letter-spacing: .07em; text-transform: uppercase; color: var(--gulf-deep); }
@@ -414,6 +428,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 @media (min-width: 600px) {
   .guides__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-guides__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .row { grid-template-columns: 200px 1fr; gap: 20px; }
   .row__img img { aspect-ratio: 16 / 9; }
   .row__teaser { display: block; }
@@ -427,6 +442,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 @media (min-width: 960px) {
   .guides__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .home-guides__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .front { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 40px; }
   .lead__img img { aspect-ratio: 21 / 9; }
   .columns { grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; }

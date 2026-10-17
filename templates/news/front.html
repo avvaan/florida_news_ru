@@ -109,5 +109,24 @@
       </nav>
     </aside>
   </div>
+
+  {% if guide_sections %}
+  <section class="home-guides" aria-labelledby="home-guides-h">
+    <div class="home-guides__head">
+      <h2 class="feed__h" id="home-guides-h">Гайды: жизнь во Флориде</h2>
+      <a class="useful__all" href="{% url 'guides:list' %}">Все гайды →</a>
+    </div>
+    <div class="home-guides__grid">
+      {% for s in guide_sections %}
+      <nav class="home-guides__section" aria-labelledby="hg-{{ s.slug }}">
+        <h3 class="home-guides__h" id="hg-{{ s.slug }}"><a href="{% url 'guides:list' %}#{{ s.slug }}">{{ s.name }}</a></h3>
+        <ul class="home-guides__list">
+          {% for g in s.guides %}<li><a href="{{ g.get_absolute_url }}" title="{{ g.title }}">{{ g.short_title }}</a></li>{% endfor %}
+        </ul>
+      </nav>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

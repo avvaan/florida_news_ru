@@ -91,6 +91,14 @@ def test_import_publishes_and_is_idempotent(content_dir, client):
     assert 'id="docs"' in listing and "Новый заголовок" in listing and "test-guide-1-640.webp" in listing
 
 
+def test_home_page_links_all_guides_by_section(content_dir, client):
+    (content_dir / "test-guide.md").write_text(guide_text(title="Florida ID во Флориде: как получить"))
+    run("--no-images")
+    home = client.get("/").content.decode()
+    assert 'class="home-guides"' in home and 'href="/guides/test-guide/"' in home
+    assert ">Florida ID</a>" in home and 'href="/guides/#docs"' in home  # короткое название и раздел
+
+
 def test_import_existing_starter_draft_keeps_url(content_dir):
     (content_dir / "homestead-exemption.md").write_text(guide_text(slug="homestead-exemption"))
     run("--no-images")
