@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}{{ author.name }} — {{ site_name }}{% endblock %}
+{% block description %}{{ author.name }}{% if author.role %}, {{ author.role }}{% endif %} — {{ site_name }}. {{ author.bio|truncatechars:120 }}{% endblock %}
+{% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% else %}{% person_jsonld author %}{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <article class="story story--page author">
+    {% if is_preview %}<p class="preview-note">Автор выключен: страницу видит только редакция.</p>{% endif %}
+    <header class="author__head">
+      {% if author.photo %}<img class="author__photo" src="{{ author.photo.url }}" alt="{{ author.name }}" width="120" height="120" loading="lazy">{% endif %}
+      <div>
+        <h1 class="story__title">{{ author.name }}</h1>
+        {% if author.role %}<p class="author__role">{{ author.role }}, {{ site_name }}</p>{% endif %}
+      </div>
+    </header>
+    {% if author.bio %}<div class="story__body">{{ author.bio|linebreaks }}</div>{% endif %}
+    <p class="more-guide"><a href="{% url 'core-about' %}">О проекте и о том, как мы работаем</a></p>
+  </article>
+</div>
+{% endblock %}

@@ -309,6 +309,34 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .story--page .story__body ul { list-style: disc; }
 .story--page .story__body ol + p, .story--page .story__body ul + p, .dmca-agent + p { margin-top: 1.05em; }
 .dmca-agent { margin-top: .8em; padding: 14px 18px; border-left: 3px solid var(--gulf-deep); background: rgb(0 0 0 / .03); font-style: normal; }
+.story__byline { margin-top: 10px; font-size: .9rem; font-weight: 600; }
+.story__byline a { color: var(--ink); text-decoration: none; border-bottom: 1px solid rgb(0 0 0 / .2); }
+.for-you { margin-top: 28px; max-width: 68ch; padding: 18px 22px; border-left: 4px solid var(--gulf-deep); background: rgb(11 122 117 / .06); border-radius: 0 10px 10px 0; }
+.for-you__h { font-size: 1.15rem; line-height: 1.3; }
+.for-you__list { margin-top: 10px; padding-left: 1.2em; list-style: disc; display: grid; gap: 6px; font-size: 1.05rem; line-height: 1.55; }
+.more-guide { margin-top: 18px; max-width: 68ch; font-weight: 600; }
+.more-guide a { color: var(--gulf-deep); }
+.useful__list { display: grid; gap: 8px; margin-top: 10px; }
+.useful__list a { color: var(--ink); text-decoration: none; font-weight: 600; line-height: 1.35; }
+.useful__list a:hover { text-decoration: underline; }
+.useful__all { display: inline-block; margin-top: 10px; color: var(--gulf-deep); font-weight: 600; text-decoration: none; }
+.useful { margin-bottom: 28px; }
+.guides__list { display: grid; gap: 14px; margin-top: 24px; }
+.guides__list a { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid rgb(0 0 0 / .1); border-radius: 10px; color: var(--ink); text-decoration: none; }
+.guides__list a:hover { border-color: var(--gulf-deep); }
+.guides__list span { color: var(--muted); font-size: .95rem; }
+.guide__body h2 { margin-top: 1.4em; font-size: 1.3rem; line-height: 1.3; }
+.guide__body h2 + p { margin-top: .5em; }
+.about-team { margin-top: 32px; }
+.about-team__h { font-size: 1.25rem; }
+.about-team__list { display: grid; gap: 10px; margin-top: 12px; }
+.about-team__list a { display: grid; color: var(--ink); text-decoration: none; }
+.about-team__list span { color: var(--muted); font-size: .95rem; }
+.about-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 28px; font-weight: 600; }
+.about-links a { color: var(--gulf-deep); }
+.author__head { display: flex; gap: 20px; align-items: center; }
+.author__photo { border-radius: 50%; object-fit: cover; }
+.author__role { margin-top: 6px; color: var(--muted); }
 .contact-line { margin-top: 20px; font-weight: 600; }
 .contact-line a { color: var(--gulf-deep); }
 .related { display: grid; gap: 24px; margin-top: 16px; }

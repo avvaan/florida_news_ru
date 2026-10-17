@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Гайды: жизнь во Флориде — {{ site_name }}{% endblock %}
+{% block description %}Постоянные гайды на русском: водительские права, регистрация машины, SunPass, ураганы, страховка, школа, налоги и аренда во Флориде — по официальным источникам.{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story story--page guides">
+    <h1 class="story__title">Гайды</h1>
+    <p class="story__lede">Постоянные статьи о жизни во Флориде по официальным источникам. Мы обновляем их, когда меняются правила.</p>
+    {% if guides %}
+    <ul class="guides__list">
+      {% for g in guides %}
+      <li>
+        <a href="{{ g.get_absolute_url }}"><b>{{ g.title }}</b>{% if g.teaser %}<span>{{ g.teaser }}</span>{% endif %}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>Гайды скоро появятся.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

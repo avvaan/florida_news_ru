@@ -14,6 +14,10 @@ from .covers import all_covers, describe
 from .models import Article, ArticleSource, Region, Story, Tag, Topic
 
 
+# Правка этих полей после публикации ставит «Обновлено» на сайте.
+REVISION_FIELDS = {"title", "teaser", "body", "for_you"}
+
+
 class ReviewArticle(Article):
     class Meta:
         proxy = True
@@ -81,10 +85,10 @@ class BaseArticleAdmin(admin.ModelAdmin):
                        "telegram_posted_at", "word_count", "cover_preview")
     actions = [action_publish, action_reject, action_telegram, action_pick_cover]
     fieldsets = (
-        (None, {"fields": ("title", "teaser", "body", "word_count")}),
+        (None, {"fields": ("title", "teaser", "body", "for_you", "guide", "word_count")}),
         ("Разметка", {"fields": ("region", "topic", "tags", "is_urgent", "is_sensitive", "score")}),
         ("Обложка", {"fields": ("cover_image", "cover_preview")}),
-        ("Публикация", {"fields": ("status", "review_reason", "slug", "published_at")}),
+        ("Публикация", {"fields": ("status", "review_reason", "slug", "published_at", "revised_at")}),
         ("Проверка ИИ", {"fields": ("verification_box", "story_link")}),
         ("Telegram", {"fields": ("telegram_preview", "telegram_posted_at"), "classes": ("collapse",)}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
@@ -178,6 +182,8 @@ class ArticleAdmin(BaseArticleAdmin):
     def save_model(self, request, obj, form, change):
         if obj.status == Article.Status.PUBLISHED and not obj.published_at:
             obj.published_at = timezone.now()
+        elif change and obj.published_at and REVISION_FIELDS & set(form.changed_data):
+            obj.revised_at = timezone.now()
         super().save_model(request, obj, form, change)
 
 

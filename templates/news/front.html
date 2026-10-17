@@ -5,6 +5,8 @@
 {% block description %}{% if region and region.description %}{{ region.description }}{% elif topic %}{{ topic.name }}: новости Флориды на русском языке, коротко и со ссылкой на первоисточник.{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block canonical %}{{ request.path|absolute }}{% if page_obj.number > 1 %}?page={{ page_obj.number }}{% endif %}{% endblock %}
 
+{% block head %}{% if is_home %}{% organization_jsonld %}{% endif %}{% endblock %}
+
 {% block top_ad %}{% endblock %}
 
 {% block content %}
@@ -88,6 +90,15 @@
     <aside class="sidebar" aria-label="Боковая колонка">
       {% include "includes/tg_cta.html" %}
       {% if ads.sidebar %}{% include "includes/ad.html" with ad=ads.sidebar %}{% endif %}
+      {% if guides %}
+      <nav class="useful" aria-labelledby="useful-h">
+        <h2 class="sidebar__h" id="useful-h">Полезное</h2>
+        <ul class="useful__list">
+          {% for g in guides %}<li><a href="{{ g.get_absolute_url }}">{{ g.title }}</a></li>{% endfor %}
+        </ul>
+        <a class="useful__all" href="{% url 'guides:list' %}">Все гайды →</a>
+      </nav>
+      {% endif %}
       <nav class="topic-index" aria-labelledby="topics-h">
         <h2 class="sidebar__h" id="topics-h">Темы</h2>
         <ul>

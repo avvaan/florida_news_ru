@@ -37,11 +37,17 @@ class BudgetState:
         return is_urgent or not self.urgent_only
 
 
+def counted_articles_today() -> int:
+    """Заметки, которые идут в дневной лимит публикаций: несрочные, не отклонённые и не черновики."""
+    day_start = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
+    return (Article.objects.filter(created_at__gte=day_start, is_urgent=False)
+            .exclude(status__in=[Article.Status.REJECTED, Article.Status.DRAFT]).count())
+
+
 def current_budget(conf: SiteSettings | None = None) -> BudgetState:
     conf = conf or SiteSettings.load()
-    day_start = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
     return BudgetState(
-        articles_today=Article.objects.filter(created_at__gte=day_start).count(),
+        articles_today=counted_articles_today(),
         max_articles=conf.max_articles_per_day,
         spent_today=AICall.objects.today().total_cost(),
         budget=conf.ai_budget_per_day_usd,

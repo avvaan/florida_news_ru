@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}О проекте — {{ site_name }}{% endblock %}
+{% block description %}{{ site_name }} — новости Флориды на русском. Издатель — {{ site_owner }}, Флорида. Как мы работаем, как используем ИИ и как исправляем ошибки.{% endblock %}
+{% block head %}{% organization_jsonld %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <article class="story story--page">
+    <h1 class="story__title">О проекте</h1>
+    <div class="story__body">{% if page %}{{ page.body|linebreaks }}{% endif %}</div>
+
+    <section class="about-team" aria-labelledby="team-h">
+      <h2 class="about-team__h" id="team-h">Редакция</h2>
+      {% if authors %}
+      <ul class="about-team__list">
+        {% for a in authors %}
+        <li><a href="{{ a.get_absolute_url }}"><b>{{ a.name }}</b>{% if a.role %}<span>{{ a.role }}</span>{% endif %}</a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>Заметки готовит редакция {{ site_name }}.</p>
+      {% endif %}
+    </section>
+
+    <ul class="about-links">
+      <li><a href="{% url 'core-corrections' %}">Исправления</a></li>
+      <li><a href="{% url 'core-dmca' %}">Авторские права (DMCA)</a></li>
+      <li><a href="{% url 'core-page' 'contacts' %}">Контакты</a></li>
+      <li><a href="{% url 'core-page' 'privacy' %}">Политика конфиденциальности</a></li>
+    </ul>
+  </article>
+</div>
+{% endblock %}

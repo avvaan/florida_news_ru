@@ -87,6 +87,7 @@ class Story(models.Model):
         CLASSIFIED = "classified", "оценён"
         SKIPPED = "skipped", "пропущен"
         WRITTEN = "written", "заметка написана"
+        MERGED = "merged", "присоединён к заметке"
         FAILED = "failed", "ошибка"
 
     title = models.CharField("заголовок (из источника)", max_length=400)
@@ -135,6 +136,14 @@ class Article(models.Model):
     slug = models.SlugField("адрес (латиница)", max_length=110, unique=True)
     teaser = models.CharField("анонс (для Telegram и карточек)", max_length=300)
     body = models.TextField("текст", help_text="Абзацы разделяются пустой строкой")
+    for_you = models.TextField(
+        "что это значит для вас", blank=True,
+        help_text="2–4 пункта, по одному на строку: что новость меняет для читателя. Пусто — блок не показывается",
+    )
+    guide = models.ForeignKey(
+        "guides.Guide", verbose_name="гайд «Подробнее»", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="articles",
+    )
     region = models.ForeignKey(Region, verbose_name="регион", null=True, blank=True, on_delete=models.SET_NULL)
     topic = models.ForeignKey(Topic, verbose_name="тема", null=True, blank=True, on_delete=models.SET_NULL)
     tags = models.ManyToManyField(Tag, verbose_name="теги", blank=True)
@@ -153,6 +162,10 @@ class Article(models.Model):
     created_at = models.DateTimeField("создано", default=timezone.now)
     updated_at = models.DateTimeField("изменено", auto_now=True)
     published_at = models.DateTimeField("опубликовано", null=True, blank=True, db_index=True)
+    revised_at = models.DateTimeField(
+        "текст обновлён", null=True, blank=True,
+        help_text="Ставится сам, когда после публикации меняют текст или добавляют источники",
+    )
 
     telegram_message_id = models.BigIntegerField("id сообщения в Telegram", null=True, blank=True)
     telegram_posted_at = models.DateTimeField("отправлено в Telegram", null=True, blank=True)
@@ -173,6 +186,10 @@ class Article(models.Model):
     @property
     def paragraphs(self) -> list[str]:
         return [p.strip() for p in self.body.replace("\r\n", "\n").split("\n\n") if p.strip()]
+
+    @property
+    def for_you_points(self) -> list[str]:
+        return [line.strip(" -•\t") for line in self.for_you.splitlines() if line.strip(" -•\t")]
 
     @property
     def word_count(self) -> int:
