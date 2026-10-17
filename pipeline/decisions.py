@@ -22,7 +22,20 @@ class Decision:
 def decide(*, score: int, is_urgent: bool, is_sensitive: bool, has_official_source: bool,
            verified_ok: bool, verifier_confidence: float, issues: list[str],
            insufficient_facts: bool, auto_publish_enabled: bool, auto_publish_min_score: int,
-           min_confidence: Decimal | float) -> Decision:
+           min_confidence: Decimal | float, publish_without_review: bool = False) -> Decision:
+    decision = _decide(
+        score=score, is_urgent=is_urgent, is_sensitive=is_sensitive, has_official_source=has_official_source,
+        verified_ok=verified_ok, verifier_confidence=verifier_confidence, issues=issues,
+        insufficient_facts=insufficient_facts, auto_publish_enabled=auto_publish_enabled,
+        auto_publish_min_score=auto_publish_min_score, min_confidence=min_confidence,
+    )
+    if publish_without_review and not decision.publish:
+        return Decision(PUBLISH, f"Опубликовано без проверки. Обычно ушло бы в очередь: {decision.reason}")
+    return decision
+
+
+def _decide(*, score, is_urgent, is_sensitive, has_official_source, verified_ok, verifier_confidence,
+            issues, insufficient_facts, auto_publish_enabled, auto_publish_min_score, min_confidence) -> Decision:
     if is_sensitive:
         return Decision(REVIEW, "Чувствительная тема (криминал, частные лица, дети или обвинения)")
     if insufficient_facts:

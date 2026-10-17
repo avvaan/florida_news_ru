@@ -48,3 +48,12 @@ def test_auto_publish_switch():
 
 def test_insufficient_facts_goes_to_review():
     assert not d(insufficient_facts=True).publish
+
+
+def test_publish_without_review_overrides_review():
+    decision = d(is_sensitive=True, verified_ok=False, issues=["x"], publish_without_review=True)
+    assert decision.publish and "Чувствительная" in decision.reason
+
+
+def test_publish_without_review_keeps_normal_publish_reason():
+    assert d(publish_without_review=True).reason.startswith("Важность")

@@ -143,6 +143,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         issues=verification.issues,
         insufficient_facts=draft.insufficient_facts,
         auto_publish_enabled=conf.auto_publish_enabled,
+        publish_without_review=conf.publish_without_review,
         auto_publish_min_score=conf.auto_publish_min_score,
         min_confidence=conf.min_verifier_confidence,
     )

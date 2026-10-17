@@ -116,7 +116,14 @@ def test_anthropic_provider_still_works(stories):
     assert "output_config" not in classify_call and write_call["output_config"] == {"effort": "medium"}
 
 
+def review_mode():
+    conf = SiteSettings.load()
+    conf.publish_without_review = False
+    conf.save()
+
+
 def test_sensitive_story_goes_to_review(stories):
+    review_mode()
     fake = FakeAI(classification=Classification(
         score=9, topic="incidents", region="orlando", is_urgent=False, is_sensitive=True, reason="криминал"))
     run_with(fake)
@@ -125,10 +132,26 @@ def test_sensitive_story_goes_to_review(stories):
 
 
 def test_verifier_doubt_goes_to_review(stories):
+    review_mode()
     fake = FakeAI(verification=Verification(ok=False, confidence=0.9, issues=["Выдуманная дата"]))
     run_with(fake)
     article = Article.objects.first()
     assert article.status == Article.Status.REVIEW and "Выдуманная дата" in article.review_reason
+
+
+def test_publish_without_review_publishes_everything(stories):
+    # по умолчанию включено: даже чувствительное и сомнительное идёт на сайт
+    fake = FakeAI(
+        classification=Classification(score=6, topic="incidents", region="orlando", is_urgent=False,
+                                      is_sensitive=True, reason="криминал"),
+        verification=Verification(ok=False, confidence=0.5, issues=["Неточная дата"]),
+    )
+    run_with(fake)
+    assert Article.objects.filter(status=Article.Status.PUBLISHED).count() == 2
+    article = Article.objects.first()
+    assert article.review_reason == ""
+    assert article.verification["decision"].startswith("Опубликовано без проверки")
+    assert "Чувствительная" in article.verification["decision"]
 
 
 def test_low_score_is_skipped_without_writing(stories):

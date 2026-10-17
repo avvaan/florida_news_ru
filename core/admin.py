@@ -12,7 +12,7 @@ admin.site.index_title = "Управление сайтом"
 class SiteSettingsAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Отбор и публикация", {"fields": (
-            "min_score_to_write", "auto_publish_enabled", "auto_publish_min_score", "min_verifier_confidence",
+            "min_score_to_write", "publish_without_review", "auto_publish_enabled", "auto_publish_min_score", "min_verifier_confidence",
         )}),
         ("Лимиты расходов", {"fields": ("max_articles_per_day", "ai_budget_per_day_usd")}),
         ("Сбор и склейка", {"fields": ("max_items_per_source", "cluster_window_hours", "cluster_similarity")}),
