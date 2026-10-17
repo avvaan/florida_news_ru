@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
 from ads.models import AdBanner
+from guides.models import Guide
 from sources.models import WeatherAlert
 
 from .models import Article, Region, Tag, Topic
@@ -89,6 +90,7 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
         "urgent": urgent_strip(),
         "ads": ads_for(region),
         "is_home": region is None and topic is None and first_page,
+        "guides": Guide.objects.published().order_by("title")[:6],
         **(extra or {}),
     }
     return render(request, template, context)
@@ -136,7 +138,7 @@ def article_view(request, slug):
 
 
 class LatestFeed(Feed):
-    title = "Флорида Сегодня — новости штата по-русски"
+    title = "Florida RU — новости штата по-русски"
     link = "/"
     description = "Короткие новости Флориды на русском со ссылками на первоисточники"
 

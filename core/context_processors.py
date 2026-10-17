@@ -19,6 +19,7 @@ def site(request):
         "footer_pages": Page.objects.filter(in_footer=True),
         "disclaimer": DISCLAIMER,
         "site_owner": SITE_OWNER,
+        "google_site_verification": settings.GOOGLE_SITE_VERIFICATION,
         "now": timezone.localtime(),
         "demo_mode": getattr(settings, "DEMO_MODE", False),
     }

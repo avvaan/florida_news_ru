@@ -18,7 +18,7 @@ The owner/editor spends at most ~10 minutes a day reviewing the «На пров�
 
 ## Product Purpose
 
-«Флорида Сегодня»: every 2–3 hours the system collects news from local media and official Florida sources, selects what matters to the audience, writes its own short Russian note (80–150 words) per story with links to the original sources, and publishes to the site and a Telegram channel. Success = readers get safety-critical and life-changing information in Russian within hours, with near-zero manual work.
+«Florida RU»: twice a day the system collects news from local media and official Florida sources, selects what matters to the audience, writes its own short Russian note (80–150 words) per story with links to the original sources, and publishes to the site and a Telegram channel. Success = readers get safety-critical and life-changing information in Russian within hours, with near-zero manual work.
 
 ## Positioning
 
@@ -33,5 +33,5 @@ Not a translation feed: own short retellings in plain Russian with practical "wh
 
 ## Brand commitments
 
-- Name: «Флорида Сегодня» (confirmed by the owner).
+- Name: «Florida RU» (florida-ru.com; renamed from «Флорида Сегодня» by the owner).
 - Visual tone confirmed by the owner: «Флоридский портал» — classic news-portal structure with its own Florida character (gulf/sky colours, storm orange reserved for urgency, one consistent set of rubric illustrations generated in Higgsfield; the owner later asked to add licensed stock photos from Magnific/Freepik to the pools).

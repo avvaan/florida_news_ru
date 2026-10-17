@@ -1,11 +1,19 @@
 from django.contrib import admin
 from django.shortcuts import redirect
 
-from .models import Page, SiteSettings
+from .models import Author, Page, SiteSettings
 
-admin.site.site_header = "Флорида Сегодня — редакция"
-admin.site.site_title = "Флорида Сегодня"
+admin.site.site_header = "Florida RU — редакция"
+admin.site.site_title = "Florida RU"
 admin.site.index_title = "Управление сайтом"
+
+
+@admin.register(Author)
+class AuthorAdmin(admin.ModelAdmin):
+    list_display = ("name", "role", "is_active", "order")
+    list_editable = ("is_active", "order")
+    prepopulated_fields = {"slug": ("name",)}
+    fields = ("name", "slug", "role", "bio", "photo", "is_active", "order")
 
 
 @admin.register(SiteSettings)

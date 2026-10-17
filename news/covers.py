@@ -1,7 +1,7 @@
 """Наборы обложек по рубрикам.
 
 Файлы лежат в static/covers/ и называются по рубрике:
-- weather.webp, weather-2.webp … — иллюстрации «Флорида Сегодня» (Higgsfield);
+- weather.webp, weather-2.webp … — иллюстрации «Florida RU» (Higgsfield);
 - weather-photo-1.webp … — стоковые фото (Freepik / Magnific, лицензия Premium).
 Для каждой обложки есть .webp (1200×675), -640.webp и .jpg. Новая картинка подхватится
 сама после перезапуска, если положить три файла по этому шаблону.

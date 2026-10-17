@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}{{ guide.title }} — {{ site_name }}{% endblock %}
+{% block description %}{{ guide.teaser|default:guide.title }}{% endblock %}
+{% block canonical %}{{ guide.get_absolute_url|absolute }}{% endblock %}
+{% block og %}
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{ guide.title }}">
+  <meta property="og:description" content="{{ guide.teaser }}">
+  <meta property="og:url" content="{{ guide.get_absolute_url|absolute }}">
+{% endblock %}
+{% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% else %}{% guide_jsonld guide %}{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  {% if is_preview %}<p class="preview-note">Черновик: гайд не опубликован, читатели его не видят. Опубликуйте в админке после проверки.</p>{% endif %}
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'guides:list' %}">Гайды</a>
+  </nav>
+  <div class="story-layout">
+    <article class="story">
+      <header class="story__head">
+        <h1 class="story__title">{{ guide.title }}</h1>
+        {% if guide.teaser %}<p class="story__lede">{{ guide.teaser }}</p>{% endif %}
+        <p class="story__meta">
+          {% with when=guide.revised_at|default:guide.published_at %}{% if when %}<span>Обновлено <time datetime="{{ when|date:'c' }}">{{ when|date:"j E Y" }}</time></span>{% endif %}{% endwith %}
+        </p>
+        <p class="story__byline"><a href="{% url 'core-about' %}">Редакция {{ site_name }}</a></p>
+      </header>
+      <div class="story__body guide__body">
+        {% for kind, text in guide.blocks %}{% if kind == "h" %}<h2>{{ text }}</h2>{% else %}<p>{{ text }}</p>{% endif %}{% endfor %}
+      </div>
+      {% with srcs=guide.sources.all %}{% if srcs %}
+      <section class="sources" aria-labelledby="src-h">
+        <h2 class="sources__h" id="src-h">Официальные источники</h2>
+        <ul class="sources__list">
+          {% for s in srcs %}
+          <li><a href="{{ s.url }}" target="_blank" rel="noopener nofollow"><b>{{ s.name }}</b>{% if s.title %}<span>{{ s.title }}</span>{% endif %}<svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a></li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}{% endwith %}
+      <p class="story__disclaimer">{{ disclaimer }} Правила меняются — перед важными решениями сверяйтесь с официальными сайтами.</p>
+    </article>
+    {% if others %}
+    <aside class="sidebar sidebar--story" aria-labelledby="guides-h">
+      <nav class="useful">
+        <h2 class="sidebar__h" id="guides-h">Другие гайды</h2>
+        <ul class="useful__list">{% for g in others %}<li><a href="{{ g.get_absolute_url }}">{{ g.title }}</a></li>{% endfor %}</ul>
+      </nav>
+    </aside>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -22,7 +22,7 @@ def article():
 
 
 def test_home_and_sections(client, article):
-    for url in ("/", "/region/miami/", "/region/florida/", "/topic/money/", "/p/about/", "/rss/"):
+    for url in ("/", "/region/miami/", "/region/florida/", "/topic/money/", "/about/", "/rss/"):
         assert client.get(url).status_code == 200, url
     html = client.get("/").content.decode()
     assert article.title in html and "Подписаться" in html

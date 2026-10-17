@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from datetime import timedelta
 
 from django.conf import settings
@@ -10,6 +11,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from core.models import SiteSettings
+from guides.models import Guide
 from news.covers import candidates_for
 from news.models import Article, ArticleSource, Region, Story, Tag, Topic
 from social.services import has_trusted_source, run_social
@@ -17,7 +19,7 @@ from sources.fetch import fetch_all
 from sources.models import Source
 
 from . import ai, prompts
-from .budget import current_budget
+from .budget import counted_articles_today, current_budget
 from .clustering import cluster_items
 from .decisions import decide
 from .models import AICall, PipelineRun
@@ -28,6 +30,10 @@ log = logging.getLogger(__name__)
 
 STALE_AFTER = timedelta(hours=48)
 MAX_SOURCES_PER_ARTICLE = 3
+MAX_SOURCES_AFTER_MERGE = 6
+MERGE_WINDOW = timedelta(hours=48)
+# До этого часа (по Флориде) идёт утренний проход: он берёт не больше половины дневного лимита.
+MORNING_UNTIL_HOUR = 14
 
 
 class RunLog:
@@ -58,11 +64,16 @@ def classify_story(story: Story) -> Story:
         story.save(update_fields=["status", "note", "updated_at"])
         return story
 
+    recent = list(
+        Article.objects.filter(created_at__gte=timezone.now() - MERGE_WINDOW)
+        .exclude(status__in=[Article.Status.REJECTED, Article.Status.DRAFT]).order_by("-created_at")[:40]
+    )
     result: Classification = ai.ask(
         purpose=AICall.Purpose.CLASSIFY,
         model=settings.AI_CLASSIFIER_MODEL,
         system=prompts.CLASSIFY_SYSTEM,
-        user=f"Сюжет:\n\n{prompts.story_brief(items)}{prompts.social_note(story.signals.count())}",
+        user=(f"Сюжет:\n\n{prompts.story_brief(items)}{prompts.social_note(story.signals.count())}"
+              f"{prompts.published_brief(recent)}"),
         output=Classification,
         max_tokens=1500,
         story=story,
@@ -80,14 +91,38 @@ def classify_story(story: Story) -> Story:
         story.score = max(story.score, 9)
         story.topic = story.topic or Topic.objects.filter(slug="weather").first()
 
+    same = next((a for a in recent if a.pk == result.same_as_article_id), None)
     if result.region == "outside":
         story.status = Story.Status.SKIPPED
         story.note = "Не про Флориду"
+    elif same is not None:
+        merge_into(same, items)
+        story.status = Story.Status.MERGED
+        story.note = f"То же событие, что заметка #{same.pk} «{same.title[:80]}»: добавили источники к ней"
     else:
         story.status = Story.Status.CLASSIFIED
         story.note = result.reason[:500]
     story.save()
     return story
+
+
+def merge_into(article: Article, items) -> int:
+    """Тот же сюжет от других СМИ: добавляем источники к уже написанной заметке вместо повтора."""
+    known = set(article.sources.values_list("url", flat=True))
+    order = article.sources.count()
+    added = 0
+    for item in items:
+        if order >= MAX_SOURCES_AFTER_MERGE or item.url in known:
+            continue
+        ArticleSource.objects.create(article=article, source=item.source, name=item.source.name,
+                                     url=item.url, title=item.title, order=order)
+        known.add(item.url)
+        order += 1
+        added += 1
+    if added and article.published_at:
+        article.revised_at = timezone.now()
+        article.save(update_fields=["revised_at", "updated_at"])
+    return added
 
 
 def classify_new(say: RunLog) -> int:
@@ -113,6 +148,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     topic = story.topic.name if story.topic else "—"
 
     covers = candidates_for(story.topic.slug if story.topic else None, story.is_urgent)
+    guides = list(Guide.objects.published().order_by("title"))
     draft: Draft = ai.ask(
         purpose=AICall.Purpose.WRITE,
         model=settings.AI_WRITER_MODEL,
@@ -120,7 +156,8 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         user=(
             f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}\n\n"
             f"{prompts.hints_context(story.hints.values_list('summary', flat=True))}"
-            f"Обложки на выбор:\n{prompts.covers_brief(covers, recent_covers(story.topic))}"
+            f"Обложки на выбор:\n{prompts.covers_brief(covers, recent_covers(story.topic))}\n\n"
+            f"Гайды:\n{prompts.guides_brief(guides)}"
         ),
         output=Draft,
         max_tokens=8000,
@@ -133,7 +170,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         system=prompts.VERIFY_SYSTEM,
         user=(
             f"Данные источников:\n\n{brief}\n\n"
-            f"<article>\nЗаголовок: {draft.title}\nАнонс: {draft.teaser}\n\n{draft.body}\n</article>"
+            f"{prompts.article_for_check(draft)}"
         ),
         output=Verification,
         max_tokens=2000,
@@ -162,6 +199,8 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             title=draft.title.strip()[:120],
             teaser=draft.teaser.strip()[:300],
             body=draft.body.strip(),
+            for_you="\n".join(p.strip() for p in draft.for_you[:4] if p.strip()),
+            guide=next((g for g in guides if g.slug == draft.guide), None),
             region=story.region,
             topic=story.topic,
             is_urgent=story.is_urgent,
@@ -275,6 +314,19 @@ def attach_tags(article: Article, names: list[str]) -> None:
         article.tags.add(tag)
 
 
+def publication_quota(conf: SiteSettings) -> int:
+    """Сколько ещё несрочных заметок можно выпустить в этот проход.
+
+    Утренний проход берёт не больше половины дневного лимита, вечерний — остаток.
+    Срочное в лимит не входит и не считается.
+    """
+    now = timezone.localtime()
+    used = counted_articles_today()
+    limit = conf.max_articles_per_day
+    cap = math.ceil(limit / 2) if now.hour < MORNING_UNTIL_HOUR else limit
+    return max(0, cap - used)
+
+
 def write_pending(say: RunLog) -> int:
     conf = SiteSettings.load()
     queue = (
@@ -282,10 +334,18 @@ def write_pending(say: RunLog) -> int:
         .order_by("-is_urgent", "-score", "created_at")
     )
     written = 0
+    quota = publication_quota(conf)
     for story in queue:
         if not story.is_urgent and (story.score or 0) < conf.min_score_to_write:
             story.status = Story.Status.SKIPPED
             story.note = story.note or f"Важность {story.score} ниже порога {conf.min_score_to_write}"
+            story.save(update_fields=["status", "note", "updated_at"])
+            continue
+        if not story.is_urgent and quota <= 0:
+            # Очередь отсортирована по важности: всё, что ниже, — менее важное, отклоняем.
+            story.status = Story.Status.SKIPPED
+            story.note = (f"Лимит публикаций на сегодня ({conf.max_articles_per_day}): "
+                          f"взяли более важные (важность {story.score})")
             story.save(update_fields=["status", "note", "updated_at"])
             continue
         budget = current_budget(conf)
@@ -298,6 +358,8 @@ def write_pending(say: RunLog) -> int:
         try:
             write_article(story, conf, say)
             written += 1
+            if not story.is_urgent:
+                quota -= 1
         except ai.AIError as exc:
             story.status = Story.Status.FAILED
             story.note = f"Написание: {exc}"[:500]

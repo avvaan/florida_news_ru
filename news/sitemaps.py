@@ -4,7 +4,8 @@ from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from django.utils import timezone
 
-from core.models import Page
+from core.models import Author, Page
+from guides.models import Guide
 
 from .models import Article, Region, Topic
 
@@ -32,7 +33,7 @@ class ArticleSitemap(SiteRootSitemap):
         return Article.objects.published().order_by("-published_at")
 
     def lastmod(self, obj):
-        return obj.updated_at
+        return obj.revised_at or obj.published_at
 
 
 class SectionSitemap(SiteRootSitemap):
@@ -59,10 +60,32 @@ class LegalSitemap(SiteRootSitemap):
     priority = 0.3
 
     def items(self):
-        return ["core-dmca", "core-corrections"]
+        return ["guides:list", "core-dmca", "core-corrections"]
 
     def location(self, item):
         return reverse(item)
+
+
+class GuideSitemap(SiteRootSitemap):
+    changefreq = "weekly"
+    priority = 0.7
+
+    def items(self):
+        return Guide.objects.published().order_by("title")
+
+    def lastmod(self, obj):
+        return obj.revised_at or obj.published_at
+
+    def location(self, obj):
+        return obj.get_absolute_url()
+
+
+class AuthorSitemap(SiteRootSitemap):
+    changefreq = "monthly"
+    priority = 0.3
+
+    def items(self):
+        return Author.objects.filter(is_active=True)
 
 
 def google_news_items():
@@ -71,4 +94,5 @@ def google_news_items():
     return Article.objects.published().filter(published_at__gte=since).order_by("-published_at")[:1000]
 
 
-SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "pages": PageSitemap, "legal": LegalSitemap}
+SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,
+            "authors": AuthorSitemap, "legal": LegalSitemap}

@@ -1,4 +1,4 @@
-"""Настройки проекта «Флорида Сегодня».
+"""Настройки проекта «Florida RU».
 
 Все секреты и всё, что отличается между локальной машиной и продом,
 читается из переменных окружения (см. .env.example).
@@ -42,7 +42,9 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 # Публичный адрес сайта — нужен для ссылок в Telegram, sitemap и canonical.
 SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000").rstrip("/")
-SITE_NAME = "Флорида Сегодня"
+SITE_NAME = "Florida RU"
+# Мета-тег подтверждения сайта в Google Search Console (только значение content="…").
+GOOGLE_SITE_VERIFICATION = os.environ.get("GOOGLE_SITE_VERIFICATION", "").strip()
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
     "sources",
     "pipeline",
     "social",
+    "guides",
     "ads",
     "rest_framework",
     "rest_framework.authtoken",
@@ -152,7 +155,7 @@ LOGGING = {
 
 FETCH_USER_AGENT = os.environ.get(
     "FETCH_USER_AGENT",
-    f"FloridaSegodnyaBot/1.0 (+{SITE_URL}/p/about/)",
+    f"FloridaRUBot/1.0 (+{SITE_URL}/about/)",
 )
 FETCH_TIMEOUT = int(os.environ.get("FETCH_TIMEOUT", "20"))
 # После скольких ошибок подряд источник помечается как сломанный.
@@ -246,7 +249,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"user": "600/hour"},
 }
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Флорида Сегодня — API управления",
+    "TITLE": "Florida RU — API управления",
     "DESCRIPTION": "Заметки, источники, реклама, настройки, страницы, запуск конвейера и статистика. "
                    "Авторизация: заголовок `Authorization: Token <ключ>` (ключ сотрудника).",
     "VERSION": "1.0.0",

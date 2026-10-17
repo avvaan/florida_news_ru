@@ -39,14 +39,33 @@ def telegram_ready() -> bool:
     )
 
 
-def post_article(article, *, force_dry_run: bool = False) -> str:
-    """Отправляет пост. Пока Telegram выключен в настройках — только пишет в лог.
+def build_guide_post(guide) -> str:
+    text = (
+        f"📘 <b>Гайд: {html.escape(guide.title)}</b>\n\n"
+        + (f"{html.escape(guide.teaser)}\n\n" if guide.teaser else "")
+        + f'<a href="{html.escape(article_url(guide), quote=True)}">Читать гайд →</a>'
+    )
+    return text[:TELEGRAM_LIMIT]
 
-    Возвращает краткое описание результата.
-    """
-    if article.telegram_posted_at:
+
+def post_article(article, *, force_dry_run: bool = False) -> str:
+    """Отправляет пост о заметке — только опубликованной. Пока Telegram выключен — только лог."""
+    if article.status != "published":
+        return "не опубликовано — не отправляем"
+    return _send(article, build_post(article), force_dry_run=force_dry_run)
+
+
+def post_guide(guide, *, force_dry_run: bool = False) -> str:
+    """Отдельный пост о гайде — только опубликованном (публикует редактор вручную)."""
+    if not guide.is_published:
+        return "не опубликован — не отправляем"
+    return _send(guide, build_guide_post(guide), force_dry_run=force_dry_run)
+
+
+def _send(obj, text: str, *, force_dry_run: bool) -> str:
+    """Возвращает краткое описание результата. Повторно один и тот же объект не отправляет."""
+    if obj.telegram_posted_at:
         return "уже отправлено"
-    text = build_post(article)
     if force_dry_run or not telegram_ready():
         log.info("[Telegram dry-run] %s", text.replace("\n", " | "))
         return "dry-run"
@@ -63,7 +82,7 @@ def post_article(article, *, force_dry_run: bool = False) -> str:
     data = resp.json() if resp.headers.get("Content-Type", "").startswith("application/json") else {}
     if not data.get("ok"):
         raise RuntimeError(f"Telegram: {data.get('description') or resp.status_code}")
-    article.telegram_message_id = data["result"]["message_id"]
-    article.telegram_posted_at = timezone.now()
-    article.save(update_fields=["telegram_message_id", "telegram_posted_at"])
+    obj.telegram_message_id = data["result"]["message_id"]
+    obj.telegram_posted_at = timezone.now()
+    obj.save(update_fields=["telegram_message_id", "telegram_posted_at"])
     return "отправлено"

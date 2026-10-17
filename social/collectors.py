@@ -164,12 +164,12 @@ def to_items(data: dict, *, x_posts: bool = False) -> list[Item]:
     return items
 
 
-def log_call(model: str, data: dict | None, error: str = "") -> AICall:
+def log_call(model: str, data: dict | None, error: str = "", purpose: str = AICall.Purpose.SIGNALS) -> AICall:
     usage = (data or {}).get("usage") or {}
     input_tokens = usage.get("input_tokens") or usage.get("prompt_tokens") or 0
     output_tokens = usage.get("output_tokens") or usage.get("completion_tokens") or 0
     return AICall.objects.create(
-        purpose=AICall.Purpose.SIGNALS, model=model, input_tokens=input_tokens, output_tokens=output_tokens,
+        purpose=purpose, model=model, input_tokens=input_tokens, output_tokens=output_tokens,
         # Без ответа (сеть, HTTP-ошибка) запрос не считаем платным.
         cost_usd=estimate_cost(model, input_tokens, output_tokens) if data is not None else 0,
         success=not error, error=error[:1000],
@@ -178,6 +178,14 @@ def log_call(model: str, data: dict | None, error: str = "") -> AICall:
 
 def search(*, api_url: str, api_key: str, model: str, instructions: str, query: str, tool: dict,
            key_name: str, x_posts: bool = False) -> list[Item]:
+    data = search_raw(api_url=api_url, api_key=api_key, model=model, instructions=instructions, query=query,
+                      tool=tool, key_name=key_name)
+    return to_items(data, x_posts=x_posts)
+
+
+def search_raw(*, api_url: str, api_key: str, model: str, instructions: str, query: str, tool: dict,
+               key_name: str, purpose: str = AICall.Purpose.SIGNALS) -> dict:
+    """Запрос к Responses API с поиском. Каждый вызов — строка в «Расходах на ИИ»."""
     if not api_key:
         raise CollectorError(f"{key_name} не задан")
     body = {
@@ -189,14 +197,14 @@ def search(*, api_url: str, api_key: str, model: str, instructions: str, query: 
     try:
         data = post_json(api_url, api_key, body)
     except (requests.RequestException, ValueError, CollectorError) as exc:
-        log_call(model, None, str(exc))
+        log_call(model, None, str(exc), purpose)
         raise CollectorError(str(exc)) from exc
     if data.get("status") in ("failed", "cancelled"):
         error = json.dumps(data.get("error") or data.get("status"), ensure_ascii=False)
-        log_call(model, data, error)
+        log_call(model, data, error, purpose)
         raise CollectorError(f"Ответ со статусом {data['status']}: {error[:300]}")
-    log_call(model, data)
-    return to_items(data, x_posts=x_posts)
+    log_call(model, data, purpose=purpose)
+    return data
 
 
 def search_perplexity(query: str) -> list[Item]:

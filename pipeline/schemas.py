@@ -17,6 +17,11 @@ class Classification(BaseModel):
     is_urgent: bool = Field(description="Ураган, эвакуация, прямая опасность для жизни или имущества")
     is_sensitive: bool = Field(description="Криминал, имена частных лиц, дети, обвинения, суды")
     reason: str = Field(description="Одна короткая фраза: почему такая оценка")
+    same_as_article_id: int | None = Field(
+        default=None,
+        description="id заметки из списка «Уже опубликовано», если сюжет о том же событии и не приносит "
+                    "существенно новых фактов; иначе null",
+    )
 
 
 class Draft(BaseModel):
@@ -28,6 +33,12 @@ class Draft(BaseModel):
         description="true, если по данным источников нельзя написать заметку без домыслов"
     )
     cover: str = Field(description="id обложки из списка «Обложки на выбор», лучше всего подходящей по смыслу")
+    for_you: list[str] = Field(
+        default_factory=list,
+        description="«Что это значит для вас»: 0–4 коротких пункта, что новость меняет для читателя. "
+                    "Пустой список, если практического смысла нет",
+    )
+    guide: str = Field(default="", description="slug гайда из списка «Гайды», если он по теме заметки, иначе пусто")
 
 
 class Verification(BaseModel):

@@ -7,6 +7,7 @@
   <meta name="description" content="{% block description %}Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник.{% endblock %}">
   <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% endblock %}">
   <meta name="theme-color" content="#0f2433">
+  {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:locale" content="ru_RU">
   {% block og %}
@@ -51,7 +52,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <div class="masthead__brand wrap">
     <a class="logo" href="{% url 'news:home' %}" aria-label="{{ site_name }} — на главную">
       <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
-      <span class="logo__word">Флорида<br>Сегодня</span>
+      <span class="logo__word">Florida<br>RU</span>
     </a>
     <p class="masthead__tagline">Новости штата по-русски: коротко, по делу и&nbsp;со&nbsp;ссылкой на&nbsp;первоисточник</p>
   </div>
@@ -94,7 +95,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div class="footer__brand">
       <a class="logo logo--footer" href="{% url 'news:home' %}">
         <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
-        <span class="logo__word">Флорида<br>Сегодня</span>
+        <span class="logo__word">Florida<br>RU</span>
       </a>
       <p class="footer__note">{{ disclaimer }}</p>
     </div>

@@ -13,7 +13,7 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="675">
   {% if article.published_at %}<meta property="article:published_time" content="{{ article.published_at|date:'c' }}">{% endif %}
-  <meta property="article:modified_time" content="{{ article.updated_at|date:'c' }}">
+  <meta property="article:modified_time" content="{{ article.revised_at|default:article.published_at|default:article.created_at|date:'c' }}">
   {% if article.topic %}<meta property="article:section" content="{{ article.topic.name }}">{% endif %}
 {% endblock %}
 {% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% endif %}{% article_jsonld article %}{% endblock %}
@@ -39,9 +39,11 @@
           <time datetime="{{ article.published_at|default:article.created_at|date:'c' }}">
             <svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>{{ article.published_at|default:article.created_at|date:"j E Y, H:i" }}
           </time>
+          {% if article.revised_at %}<span>Обновлено <time datetime="{{ article.revised_at|date:'c' }}">{{ article.revised_at|date:"j E, H:i" }}</time></span>{% endif %}
           {% if article.region %}<a href="{{ article.region.get_absolute_url }}"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ article.region.name }}</a>{% endif %}
           <span>{{ article|reading_minutes }} {{ article|reading_minutes|plural_ru:"минута,минуты,минут" }} чтения</span>
         </p>
+        <p class="story__byline"><a href="{% url 'core-about' %}">Редакция {{ site_name }}</a></p>
       </header>
 
       <figure class="story__figure">
@@ -52,6 +54,17 @@
       <div class="story__body">
         {% for p in article.paragraphs %}<p>{{ p }}</p>{% endfor %}
       </div>
+
+      {% with points=article.for_you_points %}{% if points %}
+      <section class="for-you" aria-labelledby="for-you-h">
+        <h2 class="for-you__h" id="for-you-h">Что это значит для вас</h2>
+        <ul class="for-you__list">{% for p in points %}<li>{{ p }}</li>{% endfor %}</ul>
+      </section>
+      {% endif %}{% endwith %}
+
+      {% if article.guide and article.guide.is_published %}
+      <p class="more-guide">Подробнее: <a href="{{ article.guide.get_absolute_url }}">{{ article.guide.title }}</a></p>
+      {% endif %}
 
       {% with srcs=article.sources.all %}
       {% if srcs %}

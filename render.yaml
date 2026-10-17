@@ -23,6 +23,8 @@ envVarGroups:
         value: deepseek
       - key: DEEPSEEK_API_KEY
         sync: false
+      - key: GOOGLE_SITE_VERIFICATION
+        sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       # Сигналы из соцсетей (включаются галочками в админке)

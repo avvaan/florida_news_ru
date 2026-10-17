@@ -6,6 +6,7 @@ from rest_framework import serializers
 
 from ads.models import AdBanner
 from core.models import Page, SiteSettings
+from guides.models import Guide
 from news.covers import all_covers
 from news.models import Article, ArticleSource, Region, Tag, Topic
 from pipeline.models import PipelineRun
@@ -39,15 +40,17 @@ class ArticleSerializer(serializers.ModelSerializer):
     sources = ArticleSourceSerializer(many=True, required=False)
     url = serializers.SerializerMethodField()
     cover_url = serializers.SerializerMethodField()
+    guide = serializers.SlugRelatedField(slug_field="slug", queryset=Guide.objects.all(), required=False,
+                                         allow_null=True)
 
     class Meta:
         model = Article
         fields = [
-            "id", "title", "slug", "teaser", "body", "status", "region", "topic", "tags", "sources",
+            "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "tags", "sources",
             "is_urgent", "is_sensitive", "score", "cover_image", "cover_url", "review_reason",
-            "verification", "published_at", "created_at", "updated_at", "telegram_posted_at", "url",
+            "verification", "published_at", "revised_at", "created_at", "updated_at", "telegram_posted_at", "url",
         ]
-        read_only_fields = ["slug", "review_reason", "verification", "created_at", "updated_at",
+        read_only_fields = ["slug", "review_reason", "verification", "revised_at", "created_at", "updated_at",
                             "telegram_posted_at"]
         extra_kwargs = {"status": {"required": False}}
 
@@ -82,6 +85,9 @@ class ArticleSerializer(serializers.ModelSerializer):
     def update(self, article, validated):
         tags = validated.pop("tags", None)
         sources = validated.pop("sources", None)
+        if article.published_at and any(
+                key in validated and validated[key] != getattr(article, key) for key in ("title", "teaser", "body", "for_you")):
+            article.revised_at = timezone.now()
         for key, value in validated.items():
             setattr(article, key, value)
         if article.status == Article.Status.PUBLISHED and not article.published_at:

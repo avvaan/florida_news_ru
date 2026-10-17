@@ -29,8 +29,9 @@ class SiteSettings(models.Model):
         "мин. уверенность проверки", max_digits=3, decimal_places=2, default=Decimal("0.80"),
     )
     max_articles_per_day = models.PositiveSmallIntegerField(
-        "максимум заметок в день", default=40,
-        help_text="При превышении пишем только срочное",
+        "публикаций в день", default=8,
+        help_text="Пишем и публикуем самые важные; остальное отклоняется. Утренний проход берёт не больше "
+        "половины, вечерний — остаток. Срочное (ураган, эвакуация) публикуется сверх лимита",
     )
     ai_budget_per_day_usd = models.DecimalField(
         "бюджет на ИИ в день, $", max_digits=7, decimal_places=2, default=Decimal("3.00"),
@@ -113,4 +114,29 @@ class Page(models.Model):
         return self.title
 
     def get_absolute_url(self):
+        if self.slug == "about":
+            return reverse("core-about")
         return reverse("core-page", args=[self.slug])
+
+
+class Author(models.Model):
+    """Автор или редактор. Заполняется в админке; на сайте видны только включённые."""
+
+    name = models.CharField("имя", max_length=120)
+    slug = models.SlugField("адрес (латиница)", unique=True)
+    role = models.CharField("должность", max_length=120, blank=True)
+    bio = models.TextField("коротко о себе", blank=True)
+    photo = models.ImageField("фото", upload_to="authors/", blank=True)
+    is_active = models.BooleanField("показывать на сайте", default=False)
+    order = models.PositiveSmallIntegerField("порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "name"]
+        verbose_name = "автор / редактор"
+        verbose_name_plural = "авторы и редакторы"
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("core-author", args=[self.slug])
