@@ -12,6 +12,7 @@ from django.utils import timezone
 from core.models import SiteSettings
 from news.covers import candidates_for
 from news.models import Article, ArticleSource, Region, Story, Tag, Topic
+from social.services import has_trusted_source, run_social
 from sources.fetch import fetch_all
 from sources.models import Source
 
@@ -61,7 +62,7 @@ def classify_story(story: Story) -> Story:
         purpose=AICall.Purpose.CLASSIFY,
         model=settings.AI_CLASSIFIER_MODEL,
         system=prompts.CLASSIFY_SYSTEM,
-        user=f"Сюжет:\n\n{prompts.story_brief(items)}",
+        user=f"Сюжет:\n\n{prompts.story_brief(items)}{prompts.social_note(story.signals.count())}",
         output=Classification,
         max_tokens=1500,
         story=story,
@@ -118,6 +119,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         system=prompts.WRITE_SYSTEM,
         user=(
             f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}\n\n"
+            f"{prompts.hints_context(story.hints.values_list('summary', flat=True))}"
             f"Обложки на выбор:\n{prompts.covers_brief(covers, recent_covers(story.topic))}"
         ),
         output=Draft,
@@ -149,6 +151,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         insufficient_facts=draft.insufficient_facts,
         auto_publish_enabled=conf.auto_publish_enabled,
         publish_without_review=conf.publish_without_review,
+        has_trusted_source=has_trusted_source(items),
         auto_publish_min_score=conf.auto_publish_min_score,
         min_confidence=conf.min_verifier_confidence,
     )
@@ -344,6 +347,11 @@ def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | N
         stats.update(cluster_items())
         say(f"Склейка: новых сюжетов {stats['new_stories']}, присоединено {stats['attached']}")
         if write:
+            try:
+                stats.update(run_social(say))
+            except Exception as exc:  # noqa: BLE001 — сбой соцсетей не мешает новостям
+                say(f"Соцсети: сбой этапа — {type(exc).__name__}: {exc}")
+                log.exception("Сбой этапа сигналов")
             stats["classified"] = classify_new(say)
             stats["written"] = write_pending(say)
             say(f"Отбор: {stats['classified']}, написано заметок: {stats['written']}")

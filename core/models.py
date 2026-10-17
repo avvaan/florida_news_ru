@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 
@@ -58,6 +59,16 @@ class SiteSettings(models.Model):
     adsense_client = models.CharField("AdSense client id", max_length=60, blank=True)
 
     contact_email = models.EmailField("e-mail редакции", blank=True)
+
+    signals_perplexity_enabled = models.BooleanField(
+        "сигналы: Perplexity", default=False, help_text="Поиск по сети. Нужен PERPLEXITY_API_KEY")
+    signals_grok_enabled = models.BooleanField(
+        "сигналы: Grok (X)", default=False, help_text="Поиск по X. Нужен XAI_API_KEY")
+    signals_telegram_enabled = models.BooleanField(
+        "сигналы: Telegram", default=False,
+        help_text="Публичные каналы из «Источников сигналов». Нужны TG_API_ID, TG_API_HASH, TG_SESSION")
+    signals_max_per_source = models.PositiveSmallIntegerField(
+        "сигналов с источника за раз", default=15, validators=[MinValueValidator(1), MaxValueValidator(50)])
 
     # Уполномоченный агент по DMCA (17 U.S.C. §512(c)) — точно как в записи в Copyright Office.
     dmca_agent_name = models.CharField("агент DMCA: имя", max_length=120, blank=True, default="Andrii Syrkin")

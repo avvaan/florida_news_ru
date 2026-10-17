@@ -18,6 +18,10 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ("Сбор и склейка", {"fields": ("max_items_per_source", "cluster_window_hours", "cluster_similarity")}),
         ("Telegram", {"fields": ("telegram_enabled", "telegram_channel_url")}),
         ("Сайт", {"fields": ("contact_email", "adsense_enabled", "adsense_client")}),
+        ("Сигналы из соцсетей (только подсказки, не источник публикаций)", {"fields": (
+            "signals_perplexity_enabled", "signals_grok_enabled", "signals_telegram_enabled",
+            "signals_max_per_source",
+        )}),
         ("Агент DMCA (страница /dmca/)", {"fields": (
             "dmca_agent_name", "dmca_agent_address", "dmca_agent_phone", "dmca_agent_email",
         )}),

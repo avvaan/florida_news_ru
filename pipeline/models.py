@@ -26,6 +26,8 @@ class AICall(models.Model):
         WRITE = "write", "написание"
         VERIFY = "verify", "проверка"
         COVER = "cover", "обложка"
+        SIGNALS = "signals", "сбор сигналов"
+        TRIAGE = "triage", "разбор сигналов"
 
     created_at = models.DateTimeField("время", default=timezone.now, db_index=True)
     purpose = models.CharField("задача", max_length=20, choices=Purpose.choices)

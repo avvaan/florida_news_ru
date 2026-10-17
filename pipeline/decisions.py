@@ -22,7 +22,12 @@ class Decision:
 def decide(*, score: int, is_urgent: bool, is_sensitive: bool, has_official_source: bool,
            verified_ok: bool, verifier_confidence: float, issues: list[str],
            insufficient_facts: bool, auto_publish_enabled: bool, auto_publish_min_score: int,
-           min_confidence: Decimal | float, publish_without_review: bool = False) -> Decision:
+           min_confidence: Decimal | float, publish_without_review: bool = False,
+           has_trusted_source: bool = True) -> Decision:
+    # Правило сильнее любых настроек: без записи от СМИ или официального источника не публикуем
+    # (одного поста из соцсетей недостаточно).
+    if not has_trusted_source:
+        return Decision(REVIEW, "Нет подтверждения от СМИ или официального источника")
     decision = _decide(
         score=score, is_urgent=is_urgent, is_sensitive=is_sensitive, has_official_source=has_official_source,
         verified_ok=verified_ok, verifier_confidence=verifier_confidence, issues=issues,

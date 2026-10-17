@@ -186,7 +186,13 @@ class StoryAdmin(admin.ModelAdmin):
     list_display = ("title", "status", "score", "region", "topic", "is_urgent", "is_sensitive", "n_items", "created_at")
     list_filter = ("status", "is_urgent", "is_sensitive", "region", "topic")
     search_fields = ("title",)
-    readonly_fields = ("classification", "items_list", "created_at", "updated_at")
+    readonly_fields = ("classification", "items_list", "social", "created_at", "updated_at")
+
+    @admin.display(description="соцсети")
+    def social(self, obj):
+        from social.admin import social_buzz
+
+        return social_buzz(obj)
 
     @admin.display(description="записей")
     def n_items(self, obj):
