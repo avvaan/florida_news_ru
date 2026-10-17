@@ -302,6 +302,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .story .ad { margin-top: 32px; max-width: 68ch; }
 .story--page { max-width: 760px; }
 .story--page .story__body { margin-top: 24px; }
+.story--page .story__body h2 { margin-top: 1.6em; font-size: 1.25rem; line-height: 1.3; }
+.story--page .story__body h2 + p, .story__body p + ol, .story__body p + ul { margin-top: .6em; }
+.story--page .story__body ol, .story--page .story__body ul { padding-left: 1.4em; display: grid; gap: .4em; }
+.story--page .story__body ol { list-style: decimal; }
+.story--page .story__body ul { list-style: disc; }
+.story--page .story__body ol + p, .story--page .story__body ul + p, .dmca-agent + p { margin-top: 1.05em; }
+.dmca-agent { margin-top: .8em; padding: 14px 18px; border-left: 3px solid var(--gulf-deep); background: rgb(0 0 0 / .03); font-style: normal; }
 .contact-line { margin-top: 20px; font-weight: 600; }
 .contact-line a { color: var(--gulf-deep); }
 .related { display: grid; gap: 24px; margin-top: 16px; }
@@ -317,11 +324,17 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .footer__list { display: grid; gap: 6px; }
 .footer__list a { color: #fff; text-decoration: none; }
 .footer__list a:hover { text-decoration: underline; }
-.footer__legal { margin-top: 36px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / .14); font-size: .82rem; color: #a9bccb; }
+.footer__legal { margin-top: 36px; padding-top: 20px; border-top: 1px solid rgb(255 255 255 / .14); font-size: .82rem; color: #a9bccb; display: grid; gap: 8px; }
+.footer__links { display: flex; flex-wrap: wrap; gap: 4px 0; }
+.footer__links li + li::before { content: "·"; margin-inline: .55em; color: #6f8799; }
+.footer__links a { color: #d6e2ea; text-decoration: none; }
+.footer__links a:hover { text-decoration: underline; }
 
 /* ---------- Адаптив ---------- */
 @media (max-width: 599px) {
   .masthead__tagline { display: none; }
+  .footer__links { gap: 6px 16px; }
+  .footer__links li + li::before { content: none; }
   .logo__mark { width: 44px; height: 44px; }
   .logo__word { font-size: 1.2rem; }
   .masthead__brand { padding-bottom: 12px; }

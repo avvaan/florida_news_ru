@@ -10,6 +10,14 @@ def page(request, slug):
     return render(request, "core/page.html", {"page": obj})
 
 
+def dmca(request):
+    return render(request, "core/dmca.html")
+
+
+def corrections(request):
+    return render(request, "core/corrections.html")
+
+
 def robots_txt(request):
     lines = [
         "User-agent: *",

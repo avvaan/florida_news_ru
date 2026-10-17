@@ -26,6 +26,8 @@ urlpatterns = [
     path("news-sitemap.xml", cache_page(300)(news_sitemap), name="news_sitemap"),
     path("robots.txt", core_views.robots_txt),
     path("p/<slug:slug>/", core_views.page, name="core-page"),
+    path("dmca/", core_views.dmca, name="core-dmca"),
+    path("corrections/", core_views.corrections, name="core-corrections"),
     path("", include("news.urls")),
 ]
 

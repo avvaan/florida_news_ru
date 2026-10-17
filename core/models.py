@@ -59,6 +59,13 @@ class SiteSettings(models.Model):
 
     contact_email = models.EmailField("e-mail редакции", blank=True)
 
+    # Уполномоченный агент по DMCA (17 U.S.C. §512(c)) — точно как в записи в Copyright Office.
+    dmca_agent_name = models.CharField("агент DMCA: имя", max_length=120, blank=True, default="Andrii Syrkin")
+    dmca_agent_address = models.TextField("агент DMCA: почтовый адрес", blank=True,
+                                          help_text="Точно как в записи агента в Copyright Office")
+    dmca_agent_phone = models.CharField("агент DMCA: телефон", max_length=40, blank=True)
+    dmca_agent_email = models.EmailField("агент DMCA: e-mail", blank=True)
+
     class Meta:
         verbose_name = "настройки"
         verbose_name_plural = "настройки"

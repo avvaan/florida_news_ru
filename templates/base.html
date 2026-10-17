@@ -117,7 +117,20 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       </a>
     </nav>
   </div>
-  <p class="wrap footer__legal">© {{ now.year }} {{ site_owner }}. «{{ site_name }}». Иллюстрации — собственные, фото — лицензионный сток Freepik. Фотографии из чужих статей мы не используем.</p>
+  <div class="wrap footer__legal">
+    <p>© {{ now.year }} {{ site_owner }}. Florida RU — florida-ru.com</p>
+    <nav aria-label="Правовая информация">
+      <ul class="footer__links">
+        <li><a href="{% url 'core-page' 'about' %}">О проекте</a></li>
+        <li><a href="{% url 'core-page' 'advertising' %}">Реклама</a></li>
+        <li><a href="{% url 'core-corrections' %}">Исправления</a></li>
+        <li><a href="{% url 'core-dmca' %}">Авторские права (DMCA)</a></li>
+        <li><a href="{% url 'core-page' 'privacy' %}">Политика конфиденциальности</a></li>
+        <li><a href="{% url 'core-page' 'contacts' %}">Контакты</a></li>
+      </ul>
+    </nav>
+    <p>Иллюстрации — собственные, фото — лицензионный сток Freepik. Фотографии из чужих статей мы не используем.</p>
+  </div>
 </footer>
 </body>
 </html>
