@@ -200,3 +200,16 @@ def test_admin_pick_cover_action(admin_client, article):
                                                           "_selected_action": [article.pk]}, follow=True)
     assert start.call_args.args[0] == [article.pk]
     assert "журнале запуска" in resp.content.decode()
+
+
+def test_about_page_schedule_migration():
+    from django.apps import apps
+
+    from core import seed
+    page = Page.objects.get(slug="about")
+    page.body = page.body.replace("Дважды в день, утром и вечером, мы просматриваем",
+                                  "Каждые несколько часов мы просматриваем")
+    page.save()
+    seed.update_about_schedule(apps, None)
+    page.refresh_from_db()
+    assert "Дважды в день, утром и вечером" in page.body and "Каждые несколько часов" not in page.body
