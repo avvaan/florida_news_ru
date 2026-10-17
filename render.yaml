@@ -56,7 +56,7 @@ services:
     name: florida-pipeline
     runtime: python
     plan: starter
-    schedule: "7 */2 * * *"          # каждые 2 часа (UTC), в 7 минут
+    schedule: "7 11,22 * * *"        # дважды в день: 11:07 и 22:07 UTC = 7:07 и 18:07 во Флориде (летом; зимой на час раньше)
     buildCommand: pip install -r requirements.txt
     startCommand: python manage.py run_pipeline
     envVars:

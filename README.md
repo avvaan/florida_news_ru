@@ -1,7 +1,7 @@
 # Флорида Сегодня — новости Флориды по-русски
 
 Сайт и Telegram-канал с короткими новостями Флориды на русском для русско- и украиноязычных
-жителей Майами, Орландо, Тампы и Джексонвилла. Каждые 2 часа система сама собирает новости
+жителей Майами, Орландо, Тампы и Джексонвилла. Дважды в день, утром и вечером, система сама собирает новости
 из местных СМИ и официальных источников, отбирает важное, пишет **собственную** заметку на 80–150
 слов со ссылкой на первоисточник, проверяет её и публикует на сайте и в Telegram.
 
@@ -13,7 +13,7 @@
 ## Как это работает
 
 ```
-каждые 2 часа: python manage.py run_pipeline
+дважды в день (7:07 и 18:07 по Флориде): python manage.py run_pipeline
  1. Сбор        fetch_sources: RSS/Atom + NWS alerts API. ETag/Last-Modified, robots.txt,
                 честный User-Agent. Храним только заголовок, ссылку, дату и короткое описание.
  2. Склейка     одна история из разных СМИ → один «сюжет» (похожесть заголовков, окно 48 ч).
@@ -220,7 +220,9 @@ curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json
    из `render.yaml`) → выберите репозиторий и ветку `main`. Render создаст:
    - `florida-web`: сайт (gunicorn, статика через WhiteNoise, сборка `build.sh` с миграциями);
    - `florida-db`: PostgreSQL;
-   - `florida-pipeline`: cron `7 */2 * * *` (каждые 2 часа по UTC) → `python manage.py run_pipeline`.
+   - `florida-pipeline`: cron `7 11,22 * * *` (11:07 и 22:07 UTC = 7:07 и 18:07 во Флориде летним временем,
+     зимой на час раньше) → `python manage.py run_pipeline`. Чаще или в другое время — поменяйте `schedule`
+     в `render.yaml` или в настройках cron-сервиса на Render. Внепланово — `POST /api/v1/pipeline/run/`.
 3. Заполните переменные (группа `florida-shared`): `SITE_URL` (например `https://florida-web.onrender.com`,
    потом — ваш домен), `DJANGO_ALLOWED_HOSTS` (домен без https), `DJANGO_CSRF_TRUSTED_ORIGINS`
    (`https://домен`), `DEEPSEEK_API_KEY`, `TELEGRAM_*`. `DJANGO_SECRET_KEY` сгенерируется сам.
@@ -256,8 +258,8 @@ curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json
 4. Создайте `.env` рядом с `manage.py` (как `.env.example`, `DJANGO_DEBUG=0`), затем
    `python manage.py collectstatic && python manage.py migrate && python manage.py createsuperuser`.
    База: SQLite подойдёт на старте, или MySQL/Postgres PythonAnywhere через `DATABASE_URL`.
-5. Tasks → Scheduled task: на тарифе Hacker доступна одна ежедневная задача, для запуска каждые 2 часа
-   нужен тариф с почасовыми задачами. Команда:
+5. Tasks → Scheduled task: на тарифе Hacker доступна одна ежедневная задача, для запуска дважды в день
+   нужен тариф с несколькими задачами (или две задачи — на 11:07 и 22:07 UTC). Команда:
    `cd ~/florida_news_ru && ~/.virtualenvs/florida/bin/python manage.py run_pipeline`.
 
 ---

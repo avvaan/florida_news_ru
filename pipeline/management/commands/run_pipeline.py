@@ -4,7 +4,7 @@ from pipeline.services import run_pipeline
 
 
 class Command(BaseCommand):
-    help = "Полный проход: сбор фидов → склейка → отбор → заметки → проверка → публикация. Запускать раз в 2–3 часа."
+    help = "Полный проход: сбор фидов → склейка → отбор → заметки → проверка → публикация. Запускается дважды в день, утром и вечером."
 
     def add_arguments(self, parser):
         parser.add_argument("--no-fetch", action="store_true", help="Не ходить в сеть, обработать уже собранное")
