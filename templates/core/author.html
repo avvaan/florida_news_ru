@@ -2,7 +2,9 @@
 {% load news_extras %}
 {% block title %}{{ author.name }} — {{ site_name }}{% endblock %}
 {% block description %}{{ author.name }}{% if author.role %}, {{ author.role }}{% endif %} — {{ site_name }}. {{ author.bio|truncatechars:120 }}{% endblock %}
-{% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% else %}{% person_jsonld author %}{% endif %}{% endblock %}
+{% block og %}{% include "includes/og.html" with type="profile" title=author.name|add:" — "|add:site_name description=author.bio|default:author.role|truncatechars:160 url=request.path %}{% endblock %}
+{% block robots %}{% if is_preview %}noindex, nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% if not is_preview %}{% person_jsonld author %}{% url 'news:home' as home_url %}{% url 'core-about' as about_url %}{% breadcrumbs_jsonld "Главная" home_url "О проекте" about_url author.name request.path %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page author">

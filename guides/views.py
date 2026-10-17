@@ -6,7 +6,8 @@ from .models import Guide
 
 def guide_list(request):
     sections = Guide.objects.by_section()
-    return render(request, "guides/list.html", {"sections": sections})
+    all_guides = [g for section in sections for g in section["guides"]]
+    return render(request, "guides/list.html", {"sections": sections, "all_guides": all_guides})
 
 
 def guide_detail(request, slug):

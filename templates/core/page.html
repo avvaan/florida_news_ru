@@ -1,6 +1,9 @@
 {% extends "base.html" %}
+{% load news_extras %}
 {% block title %}{{ page.title }} — {{ site_name }}{% endblock %}
 {% block description %}{{ page.body|striptags|truncatechars:160 }}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=page.title|add:" — "|add:site_name description=page.body|striptags|truncatechars:160 url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url page.title request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page">

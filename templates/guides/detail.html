@@ -4,15 +4,14 @@
 {% block description %}{{ guide.teaser|default:guide.title }}{% endblock %}
 {% block canonical %}{{ guide.get_absolute_url|absolute }}{% endblock %}
 {% block og %}
-  <meta property="og:type" content="article">
-  <meta property="og:title" content="{{ guide.title }}">
-  <meta property="og:description" content="{{ guide.teaser }}">
-  <meta property="og:url" content="{{ guide.get_absolute_url|absolute }}">
-  {% if guide.cover %}{% with og=guide.cover|add:".jpg" %}<meta property="og:image" content="{% static og as og_url %}{{ og_url|absolute }}">
-  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="675">
-  <meta name="twitter:card" content="summary_large_image">{% endwith %}{% endif %}
+  {% include "includes/og.html" with type="article" title=guide.title description=guide.teaser url=guide.get_absolute_url image=guide.cover %}
+  {% with published=guide.published_at|default:guide.created_at %}<meta property="article:published_time" content="{{ published|date:'c' }}">
+  <meta property="article:modified_time" content="{{ guide.revised_at|default:published|date:'c' }}">{% endwith %}
+  {% if guide.section %}<meta property="article:section" content="{{ guide.get_section_display }}">{% endif %}
+  {% for t in guide.topics.all %}<meta property="article:tag" content="{{ t.name }}">{% endfor %}
 {% endblock %}
-{% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% else %}{% guide_jsonld guide %}{% endif %}{% endblock %}
+{% block robots %}{% if is_preview %}noindex, nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% if not is_preview %}{% guide_jsonld guide %}{% guide_faq_jsonld guide %}{% url 'news:home' as home_url %}{% url 'guides:list' as guides_url %}{% breadcrumbs_jsonld "Главная" home_url "Гайды" guides_url guide.title guide.get_absolute_url %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
   {% if is_preview %}<p class="preview-note">Черновик: гайд не опубликован, читатели его не видят. Опубликуйте в админке после проверки.</p>{% endif %}
@@ -33,7 +32,7 @@
 
       {% if guide.cover %}
       <figure class="story__figure">
-        {% with big=guide.cover|add:".webp" %}<img src="{% static big %}" alt="" width="1200" height="675" fetchpriority="high">{% endwith %}
+        {% with big=guide.cover|add:".webp" %}<img src="{% static big %}" alt="{{ guide.title }}" width="1200" height="675" fetchpriority="high">{% endwith %}
         <figcaption>Иллюстрация «{{ site_name }}»</figcaption>
       </figure>
       {% endif %}

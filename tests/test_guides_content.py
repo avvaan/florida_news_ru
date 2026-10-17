@@ -19,7 +19,7 @@ def guide_text(slug="test-guide", title="Тестовый гайд", extra=""):
     body += "\n\n".join(SECTION.format(n=n) for n in range(1, 7))
     body += ("\n\n[[img:2|Очередь в офисе]]\n\n- первый пункт\n- второй пункт\n\n1. шаг\n2. шаг\n\n"
              "> **Важно.** Сроки короткие.\n\n| Что | Сколько |\n|---|---|\n| Пошлина | $48 |\n\n"
-             "### Вопрос?\n\nОтвет.\n\n[[img:3|Документы на столе]]" + extra)
+             "## Вопросы и ответы\n\n### Вопрос?\n\nОтвет.\n\n[[img:3|Документы на столе]]" + extra)
     return (f"---\nslug: {slug}\ntitle: {title}\nteaser: Коротко о главном\nsection: docs\norder: 2\n"
             "topics: laws, roads\nsource: FLHSMV | https://www.flhsmv.gov/a/ | Страница A\n"
             "source: USCIS | https://www.uscis.gov/b | Страница B\nsource: SSA | https://www.ssa.gov/c | C\n"
@@ -116,3 +116,43 @@ def test_real_guide_files_are_valid():
         if errors:
             problems[path.name] = errors
     assert not problems
+
+
+def ld_types(html: str) -> dict:
+    import json
+    import re
+
+    found = {}
+    for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S):
+        data = json.loads(block)
+        found[data["@type"]] = data
+    return found
+
+
+def test_guide_seo_markup(content_dir, client):
+    (content_dir / "test-guide.md").write_text(guide_text())
+    run("--no-images")
+    html = client.get("/guides/test-guide/").content.decode()
+    ld = ld_types(html)
+    assert ld["FAQPage"]["mainEntity"][0]["name"] == "Вопрос?"
+    assert ld["FAQPage"]["mainEntity"][0]["acceptedAnswer"]["text"] == "Ответ."
+    crumbs = [i["name"] for i in ld["BreadcrumbList"]["itemListElement"]]
+    assert crumbs == ["Главная", "Гайды", "Тестовый гайд"]
+    assert ld["Article"]["articleSection"] == "Документы и статус" and len(ld["Article"]["image"]) == 3
+    assert 'content="index, follow, max-image-preview:large' in html
+    assert 'property="og:image" content="' in html and "guides/test-guide-1.jpg" in html
+    assert 'property="article:section" content="Документы и статус"' in html
+
+    listing = ld_types(client.get("/guides/").content.decode())
+    assert listing["CollectionPage"]["mainEntity"]["itemListElement"][0]["url"].endswith("/guides/test-guide/")
+
+
+def test_sitemap_lists_guide_images_and_404_is_noindex(content_dir, client):
+    (content_dir / "test-guide.md").write_text(guide_text())
+    run("--no-images")
+    sitemap = client.get("/sitemap.xml").content.decode()
+    assert "xmlns:image" in sitemap and "/static/guides/test-guide-3.jpg</image:loc>" in sitemap
+    assert "/p/about/" not in sitemap  # 301 в sitemap не нужен
+    assert 'content="noindex, follow"' in client.get("/net-takoj-stranicy/").content.decode()
+    assert 'content="index, follow' in client.get("/").content.decode()
+    assert ld_types(client.get("/").content.decode()).get("WebSite")

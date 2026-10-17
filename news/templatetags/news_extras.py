@@ -122,7 +122,10 @@ def article_jsonld(article) -> str:
         "author": editorial_author(),
         "publisher": publisher(),
         "isBasedOn": [s.url for s in article.sources.all()],
+        "keywords": [t.name for t in article.tags.all()],
     }
+    if article.topic:
+        data["articleSection"] = article.topic.name
     if article.region:
         data["contentLocation"] = {"@type": "Place", "name": f"{article.region.name}, Florida"}
     return _jsonld(data)
@@ -132,7 +135,7 @@ def article_jsonld(article) -> str:
 def guide_jsonld(guide) -> str:
     url = f"{settings.SITE_URL}{guide.get_absolute_url()}"
     published = guide.published_at or guide.created_at
-    return _jsonld({
+    data = {
         "@context": "https://schema.org",
         "@type": "Article",
         "mainEntityOfPage": {"@type": "WebPage", "@id": url},
@@ -144,7 +147,77 @@ def guide_jsonld(guide) -> str:
         "author": editorial_author(),
         "publisher": publisher(),
         "citation": [s.url for s in guide.sources.all()],
-        **({"image": f"{settings.SITE_URL}{static(guide.cover + '.jpg')}"} if guide.cover else {}),
+        "wordCount": guide.word_count,
+        "about": [t.name for t in guide.topics.all()],
+        "spatialCoverage": {"@type": "State", "name": "Florida", "addressCountry": "US"},
+    }
+    if guide.section:
+        data["articleSection"] = guide.get_section_display()
+    if images := guide.image_paths:
+        data["image"] = [f"{settings.SITE_URL}{static(path + '.jpg')}" for path in images]
+    return _jsonld(data)
+
+
+@register.simple_tag
+def guide_faq_jsonld(guide) -> str:
+    """FAQPage из раздела «Вопросы и ответы» гайда; пусто, если вопросов нет."""
+    if not (faq := guide.faq):
+        return ""
+    return _jsonld({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq
+        ],
+    })
+
+
+@register.simple_tag
+def breadcrumbs_jsonld(*pairs) -> str:
+    """{% breadcrumbs_jsonld "Главная" "/" "Гайды" "/guides/" guide.title guide.get_absolute_url %}"""
+    names, urls = pairs[0::2], pairs[1::2]
+    return _jsonld({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": n, "name": str(name), "item": absolute(str(url))}
+            for n, (name, url) in enumerate(zip(names, urls), start=1)
+        ],
+    })
+
+
+@register.simple_tag
+def website_jsonld() -> str:
+    return _jsonld({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": f"{settings.SITE_URL}/#website",
+        "name": settings.SITE_NAME,
+        "alternateName": "Флорида по-русски",
+        "url": f"{settings.SITE_URL}/",
+        "inLanguage": "ru",
+        "publisher": {"@id": f"{settings.SITE_URL}/#organization"},
+    })
+
+
+@register.simple_tag
+def collection_jsonld(name, description, url, items) -> str:
+    """CollectionPage со списком ссылок: гайды, заметки региона, рубрики или тега."""
+    return _jsonld({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": str(name),
+        "description": str(description),
+        "url": absolute(str(url)),
+        "inLanguage": "ru",
+        "isPartOf": {"@id": f"{settings.SITE_URL}/#website"},
+        "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": n, "url": absolute(item.get_absolute_url()), "name": item.title}
+                for n, item in enumerate(items, start=1)
+            ],
+        },
     })
 
 

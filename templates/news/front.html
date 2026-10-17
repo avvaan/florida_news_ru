@@ -5,7 +5,8 @@
 {% block description %}{% if region and region.description %}{{ region.description }}{% elif topic %}{{ topic.name }}: новости Флориды на русском языке, коротко и со ссылкой на первоисточник.{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block canonical %}{{ request.path|absolute }}{% if page_obj.number > 1 %}?page={{ page_obj.number }}{% endif %}{% endblock %}
 
-{% block head %}{% if is_home %}{% organization_jsonld %}{% endif %}{% endblock %}
+{% block og %}{% if region %}{% with t="Новости "|add:region.name_locative|add:" на русском — "|add:site_name %}{% include "includes/og.html" with title=t description=region.description|default:"Новости Флориды на русском языке: коротко и со ссылкой на первоисточник." url=request.path %}{% endwith %}{% elif topic %}{% with t=topic.name|add:" во Флориде — новости на русском — "|add:site_name %}{% include "includes/og.html" with title=t description=topic.description|default:"Новости Флориды на русском языке: коротко и со ссылкой на первоисточник." url=request.path image=topic.cover %}{% endwith %}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% if is_home %}{% organization_jsonld %}{% website_jsonld %}{% elif region %}{% breadcrumbs_jsonld "Главная" home_url region.name region.get_absolute_url %}{% elif topic %}{% breadcrumbs_jsonld "Главная" home_url topic.name topic.get_absolute_url %}{% endif %}{% if region or topic %}{% if feed %}{% if region %}{% collection_jsonld "Новости "|add:region.name_locative region.description|default:"Новости Флориды на русском" request.path feed %}{% else %}{% collection_jsonld topic.name topic.description|default:"Новости Флориды на русском" request.path feed %}{% endif %}{% endif %}{% endif %}{% endblock %}
 
 {% block top_ad %}{% endblock %}
 

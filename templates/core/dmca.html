@@ -1,6 +1,9 @@
 {% extends "base.html" %}
+{% load news_extras %}
 {% block title %}Авторские права и DMCA — {{ site_name }}{% endblock %}
 {% block description %}Как сообщить о нарушении авторских прав на сайте Florida RU: уполномоченный агент по DMCA, уведомление о нарушении и встречное уведомление.{% endblock %}
+{% block og %}{% include "includes/og.html" with title="Авторские права и DMCA — "|add:site_name description="Как сообщить о нарушении авторских прав на сайте Florida RU: агент по DMCA, уведомление и встречное уведомление." url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url "Авторские права и DMCA" request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page">

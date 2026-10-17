@@ -5,18 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ site_name }} — новости Флориды по-русски{% endblock %}</title>
   <meta name="description" content="{% block description %}Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник.{% endblock %}">
+  <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endblock %}">
   <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% endblock %}">
+  <link rel="alternate" hreflang="ru" href="{{ request.path|absolute }}">
+  <link rel="alternate" hreflang="x-default" href="{{ request.path|absolute }}">
   <meta name="theme-color" content="#0f2433">
   {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:locale" content="ru_RU">
-  {% block og %}
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="{{ site_name }} — новости Флориды по-русски">
-  <meta property="og:description" content="Погода и ураганы, законы, деньги и события Флориды — коротко и по-русски.">
-  <meta property="og:url" content="{{ request.path|absolute }}">
-  <meta property="og:image" content="{% static 'covers/florida.jpg' as og %}{{ og|absolute }}">
-  {% endblock %}
+  {% block og %}{% include "includes/og.html" with title=site_name|add:" — новости Флориды по-русски" description="Погода и ураганы, законы, деньги и события Флориды — коротко и по-русски." url=request.path %}{% endblock %}
   <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }}" href="{% url 'news:rss' %}">
   <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">

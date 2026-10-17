@@ -119,6 +119,42 @@ class Guide(models.Model):
         return f"guides/{self.slug}-{number}" if self.cover else ""
 
     @property
+    def faq(self) -> list[tuple[str, str]]:
+        """Пары (вопрос, ответ) из раздела «Вопросы и ответы» — для разметки FAQPage."""
+        from django.utils.html import strip_tags
+
+        pairs, inside, question, answer = [], False, None, []
+        for block in self.blocks:
+            if block.kind == "h2":
+                if inside:
+                    break
+                inside = "вопрос" in strip_tags(block.text).lower()
+                continue
+            if not inside:
+                continue
+            if block.kind == "h3":
+                if question and answer:
+                    pairs.append((question, " ".join(answer)))
+                question, answer = strip_tags(block.text), []
+            elif question:
+                parts = [block.text] if block.text else [*block.items]
+                answer += [strip_tags(str(part)) for part in parts]
+        if question and answer:
+            pairs.append((question, " ".join(answer)))
+        return pairs
+
+    @property
+    def image_paths(self) -> list[str]:
+        """Базовые пути всех иллюстраций (обложка и картинки в тексте) — для sitemap и разметки."""
+        if not self.cover:
+            return []
+        return [self.cover, *(self.image(b.number) for b in self.blocks if b.kind == "img")]
+
+    @property
+    def word_count(self) -> int:
+        return len(self.body.split())
+
+    @property
     def short_title(self) -> str:
         """Заголовок до двоеточия и без «во Флориде» — для компактных списков: «Florida ID для тех, кто не водит»."""
         short = self.title.split(":", 1)[0].strip()

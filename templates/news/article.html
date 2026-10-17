@@ -14,9 +14,14 @@
   <meta property="og:image:height" content="675">
   {% if article.published_at %}<meta property="article:published_time" content="{{ article.published_at|date:'c' }}">{% endif %}
   <meta property="article:modified_time" content="{{ article.revised_at|default:article.published_at|default:article.created_at|date:'c' }}">
+  <meta property="og:image:alt" content="{{ article.title }}">
+  <meta name="twitter:title" content="{{ article.title }}">
+  <meta name="twitter:description" content="{{ article.teaser }}">
   {% if article.topic %}<meta property="article:section" content="{{ article.topic.name }}">{% endif %}
+  {% for t in article.tags.all %}<meta property="article:tag" content="{{ t.name }}">{% endfor %}
 {% endblock %}
-{% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% endif %}{% article_jsonld article %}{% endblock %}
+{% block robots %}{% if is_preview %}noindex, nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% article_jsonld article %}{% url 'news:home' as home_url %}{% if article.topic %}{% breadcrumbs_jsonld "Главная" home_url article.topic.name article.topic.get_absolute_url article.title article.get_absolute_url %}{% else %}{% breadcrumbs_jsonld "Главная" home_url article.title article.get_absolute_url %}{% endif %}{% endblock %}
 
 {% block content %}
 <div class="wrap">
@@ -47,7 +52,7 @@
       </header>
 
       <figure class="story__figure">
-        <img src="{% cover article %}" alt="" width="1200" height="675" fetchpriority="high">
+        <img src="{% cover article %}" alt="{{ article.title }}" width="1200" height="675" fetchpriority="high">
         <figcaption>{% if article.cover_info.is_photo %}{{ article.cover_info.credit }}{% else %}Иллюстрация «{{ site_name }}»{% if article.topic %} к рубрике «{{ article.topic.name }}»{% endif %}{% endif %}</figcaption>
       </figure>
 

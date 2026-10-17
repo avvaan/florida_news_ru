@@ -2,7 +2,8 @@
 {% load news_extras %}
 {% block title %}О проекте — {{ site_name }}{% endblock %}
 {% block description %}{{ site_name }} — новости Флориды на русском. Издатель — {{ site_owner }}, Флорида. Как мы работаем, как используем ИИ и как исправляем ошибки.{% endblock %}
-{% block head %}{% organization_jsonld %}{% endblock %}
+{% block og %}{% include "includes/og.html" with title="О проекте — "|add:site_name description=site_name|add:" — новости Флориды на русском: кто издаёт, как мы работаем, как используем ИИ и исправляем ошибки." url=request.path %}{% endblock %}
+{% block head %}{% organization_jsonld %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url "О проекте" request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page">

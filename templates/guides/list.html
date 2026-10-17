@@ -1,7 +1,9 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static news_extras %}
 {% block title %}Гайды: жизнь во Флориде — {{ site_name }}{% endblock %}
 {% block description %}Подробные гайды на русском по официальным источникам: документы и статус, машина, жильё, ураганы, деньги и работа, медицина, дети и учёба во Флориде.{% endblock %}
+{% block og %}{% include "includes/og.html" with title="Гайды: жизнь во Флориде — "|add:site_name description="Подробные гайды на русском по официальным источникам: документы, машина, жильё, ураганы, деньги, медицина и учёба во Флориде." url=request.path image="guides/podgotovka-k-uraganu-1" %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'guides:list' as guides_url %}{% breadcrumbs_jsonld "Главная" home_url "Гайды" guides_url %}{% collection_jsonld "Гайды: жизнь во Флориде" "Подробные гайды на русском по официальным источникам" guides_url all_guides %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <section class="story guides">

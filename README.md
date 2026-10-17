@@ -414,12 +414,19 @@ IP и браузер не сохраняются: для уникальност�
 
 ## SEO
 
-Латинские slug из транслитерации заголовка, JSON-LD: `NewsArticle` для заметок, `Article` для гайдов,
-`NewsMediaOrganization` (Florida RU, издатель CITRUSTACK LLC) на главной и `/about/`, `Person` для авторов.
-`sitemap.xml` (заметки, гайды, страницы, авторы), отдельный Google News sitemap `/news-sitemap.xml`
-(последние 48 часов), Open Graph и Twitter cards, canonical, `robots.txt` со ссылками на оба sitemap,
-RSS `/rss/`. Одна страница — один адрес: `/p/about/` отдаёт 301 на `/about/`. Страницы без JS, шрифты
-с предзагрузкой, картинки в WebP с lazy-load.
+- **Адреса и мета.** Латинские slug из транслитерации, canonical, `hreflang="ru"`, `robots` с
+  `max-image-preview:large` (крупные превью в Google Discover и News). Каждый тип страницы — свои title,
+  description, Open Graph и Twitter-теги с картинкой 1200×675 (`templates/includes/og.html`); у заметок и гайдов
+  `article:published_time / modified_time / section / tag`. Обложки с alt-текстом.
+- **Schema.org (JSON-LD).** `NewsArticle` для заметок; `Article` для гайдов (раздел, темы, все иллюстрации,
+  объём, официальные источники) плюс `FAQPage` из раздела «Вопросы и ответы» (345 вопросов в 43 гайдах);
+  `BreadcrumbList` на всех страницах; `CollectionPage` + `ItemList` для гайдов, регионов и рубрик;
+  `WebSite` и `NewsMediaOrganization` (Florida RU, издатель CITRUSTACK LLC) на главной и `/about/`; `Person` для авторов.
+- **Индексация.** `sitemap.xml` с картинками (`image:image`) и датами обновления: заметки, гайды, разделы, страницы,
+  авторы. Отдельный Google News sitemap `/news-sitemap.xml` (48 часов), `robots.txt` со ссылками на оба, RSS `/rss/`.
+  `noindex` — у 404, черновиков, предпросмотра и тегов, где меньше трёх заметок. Одна страница — один адрес:
+  `/p/about/` отдаёт 301 на `/about/` и в sitemap не попадает.
+- **Скорость.** Страницы без JS, шрифты с предзагрузкой, картинки в WebP с размерами и lazy-load.
 
 Google Search Console: задайте `GOOGLE_SITE_VERIFICATION` — значение `content` из мета-тега, который
 выдаёт Search Console («HTML-тег»). Без переменной тег не выводится.

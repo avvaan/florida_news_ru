@@ -1,6 +1,10 @@
 {% extends "base.html" %}
+{% load news_extras %}
 {% block title %}#{{ tag.name }} — новости Флориды на русском — {{ site_name }}{% endblock %}
 {% block description %}Все заметки с тегом «{{ tag.name }}»: новости Флориды на русском языке.{% endblock %}
+{% block og %}{% with t="#"|add:tag.name|add:" — новости Флориды на русском" %}{% include "includes/og.html" with title=t description="Все заметки с тегом «"|add:tag.name|add:"»: новости Флориды на русском языке." url=request.path %}{% endwith %}{% endblock %}
+{% block robots %}{% if page_obj.paginator.count < 3 %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url "#"|add:tag.name tag.get_absolute_url %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <header class="section-head"><h1 class="section-head__h">#{{ tag.name }}</h1></header>

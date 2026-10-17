@@ -1,6 +1,9 @@
 {% extends "base.html" %}
+{% load news_extras %}
 {% block title %}Исправления — {{ site_name }}{% endblock %}
 {% block description %}Как сообщить об ошибке в заметке: мы быстро проверяем и исправляем ошибки и помечаем исправление в заметке.{% endblock %}
+{% block og %}{% include "includes/og.html" with title="Исправления — "|add:site_name description="Как сообщить об ошибке в заметке: мы быстро проверяем и исправляем ошибки и помечаем исправление в заметке." url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url "Исправления" request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page">

@@ -1,6 +1,8 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.sitemaps import Sitemap
+from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
 
@@ -16,12 +18,24 @@ class SiteRootSitemap(Sitemap):
     protocol = "https"
 
     def get_domain(self, site=None):
-        from django.conf import settings
         return settings.SITE_URL.split("://", 1)[-1]
 
     def get_protocol(self, protocol=None):
-        from django.conf import settings
         return settings.SITE_URL.split("://", 1)[0]
+
+    def images(self, item) -> list[dict]:
+        """Картинки страницы для расширения image: sitemap — [{"loc", "title"}]."""
+        return []
+
+    def get_urls(self, page=1, site=None, protocol=None):
+        urls = super().get_urls(page=page, site=site, protocol=protocol)
+        for url in urls:
+            url["images"] = self.images(url["item"])
+        return urls
+
+
+def static_url(path: str) -> str:
+    return f"{settings.SITE_URL}{static(path)}"
 
 
 class ArticleSitemap(SiteRootSitemap):
@@ -35,6 +49,9 @@ class ArticleSitemap(SiteRootSitemap):
     def lastmod(self, obj):
         return obj.revised_at or obj.published_at
 
+    def images(self, item):
+        return [{"loc": static_url(f"{item.cover}.jpg"), "title": item.title}]
+
 
 class SectionSitemap(SiteRootSitemap):
     changefreq = "hourly"
@@ -46,13 +63,19 @@ class SectionSitemap(SiteRootSitemap):
     def location(self, item):
         return reverse("news:home") if item == "home" else item.get_absolute_url()
 
+    def lastmod(self, item):
+        if item == "home":
+            latest = Article.objects.published().order_by("-published_at").first()
+            return latest.published_at if latest else None
+        return None
+
 
 class PageSitemap(SiteRootSitemap):
     changefreq = "monthly"
     priority = 0.3
 
     def items(self):
-        return Page.objects.all()
+        return Page.objects.exclude(slug="about")  # /p/about/ отдаёт 301 на /about/ — она в LegalSitemap
 
 
 class LegalSitemap(SiteRootSitemap):
@@ -60,7 +83,7 @@ class LegalSitemap(SiteRootSitemap):
     priority = 0.3
 
     def items(self):
-        return ["guides:list", "core-dmca", "core-corrections"]
+        return ["guides:list", "core-about", "core-dmca", "core-corrections"]
 
     def location(self, item):
         return reverse(item)
@@ -78,6 +101,9 @@ class GuideSitemap(SiteRootSitemap):
 
     def location(self, obj):
         return obj.get_absolute_url()
+
+    def images(self, item):
+        return [{"loc": static_url(f"{path}.jpg"), "title": item.title} for path in item.image_paths]
 
 
 class AuthorSitemap(SiteRootSitemap):
