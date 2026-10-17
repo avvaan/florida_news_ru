@@ -186,7 +186,7 @@ def test_guide_is_published_only_by_editor_and_posted_to_telegram(admin_client, 
     guide.refresh_from_db()
     assert resp.status_code == 200 and guide.is_published and post.call_args.args[0] == guide
     html = client.get(guide.get_absolute_url()).content.decode()
-    assert "<h2>Набор на случай ЧС</h2>" in html and '"@type": "Article"' in html
+    assert '<h2 id="nabor-na-sluchay-chs">Набор на случай ЧС</h2>' in html and '"@type": "Article"' in html
     assert guide.title in client.get("/").content.decode()  # блок «Полезное» на главной
 
 
