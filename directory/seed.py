@@ -200,4 +200,9 @@ def import_businesses(apps, schema_editor, filename="businesses_2026_10.json"):
             "address": row["address"], "city": row["city"], "languages": row["languages"],
             "region": Region.objects.filter(slug=row["region"]).first() if row["region"] else None,
             "is_active": row["active"], "editor_note": row["note"],
+            "hours": row.get("hours", ""), "is_recommended": row.get("recommended", False),
         })
+
+
+def import_wayside(apps, schema_editor):
+    import_businesses(apps, schema_editor, "businesses_2026_10_wayside.json")

@@ -235,7 +235,7 @@ def directory_jsonld(category, listings) -> str:
         if item.address:
             data["address"] = {"@type": "PostalAddress", "streetAddress": item.address,
                                "addressRegion": "FL", "addressCountry": "US"}
-        if item.languages:
+        if item.languages and "уточн" not in item.languages:  # только подтверждённые языки
             data["knowsLanguage"] = item.languages
         return data
 

@@ -69,7 +69,7 @@ def test_businesses_from_editor_table():
     from directory.models import Listing
 
     business = Listing.objects.filter(category__kind="business")
-    assert business.count() == 27  # 26 из таблицы + приход Святой Нины
+    assert business.count() == 28  # 26 из таблицы + приход Святой Нины + Wayside Family Dental
     hidden = set(business.filter(is_active=False).values_list("name", flat=True))
     assert {"Kalinka Euro Deli", "Romashka Euro Deli", "Lacomka Bakery & Store"} <= hidden and len(hidden) == 6
     assert all(Listing.objects.filter(name__in=hidden).values_list("editor_note", flat=True))
@@ -84,3 +84,13 @@ def test_category_region_filter(client):
     tampa = client.get("/links/vrachi/?region=tampa").content.decode()
     assert tampa.count('class="dir__card"') == 1 and 'content="noindex, follow"' in tampa
     assert "Kalinka" not in client.get("/links/produkty/").content.decode()  # скрытые до проверки
+
+
+def test_wayside_family_dental(client):
+    from directory.models import Listing
+
+    item = Listing.objects.get(name__startswith="Wayside Family Dental")
+    assert item.category.slug == "stomatologi" and item.is_recommended and item.is_active
+    assert item.phone == "(407) 732-4570" and item.region.slug == "orlando"
+    html = client.get("/links/stomatologi/").content.decode()
+    assert html.index("Wayside Family Dental") < html.index("Tetri") and "Рекомендуем" in html
