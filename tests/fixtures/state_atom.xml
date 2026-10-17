@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>State Wire</title>
+  <id>urn:test:state</id>
+  <updated>2026-10-17T13:00:00Z</updated>
+  <entry>
+    <title>Orange County issues a boil water notice after water main break</title>
+    <link href="https://example-state.test/boil-water"/>
+    <id>urn:test:state:1</id>
+    <updated>2026-10-17T13:00:00Z</updated>
+    <summary>County utilities ask residents to boil water.</summary>
+  </entry>
+</feed>

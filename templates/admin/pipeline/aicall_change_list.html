@@ -1,0 +1,21 @@
+{% extends "admin/change_list.html" %}
+{% block content_title %}
+  <h1>Расходы на ИИ</h1>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin:8px 0 20px">
+    <div style="border:1px solid #ddd;border-radius:8px;padding:12px 16px;min-width:240px">
+      <div style="color:#666">Сегодня</div>
+      <div style="font-size:24px;font-weight:700">${{ today.cost|default:0|floatformat:4 }}</div>
+      <div>из бюджета ${{ budget.budget }} · вызовов {{ today.calls }}</div>
+      <div>заметок сегодня: {{ budget.articles_today }} / {{ budget.max_articles }}</div>
+      {% if budget.urgent_only %}<div style="color:#c25700;font-weight:700">Лимит превышен — пишем только срочное</div>{% endif %}
+      <ul style="margin:6px 0 0;padding-left:18px">{% for row in today.by_purpose %}<li>{{ row.label }}: ${{ row.cost|floatformat:4 }} ({{ row.calls }})</li>{% endfor %}</ul>
+    </div>
+    <div style="border:1px solid #ddd;border-radius:8px;padding:12px 16px;min-width:240px">
+      <div style="color:#666">Этот месяц</div>
+      <div style="font-size:24px;font-weight:700">${{ month.cost|default:0|floatformat:2 }}</div>
+      <div>вызовов {{ month.calls }} · токенов вход/выход {{ month.inp|default:0 }} / {{ month.out|default:0 }}</div>
+      <div>прочитано из кэша: {{ month.cached|default:0 }}</div>
+      <ul style="margin:6px 0 0;padding-left:18px">{% for row in month.by_purpose %}<li>{{ row.label }}: ${{ row.cost|floatformat:2 }} ({{ row.calls }})</li>{% endfor %}</ul>
+    </div>
+  </div>
+{% endblock %}

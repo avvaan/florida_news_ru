@@ -1,0 +1,7 @@
+{% load news_extras %}<article class="tile{% if a.is_urgent %} tile--urgent{% endif %}">
+  <a class="tile__img" href="{{ a.get_absolute_url }}" tabindex="-1" aria-hidden="true">
+    <img src="{% cover a '640' %}" alt="" width="640" height="360" loading="lazy">
+  </a>
+  <h3 class="tile__title"><a href="{{ a.get_absolute_url }}">{% if a.is_urgent %}<span class="flag">Срочно</span> {% endif %}{{ a.title }}</a></h3>
+  {% include "includes/meta.html" %}
+</article>

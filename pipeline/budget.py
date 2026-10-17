@@ -1,0 +1,48 @@
+"""Лимиты расходов: заметок в день и долларов на ИИ в день."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from decimal import Decimal
+
+from django.utils import timezone
+
+from core.models import SiteSettings
+from news.models import Article
+
+from .models import AICall
+
+
+@dataclass
+class BudgetState:
+    articles_today: int
+    max_articles: int
+    spent_today: Decimal
+    budget: Decimal
+
+    @property
+    def articles_exceeded(self) -> bool:
+        return self.articles_today >= self.max_articles
+
+    @property
+    def money_exceeded(self) -> bool:
+        return self.spent_today >= self.budget
+
+    @property
+    def urgent_only(self) -> bool:
+        """При превышении любого лимита пишем только срочное."""
+        return self.articles_exceeded or self.money_exceeded
+
+    def allows(self, is_urgent: bool) -> bool:
+        return is_urgent or not self.urgent_only
+
+
+def current_budget(conf: SiteSettings | None = None) -> BudgetState:
+    conf = conf or SiteSettings.load()
+    day_start = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
+    return BudgetState(
+        articles_today=Article.objects.filter(created_at__gte=day_start).count(),
+        max_articles=conf.max_articles_per_day,
+        spent_today=AICall.objects.today().total_cost(),
+        budget=conf.ai_budget_per_day_usd,
+    )

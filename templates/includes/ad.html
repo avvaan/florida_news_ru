@@ -1,0 +1,7 @@
+<aside class="ad{% if wide %} ad--wide{% endif %}" aria-label="Реклама">
+  <span class="ad__label">Реклама · {{ ad.advertiser }}</span>
+  <a class="ad__link" href="{{ ad.url }}" target="_blank" rel="sponsored noopener">
+    {% if ad.image %}<img src="{{ ad.image.url }}" alt="{{ ad.headline|default:ad.advertiser }}" loading="lazy">
+    {% else %}<span class="ad__text">{{ ad.headline }}</span>{% endif %}
+  </a>
+</aside>

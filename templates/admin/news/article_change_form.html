@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% block submit_buttons_bottom %}
+  {% if original and original.status != "published" %}
+    <div class="submit-row" style="background:#fff4e8;border-radius:6px">
+      <input type="submit" value="✅ Опубликовать" name="_publish" style="background:#0b7a75">
+      <input type="submit" value="❌ Отклонить" name="_reject" style="background:#8a2b1d">
+      <span style="align-self:center;margin-left:8px;color:#555">
+        {% if original.review_reason %}На проверке: {{ original.review_reason }}{% endif %}
+      </span>
+    </div>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

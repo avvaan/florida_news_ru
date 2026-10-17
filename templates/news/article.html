@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static news_extras %}
+
+{% block title %}{{ article.title }} — {{ site_name }}{% endblock %}
+{% block description %}{{ article.teaser }}{% endblock %}
+{% block canonical %}{{ article.get_absolute_url|absolute }}{% endblock %}
+{% block og %}
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{ article.title }}">
+  <meta property="og:description" content="{{ article.teaser }}">
+  <meta property="og:url" content="{{ article.get_absolute_url|absolute }}">
+  <meta property="og:image" content="{% cover article 'jpg' as og %}{{ og|absolute }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="675">
+  {% if article.published_at %}<meta property="article:published_time" content="{{ article.published_at|date:'c' }}">{% endif %}
+  <meta property="article:modified_time" content="{{ article.updated_at|date:'c' }}">
+  {% if article.topic %}<meta property="article:section" content="{{ article.topic.name }}">{% endif %}
+{% endblock %}
+{% block head %}{% if is_preview %}<meta name="robots" content="noindex">{% endif %}{% article_jsonld article %}{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  {% if is_preview %}
+  <p class="preview-note">Предпросмотр: заметка ещё не опубликована ({{ article.get_status_display }}). Читатели её не видят.</p>
+  {% endif %}
+
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a>
+    {% if article.region %}<span aria-hidden="true">/</span><a href="{{ article.region.get_absolute_url }}">{{ article.region.name }}</a>{% endif %}
+    {% if article.topic %}<span aria-hidden="true">/</span><a href="{{ article.topic.get_absolute_url }}">{{ article.topic.name }}</a>{% endif %}
+  </nav>
+
+  <div class="story-layout">
+    <article class="story">
+      <header class="story__head">
+        <h1 class="story__title">{% if article.is_urgent %}<span class="flag flag--lg">Срочно</span> {% endif %}{{ article.title }}</h1>
+        <p class="story__lede">{{ article.teaser }}</p>
+        <p class="story__meta">
+          <time datetime="{{ article.published_at|default:article.created_at|date:'c' }}">
+            <svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>{{ article.published_at|default:article.created_at|date:"j E Y, H:i" }}
+          </time>
+          {% if article.region %}<a href="{{ article.region.get_absolute_url }}"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ article.region.name }}</a>{% endif %}
+          <span>{{ article|reading_minutes }} {{ article|reading_minutes|plural_ru:"минута,минуты,минут" }} чтения</span>
+        </p>
+      </header>
+
+      <figure class="story__figure">
+        <img src="{% cover article %}" alt="" width="1200" height="675" fetchpriority="high">
+        <figcaption>Иллюстрация «{{ site_name }}»{% if article.topic %} к рубрике «{{ article.topic.name }}»{% endif %}</figcaption>
+      </figure>
+
+      <div class="story__body">
+        {% for p in article.paragraphs %}<p>{{ p }}</p>{% endfor %}
+      </div>
+
+      {% with srcs=article.sources.all %}
+      {% if srcs %}
+      <section class="sources" aria-labelledby="src-h">
+        <h2 class="sources__h" id="src-h">{% if srcs|length > 1 %}Источники{% else %}Источник{% endif %}</h2>
+        <ul class="sources__list">
+          {% for s in srcs %}
+          <li><a href="{{ s.url }}" target="_blank" rel="noopener nofollow">
+            <b>{{ s.name }}</b>{% if s.title %}<span>{{ s.title }}</span>{% endif %}
+            <svg class="i" aria-hidden="true"><use href="#i-external"/></svg>
+          </a></li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+      {% endwith %}
+
+      <p class="story__disclaimer">{{ disclaimer }}</p>
+
+      {% if article.tags.all %}
+      <ul class="chips" aria-label="Теги">
+        {% for t in article.tags.all %}<li><a class="chip" href="{{ t.get_absolute_url }}">#{{ t.name }}</a></li>{% endfor %}
+      </ul>
+      {% endif %}
+
+      {% include "includes/tg_cta.html" %}
+      {% if ads.infeed %}{% include "includes/ad.html" with ad=ads.infeed %}{% endif %}
+    </article>
+
+    <aside class="sidebar sidebar--story" aria-label="Боковая колонка">
+      {% if ads.sidebar %}{% include "includes/ad.html" with ad=ads.sidebar %}{% endif %}
+      {% if related %}
+      <section aria-labelledby="rel-h">
+        <h2 class="sidebar__h" id="rel-h">Похожие новости</h2>
+        <div class="related">
+          {% for a in related %}{% include "includes/tile.html" %}{% endfor %}
+        </div>
+      </section>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}

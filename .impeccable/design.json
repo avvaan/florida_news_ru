@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17T15:42:20+00:00",
+  "title": "Design System: Флорида Сегодня",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Чернила Мексиканского залива",
+        "canonical": "oklch(25.1% 0.039 241.7)",
+        "tonalRamp": [
+          "oklch(15% 0.039 241.7)",
+          "oklch(26% 0.039 241.7)",
+          "oklch(38% 0.039 241.7)",
+          "oklch(49% 0.039 241.7)",
+          "oklch(61% 0.039 241.7)",
+          "oklch(72% 0.039 241.7)",
+          "oklch(84% 0.039 241.7)",
+          "oklch(95% 0.039 241.7)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Чернила-2",
+        "canonical": "oklch(39.4% 0.040 242.2)",
+        "tonalRamp": [
+          "oklch(15% 0.040 242.2)",
+          "oklch(26% 0.040 242.2)",
+          "oklch(38% 0.040 242.2)",
+          "oklch(49% 0.040 242.2)",
+          "oklch(61% 0.040 242.2)",
+          "oklch(72% 0.040 242.2)",
+          "oklch(84% 0.040 242.2)",
+          "oklch(95% 0.040 242.2)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Приглушённый сланец",
+        "canonical": "oklch(51.3% 0.033 238.8)",
+        "tonalRamp": [
+          "oklch(15% 0.033 238.8)",
+          "oklch(26% 0.033 238.8)",
+          "oklch(38% 0.033 238.8)",
+          "oklch(49% 0.033 238.8)",
+          "oklch(61% 0.033 238.8)",
+          "oklch(72% 0.033 238.8)",
+          "oklch(84% 0.033 238.8)",
+          "oklch(95% 0.033 238.8)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Бумага",
+        "canonical": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(26% 0.000 89.9)",
+          "oklch(38% 0.000 89.9)",
+          "oklch(49% 0.000 89.9)",
+          "oklch(61% 0.000 89.9)",
+          "oklch(72% 0.000 89.9)",
+          "oklch(84% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "mist": {
+        "role": "neutral",
+        "displayName": "Морской туман",
+        "canonical": "oklch(96.1% 0.012 184.1)",
+        "tonalRamp": [
+          "oklch(15% 0.012 184.1)",
+          "oklch(26% 0.012 184.1)",
+          "oklch(38% 0.012 184.1)",
+          "oklch(49% 0.012 184.1)",
+          "oklch(61% 0.012 184.1)",
+          "oklch(72% 0.012 184.1)",
+          "oklch(84% 0.012 184.1)",
+          "oklch(95% 0.012 184.1)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Линия",
+        "canonical": "oklch(90.0% 0.013 221.4)",
+        "tonalRamp": [
+          "oklch(15% 0.013 221.4)",
+          "oklch(26% 0.013 221.4)",
+          "oklch(38% 0.013 221.4)",
+          "oklch(49% 0.013 221.4)",
+          "oklch(61% 0.013 221.4)",
+          "oklch(72% 0.013 221.4)",
+          "oklch(84% 0.013 221.4)",
+          "oklch(95% 0.013 221.4)"
+        ]
+      },
+      "gulf": {
+        "role": "primary",
+        "displayName": "Зелень залива (знак хайвея)",
+        "canonical": "oklch(52.4% 0.088 189.7)",
+        "tonalRamp": [
+          "oklch(15% 0.088 189.7)",
+          "oklch(26% 0.088 189.7)",
+          "oklch(38% 0.088 189.7)",
+          "oklch(49% 0.088 189.7)",
+          "oklch(61% 0.088 189.7)",
+          "oklch(72% 0.088 189.7)",
+          "oklch(84% 0.088 189.7)",
+          "oklch(95% 0.088 189.7)"
+        ]
+      },
+      "gulf-deep": {
+        "role": "primary",
+        "displayName": "Глубокий залив",
+        "canonical": "oklch(39.7% 0.066 190.4)",
+        "tonalRamp": [
+          "oklch(15% 0.066 190.4)",
+          "oklch(26% 0.066 190.4)",
+          "oklch(38% 0.066 190.4)",
+          "oklch(49% 0.066 190.4)",
+          "oklch(61% 0.066 190.4)",
+          "oklch(72% 0.066 190.4)",
+          "oklch(84% 0.066 190.4)",
+          "oklch(95% 0.066 190.4)"
+        ]
+      },
+      "shallow": {
+        "role": "tertiary",
+        "displayName": "Мелководье",
+        "canonical": "oklch(80.5% 0.082 185.8)",
+        "tonalRamp": [
+          "oklch(15% 0.082 185.8)",
+          "oklch(26% 0.082 185.8)",
+          "oklch(38% 0.082 185.8)",
+          "oklch(49% 0.082 185.8)",
+          "oklch(61% 0.082 185.8)",
+          "oklch(72% 0.082 185.8)",
+          "oklch(84% 0.082 185.8)",
+          "oklch(95% 0.082 185.8)"
+        ]
+      },
+      "storm": {
+        "role": "secondary",
+        "displayName": "Штормовой оранжевый",
+        "canonical": "oklch(55.3% 0.174 38.4)",
+        "tonalRamp": [
+          "oklch(15% 0.174 38.4)",
+          "oklch(26% 0.174 38.4)",
+          "oklch(38% 0.174 38.4)",
+          "oklch(49% 0.174 38.4)",
+          "oklch(61% 0.174 38.4)",
+          "oklch(72% 0.174 38.4)",
+          "oklch(84% 0.174 38.4)",
+          "oklch(95% 0.120 38.4)"
+        ]
+      },
+      "storm-deep": {
+        "role": "secondary",
+        "displayName": "Глубокий шторм",
+        "canonical": "oklch(47.0% 0.143 37.3)",
+        "tonalRamp": [
+          "oklch(15% 0.143 37.3)",
+          "oklch(26% 0.143 37.3)",
+          "oklch(38% 0.143 37.3)",
+          "oklch(49% 0.143 37.3)",
+          "oklch(61% 0.143 37.3)",
+          "oklch(72% 0.143 37.3)",
+          "oklch(84% 0.143 37.3)",
+          "oklch(95% 0.120 37.3)"
+        ]
+      },
+      "sun": {
+        "role": "secondary",
+        "displayName": "Флоридское солнце",
+        "canonical": "oklch(86.1% 0.159 86.4)",
+        "tonalRamp": [
+          "oklch(15% 0.159 86.4)",
+          "oklch(26% 0.159 86.4)",
+          "oklch(38% 0.159 86.4)",
+          "oklch(49% 0.159 86.4)",
+          "oklch(61% 0.159 86.4)",
+          "oklch(72% 0.159 86.4)",
+          "oklch(84% 0.159 86.4)",
+          "oklch(95% 0.120 86.4)"
+        ]
+      },
+      "sun-soft": {
+        "role": "secondary",
+        "displayName": "Мягкое солнце",
+        "canonical": "oklch(96.7% 0.047 92.6)",
+        "tonalRamp": [
+          "oklch(15% 0.047 92.6)",
+          "oklch(26% 0.047 92.6)",
+          "oklch(38% 0.047 92.6)",
+          "oklch(49% 0.047 92.6)",
+          "oklch(61% 0.047 92.6)",
+          "oklch(72% 0.047 92.6)",
+          "oklch(84% 0.047 92.6)",
+          "oklch(95% 0.047 92.6)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Вывеска",
+        "purpose": "Только словесный знак «Флорида Сегодня»."
+      },
+      "headline": {
+        "displayName": "Заголовок полосы",
+        "purpose": "Главная тема, заголовок статьи и раздела."
+      },
+      "title": {
+        "displayName": "Заголовок заметки",
+        "purpose": "Плитки, строки ленты."
+      },
+      "body": {
+        "displayName": "Текст",
+        "purpose": "Базовый текст интерфейса."
+      },
+      "body-story": {
+        "displayName": "Текст статьи",
+        "purpose": "Тело заметки, max 68ch."
+      },
+      "label": {
+        "displayName": "Капительная метка",
+        "purpose": "Заголовки секций, метки «Срочно» и severity, колонки подвала."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sign-frame",
+        "value": "inset 0 0 0 3px var(--gulf), inset 0 0 0 4.5px rgb(255 255 255 / .9)",
+        "purpose": "Белая внутренняя рамка табличек регионов (не тень, а контур знака)."
+      },
+      {
+        "name": "ghost-ring",
+        "value": "inset 0 0 0 2px var(--line)",
+        "purpose": "Контур ghost-кнопки."
+      },
+      {
+        "name": "signal-pulse",
+        "value": "0 0 0 7px rgb(255 255 255 / 0)",
+        "purpose": "Пик пульса метки «Срочно» (@keyframes signal, 2.4s)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Все переходы."
+      },
+      {
+        "name": "color",
+        "value": ".2s",
+        "purpose": "Смена фона кнопок, табличек."
+      },
+      {
+        "name": "cover-zoom",
+        "value": "transform .6s; scale(1.03)",
+        "purpose": "Обложка при наведении на карточку."
+      },
+      {
+        "name": "signal",
+        "value": "2.4s infinite",
+        "purpose": "Пульс метки в полосе «Срочно». Всё отключается при prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone-max",
+        "value": "599px"
+      },
+      {
+        "name": "sm",
+        "value": "600px"
+      },
+      {
+        "name": "md",
+        "value": "760px"
+      },
+      {
+        "name": "lg",
+        "value": "960px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Основное действие: зелень залива, пилюля.",
+      "html": "<a class=\"ds-btn\" href=\"#\">На главную</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:.5em;min-height:44px;padding:.65em 1.1em;border-radius:999px;border:0;background:var(--gulf,#0b7a75);color:#fff;font-family:\"Golos Text\",system-ui,sans-serif;font-weight:600;font-size:1rem;line-height:1.2;text-decoration:none;transition:background-color .2s cubic-bezier(.16,1,.3,1),transform .2s cubic-bezier(.16,1,.3,1)}.ds-btn:hover{background:var(--gulf-deep,#07524f)}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:3px solid var(--sun,#ffc93c);outline-offset:2px}"
+    },
+    {
+      "name": "Sun Button",
+      "kind": "button",
+      "refersTo": "button-sun",
+      "description": "Подписка на Telegram внутри тёмной карточки.",
+      "html": "<a class=\"ds-btn-sun\" href=\"#\">Подписаться на канал</a>",
+      "css": ".ds-btn-sun{display:inline-flex;align-items:center;min-height:44px;padding:.65em 1.1em;border-radius:999px;background:var(--sun,#ffc93c);color:var(--ink,#0f2433);font-family:\"Golos Text\",system-ui,sans-serif;font-weight:600;font-size:1rem;line-height:1.2;text-decoration:none;transition:background-color .2s cubic-bezier(.16,1,.3,1)}.ds-btn-sun:hover{background:#ffd866}.ds-btn-sun:focus-visible{outline:3px solid var(--ink,#0f2433);outline-offset:2px}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Пагинация ленты.",
+      "html": "<a class=\"ds-btn-ghost\" href=\"#\">Ещё новости →</a>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;min-height:44px;padding:.65em 1.1em;border-radius:999px;background:transparent;color:var(--gulf-deep,#07524f);box-shadow:inset 0 0 0 2px var(--line,#d5e0e4);font-family:\"Golos Text\",system-ui,sans-serif;font-weight:600;font-size:1rem;text-decoration:none;transition:background-color .2s cubic-bezier(.16,1,.3,1)}.ds-btn-ghost:hover{background:var(--mist,#eaf5f3)}.ds-btn-ghost:focus-visible{outline:3px solid var(--sun,#ffc93c);outline-offset:2px}"
+    },
+    {
+      "name": "Region Signs",
+      "kind": "nav",
+      "refersTo": "sign",
+      "description": "Таблички регионов как указатели флоридских хайвеев; текущая — солнечная.",
+      "html": "<nav class=\"ds-signs\"><a class=\"ds-sign is-current\" href=\"#\" aria-current=\"page\">Главное</a><a class=\"ds-sign\" href=\"#\">Майами</a><a class=\"ds-sign\" href=\"#\">Орландо</a></nav>",
+      "css": ".ds-signs{display:flex;gap:10px;padding:12px;background:var(--ink,#0f2433)}.ds-sign{display:inline-flex;align-items:center;min-height:44px;padding:.55em 1.05em;border-radius:7px;white-space:nowrap;background:var(--gulf,#0b7a75);color:#fff;font-family:\"Golos Text\",system-ui,sans-serif;font-weight:600;text-decoration:none;box-shadow:inset 0 0 0 3px var(--gulf,#0b7a75),inset 0 0 0 4.5px rgb(255 255 255 / .9);transition:background-color .2s cubic-bezier(.16,1,.3,1),transform .25s cubic-bezier(.16,1,.3,1)}.ds-sign:hover{background:var(--gulf-deep,#07524f);box-shadow:inset 0 0 0 3px var(--gulf-deep,#07524f),inset 0 0 0 4.5px #fff;transform:translateY(-1px)}.ds-sign.is-current{background:var(--sun,#ffc93c);color:var(--ink,#0f2433);box-shadow:inset 0 0 0 3px var(--sun,#ffc93c),inset 0 0 0 4.5px var(--ink,#0f2433)}.ds-sign:focus-visible{outline:3px solid var(--sun,#ffc93c);outline-offset:2px}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Темы региона и теги статьи.",
+      "html": "<a class=\"ds-chip\" href=\"#\">#ураганы</a>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;min-height:36px;padding:6px 12px;border-radius:999px;background:var(--mist,#eaf5f3);color:var(--gulf-deep,#07524f);font-family:\"Golos Text\",system-ui,sans-serif;font-weight:600;font-size:.9rem;text-decoration:none}.ds-chip:hover{background:var(--shallow,#7fd1c7);color:var(--ink,#0f2433)}.ds-chip:focus-visible{outline:3px solid var(--sun,#ffc93c);outline-offset:2px}"
+    },
+    {
+      "name": "Urgent Flag in Headline",
+      "kind": "custom",
+      "refersTo": "flag-urgent",
+      "description": "Флажок «Срочно» внутри ссылки заголовка; только при is_urgent.",
+      "html": "<h3 class=\"ds-title\"><a href=\"#\"><span class=\"ds-flag\">Срочно</span> Тропический шторм идёт к Тампе</a></h3>",
+      "css": ".ds-title{margin:0;font-family:\"Golos Text\",system-ui,sans-serif;font-weight:700;font-size:1.15rem;line-height:1.25;letter-spacing:-.012em;color:var(--ink,#0f2433)}.ds-title a{color:inherit;text-decoration:none}.ds-title a:hover{text-decoration:underline;text-decoration-thickness:2px;text-decoration-color:var(--shallow,#7fd1c7)}.ds-flag{display:inline-block;vertical-align:.18em;margin-right:.2em;padding:.28em .5em .24em;border-radius:3px;background:var(--storm,#c2410c);color:#fff;font-family:\"Unbounded\",\"Golos Text\",system-ui,sans-serif;font-weight:800;font-size:.55em;line-height:1;letter-spacing:.06em;text-transform:uppercase}"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "custom",
+      "refersTo": "label",
+      "description": "Заголовок секции: Unbounded-метка, квадрат залива, черта 3px.",
+      "html": "<h2 class=\"ds-sec-h\">Самое важное за сутки</h2>",
+      "css": ".ds-sec-h{display:flex;align-items:center;gap:10px;margin:0;padding-bottom:12px;border-bottom:3px solid var(--ink,#0f2433);font-family:\"Unbounded\",\"Golos Text\",system-ui,sans-serif;font-weight:800;font-size:.78rem;line-height:1;letter-spacing:.07em;text-transform:uppercase;color:var(--ink,#0f2433)}.ds-sec-h::before{content:\"\";width:10px;height:10px;border-radius:2px;background:var(--gulf,#0b7a75);flex:none}"
+    },
+    {
+      "name": "Weather Alert Panel",
+      "kind": "card",
+      "refersTo": "panel-weather",
+      "description": "Чернильная панель NWS/NHC с метками severity.",
+      "html": "<section class=\"ds-weather\"><h2 class=\"ds-weather-h\">Погода и ураганы</h2><ul class=\"ds-alerts\"><li class=\"ds-alert\"><span class=\"ds-sev ds-sev--x\">Чрезвычайное</span><b>Угроза штормового нагона</b><span class=\"ds-time\">до 19 октября, 03:38</span></li><li class=\"ds-alert\"><span class=\"ds-sev ds-sev--s\">Сильное</span><b>Предупреждение о тропическом шторме</b><span class=\"ds-time\">до 18 октября, 17:38</span></li></ul><a class=\"ds-wlink\" href=\"#\">Карта NHC</a></section>",
+      "css": ".ds-weather{background:var(--ink,#0f2433);color:#fff;border-radius:12px;padding:24px;font-family:\"Golos Text\",system-ui,sans-serif;}.ds-weather-h{margin:0;font-weight:800;font-size:1.5rem;line-height:1.15;letter-spacing:-.02em}.ds-alerts{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}.ds-alert{display:grid;gap:8px;align-content:start;padding:10px 12px;border-radius:8px;background:rgb(255 255 255 / .06)}.ds-sev{justify-self:start;padding:4px 8px 3px;border-radius:4px;font-family:\"Unbounded\",\"Golos Text\",system-ui,sans-serif;font-weight:800;font-size:.65rem;line-height:1.2;text-transform:uppercase;letter-spacing:.05em;background:var(--mist,#eaf5f3);color:var(--ink,#0f2433)}.ds-sev--x{background:var(--storm,#c2410c);color:#fff}.ds-sev--s{background:var(--sun,#ffc93c)}.ds-time{color:var(--shallow,#7fd1c7);font-size:.85rem;font-variant-numeric:tabular-nums}.ds-wlink{display:inline-block;margin-top:14px;color:var(--sun,#ffc93c);font-weight:600}.ds-wlink:focus-visible{outline:3px solid var(--sun,#ffc93c);outline-offset:2px}"
+    },
+    {
+      "name": "Telegram Card",
+      "kind": "card",
+      "refersTo": "card-telegram",
+      "description": "Призыв подписаться: глубокий залив, солнечная кнопка.",
+      "html": "<aside class=\"ds-tg\"><p class=\"ds-tg-t\">Срочные новости — сразу в Telegram</p><p class=\"ds-tg-x\">Ураганы, эвакуации, новые законы. Без спама, только главное.</p><a class=\"ds-tg-b\" href=\"#\">Подписаться на канал</a></aside>",
+      "css": ".ds-tg{display:grid;gap:10px;justify-items:start;padding:24px;border-radius:12px;background:var(--gulf-deep,#07524f);color:#fff;font-family:\"Golos Text\",system-ui,sans-serif;}.ds-tg p{margin:0}.ds-tg-t{font-weight:800;font-size:1.3rem;line-height:1.2;letter-spacing:-.015em}.ds-tg-x{color:#d4ece8;font-size:.95rem}.ds-tg-b{margin-top:6px;display:inline-flex;align-items:center;min-height:44px;padding:.65em 1.1em;border-radius:999px;background:var(--sun,#ffc93c);color:var(--ink,#0f2433);font-weight:600;text-decoration:none}.ds-tg-b:hover{background:#ffd866}.ds-tg-b:focus-visible{outline:3px solid var(--sun,#ffc93c);outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Первая полоса у съезда с хайвея",
+    "overview": "Классическая новостная первая полоса на белой бумаге, но с материалом самой Флориды: регионы — зелёные таблички хайвеев с белой внутренней рамкой, срочное — оранжевая «штормовая» полоса, предупреждения — солнечно-жёлтые. Иерархию задаёт срочность, а не только свежесть: полоса «Срочно» и блок «Погода и ураганы» стоят над главной темой дня.\n\nПлотность — газетная: лента строками с миниатюрой, дайджест нумерованным списком, разделение линиями `--line` и толстой чернильной чертой под заголовками секций, а не карточками с тенями. Изображения — только собственные плоские иллюстрации в стиле флоридских туристических плакатов середины века (Recraft V4.1, палитра `#0F2433 #0B7A75 #7FD1C7 #F26B1D #FFC93C #CFE9F2 #FFFFFF`), по одной на рубрику: `static/covers/<topic>.webp` (1200×675), `-640.webp`, `.jpg` для OG. Фото из чужих материалов не используются.\n\nМобильный — в первую очередь, без фреймворков: один файл `static/css/site.css`, токены на `:root`, иконки — SVG-спрайт `templates/includes/icons.svg` (`i-mark`, `i-telegram`, `i-spiral`, `i-pin`, `i-clock`, `i-arrow`, `i-external`, `i-alert`).",
+    "keyCharacteristics": [
+      "Белая бумага + чернильно-синий; зелень залива как голос навигации и действий.",
+      "Оранжевый `storm` — только для срочного; жёлтый `sun` — для предупреждений, фокуса и текущего положения.",
+      "Таблички регионов-указатели на чернильной полосе — фирменный элемент.",
+      "Плоско: глубина — тоном панелей и внутренними рамками, не тенями.",
+      "Обложки 16:9 со скруглением 8px, лёгкий zoom при наведении."
+    ],
+    "rules": [
+      {
+        "name": "The Storm Is Only for Storms Rule",
+        "body": "`storm` появляется только там, где есть флаг срочности или чрезвычайное предупреждение (`is_urgent`, severity extreme). Никаких оранжевых кнопок и декоративных акцентов.",
+        "section": "colors"
+      },
+      {
+        "name": "The Darker Orange Rule",
+        "body": "UI-оранжевый (`storm`) темнее постерного `#F26B1D` иллюстраций и `#c8460b` из направления: белый текст на нём обязан проходить контраст. Палитры обложек и интерфейса родственны, но не тождественны.",
+        "section": "colors"
+      },
+      {
+        "name": "The Yellow Means \"You Are Here / Act\" Rule",
+        "body": "`sun` — текущее положение (табличка `is-current`), фокус, подписка и предупреждения. Не использовать как фон контента.",
+        "section": "colors"
+      },
+      {
+        "name": "The Unbounded Is a Sign Rule",
+        "body": "Unbounded только 800 и только в вывесочных ролях: словесный знак, капительные метки, цифры дайджеста (1.5rem, `gulf`). Никогда для заголовков статей и текста.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tight Headline Rule",
+        "body": "Заголовки 700–800 с отрицательным трекингом (−0.01…−0.028em), `text-wrap: balance`; цифры времени — всегда tabular-nums.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Paper Rule",
+        "body": "Поверхности не поднимаются тенями. Если нужно выделить блок — тональная панель (`ink`, `gulf-deep`, `mist`) со скруглением 10–12px.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do брать цвета только из токенов `:root`; ссылки на белом — `gulf-deep`, на чернилах — `sun`.",
+      "Do ставить сигналы в порядке угрозы: полоса «Срочно» → погода → главная тема → лента.",
+      "Do давать каждой новой рубрике собственную обложку в том же постерном стиле и палитре, в трёх файлах (`.webp` 1200×675, `-640.webp`, `.jpg`).",
+      "Do использовать иконки только из спрайта `icons.svg` (`<svg class=\"i\"><use href=\"#i-…\"/></svg>`, 1em).",
+      "Do держать цели касания ≥ 44px и уважать `prefers-reduced-motion` (вся анимация отключается).",
+      "Do использовать `--ease` (`cubic-bezier(.16, 1, .3, 1)`) для всех переходов."
+    ],
+    "donts": [
+      "Don't использовать `storm` вне срочного и чрезвычайного.",
+      "Don't вводить тени у карточек и панелей — система плоская.",
+      "Don't набирать Unbounded заголовки статей или текст.",
+      "Don't превращать ленту в сетку одинаковых карточек блога: строки с миниатюрой, дайджест — список.",
+      "Don't ставить стоковые фото или фото из чужих материалов вместо собственных иллюстраций.",
+      "Don't публиковать заметку без блока «Источники»."
+    ]
+  }
+}

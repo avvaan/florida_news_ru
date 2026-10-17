@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Test Orlando News</title>
+    <link>https://example-orlando.test/</link>
+    <description>Fixture feed</description>
+    <item>
+      <title>Orange County issues boil water notice after main break</title>
+      <link>https://example-orlando.test/news/boil-water-notice</link>
+      <guid>orl-1001</guid>
+      <pubDate>Fri, 17 Oct 2026 12:00:00 GMT</pubDate>
+      <description><![CDATA[<p>Residents east of <b>Semoran Blvd</b> should boil water for at least one minute.</p>]]></description>
+    </item>
+    <item>
+      <title>I-4 ramps downtown to close overnight this weekend</title>
+      <link>https://example-orlando.test/news/i4-closures</link>
+      <guid>orl-1002</guid>
+      <pubDate>Fri, 17 Oct 2026 10:30:00 GMT</pubDate>
+      <description>FDOT says ramps at Anderson Street will close from 10 p.m. to 6 a.m.</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://example-orlando.test/news/no-title</link>
+      <guid>orl-1003</guid>
+    </item>
+  </channel>
+</rss>
