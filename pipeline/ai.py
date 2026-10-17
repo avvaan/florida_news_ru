@@ -43,7 +43,7 @@ def estimate_cost(model: str, input_tokens: int, output_tokens: int,
         + Decimal(cache_read) * Decimal(price.get("cache_read", price["input"]))
         + Decimal(cache_write) * Decimal(price.get("cache_write", price["input"]))
         + Decimal(output_tokens) * Decimal(price["output"])
-    ) / MILLION
+    ) / MILLION + Decimal(price.get("request", "0"))
     return cost.quantize(Decimal("0.000001"))
 
 

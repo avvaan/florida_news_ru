@@ -54,10 +54,21 @@ class PageSitemap(SiteRootSitemap):
         return Page.objects.all()
 
 
+class LegalSitemap(SiteRootSitemap):
+    changefreq = "monthly"
+    priority = 0.3
+
+    def items(self):
+        return ["core-dmca", "core-corrections"]
+
+    def location(self, item):
+        return reverse(item)
+
+
 def google_news_items():
     """Google News sitemap: только заметки за последние 48 часов."""
     since = timezone.now() - timedelta(hours=48)
     return Article.objects.published().filter(published_at__gte=since).order_by("-published_at")[:1000]
 
 
-SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "pages": PageSitemap}
+SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "pages": PageSitemap, "legal": LegalSitemap}

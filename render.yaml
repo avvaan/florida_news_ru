@@ -25,6 +25,17 @@ envVarGroups:
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
+      # Сигналы из соцсетей (включаются галочками в админке)
+      - key: PERPLEXITY_API_KEY
+        sync: false
+      - key: XAI_API_KEY
+        sync: false
+      - key: TG_API_ID
+        sync: false
+      - key: TG_API_HASH
+        sync: false
+      - key: TG_SESSION
+        sync: false
       - key: TELEGRAM_CHANNEL_ID
         sync: false
       - key: TELEGRAM_CHANNEL_URL

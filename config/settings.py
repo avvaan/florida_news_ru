@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "news",
     "sources",
     "pipeline",
+    "social",
     "ads",
     "rest_framework",
     "rest_framework.authtoken",
@@ -191,12 +192,32 @@ AI_PRICING = {
     "claude-haiku-5-5": {"input": "0.10", "cache_read": "0.01", "cache_write": "0.125", "output": "0.50"},
     "claude-sonnet-5": {"input": "2.00", "cache_read": "0.20", "cache_write": "2.50", "output": "10.00"},
     "claude-sonnet-5-5": {"input": "2.00", "cache_read": "0.20", "cache_write": "2.50", "output": "10.00"},
+    # Сигналы из соцсетей: "request" — плата за один запрос с поиском, сверх токенов.
+    # Оценка с запасом; сверьте с тарифами Perplexity и xAI и поправьте через AI_PRICING_JSON.
+    "perplexity/sonar": {"input": "1.00", "output": "1.00", "request": "0.012"},
+    "grok-4.7": {"input": "3.00", "output": "15.00", "request": "0.05"},
 }
 # Пример: AI_PRICING_JSON='{"deepseek-flash": {"input": "0.14", "cache_read": "0.014", "output": "0.28"}}'
 if pricing_json := os.environ.get("AI_PRICING_JSON"):
     import json
 
     AI_PRICING.update(json.loads(pricing_json))
+
+# --- Сигналы из соцсетей -----------------------------------------------------
+# Соцсети — только подсказки: заметки пишутся и публикуются по подтверждению от СМИ
+# или официального источника. Каждый сборщик включается галочкой в настройках сайта.
+PERPLEXITY_API_KEY = os.environ.get("PERPLEXITY_API_KEY", "")
+PERPLEXITY_API_URL = os.environ.get("PERPLEXITY_API_URL", "https://api.perplexity.ai/v1/responses")
+PERPLEXITY_MODEL = os.environ.get("PERPLEXITY_MODEL", "perplexity/sonar")
+XAI_API_KEY = os.environ.get("XAI_API_KEY", "")
+XAI_API_URL = os.environ.get("XAI_API_URL", "https://api.x.ai/v1/responses")
+XAI_MODEL = os.environ.get("XAI_MODEL", "grok-4.7")
+TG_API_ID = os.environ.get("TG_API_ID", "")
+TG_API_HASH = os.environ.get("TG_API_HASH", "")
+TG_SESSION = os.environ.get("TG_SESSION", "")  # строка сессии от `manage.py telegram_login`
+# Сбор сигналов останавливается, когда потрачена эта доля дневного бюджета на ИИ:
+# остаток остаётся на отбор и написание заметок.
+SIGNALS_BUDGET_SHARE = float(os.environ.get("SIGNALS_BUDGET_SHARE", "0.7"))
 
 # --- Telegram ----------------------------------------------------------------
 
