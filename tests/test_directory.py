@@ -17,7 +17,7 @@ def ld(html: str) -> dict:
 
 def test_seeded_categories_and_st_nina_church():
     assert Category.objects.filter(kind="links").count() == 9
-    assert Category.objects.filter(kind="business").count() == 16
+    assert Category.objects.filter(kind="business").count() == 20
     church = Listing.objects.get(category__slug="cerkvi")
     assert church.url == "https://www.stninaorlando.org/" and church.is_recommended
     assert church.region.slug == "orlando" and "Hanging Moss" in church.address
@@ -62,16 +62,17 @@ def test_sitemap_includes_only_filled_categories(client):
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/links/</loc>" in sitemap and "/links/cerkvi/</loc>" in sitemap
     assert "/links/vrachi/</loc>" in sitemap and "/links/avto/</loc>" not in sitemap
-    assert "/links/produkty/</loc>" not in sitemap  # только скрытые записи
+    assert "/links/produkty/</loc>" in sitemap  # «Лакомка» и Green Hills включены
 
 
 def test_businesses_from_editor_table():
     from directory.models import Listing
 
     business = Listing.objects.filter(category__kind="business")
-    assert business.count() == 28  # 26 из таблицы + приход Святой Нины + Wayside Family Dental
+    assert business.filter(name__startswith="Wayside").exists() and business.filter(category__slug="cerkvi").exists()
     hidden = set(business.filter(is_active=False).values_list("name", flat=True))
-    assert {"Kalinka Euro Deli", "Romashka Euro Deli", "Lacomka Bakery & Store"} <= hidden and len(hidden) == 6
+    assert {"Kalinka Euro Deli", "Romashka Euro Deli"} <= hidden
+    assert not any(name.startswith("Lacomka") for name in hidden)  # «Лакомку» проверили и включили
     assert all(Listing.objects.filter(name__in=hidden).values_list("editor_note", flat=True))
     gesheva = business.get(name__startswith="Irena Gesheva")
     assert gesheva.phone == "(941) 629-2900" and "/doctor/irena-gesheva-md/" in gesheva.url
@@ -83,7 +84,7 @@ def test_category_region_filter(client):
     assert html.index("Джексонвилл") < html.index("Палметто")  # регионы раньше «других городов»
     tampa = client.get("/links/vrachi/?region=tampa").content.decode()
     assert tampa.count('class="dir__card"') == 1 and 'content="noindex, follow"' in tampa
-    assert "Kalinka" not in client.get("/links/produkty/").content.decode()  # скрытые до проверки
+    assert "Kalinka" not in client.get("/links/produkty/").content.decode()  # скрытая до проверки
 
 
 def test_wayside_family_dental(client):
@@ -94,3 +95,19 @@ def test_wayside_family_dental(client):
     assert item.phone == "(407) 732-4570" and item.region.slug == "orlando"
     html = client.get("/links/stomatologi/").content.decode()
     assert html.index("Wayside Family Dental") < html.index("Tetri") and "Рекомендуем" in html
+
+
+def test_batch2_additions(client):
+    from directory.models import Listing
+
+    lacomka = Listing.objects.get(name__startswith="Lacomka")
+    assert lacomka.is_active and lacomka.phone == "(407) 677-1101" and "Winter Park" in lacomka.address
+    for name, slug in (("Green Hills", "produkty"), ("Мария — логопед", "deti"), ("Circus Dog Show", "prazdniki"),
+                       ("Argo Restaurant", "restorany"), ("Zefir Milenia", "podarki"), ("Revivery", "krasota"),
+                       ("Golden Age", "pozhilye"), ("Sofia Art Academy", "deti"), ("Alexander Miloserdov", "krasota"),
+                       ("GroomBoom", "zhivotnye"), ("EuroHome", "produkty"), ("Funky Fresh", "podarki"),
+                       ("All Green Project", "deti"), ("Mariia Delibaltova", "krasota")):
+        item = Listing.objects.get(name__startswith=name)
+        assert item.category.slug == slug and item.is_active, name
+    html = client.get("/links/produkty/").content.decode()
+    assert "Green Hills" in html and "Лакомка" in html

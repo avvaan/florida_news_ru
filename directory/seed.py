@@ -33,8 +33,12 @@ BUSINESS_CATEGORIES = [
     ("restorany", "Рестораны и кафе", "Кухня Восточной Европы, Грузии и Средней Азии.", "Restaurant", 10),
     ("krasota", "Красота и здоровье", "Салоны красоты, массаж, фитнес.", "BeautySalon", 11),
     ("deti", "Детские сады, кружки и репетиторы", "Детские сады, школы выходного дня, кружки, репетиторы.", "EducationalOrganization", 12),
+    ("prazdniki", "Праздники и развлечения", "Аниматоры, шоу и организация детских и семейных праздников.", "EntertainmentBusiness", 12),
+    ("pozhilye", "Уход за пожилыми и дневные центры", "Дневные центры для пенсионеров, уход на дому, досуг для старшего поколения.", "LocalBusiness", 2),
+    ("podarki", "Подарки, цветы и сладости на заказ", "Торты, букеты, сладкие подарки и композиции с доставкой.", "Store", 12),
     ("perevody", "Переводы и нотариус", "Сертифицированные переводы, нотариусы, апостиль.", "ProfessionalService", 13),
     ("remont", "Ремонт и строительство", "Ремонт, кровля, кондиционеры, электрика — с лицензией штата.", "HomeAndConstructionBusiness", 14),
+    ("zhivotnye", "Животные: груминг, ветеринары, зоотовары", "Груминг, ветеринарные клиники, зоомагазины и передержка.", "PetStore", 14),
     ("pereezd", "Переезд и доставка", "Переезды, перевозка машин, посылки.", "MovingCompany", 15),
     ("drugoe", "Другие услуги", "Всё, что не вошло в другие категории.", "LocalBusiness", 16),
 ]
@@ -206,3 +210,45 @@ def import_businesses(apps, schema_editor, filename="businesses_2026_10.json"):
 
 def import_wayside(apps, schema_editor):
     import_businesses(apps, schema_editor, "businesses_2026_10_wayside.json")
+
+
+def apply_business_updates(apps, schema_editor, filename):
+    """Обновления справочника: {"match": "существующее название"} дополняет запись, иначе создаётся новая.
+
+    В объекте — только поля, которые нужно задать: name, category, region, city, description, languages,
+    address, phone, url, hours, active, recommended, note.
+    """
+    import json
+    from pathlib import Path
+
+    Category = apps.get_model("directory", "Category")
+    Listing = apps.get_model("directory", "Listing")
+    Region = apps.get_model("news", "Region")
+    rows = json.loads((Path(__file__).parent / "data" / filename).read_text(encoding="utf-8"))
+    fields = {"name": "name", "description": "description", "languages": "languages", "address": "address",
+              "phone": "phone", "url": "url", "hours": "hours", "city": "city", "active": "is_active",
+              "recommended": "is_recommended", "note": "editor_note", "guide": "guide_slug"}
+    for row in rows:
+        names = [n for n in (row.get("match"), row.get("name")) if n]
+        item = Listing.objects.filter(name__in=names).first()
+        if item is None:
+            if not row.get("category"):
+                continue  # обновлять нечего: запись удалили вручную
+            item = Listing(category=Category.objects.get(slug=row["category"]))
+        elif row.get("category"):
+            item.category = Category.objects.get(slug=row["category"])
+        for key, attr in fields.items():
+            if key in row:
+                setattr(item, attr, row[key])
+        if "region" in row:
+            item.region = Region.objects.filter(slug=row["region"]).first() if row["region"] else None
+        item.save()
+
+
+def import_batch2(apps, schema_editor):
+    Category = apps.get_model("directory", "Category")
+    for slug, name, description, schema_type, order in BUSINESS_CATEGORIES:
+        Category.objects.get_or_create(slug=slug, defaults={
+            "kind": "business", "name": name, "description": description, "schema_type": schema_type, "order": order,
+        })
+    apply_business_updates(apps, schema_editor, "businesses_2026_10_batch2.json")
