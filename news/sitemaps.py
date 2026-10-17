@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models import Author, Page
+from directory.models import Category
 from guides.models import Guide
 
 from .models import Article, Region, Topic
@@ -106,6 +107,18 @@ class GuideSitemap(SiteRootSitemap):
         return [{"loc": static_url(f"{path}.jpg"), "title": item.title} for path in item.image_paths]
 
 
+class DirectorySitemap(SiteRootSitemap):
+    changefreq = "weekly"
+    priority = 0.5
+
+    def items(self):
+        # пустые категории закрыты noindex — в sitemap только те, где есть записи
+        return ["index", *Category.objects.filter(listings__is_active=True).distinct().order_by("kind", "order")]
+
+    def location(self, item):
+        return reverse("directory:index") if item == "index" else item.get_absolute_url()
+
+
 class AuthorSitemap(SiteRootSitemap):
     changefreq = "monthly"
     priority = 0.3
@@ -121,4 +134,5 @@ def google_news_items():
 
 
 SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,
-            "authors": AuthorSitemap, "legal": LegalSitemap}
+            "authors": AuthorSitemap, "legal": LegalSitemap,
+            "directory": DirectorySitemap}

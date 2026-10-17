@@ -150,6 +150,9 @@ def test_guide_seo_markup(content_dir, client):
 def test_sitemap_lists_guide_images_and_404_is_noindex(content_dir, client):
     (content_dir / "test-guide.md").write_text(guide_text())
     run("--no-images")
+    from django.core.cache import cache
+
+    cache.clear()  # sitemap кэшируется на 10 минут
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "xmlns:image" in sitemap and "/static/guides/test-guide-3.jpg</image:loc>" in sitemap
     assert "/p/about/" not in sitemap  # 301 в sitemap не нужен

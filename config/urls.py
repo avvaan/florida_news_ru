@@ -29,6 +29,7 @@ urlpatterns = [
     path("about/", core_views.about, name="core-about"),
     path("author/<slug:slug>/", core_views.author, name="core-author"),
     path("guides/", include("guides.urls")),
+    path("links/", include("directory.urls")),
     path("dmca/", core_views.dmca, name="core-dmca"),
     path("corrections/", core_views.corrections, name="core-corrections"),
     path("", include("news.urls")),

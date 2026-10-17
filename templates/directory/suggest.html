@@ -1,0 +1,8 @@
+<aside class="dir__suggest" aria-labelledby="suggest-h">
+  <h3 id="suggest-h">Знаете хорошее место? Расскажите нам</h3>
+  <p>Пришлите название, сайт или телефон и пару слов, чем оно хорошо. Владельцы бизнеса могут предложить себя сами — платное размещение мы помечаем меткой «Партнёр».</p>
+  <p class="dir__suggest-actions">
+    {% if contact_email %}<a class="btn" href="mailto:{{ contact_email }}?subject={{ 'Предложить бизнес для справочника'|urlencode }}">Написать на почту</a>{% endif %}
+    <a class="btn btn--ghost" href="{% url 'core-page' 'contacts' %}">Контакты редакции</a>
+  </p>
+</aside>

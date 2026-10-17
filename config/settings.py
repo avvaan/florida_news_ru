@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "guides",
     "ads",
     "stats",
+    "directory",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",

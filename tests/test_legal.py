@@ -14,7 +14,7 @@ def test_dmca_and_corrections_pages_open(client):
 def test_footer_has_legal_links_and_owner(client):
     html = client.get("/").content.decode()
     assert "CITRUSTACK LLC. Florida RU — florida-ru.com" in html
-    for href in ("/p/about/", "/p/advertising/", "/corrections/", "/dmca/", "/p/privacy/", "/p/contacts/"):
+    for href in ("/about/", "/guides/", "/links/", "/p/advertising/", "/corrections/", "/dmca/", "/p/privacy/", "/p/contacts/"):
         assert f'href="{href}"' in html
 
 

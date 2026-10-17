@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}Полезные ссылки и бизнесы Флориды для русскоязычных — {{ site_name }}{% endblock %}
+{% block description %}Официальные сайты Флориды по темам — документы, ураганы, налоги, медицина, школы — и проверенные бизнесы и приходы для русско- и украиноязычных: церкви, врачи, юристы, магазины.{% endblock %}
+{% block og %}{% include "includes/og.html" with title="Полезные ссылки и бизнесы — "|add:site_name description="Официальные сайты Флориды по темам и проверенные бизнесы и приходы для русско- и украиноязычных." url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% breadcrumbs_jsonld "Главная" home_url "Полезные ссылки и бизнесы" dir_url %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><span>Ссылки и бизнесы</span>
+  </nav>
+  <section class="story dir">
+    <h1 class="story__title">Полезные ссылки и бизнесы</h1>
+    <p class="story__lede">Официальные сайты, которые нужны каждому жителю Флориды, и проверенные места, где вас поймут по-русски и по-украински.</p>
+    <nav class="guides__nav" aria-label="Разделы справочника">
+      <a class="chip" href="#links">Официальные ссылки</a>
+      <a class="chip" href="#business">Рекомендации бизнесов</a>
+      {% for c in business_categories %}{% if c.listings.all %}<a class="chip" href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% endif %}{% endfor %}
+    </nav>
+
+    <section class="guides__section" id="links" aria-labelledby="links-h">
+      <div class="section-head"><h2 class="section-head__h" id="links-h">Официальные ссылки</h2></div>
+      <p class="dir__intro">Только государственные сайты и сайты официальных программ. Остерегайтесь посредников, которые берут деньги за то, что на этих сайтах бесплатно.</p>
+      <div class="dir__groups">
+        {% for c in link_categories %}
+        <section class="dir__group" aria-labelledby="lc-{{ c.slug }}">
+          <h3 class="dir__group-h" id="lc-{{ c.slug }}">{{ c.name }}</h3>
+          <ul class="dir__links">
+            {% for item in c.listings.all %}
+            <li>
+              <a class="dir__link" href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}<svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
+              {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+              <p class="dir__meta">{% if item.phone %}<a href="{{ item.phone_href }}">{{ item.phone }}</a>{% endif %}{% if item.guide %}<a href="{{ item.guide.get_absolute_url }}">Подробнее в гайде →</a>{% endif %}</p>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="guides__section" id="business" aria-labelledby="business-h">
+      <div class="section-head"><h2 class="section-head__h" id="business-h">Рекомендации бизнесов</h2></div>
+      <p class="dir__intro">Приходы, врачи, юристы, магазины и мастера, где говорят по-русски или по-украински. Мы добавляем места после проверки; платное размещение всегда отмечено меткой «Партнёр».</p>
+      <ul class="dir__cats">
+        {% for c in business_categories %}
+        {% with n=c.listings.all|length %}
+        <li><a class="dir__cat{% if not n %} is-empty{% endif %}" href="{{ c.get_absolute_url }}">
+          <b>{{ c.name }}</b>
+          <span>{{ c.description }}</span>
+          <em>{% if n %}{{ n }} {{ n|plural_ru:"место,места,мест" }}{% else %}Пока пусто — предложите{% endif %}</em>
+        </a></li>
+        {% endwith %}
+        {% endfor %}
+      </ul>
+      {% include "directory/suggest.html" %}
+    </section>
+  </section>
+</div>
+{% endblock %}

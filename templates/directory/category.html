@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}{{ category.name }} во Флориде{% if category.kind == "business" %} — по-русски{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}{{ category.description|default:category.name }}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=category.name|add:" — "|add:site_name description=category.description|default:category.name url=request.path %}{% endblock %}
+{% block robots %}{% if not listings %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% breadcrumbs_jsonld "Главная" home_url "Ссылки и бизнесы" dir_url category.name category.get_absolute_url %}{% if listings %}{% directory_jsonld category listings %}{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">Ссылки и бизнесы</a>
+  </nav>
+  <section class="story dir">
+    <h1 class="story__title">{{ category.name }}</h1>
+    {% if category.description %}<p class="story__lede">{{ category.description }}</p>{% endif %}
+
+    {% if listings %}
+    <ul class="dir__cards">
+      {% for item in listings %}
+      <li class="dir__card">
+        {% if item.is_partner or item.is_recommended %}<p class="dir__badges">{% if item.is_partner %}<span class="dir__badge dir__badge--partner">Партнёр</span>{% endif %}{% if item.is_recommended %}<span class="dir__badge">Рекомендуем</span>{% endif %}</p>{% endif %}
+        <h2 class="dir__card-h">{% if item.url %}<a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h2>
+        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+        <dl class="dir__facts">
+          {% if item.address %}<div><dt>Адрес</dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query={{ item.address|urlencode }}" target="_blank" rel="noopener">{{ item.address }}</a></dd></div>{% elif item.city %}<div><dt>Город</dt><dd>{{ item.city }}</dd></div>{% endif %}
+          {% if item.hours %}<div><dt>Когда</dt><dd>{{ item.hours }}</dd></div>{% endif %}
+          {% if item.languages %}<div><dt>Языки</dt><dd>{{ item.languages }}</dd></div>{% endif %}
+          {% if item.phone %}<div><dt>Телефон</dt><dd><a href="{{ item.phone_href }}">{{ item.phone }}</a></dd></div>{% endif %}
+        </dl>
+        <p class="dir__card-actions">
+          {% if item.url %}<a class="btn" href="{{ item.url }}" target="_blank" rel="noopener">Сайт: {{ item.domain }}</a>{% endif %}
+          {% if item.guide %}<a class="btn btn--ghost" href="{{ item.guide.get_absolute_url }}">Подробнее в гайде</a>{% endif %}
+        </p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="dir__empty">В этой категории пока никого нет. Мы добавляем места только после проверки — помогите нам: расскажите о хорошем месте.</p>
+    {% endif %}
+
+    {% if category.kind == "business" %}{% include "directory/suggest.html" %}{% endif %}
+
+    {% if others %}
+    <nav class="dir__others" aria-labelledby="others-h">
+      <h2 class="sidebar__h" id="others-h">Другие категории</h2>
+      <ul class="chips">{% for c in others %}<li><a class="chip" href="{{ c.get_absolute_url }}">{{ c.name }}</a></li>{% endfor %}</ul>
+    </nav>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

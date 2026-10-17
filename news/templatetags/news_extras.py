@@ -222,6 +222,33 @@ def collection_jsonld(name, description, url, items) -> str:
 
 
 @register.simple_tag
+def directory_jsonld(category, listings) -> str:
+    """ItemList записей справочника: бизнесы — LocalBusiness (или Church и т. п.), ссылки — WebSite."""
+    def entry(item):
+        if category.kind == "links":
+            return {"@type": "WebSite", "name": item.name, "url": item.url, "description": item.description}
+        data = {"@type": category.schema_type or "LocalBusiness", "name": item.name, "description": item.description}
+        if item.url:
+            data["url"] = item.url
+        if item.phone:
+            data["telephone"] = item.phone
+        if item.address:
+            data["address"] = {"@type": "PostalAddress", "streetAddress": item.address,
+                               "addressRegion": "FL", "addressCountry": "US"}
+        if item.languages:
+            data["knowsLanguage"] = item.languages
+        return data
+
+    return _jsonld({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": category.name,
+        "itemListElement": [{"@type": "ListItem", "position": n, "item": entry(item)}
+                            for n, item in enumerate(listings, start=1)],
+    })
+
+
+@register.simple_tag
 def person_jsonld(author) -> str:
     data = {
         "@context": "https://schema.org", "@type": "Person", "name": author.name,
