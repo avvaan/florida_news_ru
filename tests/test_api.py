@@ -102,7 +102,7 @@ def test_pipeline_run_in_background_and_conflict(api):
         def start(self):
             self.target(*self.args)
 
-    with mock.patch("api.runner.threading.Thread", InlineThread), \
+    with mock.patch("pipeline.runner.threading.Thread", InlineThread), \
             mock.patch("pipeline.services.fetch_all", return_value=[]):
         resp = api.post("/api/v1/pipeline/run/", {"fetch": True, "write": False}, format="json")
     assert resp.status_code == 202
@@ -148,3 +148,55 @@ def test_privacy_owner_migration_updates_only_untouched_page():
 
 def test_footer_shows_owner(client):
     assert "© " in client.get("/").content.decode() and "CITRUSTACK LLC" in client.get("/").content.decode()
+
+
+def test_pick_cover_for_one_article(api, article):
+    with mock.patch("api.views.choose_cover", return_value="covers/florida-2") as choose:
+        resp = api.post(f"/api/v1/articles/{article.pk}/pick-cover/")
+    assert resp.status_code == 200 and choose.call_args.args[0].pk == article.pk
+
+    with mock.patch("api.views.choose_cover", return_value=""):
+        assert api.post(f"/api/v1/articles/{article.pk}/pick-cover/").status_code == 502
+
+    SiteSettings.objects.update(ai_budget_per_day_usd="0.01")
+    AICall.objects.create(purpose="write", model="x", cost_usd="0.020000")
+    assert api.post(f"/api/v1/articles/{article.pk}/pick-cover/").status_code == 429
+
+
+def test_pick_covers_in_background(api):
+    published = [Article.objects.create(title=f"N{i}", teaser="t", body="b", status=Article.Status.PUBLISHED,
+                                        published_at=timezone.now()) for i in range(3)]
+    Article.objects.filter(pk=published[0].pk).update(cover_image="covers/florida-2")  # уже выбрана
+    Article.objects.create(title="Черновик", teaser="t", body="b")
+    seen = []
+
+    class InlineThread:
+        def __init__(self, target, args, daemon):
+            self.target, self.args = target, args
+
+        def start(self):
+            self.target(*self.args)
+
+    def fake_choose(article):
+        seen.append(article.pk)
+        return "covers/florida-3"
+
+    with mock.patch("pipeline.runner.threading.Thread", InlineThread), \
+            mock.patch("pipeline.services.choose_cover", side_effect=fake_choose):
+        resp = api.post("/api/v1/articles/pick-covers/", {}, format="json")
+    assert resp.status_code == 202
+    assert sorted(seen) == sorted(a.pk for a in published[1:])
+    run = PipelineRun.objects.get(pk=resp.json()["id"])
+    assert run.stats["task"] == "covers" and run.stats["covers_changed"] == 2 and run.finished_at
+
+    assert api.post("/api/v1/articles/pick-covers/", {"status": "rejected"}, format="json").status_code == 400
+    PipelineRun.objects.create()  # незавершённый запуск
+    assert api.post("/api/v1/articles/pick-covers/", {"ids": [published[0].pk]}, format="json").status_code == 409
+
+
+def test_admin_pick_cover_action(admin_client, article):
+    with mock.patch("news.admin.start_covers", return_value=PipelineRun.objects.create()) as start:
+        resp = admin_client.post("/admin/news/article/", {"action": "action_pick_cover",
+                                                          "_selected_action": [article.pk]}, follow=True)
+    assert start.call_args.args[0] == [article.pk]
+    assert "журнале запуска" in resp.content.decode()

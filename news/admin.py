@@ -2,9 +2,11 @@ from django import forms
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.templatetags.static import static
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from pipeline.runner import AlreadyRunning, start_covers
 from pipeline.services import publish_article, reject_article
 from pipeline.telegram import build_post, post_article
 
@@ -53,6 +55,21 @@ def action_telegram(modeladmin, request, queryset):
             modeladmin.message_user(request, f"«{article.title}»: {exc}", messages.ERROR)
 
 
+@admin.action(description="🖼 Подобрать обложку ИИ по тексту")
+def action_pick_cover(modeladmin, request, queryset):
+    try:
+        run = start_covers(list(queryset.order_by("-created_at").values_list("pk", flat=True)[:500]),
+                           source="admin")
+    except AlreadyRunning:
+        modeladmin.message_user(request, "Конвейер уже работает — попробуйте через несколько минут",
+                                messages.WARNING)
+        return
+    url = reverse("admin:pipeline_pipelinerun_change", args=[run.pk])
+    modeladmin.message_user(
+        request, format_html("Подбираю обложки в фоне. Ход — в <a href=\"{}\">журнале запуска</a>.", url),
+        messages.SUCCESS)
+
+
 class BaseArticleAdmin(admin.ModelAdmin):
     change_form_template = "admin/news/article_change_form.html"
     list_display = ("title", "status_badge", "region", "topic", "score", "is_urgent", "is_sensitive", "created_at")
@@ -62,7 +79,7 @@ class BaseArticleAdmin(admin.ModelAdmin):
     inlines = [ArticleSourceInline]
     readonly_fields = ("verification_box", "telegram_preview", "story_link", "created_at", "updated_at",
                        "telegram_posted_at", "word_count", "cover_preview")
-    actions = [action_publish, action_reject, action_telegram]
+    actions = [action_publish, action_reject, action_telegram, action_pick_cover]
     fieldsets = (
         (None, {"fields": ("title", "teaser", "body", "word_count")}),
         ("Разметка", {"fields": ("region", "topic", "tags", "is_urgent", "is_sensitive", "score")}),

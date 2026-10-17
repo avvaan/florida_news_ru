@@ -52,6 +52,7 @@
 | `python manage.py run_pipeline --no-write` | только сбор и склейка, без ИИ |
 | `python manage.py run_pipeline --no-fetch` | обработать уже собранное, без сети |
 | `python manage.py fetch_sources` | только сбор (можно `--source ID`) |
+| `python manage.py pick_covers` | ИИ подбирает обложки старым заметкам по тексту (опубликованным без выбранной обложки; `--all`, `--topic weather`, `--limit 50`, `--ids 12 15`) |
 | `python manage.py check_ai` (`--ping`) | проверить ключ DeepSeek и названия моделей (с `--ping` — тестовый запрос) |
 | `python manage.py check_sources --activate` | проверить все фиды, включить рабочие, выключить нерабочие |
 | `python manage.py seed_demo` / `--clear` | демо-заметки для просмотра дизайна (только `DJANGO_DEBUG=1`) |
@@ -153,6 +154,8 @@ REST API на Django REST Framework. Всё, что есть в админке, 
 | Заметки (фильтры `status`, `region`, `topic`, `urgent`, `q`) | `GET /api/v1/articles/` |
 | Создать / изменить / удалить заметку | `POST /api/v1/articles/`, `PATCH`/`DELETE /api/v1/articles/{id}/` |
 | Опубликовать / снять / отправить в Telegram | `POST /api/v1/articles/{id}/publish/`, `…/reject/`, `…/telegram/` |
+| Сменить обложку вручную (`""` — по очереди из рубрики) | `PATCH /api/v1/articles/{id}/` с `{"cover_image": "covers/weather-2"}` |
+| ИИ подбирает обложку одной заметке / пачке в фоне | `POST /api/v1/articles/{id}/pick-cover/`, `POST /api/v1/articles/pick-covers/` |
 | Источники, проверка фида, сбор, сброс ошибок | `/api/v1/sources/`, `POST …/{id}/check/?activate=1`, `…/fetch/`, `…/reset/` |
 | Настройки (пороги, лимиты, Telegram, автопубликация) | `GET`/`PATCH /api/v1/settings/` |
 | Запустить конвейер сейчас (в фоне) и следить за ним | `POST /api/v1/pipeline/run/`, `GET /api/v1/pipeline/{id}/` |
@@ -179,10 +182,16 @@ curl -X PATCH -H "Authorization: Token $TOKEN" -H "Content-Type: application/jso
 # запустить конвейер без ожидания cron
 curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
      -d '{"fetch": true, "write": true}' $SITE/api/v1/pipeline/run/
+# ИИ подбирает обложки 100 последним опубликованным заметкам без выбранной обложки
+curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
+     -d '{"only_empty": true, "limit": 100}' $SITE/api/v1/articles/pick-covers/
 ```
 
 Конвейер из API работает в фоне внутри веб-сервиса; одновременно идёт только один запуск
 (повторный вызов вернёт `409` с текущим запуском). Плановые запуски по-прежнему делает cron.
+Подбор обложек пачкой идёт так же — как отдельный запуск в журнале (`stats.task = "covers"`):
+один дешёвый запрос к `AI_CLASSIFIER_MODEL` на заметку, доли цента; при исчерпанном дневном
+лимите на ИИ подбор останавливается.
 
 ---
 
@@ -322,6 +331,8 @@ curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json
   с описаниями (рубрика, ураган для срочной погоды и ЧП, общие виды Флориды; недавно использованные
   помечены) и выбирает одну. Описания — в `news/covers.py` (`CATALOG`). В админке у заметки есть
   выпадающий список обложек с превью; пусто — обложка из набора рубрики по очереди.
+  Старым заметкам обложку по тексту подбирает действие «🖼 Подобрать обложку ИИ» в списке заметок
+  админки, команда `pick_covers` или API (`pick-cover`, `pick-covers`).
 - Добавить обложку: положите в `static/covers/` три файла — `<рубрика>-<N>.webp` (1200×675),
   `<рубрика>-<N>-640.webp` и `<рубрика>-<N>.jpg` (для фото — `<рубрика>-photo-<N>…`), набор обновится сам.
 - Шрифты Golos Text и Unbounded (кириллица) раздаются с самого сайта, лицензия OFL в `static/fonts/`.
