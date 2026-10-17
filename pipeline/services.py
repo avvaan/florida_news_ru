@@ -20,7 +20,7 @@ from .budget import current_budget
 from .clustering import cluster_items
 from .decisions import decide
 from .models import AICall, PipelineRun
-from .schemas import Classification, Draft, Verification
+from .schemas import Classification, CoverChoice, Draft, Verification
 from .telegram import post_article
 
 log = logging.getLogger(__name__)
@@ -187,6 +187,64 @@ def recent_covers(topic, limit: int = 5) -> set[str]:
     if topic:
         qs = qs.filter(topic=topic)
     return set(qs.order_by("-created_at").values_list("cover_image", flat=True)[:limit])
+
+
+def choose_cover(article: Article) -> str:
+    """Заново подбирает обложку уже написанной заметке по её тексту. Возвращает id или ""."""
+    covers = candidates_for(article.topic.slug if article.topic else None, article.is_urgent)
+    recent = recent_covers(article.topic) - {article.cover_image}
+    choice: CoverChoice = ai.ask(
+        purpose=AICall.Purpose.COVER,
+        model=settings.AI_CLASSIFIER_MODEL,
+        system=prompts.COVER_SYSTEM,
+        user=(
+            f"<article>\nЗаголовок: {article.title}\nАнонс: {article.teaser}\n\n{article.body}\n</article>\n\n"
+            f"Обложки на выбор:\n{prompts.covers_brief(covers, recent)}"
+        ),
+        output=CoverChoice,
+        max_tokens=500,
+        story=article.story,
+    )
+    if choice.cover not in {c.base for c in covers}:
+        return ""
+    article.cover_image = choice.cover
+    article.save(update_fields=["cover_image", "updated_at"])
+    return choice.cover
+
+
+def rechoose_covers(articles, *, run: PipelineRun | None = None) -> PipelineRun:
+    """Подбор обложек пачке заметок. Журнал и итоги — в запуске конвейера, как у обычного прохода."""
+    run = run or PipelineRun.objects.create(stats={"task": "covers"})
+    say = RunLog()
+    stats = {"task": "covers", "covers_changed": 0, "covers_failed": 0}
+    try:
+        for article in articles:
+            budget = current_budget()
+            if budget.money_exceeded:
+                say(f"Лимит ИИ на сегодня исчерпан (${budget.spent_today:.2f}/${budget.budget}) — остановились")
+                break
+            try:
+                cover = choose_cover(article)
+            except ai.AIError as exc:
+                stats["covers_failed"] += 1
+                say(f"«{article.title[:60]}»: ошибка — {exc}")
+                continue
+            if cover:
+                stats["covers_changed"] += 1
+                say(f"«{article.title[:60]}» → {cover}")
+            else:
+                stats["covers_failed"] += 1
+                say(f"«{article.title[:60]}»: ИИ вернул неизвестную обложку, оставили прежнюю")
+        say(f"Обложки: подобрано {stats['covers_changed']}, не вышло {stats['covers_failed']}")
+    except Exception as exc:  # noqa: BLE001
+        run.success = False
+        say(f"Сбой: {type(exc).__name__}: {exc}")
+        log.exception("Сбой подбора обложек")
+    run.finished_at = timezone.now()
+    run.stats = {**run.stats, **stats}
+    run.log = say.text()
+    run.save()
+    return run
 
 
 def attach_sources(article: Article, items) -> None:

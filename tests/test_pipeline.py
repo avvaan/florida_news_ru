@@ -5,6 +5,7 @@ from unittest import mock
 
 import pytest
 
+from django.conf import settings
 from django.test import override_settings
 
 from core.models import SiteSettings
@@ -12,8 +13,8 @@ from news.models import Article, Story
 from pipeline import ai
 from pipeline.clustering import cluster_items
 from pipeline.models import AICall
-from pipeline.schemas import Classification, Draft, Verification
-from pipeline.services import RunLog, classify_new, run_pipeline, write_pending
+from pipeline.schemas import Classification, CoverChoice, Draft, Verification
+from pipeline.services import RunLog, classify_new, rechoose_covers, run_pipeline, write_pending
 from sources.fetch import parse_feed, store_items
 from sources.models import Source
 
@@ -27,23 +28,25 @@ BODY = " ".join(["слово"] * 100)
 class FakeAI:
     """Отвечает по типу запрошенной схемы в форме DeepSeek или Anthropic. Ничего не шлёт в сеть."""
 
-    def __init__(self, classification=None, draft=None, verification=None):
+    def __init__(self, classification=None, draft=None, verification=None, cover=None):
         self.classification = classification or Classification(
             score=8, topic="safety", region="orlando", is_urgent=False, is_sensitive=False, reason="ЖКХ")
         self.draft = draft or Draft(title="В Орландо кипятите воду", teaser="Предписание для части округа",
                                     body=BODY, tags=["ЖКХ", "Орландо"], insufficient_facts=False,
                                     cover="covers/safety-3")
         self.verification = verification or Verification(ok=True, confidence=0.95, issues=[])
+        self.cover = cover or CoverChoice(cover="covers/weather-photo-2")
         self.calls = []
         self.messages = self  # Anthropic: client.messages.parse
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))  # DeepSeek
 
     def answer_for(self, schema):
-        return {Classification: self.classification, Draft: self.draft, Verification: self.verification}[schema]
+        return {Classification: self.classification, Draft: self.draft, Verification: self.verification,
+                CoverChoice: self.cover}[schema]
 
     @staticmethod
     def schema_from_prompt(system: str):
-        for schema in (Classification, Draft, Verification):
+        for schema in (Classification, Draft, Verification, CoverChoice):
             if json.dumps(schema.model_json_schema(), ensure_ascii=False) in system:
                 return schema
         raise AssertionError("в системном промпте нет JSON-схемы")
@@ -284,3 +287,38 @@ def test_unknown_cover_falls_back_to_rotation(stories):
     article = Article.objects.first()
     assert article.cover_image == ""
     assert article.cover.startswith("covers/safety")
+
+
+@override_settings(AI_PROVIDER="deepseek")
+def test_rechoose_covers_for_old_articles():
+    from news.models import Topic
+    weather = Topic.objects.get(slug="weather")
+    old = Article.objects.create(title="Жара до 98°F", teaser="Совет пить воду", body=BODY, topic=weather,
+                                 status=Article.Status.PUBLISHED)
+    fake = FakeAI()
+    with mock.patch.object(ai, "get_client", return_value=fake):
+        run = rechoose_covers([old])
+    old.refresh_from_db()
+    assert old.cover_image == "covers/weather-photo-2" and run.stats["covers_changed"] == 1
+    assert run.finished_at and "covers/weather-photo-2" in run.log
+    call = fake.calls[0]
+    assert call["model"] == settings.AI_CLASSIFIER_MODEL
+    assert "Жара до 98°F" in call["messages"][1]["content"] and "covers/weather-2 —" in call["messages"][1]["content"]
+    assert AICall.objects.get().purpose == "cover"
+
+
+@override_settings(AI_PROVIDER="deepseek")
+def test_rechoose_covers_keeps_cover_on_bad_answer_and_stops_on_budget():
+    first = Article.objects.create(title="A", teaser="t", body=BODY, cover_image="covers/florida-2")
+    second = Article.objects.create(title="B", teaser="t", body=BODY)
+    with mock.patch.object(ai, "get_client", return_value=FakeAI(cover=CoverChoice(cover="covers/nope"))):
+        run = rechoose_covers([first])
+    first.refresh_from_db()
+    assert first.cover_image == "covers/florida-2" and run.stats["covers_failed"] == 1
+
+    SiteSettings.objects.update(ai_budget_per_day_usd=Decimal("0.01"))
+    AICall.objects.create(purpose="write", model="x", cost_usd=Decimal("0.02"))
+    fake = FakeAI()
+    with mock.patch.object(ai, "get_client", return_value=fake):
+        run = rechoose_covers([second])
+    assert not fake.calls and "Лимит ИИ" in run.log

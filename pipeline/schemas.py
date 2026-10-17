@@ -34,3 +34,7 @@ class Verification(BaseModel):
     ok: bool = Field(description="true, если заметка не противоречит источникам и ничего не выдумано")
     confidence: float = Field(description="Уверенность 0.0–1.0")
     issues: list[str] = Field(description="Конкретные проблемы: выдуманные факты, искажённые цифры, обвинения без ссылки на полицию")
+
+
+class CoverChoice(BaseModel):
+    cover: str = Field(description="id обложки из списка «Обложки на выбор», лучше всего подходящей по смыслу")

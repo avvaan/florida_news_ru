@@ -160,3 +160,24 @@ class PipelineRunSerializer(serializers.ModelSerializer):
 class PipelineStartSerializer(serializers.Serializer):
     fetch = serializers.BooleanField(default=True, help_text="Собирать фиды")
     write = serializers.BooleanField(default=True, help_text="Отбирать и писать заметки (тратит ИИ)")
+
+
+class CoverBatchSerializer(serializers.Serializer):
+    ids = serializers.ListField(child=serializers.IntegerField(), required=False,
+                                help_text="Конкретные заметки. Если заданы, остальные условия не применяются")
+    only_empty = serializers.BooleanField(default=True,
+                                          help_text="Только заметки без выбранной обложки (обложка по очереди)")
+    status = serializers.ChoiceField(choices=Article.Status.choices, default=Article.Status.PUBLISHED)
+    topic = serializers.SlugField(required=False, help_text="slug темы")
+    limit = serializers.IntegerField(default=50, min_value=1, max_value=500, help_text="Сколько заметок, новые первыми")
+
+    def article_ids(self) -> list[int]:
+        data = self.validated_data
+        if data.get("ids"):
+            return list(Article.objects.filter(pk__in=data["ids"]).values_list("pk", flat=True))
+        qs = Article.objects.filter(status=data["status"])
+        if data["only_empty"]:
+            qs = qs.filter(cover_image="")
+        if data.get("topic"):
+            qs = qs.filter(topic__slug=data["topic"])
+        return list(qs.order_by("-published_at", "-created_at").values_list("pk", flat=True)[:data["limit"]])

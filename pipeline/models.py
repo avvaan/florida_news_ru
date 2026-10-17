@@ -25,6 +25,7 @@ class AICall(models.Model):
         CLASSIFY = "classify", "отбор"
         WRITE = "write", "написание"
         VERIFY = "verify", "проверка"
+        COVER = "cover", "обложка"
 
     created_at = models.DateTimeField("время", default=timezone.now, db_index=True)
     purpose = models.CharField("задача", max_length=20, choices=Purpose.choices)

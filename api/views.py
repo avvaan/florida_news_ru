@@ -15,15 +15,16 @@ from ads.models import AdBanner
 from core.models import Page, SiteSettings
 from news.covers import cover_pools, describe
 from news.models import Article, Region, Topic
+from pipeline import ai
 from pipeline.budget import current_budget
 from pipeline.models import AICall, PipelineRun
-from pipeline.services import publish_article, reject_article
+from pipeline.runner import AlreadyRunning, start_covers, start_pipeline
+from pipeline.services import choose_cover, publish_article, reject_article
 from pipeline.telegram import post_article
 from sources.fetch import check_source, fetch_all
 from sources.models import Source, WeatherAlert
 
 from . import serializers as s
-from .runner import AlreadyRunning, start_pipeline
 
 
 @extend_schema(parameters=[
@@ -80,6 +81,40 @@ class ArticleViewSet(viewsets.ModelViewSet):
         except Exception as exc:  # noqa: BLE001
             return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
         return Response({"result": result})
+
+    @extend_schema(request=None, responses={200: s.ArticleSerializer, 429: dict, 502: dict})
+    @action(detail=True, methods=["post"], url_path="pick-cover")
+    def pick_cover(self, request, pk=None):
+        """ИИ заново подбирает обложку по тексту заметки (один дешёвый запрос, несколько секунд)."""
+        article = self.get_object()
+        budget = current_budget()
+        if budget.money_exceeded:
+            return Response({"detail": f"Лимит ИИ на сегодня исчерпан (${budget.spent_today:.2f}/${budget.budget})"},
+                            status=status.HTTP_429_TOO_MANY_REQUESTS)
+        try:
+            cover = choose_cover(article)
+        except ai.AIError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
+        if not cover:
+            return Response({"detail": "ИИ вернул неизвестную обложку, оставили прежнюю"},
+                            status=status.HTTP_502_BAD_GATEWAY)
+        return Response(self.get_serializer(article).data)
+
+    @extend_schema(request=s.CoverBatchSerializer, responses={202: s.PipelineRunSerializer, 409: dict})
+    @action(detail=False, methods=["post"], url_path="pick-covers")
+    def pick_covers(self, request):
+        """Подобрать обложки ИИ пачке заметок в фоне. Ход и журнал — в GET /pipeline/{id}/."""
+        params = s.CoverBatchSerializer(data=request.data)
+        params.is_valid(raise_exception=True)
+        ids = params.article_ids()
+        if not ids:
+            return Response({"detail": "Под условия не попала ни одна заметка"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            run = start_covers(ids)
+        except AlreadyRunning as busy:
+            return Response({"detail": "Конвейер уже работает", "run": s.PipelineRunSerializer(busy.run).data},
+                            status=status.HTTP_409_CONFLICT)
+        return Response(s.PipelineRunSerializer(run).data, status=status.HTTP_202_ACCEPTED)
 
 
 class SourceViewSet(viewsets.ModelViewSet):
