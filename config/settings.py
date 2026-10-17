@@ -58,6 +58,10 @@ INSTALLED_APPS = [
     "sources",
     "pipeline",
     "ads",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "drf_spectacular",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -204,3 +208,26 @@ TELEGRAM_CHANNEL_URL = os.environ.get("TELEGRAM_CHANNEL_URL", "https://t.me/")
 DEMO_MODE = env_bool("DEMO_MODE", False)
 FORMS_URLFIELD_ASSUME_HTTPS = True
 SERVE_MEDIA = env_bool("SERVE_MEDIA", False)
+
+# --- API для удалённого управления ----------------------------------------------
+# Доступ — только сотрудникам (is_staff) по токену: заголовок «Authorization: Token <ключ>».
+# Токен создаётся командой `python manage.py drf_create_token <логин>` или в админке.
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAdminUser"],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 50,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.UserRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {"user": "600/hour"},
+}
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Флорида Сегодня — API управления",
+    "DESCRIPTION": "Заметки, источники, реклама, настройки, страницы, запуск конвейера и статистика. "
+                   "Авторизация: заголовок `Authorization: Token <ключ>` (ключ сотрудника).",
+    "VERSION": "1.0.0",
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
+}

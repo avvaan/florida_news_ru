@@ -31,7 +31,8 @@ class FakeAI:
         self.classification = classification or Classification(
             score=8, topic="safety", region="orlando", is_urgent=False, is_sensitive=False, reason="ЖКХ")
         self.draft = draft or Draft(title="В Орландо кипятите воду", teaser="Предписание для части округа",
-                                    body=BODY, tags=["ЖКХ", "Орландо"], insufficient_facts=False)
+                                    body=BODY, tags=["ЖКХ", "Орландо"], insufficient_facts=False,
+                                    cover="covers/safety-3")
         self.verification = verification or Verification(ok=True, confidence=0.95, issues=[])
         self.calls = []
         self.messages = self  # Anthropic: client.messages.parse
@@ -255,3 +256,31 @@ def test_run_pipeline_without_network_records_run(stories):
     with mock.patch.object(ai, "get_client", return_value=FakeAI()):
         run = run_pipeline(fetch=False)
     assert run.success and run.stats["written"] == 2 and "Опубликовано" in run.log
+
+
+@override_settings(AI_PROVIDER="deepseek")
+def test_writer_chooses_cover_by_meaning(stories):
+    fake = FakeAI()
+    run_with(fake)
+    article = Article.objects.first()
+    assert article.cover_image == "covers/safety-3"
+    assert article.cover == "covers/safety-3"
+    write_call = next(c for c in fake.calls if c["schema"] is Draft)
+    user_msg = write_call["messages"][1]["content"]
+    assert "Обложки на выбор:" in user_msg
+    assert "covers/safety-3 — иллюстрация: кипячение воды" in user_msg
+    # для ЧП в списке есть и обложки урагана, и общие виды Флориды
+    assert "covers/hurricane" in user_msg and "covers/florida-photo-1" in user_msg
+    # второй сюжет видит, что эта обложка уже была
+    second = [c for c in fake.calls if c["schema"] is Draft][1]["messages"][1]["content"]
+    assert "covers/safety-3 — иллюстрация: кипячение воды — кастрюля на плите, бутыли с водой, кран (недавно была)" in second
+
+
+@override_settings(AI_PROVIDER="deepseek")
+def test_unknown_cover_falls_back_to_rotation(stories):
+    fake = FakeAI(draft=Draft(title="Заметка", teaser="Анонс", body=BODY, tags=[], insufficient_facts=False,
+                              cover="covers/does-not-exist"))
+    run_with(fake)
+    article = Article.objects.first()
+    assert article.cover_image == ""
+    assert article.cover.startswith("covers/safety")

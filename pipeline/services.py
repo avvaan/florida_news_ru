@@ -10,6 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from core.models import SiteSettings
+from news.covers import candidates_for
 from news.models import Article, ArticleSource, Region, Story, Tag, Topic
 from sources.fetch import fetch_all
 from sources.models import Source
@@ -110,11 +111,15 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     region = story.region.name if story.region else "Флорида"
     topic = story.topic.name if story.topic else "—"
 
+    covers = candidates_for(story.topic.slug if story.topic else None, story.is_urgent)
     draft: Draft = ai.ask(
         purpose=AICall.Purpose.WRITE,
         model=settings.AI_WRITER_MODEL,
         system=prompts.WRITE_SYSTEM,
-        user=f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}",
+        user=(
+            f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}\n\n"
+            f"Обложки на выбор:\n{prompts.covers_brief(covers, recent_covers(story.topic))}"
+        ),
         output=Draft,
         max_tokens=8000,
         story=story,
@@ -159,6 +164,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             is_urgent=story.is_urgent,
             is_sensitive=story.is_sensitive,
             score=story.score,
+            cover_image=draft.cover if draft.cover in {c.base for c in covers} else "",
             status=Article.Status.REVIEW,
             review_reason="" if decision.publish else decision.reason,
             verification={**verification.model_dump(), "decision": decision.reason},
@@ -173,6 +179,14 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     else:
         say(f"На проверку: «{article.title}» — {decision.reason}")
     return article
+
+
+def recent_covers(topic, limit: int = 5) -> set[str]:
+    """Обложки последних заметок рубрики — чтобы ИИ не ставил одну и ту же подряд."""
+    qs = Article.objects.exclude(cover_image="")
+    if topic:
+        qs = qs.filter(topic=topic)
+    return set(qs.order_by("-created_at").values_list("cover_image", flat=True)[:limit])
 
 
 def attach_sources(article: Article, items) -> None:
@@ -255,8 +269,8 @@ def reject_article(article: Article) -> Article:
 
 # --- Полный проход -----------------------------------------------------------
 
-def run_pipeline(*, fetch: bool = True, write: bool = True) -> PipelineRun:
-    run = PipelineRun.objects.create()
+def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | None = None) -> PipelineRun:
+    run = run or PipelineRun.objects.create()
     say = RunLog()
     stats: dict = {}
     try:
@@ -281,7 +295,7 @@ def run_pipeline(*, fetch: bool = True, write: bool = True) -> PipelineRun:
         say(f"Сбой конвейера: {type(exc).__name__}: {exc}")
         log.exception("Сбой конвейера")
     run.finished_at = timezone.now()
-    run.stats = stats
+    run.stats = {**run.stats, **stats}
     run.log = say.text()
     run.save()
     return run

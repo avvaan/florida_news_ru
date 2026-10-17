@@ -27,6 +27,7 @@ class Draft(BaseModel):
     insufficient_facts: bool = Field(
         description="true, если по данным источников нельзя написать заметку без домыслов"
     )
+    cover: str = Field(description="id обложки из списка «Обложки на выбор», лучше всего подходящей по смыслу")
 
 
 class Verification(BaseModel):

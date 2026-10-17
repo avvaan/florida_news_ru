@@ -133,6 +133,59 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
 
 ---
 
+## API для удалённого управления
+
+REST API на Django REST Framework. Всё, что есть в админке, доступно удалённо: из скрипта, Postman,
+мобильного приложения или ИИ-агента.
+
+- **Документация и «песочница»:** `https://ваш-домен/api/docs/` (Swagger, открывается после входа
+  в админку или с токеном), схема OpenAPI — `/api/schema/`.
+- **Доступ:** только сотрудники (`is_staff`). Создать ключ — в Shell на Render:
+  ```bash
+  python manage.py drf_create_token <логин>      # выведет ключ из 40 символов
+  ```
+  или в админке: «Токены» → «Добавить». Ключ передаётся в заголовке `Authorization: Token <ключ>`.
+  Отозвать — удалить токен в админке. Лимит — 600 запросов в час.
+
+| Что | Запрос |
+|---|---|
+| Сводка: заметки, расходы на ИИ, лимиты, источники, последний запуск | `GET /api/v1/stats/` |
+| Заметки (фильтры `status`, `region`, `topic`, `urgent`, `q`) | `GET /api/v1/articles/` |
+| Создать / изменить / удалить заметку | `POST /api/v1/articles/`, `PATCH`/`DELETE /api/v1/articles/{id}/` |
+| Опубликовать / снять / отправить в Telegram | `POST /api/v1/articles/{id}/publish/`, `…/reject/`, `…/telegram/` |
+| Источники, проверка фида, сбор, сброс ошибок | `/api/v1/sources/`, `POST …/{id}/check/?activate=1`, `…/fetch/`, `…/reset/` |
+| Настройки (пороги, лимиты, Telegram, автопубликация) | `GET`/`PATCH /api/v1/settings/` |
+| Запустить конвейер сейчас (в фоне) и следить за ним | `POST /api/v1/pipeline/run/`, `GET /api/v1/pipeline/{id}/` |
+| Реклама (картинка — multipart, поле `image`) | `/api/v1/ads/` |
+| Страницы «О проекте», «Контакты», политика… | `/api/v1/pages/{slug}/` |
+| Погодные предупреждения (скрыть — `is_hidden`) | `/api/v1/alerts/` |
+| Обложки с описаниями, регионы, темы | `GET /api/v1/covers/`, `/api/v1/regions/`, `/api/v1/topics/` |
+
+Примеры:
+
+```bash
+TOKEN=ваш_ключ; SITE=https://ваш-домен
+# сводка
+curl -H "Authorization: Token $TOKEN" $SITE/api/v1/stats/
+# заметки на проверке
+curl -H "Authorization: Token $TOKEN" "$SITE/api/v1/articles/?status=review"
+# поправить заголовок и опубликовать
+curl -X PATCH -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
+     -d '{"title": "Новый заголовок"}' $SITE/api/v1/articles/42/
+curl -X POST -H "Authorization: Token $TOKEN" $SITE/api/v1/articles/42/publish/
+# снизить дневной бюджет на ИИ
+curl -X PATCH -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
+     -d '{"ai_budget_per_day_usd": "1.00"}' $SITE/api/v1/settings/
+# запустить конвейер без ожидания cron
+curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
+     -d '{"fetch": true, "write": true}' $SITE/api/v1/pipeline/run/
+```
+
+Конвейер из API работает в фоне внутри веб-сервиса; одновременно идёт только один запуск
+(повторный вызов вернёт `409` с текущим запуском). Плановые запуски по-прежнему делает cron.
+
+---
+
 ## Telegram: бот и канал
 
 1. В Telegram откройте **@BotFather** → `/newbot` → получите токен `123456:ABC…`.
@@ -265,6 +318,10 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
   с лицензионными стоковыми фото **Freepik / Magnific** (тариф Premium). Заметке достаётся обложка из
   набора её рубрики по номеру заметки — соседние заметки получают разные картинки. Под стоковым фото
   подпись «Фото: Freepik (иллюстративное)». Фото из чужих статей не используются.
+- **Обложку по смыслу выбирает ИИ:** при написании заметки DeepSeek получает список подходящих обложек
+  с описаниями (рубрика, ураган для срочной погоды и ЧП, общие виды Флориды; недавно использованные
+  помечены) и выбирает одну. Описания — в `news/covers.py` (`CATALOG`). В админке у заметки есть
+  выпадающий список обложек с превью; пусто — обложка из набора рубрики по очереди.
 - Добавить обложку: положите в `static/covers/` три файла — `<рубрика>-<N>.webp` (1200×675),
   `<рубрика>-<N>-640.webp` и `<рубрика>-<N>.jpg` (для фото — `<рубрика>-photo-<N>…`), набор обновится сам.
 - Шрифты Golos Text и Unbounded (кириллица) раздаются с самого сайта, лицензия OFL в `static/fonts/`.
