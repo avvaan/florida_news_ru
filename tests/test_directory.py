@@ -39,11 +39,11 @@ def test_church_page_has_local_business_markup(client):
 
 
 def test_empty_category_is_noindex_and_partner_is_labelled_first(client):
-    assert 'content="noindex, follow"' in client.get("/links/avto/").content.decode()
-    avto = Category.objects.get(slug="avto")
+    assert 'content="noindex, follow"' in client.get("/links/remont/").content.decode()
+    avto = Category.objects.get(slug="remont")
     Listing.objects.create(category=avto, name="Клиника А", url="https://a.example/")
     Listing.objects.create(category=avto, name="Клиника Б", url="https://b.example/", is_partner=True)
-    html = client.get("/links/avto/").content.decode()
+    html = client.get("/links/remont/").content.decode()
     assert html.index("Клиника Б") < html.index("Клиника А") and "Партнёр" in html
     assert 'content="index, follow' in html
 
@@ -61,7 +61,7 @@ def test_sitemap_includes_only_filled_categories(client):
     cache.clear()  # sitemap кэшируется на 10 минут
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/links/</loc>" in sitemap and "/links/cerkvi/</loc>" in sitemap
-    assert "/links/vrachi/</loc>" in sitemap and "/links/avto/</loc>" not in sitemap
+    assert "/links/vrachi/</loc>" in sitemap and "/links/remont/</loc>" not in sitemap
     assert "/links/produkty/</loc>" in sitemap  # «Лакомка» и Green Hills включены
 
 
