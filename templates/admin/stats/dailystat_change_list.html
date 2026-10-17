@@ -1,0 +1,105 @@
+{% extends "admin/change_list.html" %}
+{% load humanize %}
+{% block title %}Посещаемость сайта | {{ site_title|default:"Django site admin" }}{% endblock %}
+{% block extrastyle %}{{ block.super }}
+<style>
+  .st-periods { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 18px; }
+  .st-periods a { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border-color); text-decoration: none; }
+  .st-periods a.is-on { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
+  .st-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .st-card { border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; }
+  .st-card__label { color: var(--body-quiet-color); font-size: 13px; }
+  .st-card__num { font-size: 28px; font-weight: 700; line-height: 1.2; margin-top: 4px; }
+  .st-card__sub { color: var(--body-quiet-color); font-size: 13px; }
+  .st-box { border: 1px solid var(--border-color); border-radius: 8px; padding: 14px 16px; margin-bottom: 22px; }
+  .st-box h2 { font-size: 15px; margin: 0 0 12px; padding: 0; background: none; color: var(--body-fg); text-transform: none; letter-spacing: 0; }
+  .st-chart { display: flex; align-items: flex-end; gap: 2px; height: 180px; border-bottom: 1px solid var(--border-color); }
+  .st-bar { flex: 1 1 0; position: relative; height: 100%; display: flex; align-items: flex-end; justify-content: center; min-width: 2px; }
+  .st-bar__views { position: absolute; bottom: 0; left: 0; right: 0; background: #7fd1c7; border-radius: 3px 3px 0 0; }
+  .st-bar__visitors { position: absolute; bottom: 0; left: 22%; right: 22%; background: #0b7a75; border-radius: 3px 3px 0 0; }
+  .st-axis { display: flex; gap: 2px; margin-top: 4px; font-size: 11px; color: var(--body-quiet-color); }
+  .st-axis span { flex: 1 1 0; text-align: center; overflow: hidden; white-space: nowrap; }
+  .st-legend { display: flex; gap: 16px; margin-top: 10px; font-size: 13px; color: var(--body-quiet-color); }
+  .st-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .st-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0 22px; }
+  .st-table { width: 100%; border-collapse: collapse; }
+  .st-table td { padding: 6px 4px; border-bottom: 1px solid var(--hairline-color); vertical-align: top; }
+  .st-table td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; width: 1%; padding-left: 12px; }
+  .st-table small { display: block; color: var(--body-quiet-color); }
+  .st-meter { height: 6px; background: var(--hairline-color); border-radius: 3px; margin-top: 4px; }
+  .st-meter span { display: block; height: 100%; background: #0b7a75; border-radius: 3px; }
+  .st-note { color: var(--body-quiet-color); font-size: 13px; margin: -8px 0 22px; max-width: 900px; }
+</style>
+{% endblock %}
+{% block content_title %}
+  <h1>Посещаемость сайта</h1>
+  <nav class="st-periods" aria-label="Период">
+    {% for p in periods %}<a href="?days={{ p }}"{% if p == days %} class="is-on"{% endif %}>{% if p == 365 %}год{% else %}{{ p }} дней{% endif %}</a>{% endfor %}
+  </nav>
+
+  <div class="st-cards">
+    <div class="st-card">
+      <div class="st-card__label">Сегодня</div>
+      <div class="st-card__num">{{ today.visitors|intcomma }}</div>
+      <div class="st-card__sub">посетителей · {{ today.views|intcomma }} просмотров</div>
+    </div>
+    <div class="st-card">
+      <div class="st-card__label">Вчера</div>
+      <div class="st-card__num">{{ yesterday.visitors|intcomma }}</div>
+      <div class="st-card__sub">посетителей · {{ yesterday.views|intcomma }} просмотров</div>
+    </div>
+    <div class="st-card">
+      <div class="st-card__label">За {% if days == 365 %}год{% else %}{{ days }} дней{% endif %}</div>
+      <div class="st-card__num">{{ period.views|intcomma }}</div>
+      <div class="st-card__sub">просмотров · {{ period.visitors|intcomma }} посещений</div>
+    </div>
+    <div class="st-card">
+      <div class="st-card__label">В среднем в день</div>
+      <div class="st-card__num">{{ avg_visitors|intcomma }}</div>
+      <div class="st-card__sub">посетителей</div>
+    </div>
+  </div>
+
+  <div class="st-box">
+    <h2>По дням</h2>
+    <div class="st-chart" role="img" aria-label="Посетители и просмотры по дням">
+      {% for d in series %}
+      <div class="st-bar" title="{{ d.date|date:'j E, D' }}: {{ d.visitors }} посетителей, {{ d.views }} просмотров">
+        <span class="st-bar__views" style="height: {{ d.views_pct|stringformat:'s' }}%"></span>
+        <span class="st-bar__visitors" style="height: {{ d.visitors_pct|stringformat:'s' }}%"></span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="st-axis">{% for d in series %}<span>{% if show_dates %}{{ d.date|date:"j" }}{% elif d.date.day == 1 %}{{ d.date|date:"M" }}{% endif %}</span>{% endfor %}</div>
+    <div class="st-legend"><span><i style="background:#0b7a75"></i>посетители</span><span><i style="background:#7fd1c7"></i>просмотры</span><span>максимум за день: {{ peak|intcomma }} просмотров</span></div>
+  </div>
+
+  <div class="st-two">
+    <div class="st-box">
+      <h2>Популярные страницы</h2>
+      {% if pages %}
+      <table class="st-table">
+        {% for p in pages %}<tr><td><a href="{{ p.path }}" target="_blank" rel="noopener">{{ p.title }}</a>{% if p.title != p.path %}<small>{{ p.path }}</small>{% endif %}</td><td class="num">{{ p.total|intcomma }}</td></tr>{% endfor %}
+      </table>
+      {% else %}<p>Пока нет данных.</p>{% endif %}
+    </div>
+    <div>
+      <div class="st-box">
+        <h2>Откуда приходят</h2>
+        {% if sources %}
+        <table class="st-table">
+          {% for s in sources %}<tr><td>{{ s.source }}<div class="st-meter"><span style="width: {{ s.pct }}%"></span></div></td><td class="num">{{ s.total|intcomma }} · {{ s.pct }}%</td></tr>{% endfor %}
+        </table>
+        {% else %}<p>Пока нет данных.</p>{% endif %}
+      </div>
+      <div class="st-box">
+        <h2>Устройства</h2>
+        <table class="st-table">
+          {% for d in devices %}<tr><td>{{ d.label }}<div class="st-meter"><span style="width: {{ d.pct }}%"></span></div></td><td class="num">{{ d.count|intcomma }} · {{ d.pct }}%</td></tr>{% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <p class="st-note">Счётчик свой, без cookie и сторонних сервисов. Не учитываются боты, админка и вошедшие редакторы. «Посетитель» — уникальный за день: IP и браузер не сохраняются, из них считается обезличенный код, который меняется каждые сутки. Поэтому за период указана сумма дневных посетителей (посещений), а не число разных людей. Ниже — таблица по дням.</p>
+{% endblock %}

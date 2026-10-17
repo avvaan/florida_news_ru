@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "social",
     "guides",
     "ads",
+    "stats",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
@@ -77,6 +78,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "stats.tracking.StatsMiddleware",  # посещаемость: дневные счётчики без cookie и IP
 ]
 
 ROOT_URLCONF = "config.urls"
