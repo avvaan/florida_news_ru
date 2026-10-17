@@ -182,3 +182,22 @@ def seed_directory(apps, schema_editor):
             row = dict(row)
             region = Region.objects.filter(slug=row.pop("region", "")).first()
             Listing.objects.get_or_create(category=category, url=row["url"], defaults={**row, "region": region})
+
+
+def import_businesses(apps, schema_editor, filename="businesses_2026_10.json"):
+    """Бизнесы из таблицы редакции (directory/data/*.json). Скрытые (active=false) ждут проверки в админке."""
+    import json
+    from pathlib import Path
+
+    Category = apps.get_model("directory", "Category")
+    Listing = apps.get_model("directory", "Listing")
+    Region = apps.get_model("news", "Region")
+    rows = json.loads((Path(__file__).parent / "data" / filename).read_text(encoding="utf-8"))
+    for row in rows:
+        category = Category.objects.get(slug=row["category"])
+        Listing.objects.get_or_create(category=category, name=row["name"], defaults={
+            "description": row["description"], "url": row["url"], "phone": row["phone"],
+            "address": row["address"], "city": row["city"], "languages": row["languages"],
+            "region": Region.objects.filter(slug=row["region"]).first() if row["region"] else None,
+            "is_active": row["active"], "editor_note": row["note"],
+        })

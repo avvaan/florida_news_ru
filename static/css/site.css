@@ -378,6 +378,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .dir__facts a { color: var(--gulf-deep); }
 .dir__empty { margin-top: 24px; padding: 18px 20px; border: 1px dashed var(--line); border-radius: 10px; color: var(--ink-2); max-width: 760px; }
 .dir__others { margin-top: 40px; }
+.dir__city { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--muted); font-size: .9rem; font-weight: 600; }
+.dir__city .i { color: var(--gulf); width: 1em; height: 1em; }
+.chip.is-current { background: var(--gulf); color: #fff; }
 .topics__link--section { font-weight: 700; color: var(--gulf-deep); }
 
 /* Гайды на главной: все разделы и ссылки */

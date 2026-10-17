@@ -28,10 +28,10 @@ class ListingAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "city", "is_recommended", "is_partner", "is_active", "updated_at")
     list_filter = ("category__kind", "category", "is_recommended", "is_partner", "is_active", "region")
     list_editable = ("is_recommended", "is_partner", "is_active")
-    search_fields = ("name", "description", "city", "address")
+    search_fields = ("name", "description", "city", "address", "editor_note")
     fieldsets = (
         (None, {"fields": ("category", "name", "description", "url", "phone")}),
         ("Где и когда", {"fields": ("address", "city", "region", "hours", "languages")}),
-        ("Показ", {"fields": ("is_recommended", "is_partner", "is_active", "order", "guide_slug"),
+        ("Показ", {"fields": ("is_recommended", "is_partner", "is_active", "order", "guide_slug", "editor_note"),
                    "description": "Платное размещение обязательно отмечайте «партнёр»: читатели видят метку."}),
     )

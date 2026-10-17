@@ -30,9 +30,20 @@ def directory_index(request):
 
 def directory_category(request, slug):
     category = get_object_or_404(Category, slug=slug)
-    listings = attach_guides(list(Listing.objects.active().filter(category=category).select_related("region")))
+    all_listings = list(Listing.objects.active().filter(category=category).select_related("region"))
+    regions = sorted({item.region for item in all_listings if item.region}, key=lambda r: r.order)
+    has_other = any(item.region is None for item in all_listings)
+    current = request.GET.get("region", "")
+    if current == "other":
+        listings = [item for item in all_listings if item.region is None]
+    elif current:
+        listings = [item for item in all_listings if item.region and item.region.slug == current]
+    else:
+        listings = all_listings
+    attach_guides(listings)
     others = Category.objects.filter(kind=category.kind).exclude(pk=category.pk)
     return render(request, "directory/category.html", {
-        "category": category, "listings": listings, "others": others,
+        "category": category, "listings": listings, "others": others, "total": len(all_listings),
+        "regions": regions if len(regions) + has_other > 1 else [], "has_other": has_other, "current_region": current,
         "contact_email": SiteSettings.load().contact_email,
     })

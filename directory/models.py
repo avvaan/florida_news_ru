@@ -41,7 +41,9 @@ class Category(models.Model):
 
 class ListingQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(is_active=True).order_by("-is_partner", "-is_recommended", "order", "name")
+        return self.filter(is_active=True).order_by(
+            "-is_partner", "-is_recommended", "order", models.F("region__order").asc(nulls_last=True), "city", "name",
+        )
 
 
 class Listing(models.Model):
@@ -66,6 +68,9 @@ class Listing(models.Model):
         "партнёр (платно)", default=False, help_text="Платное размещение — показывается с меткой «Партнёр» и выше",
     )
     is_active = models.BooleanField("показывать", default=True)
+    editor_note = models.TextField(
+        "заметка редакции", blank=True, help_text="Видна только в админке: откуда данные, что перепроверить",
+    )
     order = models.PositiveSmallIntegerField("порядок", default=0)
     created_at = models.DateTimeField("добавлено", auto_now_add=True)
     updated_at = models.DateTimeField("изменено", auto_now=True)

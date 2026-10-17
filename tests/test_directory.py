@@ -39,11 +39,11 @@ def test_church_page_has_local_business_markup(client):
 
 
 def test_empty_category_is_noindex_and_partner_is_labelled_first(client):
-    assert 'content="noindex, follow"' in client.get("/links/vrachi/").content.decode()
-    vrachi = Category.objects.get(slug="vrachi")
-    Listing.objects.create(category=vrachi, name="Клиника А", url="https://a.example/")
-    Listing.objects.create(category=vrachi, name="Клиника Б", url="https://b.example/", is_partner=True)
-    html = client.get("/links/vrachi/").content.decode()
+    assert 'content="noindex, follow"' in client.get("/links/avto/").content.decode()
+    avto = Category.objects.get(slug="avto")
+    Listing.objects.create(category=avto, name="Клиника А", url="https://a.example/")
+    Listing.objects.create(category=avto, name="Клиника Б", url="https://b.example/", is_partner=True)
+    html = client.get("/links/avto/").content.decode()
     assert html.index("Клиника Б") < html.index("Клиника А") and "Партнёр" in html
     assert 'content="index, follow' in html
 
@@ -61,4 +61,26 @@ def test_sitemap_includes_only_filled_categories(client):
     cache.clear()  # sitemap кэшируется на 10 минут
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/links/</loc>" in sitemap and "/links/cerkvi/</loc>" in sitemap
-    assert "/links/vrachi/</loc>" not in sitemap
+    assert "/links/vrachi/</loc>" in sitemap and "/links/avto/</loc>" not in sitemap
+    assert "/links/produkty/</loc>" not in sitemap  # только скрытые записи
+
+
+def test_businesses_from_editor_table():
+    from directory.models import Listing
+
+    business = Listing.objects.filter(category__kind="business")
+    assert business.count() == 27  # 26 из таблицы + приход Святой Нины
+    hidden = set(business.filter(is_active=False).values_list("name", flat=True))
+    assert {"Kalinka Euro Deli", "Romashka Euro Deli", "Lacomka Bakery & Store"} <= hidden and len(hidden) == 6
+    assert all(Listing.objects.filter(name__in=hidden).values_list("editor_note", flat=True))
+    gesheva = business.get(name__startswith="Irena Gesheva")
+    assert gesheva.phone == "(941) 629-2900" and "/doctor/irena-gesheva-md/" in gesheva.url
+
+
+def test_category_region_filter(client):
+    html = client.get("/links/vrachi/").content.decode()
+    assert "Все (8)" in html and "Другие города" in html
+    assert html.index("Джексонвилл") < html.index("Палметто")  # регионы раньше «других городов»
+    tampa = client.get("/links/vrachi/?region=tampa").content.decode()
+    assert tampa.count('class="dir__card"') == 1 and 'content="noindex, follow"' in tampa
+    assert "Kalinka" not in client.get("/links/produkty/").content.decode()  # скрытые до проверки
