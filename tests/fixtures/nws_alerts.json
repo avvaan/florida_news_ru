@@ -1,0 +1,13 @@
+{"features": [
+  {"id": "https://api.weather.gov/alerts/urn:1", "properties": {
+    "id": "urn:oid:alert-1", "@id": "https://api.weather.gov/alerts/urn:1",
+    "event": "Hurricane Warning", "headline": "Hurricane Warning issued for Pinellas",
+    "areaDesc": "Coastal Pinellas; Coastal Hillsborough", "severity": "Extreme",
+    "effective": "2026-10-17T09:00:00-04:00", "expires": "2099-10-18T09:00:00-04:00",
+    "description": "Hurricane conditions expected.", "instruction": "Complete preparations."}},
+  {"id": "https://api.weather.gov/alerts/urn:2", "properties": {
+    "id": "urn:oid:alert-2", "@id": "https://api.weather.gov/alerts/urn:2",
+    "event": "Rip Current Statement", "headline": "Rip currents at Atlantic beaches",
+    "areaDesc": "Coastal Volusia", "severity": "Moderate",
+    "effective": "2026-10-17T09:00:00-04:00", "expires": "2099-10-18T09:00:00-04:00"}}
+]}

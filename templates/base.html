@@ -1,0 +1,123 @@
+{% load static news_extras %}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_name }} — новости Флориды по-русски{% endblock %}</title>
+  <meta name="description" content="{% block description %}Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник.{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% endblock %}">
+  <meta name="theme-color" content="#0f2433">
+  <meta property="og:site_name" content="{{ site_name }}">
+  <meta property="og:locale" content="ru_RU">
+  {% block og %}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ site_name }} — новости Флориды по-русски">
+  <meta property="og:description" content="Погода и ураганы, законы, деньги и события Флориды — коротко и по-русски.">
+  <meta property="og:url" content="{{ request.path|absolute }}">
+  <meta property="og:image" content="{% static 'covers/florida.jpg' as og %}{{ og|absolute }}">
+  {% endblock %}
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="alternate" type="application/rss+xml" title="{{ site_name }}" href="{% url 'news:rss' %}">
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'img/logo-512.png' %}">
+  <link rel="preload" href="{% static 'fonts/golos-text-cyrillic-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'fonts/golos-text-cyrillic-800-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  {% if site_conf.adsense_enabled and site_conf.adsense_client %}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site_conf.adsense_client }}" crossorigin="anonymous"></script>
+  {% endif %}
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+<!--
+THESIS: Русскоязычная первая полоса Флориды, где иерархию задаёт срочность, а не только свежесть: сначала то, что угрожает или меняет жизнь, потом всё остальное. Отказ от безликой сетки одинаковых карточек блога.
+OWN-WORLD: Белая бумага, чернильно-синий #0f2433, зелень залива #0b7a75 — знаки флоридских хайвеев, оранжевый «штормовой» #c2410c только для срочного, солнечный #ffc93c для предупреждений. Таблички регионов как дорожные указатели с белой внутренней рамкой. Плоские иллюстрации в стиле флоридских туристических плакатов середины века. Golos Text + Unbounded для логотипа.
+STORY: Читатель за секунды видит, есть ли угроза (полоса «Срочно», блок погоды), потом главную тему дня, затем ленту своего города; доверяет, потому что под каждой заметкой — первоисточник; подписывается на Telegram.
+FIRST VIEWPORT: Шапка-табло с логотипом и датой, ряд табличек-указателей регионов, оранжевая полоса «Срочно» (если есть), блок «Погода и ураганы» (если есть), затем главная тема (обложка 16:9 + крупный заголовок) слева и «Самое важное за сутки» справа.
+FORM: Классическая новостная первая полоса (выбор пользователя, «Флоридский портал»), без броска концептов — направление закреплено брифом.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
+<a class="skip" href="#main">К содержанию</a>
+{% include "includes/icons.svg" %}
+{% if demo_mode %}<div class="demo-ribbon" role="note">Демо-данные: заметки на этой копии сайта выдуманы для проверки дизайна</div>{% endif %}
+
+<header class="masthead">
+  <div class="masthead__top wrap">
+    <p class="masthead__date">{{ now|date:"l, j E Y" }}</p>
+    <a class="tg-link" href="{{ telegram_url }}" target="_blank" rel="noopener">
+      <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>Наш Telegram
+    </a>
+  </div>
+  <div class="masthead__brand wrap">
+    <a class="logo" href="{% url 'news:home' %}" aria-label="{{ site_name }} — на главную">
+      <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
+      <span class="logo__word">Флорида<br>Сегодня</span>
+    </a>
+    <p class="masthead__tagline">Новости штата по-русски: коротко, по делу и&nbsp;со&nbsp;ссылкой на&nbsp;первоисточник</p>
+  </div>
+  <nav class="signs" aria-label="Регионы">
+    <ul class="signs__row wrap">
+      <li><a class="sign{% if is_home %} is-current{% endif %}" href="{% url 'news:home' %}"{% if is_home %} aria-current="page"{% endif %}>Главное</a></li>
+      {% for r in nav_regions %}
+      <li><a class="sign{% if region and region.pk == r.pk %} is-current{% endif %}" href="{{ r.get_absolute_url }}"{% if region and region.pk == r.pk %} aria-current="page"{% endif %}>{{ r.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+  <nav class="topics" aria-label="Темы">
+    <ul class="topics__row wrap">
+      {% for t in nav_topics %}
+      <li><a class="topics__link{% if topic and topic.pk == t.pk %} is-current{% endif %}" href="{{ t.get_absolute_url }}"{% if topic and topic.pk == t.pk %} aria-current="page"{% endif %}>{{ t.short_name }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+</header>
+
+{% if urgent %}
+<section class="urgent" aria-label="Срочно">
+  <div class="wrap urgent__inner">
+    <span class="urgent__label">Срочно</span>
+    <ul class="urgent__list">
+      {% for a in urgent %}<li><a href="{{ a.get_absolute_url }}">{{ a.title }}</a> <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|date:"H:i" }}</time></li>{% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{% block top_ad %}{% if ads.top %}<div class="wrap ad-top">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}{% endblock %}
+
+<main id="main" class="main">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div class="footer__brand">
+      <a class="logo logo--footer" href="{% url 'news:home' %}">
+        <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
+        <span class="logo__word">Флорида<br>Сегодня</span>
+      </a>
+      <p class="footer__note">{{ disclaimer }}</p>
+    </div>
+    <nav aria-label="Разделы">
+      <h2 class="footer__h">Регионы</h2>
+      <ul class="footer__list">{% for r in nav_regions %}<li><a href="{{ r.get_absolute_url }}">{{ r.name }}</a></li>{% endfor %}</ul>
+    </nav>
+    <nav aria-label="Темы сайта">
+      <h2 class="footer__h">Темы</h2>
+      <ul class="footer__list">{% for t in nav_topics %}<li><a href="{{ t.get_absolute_url }}">{{ t.name }}</a></li>{% endfor %}</ul>
+    </nav>
+    <nav aria-label="О сайте">
+      <h2 class="footer__h">Редакция</h2>
+      <ul class="footer__list">
+        {% for p in footer_pages %}<li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></li>{% endfor %}
+        <li><a href="{% url 'news:rss' %}">RSS</a></li>
+      </ul>
+      <a class="btn btn--tg" href="{{ telegram_url }}" target="_blank" rel="noopener">
+        <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>Подписаться в Telegram
+      </a>
+    </nav>
+  </div>
+  <p class="wrap footer__legal">© {{ now.year }} {{ site_name }}. Иллюстрации — собственные, фотографии из чужих материалов мы не используем.</p>
+</footer>
+</body>
+</html>

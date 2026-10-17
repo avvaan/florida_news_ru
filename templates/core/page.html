@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ page.title }} — {{ site_name }}{% endblock %}
+{% block description %}{{ page.body|striptags|truncatechars:160 }}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <article class="story story--page">
+    <h1 class="story__title">{{ page.title }}</h1>
+    <div class="story__body">{{ page.body|linebreaks }}</div>
+    {% if page.slug == "contacts" or page.slug == "advertising" %}{% if site_conf.contact_email %}
+    <p class="contact-line">Почта редакции: <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>
+    {% endif %}{% endif %}
+    {% include "includes/tg_cta.html" %}
+  </article>
+</div>
+{% endblock %}

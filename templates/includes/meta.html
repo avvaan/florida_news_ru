@@ -1,0 +1,5 @@
+{% load news_extras %}<p class="meta">
+  <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|ago }}</time>
+  {% if a.region and not a.region.is_statewide %}<a class="meta__region" href="{{ a.region.get_absolute_url }}"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ a.region.name }}</a>{% endif %}
+  {% if a.topic %}<a class="meta__topic" href="{{ a.topic.get_absolute_url }}">{{ a.topic.short_name }}</a>{% endif %}
+</p>

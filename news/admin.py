@@ -1,0 +1,179 @@
+from django.contrib import admin, messages
+from django.http import HttpResponseRedirect
+from django.utils import timezone
+from django.utils.html import format_html, format_html_join
+
+from pipeline.services import publish_article, reject_article
+from pipeline.telegram import build_post, post_article
+
+from .models import Article, ArticleSource, Region, Story, Tag, Topic
+
+
+class ReviewArticle(Article):
+    class Meta:
+        proxy = True
+        verbose_name = "заметка на проверке"
+        verbose_name_plural = "📝 На проверку"
+
+
+class ArticleSourceInline(admin.TabularInline):
+    model = ArticleSource
+    extra = 0
+    fields = ("name", "url", "title", "order")
+
+
+@admin.action(description="✅ Опубликовать")
+def action_publish(modeladmin, request, queryset):
+    n = 0
+    for article in queryset.exclude(status=Article.Status.PUBLISHED):
+        publish_article(article)
+        n += 1
+    modeladmin.message_user(request, f"Опубликовано: {n}", messages.SUCCESS)
+
+
+@admin.action(description="❌ Отклонить")
+def action_reject(modeladmin, request, queryset):
+    n = 0
+    for article in queryset:
+        reject_article(article)
+        n += 1
+    modeladmin.message_user(request, f"Отклонено: {n}", messages.WARNING)
+
+
+@admin.action(description="✈️ Отправить в Telegram (если не отправлено)")
+def action_telegram(modeladmin, request, queryset):
+    for article in queryset.filter(status=Article.Status.PUBLISHED):
+        try:
+            result = post_article(article)
+            modeladmin.message_user(request, f"«{article.title}»: {result}")
+        except Exception as exc:  # noqa: BLE001
+            modeladmin.message_user(request, f"«{article.title}»: {exc}", messages.ERROR)
+
+
+class BaseArticleAdmin(admin.ModelAdmin):
+    change_form_template = "admin/news/article_change_form.html"
+    list_display = ("title", "status_badge", "region", "topic", "score", "is_urgent", "is_sensitive", "created_at")
+    list_filter = ("status", "is_urgent", "is_sensitive", "region", "topic")
+    search_fields = ("title", "teaser", "body")
+    autocomplete_fields = ("tags",)
+    inlines = [ArticleSourceInline]
+    readonly_fields = ("verification_box", "telegram_preview", "story_link", "created_at", "updated_at",
+                       "telegram_posted_at", "word_count")
+    actions = [action_publish, action_reject, action_telegram]
+    fieldsets = (
+        (None, {"fields": ("title", "teaser", "body", "word_count")}),
+        ("Разметка", {"fields": ("region", "topic", "tags", "is_urgent", "is_sensitive", "score")}),
+        ("Публикация", {"fields": ("status", "review_reason", "slug", "published_at")}),
+        ("Проверка ИИ", {"fields": ("verification_box", "story_link")}),
+        ("Telegram", {"fields": ("telegram_preview", "telegram_posted_at"), "classes": ("collapse",)}),
+        ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+    )
+
+    @admin.display(description="статус", ordering="status")
+    def status_badge(self, obj):
+        colors = {"review": "#c25700", "published": "#0b7a75", "rejected": "#8a8a8a", "draft": "#555"}
+        return format_html(
+            '<b style="color:{}">{}</b>', colors.get(obj.status, "#333"), obj.get_status_display()
+        )
+
+    @admin.display(description="слов")
+    def word_count(self, obj):
+        return obj.word_count if obj.pk else "—"
+
+    @admin.display(description="результат проверки")
+    def verification_box(self, obj):
+        v = obj.verification or {}
+        if not v:
+            return "—"
+        issues = v.get("issues") or []
+        items = format_html_join("", "<li>{}</li>", ((i,) for i in issues)) if issues else "замечаний нет"
+        return format_html(
+            "<div>Вердикт: <b>{}</b>, уверенность {}<br>Решение: {}<ul>{}</ul></div>",
+            "ок" if v.get("ok") else "есть сомнения", v.get("confidence"), v.get("decision", "—"), items,
+        )
+
+    @admin.display(description="пост в Telegram")
+    def telegram_preview(self, obj):
+        if not obj.pk:
+            return "—"
+        return format_html('<pre style="white-space:pre-wrap;max-width:560px">{}</pre>', build_post(obj))
+
+    @admin.display(description="сюжет и исходные записи")
+    def story_link(self, obj):
+        if not obj.story_id:
+            return "—"
+        rows = format_html_join(
+            "", '<li><a href="{}" target="_blank" rel="noopener">{}</a> — {}</li>',
+            ((i.url, i.title, i.source.name) for i in obj.story.items.select_related("source")),
+        )
+        return format_html("<p>{}</p><ul>{}</ul>", obj.story.note, rows)
+
+    def response_change(self, request, obj):
+        if "_publish" in request.POST:
+            publish_article(obj)
+            self.message_user(request, f"Опубликовано: «{obj.title}»", messages.SUCCESS)
+            return HttpResponseRedirect(request.path)
+        if "_reject" in request.POST:
+            reject_article(obj)
+            self.message_user(request, f"Отклонено: «{obj.title}»", messages.WARNING)
+            return HttpResponseRedirect("../../")
+        return super().response_change(request, obj)
+
+
+@admin.register(ReviewArticle)
+class ReviewArticleAdmin(BaseArticleAdmin):
+    list_display = ("title", "review_reason", "region", "topic", "score", "is_sensitive", "created_at")
+    list_filter = ("is_sensitive", "is_urgent", "region", "topic")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(status=Article.Status.REVIEW)
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(Article)
+class ArticleAdmin(BaseArticleAdmin):
+    date_hierarchy = "created_at"
+
+    def save_model(self, request, obj, form, change):
+        if obj.status == Article.Status.PUBLISHED and not obj.published_at:
+            obj.published_at = timezone.now()
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(Story)
+class StoryAdmin(admin.ModelAdmin):
+    list_display = ("title", "status", "score", "region", "topic", "is_urgent", "is_sensitive", "n_items", "created_at")
+    list_filter = ("status", "is_urgent", "is_sensitive", "region", "topic")
+    search_fields = ("title",)
+    readonly_fields = ("classification", "items_list", "created_at", "updated_at")
+
+    @admin.display(description="записей")
+    def n_items(self, obj):
+        return obj.items.count()
+
+    @admin.display(description="записи из источников")
+    def items_list(self, obj):
+        return format_html("<ul>{}</ul>", format_html_join(
+            "", '<li><a href="{}" target="_blank" rel="noopener">{}</a> — {}</li>',
+            ((i.url, i.title, i.source.name) for i in obj.items.select_related("source")),
+        ))
+
+
+@admin.register(Region)
+class RegionAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "name_locative", "is_statewide", "order")
+    list_editable = ("order",)
+
+
+@admin.register(Topic)
+class TopicAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "priority", "cover", "order")
+    list_editable = ("priority", "order")
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    search_fields = ("name",)
+    list_display = ("name", "slug")

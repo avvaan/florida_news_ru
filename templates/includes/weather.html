@@ -1,0 +1,24 @@
+{% load static %}<section class="weather" aria-labelledby="weather-h">
+  <div class="weather__text">
+    <h2 class="weather__h" id="weather-h"><svg class="i" aria-hidden="true"><use href="#i-spiral"/></svg>Погода и ураганы</h2>
+    <p class="weather__sub">Действующие предупреждения Национальной метеослужбы (NWS) и Центра по ураганам (NHC) по Флориде</p>
+    <ul class="alerts">
+      {% for al in alerts|slice:":5" %}
+      <li class="alert alert--{{ al.severity|lower }}">
+        <span class="alert__sev">{{ al.get_severity_display }}</span>
+        <span class="alert__body">
+          <b class="alert__event">{{ al.event_ru|default:al.event }}</b>
+          <span class="alert__area">{{ al.area|truncatechars:140 }}</span>
+          {% if al.expires %}<span class="alert__time">до {{ al.expires|date:"j E, H:i" }}</span>{% endif %}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if alerts|length > 5 %}<p class="weather__more">И ещё {{ alerts|length|add:"-5" }} — полный список на <a href="https://www.weather.gov/" target="_blank" rel="noopener">weather.gov</a></p>{% endif %}
+    <p class="weather__links">
+      <a href="https://www.nhc.noaa.gov/" target="_blank" rel="noopener">Карта NHC <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
+      <a href="https://www.floridadisaster.org/" target="_blank" rel="noopener">Эвакуация: FDEM <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
+    </p>
+  </div>
+  <img class="weather__art" src="{% static 'covers/weather-640.webp' %}" alt="" width="640" height="360">
+</section>

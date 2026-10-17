@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}#{{ tag.name }} — новости Флориды на русском — {{ site_name }}{% endblock %}
+{% block description %}Все заметки с тегом «{{ tag.name }}»: новости Флориды на русском языке.{% endblock %}
+{% block content %}
+<div class="wrap">
+  <header class="section-head"><h1 class="section-head__h">#{{ tag.name }}</h1></header>
+  <div class="columns">
+    <section class="feed" aria-label="Заметки">
+      {% for a in feed %}{% include "includes/row.html" %}{% empty %}<p class="empty">Заметок с этим тегом пока нет.</p>{% endfor %}
+      {% include "includes/pager.html" %}
+    </section>
+    <aside class="sidebar">{% include "includes/tg_cta.html" %}{% if ads.sidebar %}{% include "includes/ad.html" with ad=ads.sidebar %}{% endif %}</aside>
+  </div>
+</div>
+{% endblock %}
