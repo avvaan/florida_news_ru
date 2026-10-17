@@ -165,7 +165,7 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 # Модели по умолчанию для каждого провайдера. Названия моделей DeepSeek меняются —
 # сверьте их командой `python manage.py check_ai` и при необходимости задайте через env.
 _DEFAULT_MODELS = {
-    "deepseek": {"classifier": "deepseek-v4-flash", "writer": "deepseek-v4-pro"},
+    "deepseek": {"classifier": "deepseek-flash", "writer": "deepseek-v4-pro"},
     "anthropic": {"classifier": "claude-haiku-4-5", "writer": "claude-sonnet-5"},
 }.get(AI_PROVIDER, {"classifier": "", "writer": ""})
 AI_CLASSIFIER_MODEL = os.environ.get("AI_CLASSIFIER_MODEL") or _DEFAULT_MODELS["classifier"]
@@ -188,7 +188,7 @@ AI_PRICING = {
     "claude-sonnet-5": {"input": "2.00", "cache_read": "0.20", "cache_write": "2.50", "output": "10.00"},
     "claude-sonnet-5-5": {"input": "2.00", "cache_read": "0.20", "cache_write": "2.50", "output": "10.00"},
 }
-# Пример: AI_PRICING_JSON='{"deepseek-v4-flash": {"input": "0.14", "cache_read": "0.014", "output": "0.28"}}'
+# Пример: AI_PRICING_JSON='{"deepseek-flash": {"input": "0.14", "cache_read": "0.014", "output": "0.28"}}'
 if pricing_json := os.environ.get("AI_PRICING_JSON"):
     import json
 
