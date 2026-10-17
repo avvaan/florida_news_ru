@@ -11,6 +11,11 @@ class SiteSettings(models.Model):
         "порог важности для заметки", default=6,
         help_text="Сюжеты с оценкой ниже не идут в работу (0–10)",
     )
+    publish_without_review = models.BooleanField(
+        "публиковать всё без проверки", default=True,
+        help_text="Все написанные заметки сразу идут на сайт и в Telegram, очередь «На проверку» не используется. "
+        "Причина, по которой заметка попала бы в очередь, сохраняется в её карточке",
+    )
     auto_publish_enabled = models.BooleanField(
         "автопубликация включена", default=True,
         help_text="Если выключить, всё идёт в очередь «На проверку»",
