@@ -26,7 +26,7 @@ Not a translation feed: own short retellings in plain Russian with practical "wh
 
 ## Constraints
 
-- Never republish full articles or others' photos; own topic illustrations only.
+- Never republish full articles or photos from others' articles. Covers are our own Higgsfield illustrations plus licensed Freepik/Magnific stock photos, captioned as illustrative.
 - Facts only from sources; sensitive topics (crime, private persons, children, accusations) always go through manual review.
 - Nothing is published to the real Telegram channel or a real domain without the owner's explicit confirmation (Telegram is a dry-run until enabled in admin).
 - Disclaimer: «Мы пересказываем новости своими словами и всегда даём ссылку на первоисточник; это не юридическая и не финансовая консультация».
@@ -34,4 +34,4 @@ Not a translation feed: own short retellings in plain Russian with practical "wh
 ## Brand commitments
 
 - Name: «Флорида Сегодня» (confirmed by the owner).
-- Visual tone confirmed by the owner: «Флоридский портал» — classic news-portal structure with its own Florida character (gulf/sky colours, storm orange reserved for urgency, one consistent set of rubric illustrations generated in Higgsfield).
+- Visual tone confirmed by the owner: «Флоридский портал» — classic news-portal structure with its own Florida character (gulf/sky colours, storm orange reserved for urgency, one consistent set of rubric illustrations generated in Higgsfield; the owner later asked to add licensed stock photos from Magnific/Freepik to the pools).

@@ -4,6 +4,8 @@ from django.utils import timezone
 
 from core.text import make_slug
 
+from .covers import pick_cover
+
 
 class Region(models.Model):
     slug = models.SlugField("код", unique=True)
@@ -173,13 +175,18 @@ class Article(models.Model):
         return len(self.body.split())
 
     @property
+    def cover_info(self):
+        """Обложка из набора рубрики (см. news/covers.py)."""
+        if self.is_urgent and self.topic and self.topic.slug in ("weather", "safety"):
+            pool = "hurricane"
+        else:
+            pool = self.topic.slug if self.topic else "florida"
+        return pick_cover(pool, self.pk)
+
+    @property
     def cover(self) -> str:
         """Базовый путь обложки в static/ без расширения: есть .webp, -640.webp и .jpg."""
-        if self.is_urgent and self.topic and self.topic.slug in ("weather", "safety"):
-            return "covers/hurricane"
-        if self.topic and self.topic.cover:
-            return self.topic.cover
-        return "covers/florida"
+        return self.cover_info.base
 
     def save(self, *args, **kwargs):
         if not self.slug:
