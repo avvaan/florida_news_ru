@@ -46,7 +46,7 @@
 
       <figure class="story__figure">
         <img src="{% cover article %}" alt="" width="1200" height="675" fetchpriority="high">
-        <figcaption>Иллюстрация «{{ site_name }}»{% if article.topic %} к рубрике «{{ article.topic.name }}»{% endif %}</figcaption>
+        <figcaption>{% if article.cover_info.is_photo %}{{ article.cover_info.credit }}{% else %}Иллюстрация «{{ site_name }}»{% if article.topic %} к рубрике «{{ article.topic.name }}»{% endif %}{% endif %}</figcaption>
       </figure>
 
       <div class="story__body">
