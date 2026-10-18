@@ -72,7 +72,7 @@ class SiteSettings(models.Model):
         "сигналов с источника за раз", default=15, validators=[MinValueValidator(1), MaxValueValidator(50)])
 
     # Уполномоченный агент по DMCA (17 U.S.C. §512(c)) — точно как в записи в Copyright Office.
-    dmca_agent_name = models.CharField("агент DMCA: имя", max_length=120, blank=True, default="Andrii Syrkin")
+    dmca_agent_name = models.CharField("агент DMCA: имя", max_length=120, blank=True, default="John Suvorov")
     dmca_agent_address = models.TextField("агент DMCA: почтовый адрес", blank=True,
                                           help_text="Точно как в записи агента в Copyright Office")
     dmca_agent_phone = models.CharField("агент DMCA: телефон", max_length=40, blank=True)

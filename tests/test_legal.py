@@ -22,7 +22,7 @@ def test_dmca_page_shows_agent(client):
     SiteSettings.objects.update(dmca_agent_email="agent@example.com", dmca_agent_phone="+1 305 555 0100",
                                 dmca_agent_address="1 Example St\nMiami, FL 33101")
     html = client.get("/dmca/").content.decode()
-    assert "Designated Agent: Andrii Syrkin" in html and "CITRUSTACK LLC" in html
+    assert "Designated Agent: John Suvorov" in html and "CITRUSTACK LLC" in html
     assert 'href="mailto:agent@example.com"' in html and "Phone: " in html and "Miami, FL 33101" in html
     assert "https://dmca.copyright.gov/osp/" in html and 'href="/corrections/"' in html
 
