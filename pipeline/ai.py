@@ -78,9 +78,13 @@ def get_client(provider: str | None = None):
 
 
 def ask(*, purpose: str, model: str, system: str, user: str, output: type[T],
-        max_tokens: int = 2000, story=None, effort: str | None = None) -> T:
-    """Один запрос со структурированным ответом. Каждый вызов логируется в AICall."""
-    if settings.AI_PROVIDER == "anthropic":
+        max_tokens: int = 2000, story=None, effort: str | None = None, provider: str | None = None) -> T:
+    """Один запрос со структурированным ответом. Каждый вызов логируется в AICall.
+
+    provider — провайдер для этого вызова (по умолчанию AI_PROVIDER): так проверка дублей идёт
+    в Claude Haiku, даже если основной конвейер работает на DeepSeek.
+    """
+    if (provider or settings.AI_PROVIDER) == "anthropic":
         return _ask_anthropic(purpose=purpose, model=model, system=system, user=user, output=output,
                               max_tokens=max_tokens, story=story, effort=effort)
     return _ask_deepseek(purpose=purpose, model=model, system=system, user=user, output=output,

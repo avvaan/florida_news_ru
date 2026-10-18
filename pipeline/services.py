@@ -16,14 +16,14 @@ from news.covers import candidates_for
 from news.models import Article, ArticleSource, Region, Story, Tag, Topic
 from social.services import has_trusted_source, run_social
 from sources.fetch import fetch_all
-from sources.models import Source
+from sources.models import Source, WeatherAlert
 
-from . import ai, prompts
+from . import ai, prompts, toponyms
 from .budget import counted_articles_today, current_budget
 from .clustering import cluster_items
 from .decisions import decide
 from .models import AICall, PipelineRun
-from .schemas import Classification, CoverChoice, Draft, Verification
+from .schemas import Classification, CoverChoice, Draft, DuplicateCheck, Verification
 from .telegram import post_article
 
 log = logging.getLogger(__name__)
@@ -152,7 +152,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     draft: Draft = ai.ask(
         purpose=AICall.Purpose.WRITE,
         model=settings.AI_WRITER_MODEL,
-        system=prompts.WRITE_SYSTEM,
+        system=f"{prompts.WRITE_SYSTEM}\n\n{toponyms.prompt_block()}",
         user=(
             f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}\n\n"
             f"{prompts.hints_context(story.hints.values_list('summary', flat=True))}"
@@ -164,6 +164,9 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         story=story,
         effort=settings.AI_WRITER_EFFORT or None,
     )
+    # Страховка поверх словаря в промпте: частые ошибки транслитерации исправляем в готовом тексте.
+    draft.title, draft.teaser, draft.body = (toponyms.fix_text(t) for t in (draft.title, draft.teaser, draft.body))
+    draft.for_you = [toponyms.fix_text(p) for p in draft.for_you]
     verification: Verification = ai.ask(
         purpose=AICall.Purpose.VERIFY,
         model=settings.AI_VERIFIER_MODEL,
@@ -189,9 +192,21 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         auto_publish_enabled=conf.auto_publish_enabled,
         publish_without_review=conf.publish_without_review,
         has_trusted_source=has_trusted_source(items),
+        source_conflicts=verification.source_conflicts,
         auto_publish_min_score=conf.auto_publish_min_score,
         min_confidence=conf.min_verifier_confidence,
     )
+
+    if duplicate := find_published_duplicate(story, draft, say):
+        existing, check = duplicate
+        # Непроверенные факты (проверка не пройдена) в опубликованный текст не дописываем — только источник.
+        update_existing(existing, items, check.new_facts if decision.publish else [])
+        story.status = Story.Status.MERGED
+        note = "" if decision.publish else f" Новые факты не добавлены: {decision.reason}"
+        story.note = f"Дубль заметки #{existing.pk} «{existing.title[:80]}»: {check.reason}.{note}"[:500]
+        story.save(update_fields=["status", "note", "updated_at"])
+        say(f"Дубль: «{draft.title[:60]}» → обновили #{existing.pk} «{existing.title[:60]}»")
+        return existing
 
     with transaction.atomic():
         article = Article.objects.create(
@@ -220,6 +235,44 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         publish_article(article, say=say)
     else:
         say(f"На проверку: «{article.title}» — {decision.reason}")
+    return article
+
+
+DEDUP_WINDOW = timedelta(hours=48)
+
+
+def find_published_duplicate(story: Story, draft: Draft, say: RunLog):
+    """Перед публикацией: та же ли это история, что уже опубликованная за 48 часов (Claude Haiku)?
+
+    Возвращает (заметка, ответ) или None. Сбой ИИ не мешает публикации — пишем как обычно.
+    """
+    recent = list(
+        Article.objects.filter(status=Article.Status.PUBLISHED, published_at__gte=timezone.now() - DEDUP_WINDOW)
+        .order_by("-published_at")[:30]
+    )
+    if not recent:
+        return None
+    try:
+        check: DuplicateCheck = ai.ask(
+            purpose=AICall.Purpose.DEDUP, provider=settings.AI_DEDUP_PROVIDER, model=settings.AI_DEDUP_MODEL,
+            system=prompts.DEDUP_SYSTEM, user=prompts.dedup_brief(draft, recent), output=DuplicateCheck,
+            max_tokens=1500, story=story, effort="low" if settings.AI_DEDUP_PROVIDER == "anthropic" else None,
+        )
+    except ai.AIError as exc:
+        say(f"Проверка дублей: сбой ИИ — {exc}; публикуем как обычно")
+        return None
+    existing = next((a for a in recent if a.pk == check.article_id), None)
+    return (existing, check) if check.same_story and existing else None
+
+
+def update_existing(article: Article, items, new_facts: list[str]) -> Article:
+    """Дубль: новые источники и факты — в уже опубликованную заметку, отметка «Обновлено»."""
+    merge_into(article, items)
+    facts = [f.strip() for f in new_facts[:3] if f.strip()]
+    if facts:
+        article.body = article.body.rstrip() + "\n\nОбновлено: " + " ".join(facts)
+    article.revised_at = timezone.now()
+    article.save(update_fields=["body", "revised_at", "updated_at"])
     return article
 
 
@@ -370,11 +423,24 @@ def write_pending(say: RunLog) -> int:
 
 # --- Публикация --------------------------------------------------------------
 
+URGENT_DEFAULT_TTL = timedelta(hours=6)
+
+
+def urgent_expiry(article: Article):
+    """До какого времени «Срочно»: окончание предупреждения NWS из источников сюжета, иначе 6 часов."""
+    start = article.published_at or timezone.now()
+    guids = list(article.story.items.values_list("guid", flat=True)) if article.story_id else []
+    ends = [e for e in WeatherAlert.objects.filter(external_id__in=guids).values_list("expires", flat=True) if e]
+    return max(ends) if ends else start + URGENT_DEFAULT_TTL
+
+
 def publish_article(article: Article, *, say=log.info) -> Article:
     article.status = Article.Status.PUBLISHED
     article.published_at = article.published_at or timezone.now()
     article.review_reason = ""
-    article.save(update_fields=["status", "published_at", "review_reason", "updated_at"])
+    if article.is_urgent and not article.expires_at:
+        article.expires_at = urgent_expiry(article)
+    article.save(update_fields=["status", "published_at", "review_reason", "expires_at", "updated_at"])
     say(f"Опубликовано: «{article.title}»")
     try:
         result = post_article(article)

@@ -25,6 +25,7 @@ urlpatterns = [
          name="django.contrib.sitemaps.views.sitemap"),
     path("news-sitemap.xml", cache_page(300)(news_sitemap), name="news_sitemap"),
     path("robots.txt", core_views.robots_txt),
+    path("healthz", core_views.healthz),
     path("p/<slug:slug>/", core_views.page, name="core-page"),
     path("about/", core_views.about, name="core-about"),
     path("author/<slug:slug>/", core_views.author, name="core-author"),

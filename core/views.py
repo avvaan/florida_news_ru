@@ -34,6 +34,11 @@ def corrections(request):
     return render(request, "core/corrections.html")
 
 
+def healthz(request):
+    """Проверка здоровья для Render: отвечает на любом хосте, без редиректа."""
+    return HttpResponse("ok", content_type="text/plain")
+
+
 def robots_txt(request):
     lines = [
         "User-agent: *",

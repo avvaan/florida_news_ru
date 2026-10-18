@@ -14,7 +14,7 @@ envVarGroups:
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: SITE_URL
-        sync: false
+        value: https://florida-ru.com
       - key: DJANGO_ALLOWED_HOSTS
         sync: false
       - key: DJANGO_CSRF_TRUSTED_ORIGINS
@@ -40,7 +40,7 @@ envVarGroups:
         sync: false
       - key: TELEGRAM_CHANNEL_ID
         sync: false
-      - key: TELEGRAM_CHANNEL_URL
+      - key: TELEGRAM_CHANNEL_URL      # пусто — кнопки «Подписаться» не показываются
         sync: false
       # Сверьте названия моделей командой `python manage.py check_ai` и поправьте здесь.
       - key: AI_CLASSIFIER_MODEL
@@ -57,7 +57,7 @@ services:
     plan: starter
     buildCommand: ./build.sh
     startCommand: gunicorn config.wsgi:application --workers 2 --timeout 60
-    healthCheckPath: /robots.txt
+    healthCheckPath: /healthz
     envVars:
       - fromGroup: florida-shared
       - key: DATABASE_URL

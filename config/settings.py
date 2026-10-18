@@ -41,7 +41,14 @@ if render_host := os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 # Публичный адрес сайта — нужен для ссылок в Telegram, sitemap и canonical.
-SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000").rstrip("/")
+# Канонический адрес сайта: canonical, og:url, JSON-LD, sitemap, RSS, robots.txt, ссылки в Telegram.
+SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000" if DEBUG else "https://florida-ru.com").rstrip("/")
+if ".onrender.com" in SITE_URL:  # служебный адрес Render никогда не бывает каноническим
+    SITE_URL = "https://florida-ru.com"
+CANONICAL_HOST = SITE_URL.split("://", 1)[-1].split("/", 1)[0]
+# Запросы на эти хосты получают 301 на SITE_URL с тем же путём (кроме проверки здоровья).
+REDIRECT_TO_CANONICAL_SUFFIXES = (".onrender.com",)
+HEALTHCHECK_PATH = "/healthz"
 SITE_NAME = "Florida RU"
 # Мета-тег подтверждения сайта в Google Search Console (только значение content="…").
 GOOGLE_SITE_VERIFICATION = os.environ.get("GOOGLE_SITE_VERIFICATION", "").strip()
@@ -75,6 +82,7 @@ DIRECTORY_MODERATION_SYNC = env_bool("DIRECTORY_MODERATION_SYNC")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "core.middleware.CanonicalHostMiddleware",  # *.onrender.com → 301 на florida-ru.com
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -183,6 +191,11 @@ _DEFAULT_MODELS = {
     "anthropic": {"classifier": "claude-haiku-4-5", "writer": "claude-sonnet-5"},
 }.get(AI_PROVIDER, {"classifier": "", "writer": ""})
 AI_CLASSIFIER_MODEL = os.environ.get("AI_CLASSIFIER_MODEL") or _DEFAULT_MODELS["classifier"]
+# Проверка дублей перед публикацией: Claude Haiku, если есть ключ Anthropic, иначе модель отбора.
+AI_DEDUP_PROVIDER = (os.environ.get("AI_DEDUP_PROVIDER") or ("anthropic" if ANTHROPIC_API_KEY else AI_PROVIDER)).lower()
+AI_DEDUP_MODEL = os.environ.get("AI_DEDUP_MODEL") or (
+    "claude-haiku-5-5" if AI_DEDUP_PROVIDER == "anthropic" else AI_CLASSIFIER_MODEL
+)
 AI_WRITER_MODEL = os.environ.get("AI_WRITER_MODEL") or _DEFAULT_MODELS["writer"]
 AI_VERIFIER_MODEL = os.environ.get("AI_VERIFIER_MODEL") or AI_CLASSIFIER_MODEL
 # Уровень усилий для модели-автора Anthropic (low/medium/high). Пусто — не передавать.
@@ -232,7 +245,8 @@ SIGNALS_BUDGET_SHARE = float(os.environ.get("SIGNALS_BUDGET_SHARE", "0.7"))
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID", "")
-TELEGRAM_CHANNEL_URL = os.environ.get("TELEGRAM_CHANNEL_URL", "https://t.me/")
+# Ссылка на канал для кнопок «Подписаться». Пусто — кнопки не показываются.
+TELEGRAM_CHANNEL_URL = os.environ.get("TELEGRAM_CHANNEL_URL", "").strip()
 
 # Демо-режим: показывает плашку «демо-данные» (для локального просмотра с seed_demo).
 DEMO_MODE = env_bool("DEMO_MODE", False)

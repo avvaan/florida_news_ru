@@ -1,10 +1,12 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from ads.models import AdBanner
@@ -36,8 +38,11 @@ def ads_for(region=None) -> dict:
 
 
 def urgent_strip():
-    since = timezone.now() - timedelta(hours=24)
-    return published().filter(is_urgent=True, published_at__gte=since)[:4]
+    """Плашка «Срочно»: только пока не истёк срок (expires_at — окончание предупреждения NWS или +6 часов)."""
+    now = timezone.now()
+    return published().filter(is_urgent=True).filter(
+        Q(expires_at__gt=now) | Q(expires_at__isnull=True, published_at__gte=now - timedelta(hours=6))
+    )[:4]
 
 
 def _filtered(region=None, topic=None):
@@ -120,6 +125,8 @@ def article_view(request, slug):
     article = get_object_or_404(
         Article.objects.select_related("region", "topic").prefetch_related("tags", "sources"), slug=slug
     )
+    if article.merged_into_id and article.status == Article.Status.MERGED:
+        return redirect(article.merged_into.get_absolute_url(), permanent=True)  # дубль → основная заметка
     is_preview = article.status != Article.Status.PUBLISHED
     if is_preview and not request.user.is_staff:
         raise Http404
@@ -140,14 +147,23 @@ def article_view(request, slug):
 
 class LatestFeed(Feed):
     title = "Florida RU — новости штата по-русски"
-    link = "/"
     description = "Короткие новости Флориды на русском со ссылками на первоисточники"
+
+    # Ссылки только на канонический домен (SITE_URL), а не на хост, с которого пришёл запрос.
+    def link(self):
+        return f"{settings.SITE_URL}/"
+
+    def feed_url(self):
+        return f"{settings.SITE_URL}{reverse('news:rss')}"
+
+    def item_link(self, item):
+        return f"{settings.SITE_URL}{item.get_absolute_url()}"
 
     def items(self):
         return published()[:30]
 
     def item_title(self, item):
-        return ("🚨 " if item.is_urgent else "") + item.title
+        return ("🚨 " if item.urgent_now else "") + item.title
 
     def item_description(self, item):
         return item.teaser

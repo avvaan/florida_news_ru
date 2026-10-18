@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -21,11 +22,22 @@ def article():
     return a
 
 
+@override_settings(TELEGRAM_CHANNEL_URL="https://t.me/florida_ru")
 def test_home_and_sections(client, article):
     for url in ("/", "/region/miami/", "/region/florida/", "/topic/money/", "/about/", "/rss/"):
         assert client.get(url).status_code == 200, url
     html = client.get("/").content.decode()
-    assert article.title in html and "Подписаться" in html
+    assert article.title in html and "Подписаться" in html and "https://t.me/florida_ru" in html
+
+
+@override_settings(TELEGRAM_CHANNEL_URL="")
+def test_telegram_button_hidden_without_channel_url(client, article):
+    from core.models import SiteSettings
+
+    SiteSettings.objects.update(telegram_channel_url="https://t.me/")
+    for url in ("/", article.get_absolute_url()):
+        html = client.get(url).content.decode()
+        assert "t.me/" not in html and "Подписаться" not in html, url
 
 
 def test_region_filter_includes_statewide(client, article):

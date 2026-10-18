@@ -1,6 +1,7 @@
 """Гайды из файлов: разметка, импорт import_guides, страницы гайда и списка, проверка реальных файлов."""
 
 from io import StringIO
+from unittest import mock
 
 import pytest
 from django.core.management import call_command
@@ -38,6 +39,18 @@ def run(*args):
     return out.getvalue()
 
 
+def review_and_publish(slug="test-guide"):
+    """Как редактор в админке: «проверено человеком» → публикация."""
+    from guides.services import publish_guide
+
+    guide = Guide.objects.get(slug=slug)
+    guide.human_reviewed = True
+    guide.save()
+    with mock.patch("guides.services.post_guide", return_value="dry-run"):
+        publish_guide(guide)
+    return Guide.objects.get(slug=slug)
+
+
 def test_markup_blocks_and_escaping():
     blocks = markup.parse(
         "## Права и <script>\n\nТекст **жирный** [тут](https://a.gov/x) и [плохо](javascript:alert(1)).\n\n"
@@ -66,10 +79,13 @@ def test_check_reports_errors_without_touching_db(content_dir):
     assert not Guide.objects.filter(slug="short-guide").exists()
 
 
-def test_import_publishes_and_is_idempotent(content_dir, client):
+def test_import_creates_drafts_and_is_idempotent(content_dir, client):
     (content_dir / "test-guide.md").write_text(guide_text())
     assert "Новых: 1" in run("--no-images")
     guide = Guide.objects.get(slug="test-guide")
+    assert not guide.is_published and not guide.human_reviewed  # публикует только редактор после проверки
+    assert client.get(guide.get_absolute_url()).status_code == 404
+    guide = review_and_publish()
     assert guide.is_published and guide.section == "docs" and guide.cover == "guides/test-guide-1"
     assert set(guide.topics.values_list("slug", flat=True)) == {"laws", "roads"}
     assert guide.sources.count() == 3 and guide.revised_at is None
@@ -80,6 +96,9 @@ def test_import_publishes_and_is_idempotent(content_dir, client):
     assert "обновлено: 1" in run("--no-images")
     guide.refresh_from_db()
     assert guide.title == "Новый заголовок" and guide.revised_at is not None
+    # текст изменился после проверки — снова черновик, нужна повторная проверка
+    assert not guide.is_published and not guide.human_reviewed and "проверьте заново" in guide.review_notes
+    guide = review_and_publish()
 
     page = client.get(guide.get_absolute_url()).content.decode()
     assert 'class="toc"' in page and 'href="#razdel-1"' in page and 'id="razdel-1"' in page
@@ -94,6 +113,7 @@ def test_import_publishes_and_is_idempotent(content_dir, client):
 def test_home_page_links_all_guides_by_section(content_dir, client):
     (content_dir / "test-guide.md").write_text(guide_text(title="Florida ID во Флориде: как получить"))
     run("--no-images")
+    review_and_publish()
     home = client.get("/").content.decode()
     assert 'class="home-guides"' in home and 'href="/guides/test-guide/"' in home
     assert ">Florida ID</a>" in home and 'href="/guides/#docs"' in home  # короткое название и раздел
@@ -103,7 +123,7 @@ def test_import_existing_starter_draft_keeps_url(content_dir):
     (content_dir / "homestead-exemption.md").write_text(guide_text(slug="homestead-exemption"))
     run("--no-images")
     assert Guide.objects.filter(slug="homestead-exemption").count() == 1
-    assert Guide.objects.get(slug="homestead-exemption").is_published
+    assert review_and_publish("homestead-exemption").is_published
 
 
 def test_real_guide_files_are_valid():
@@ -132,6 +152,7 @@ def ld_types(html: str) -> dict:
 def test_guide_seo_markup(content_dir, client):
     (content_dir / "test-guide.md").write_text(guide_text())
     run("--no-images")
+    review_and_publish()
     html = client.get("/guides/test-guide/").content.decode()
     ld = ld_types(html)
     assert ld["FAQPage"]["mainEntity"][0]["name"] == "Вопрос?"
@@ -150,6 +171,7 @@ def test_guide_seo_markup(content_dir, client):
 def test_sitemap_lists_guide_images_and_404_is_noindex(content_dir, client):
     (content_dir / "test-guide.md").write_text(guide_text())
     run("--no-images")
+    review_and_publish()
     from django.core.cache import cache
 
     cache.clear()  # sitemap кэшируется на 10 минут

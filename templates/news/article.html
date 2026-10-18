@@ -38,7 +38,7 @@
   <div class="story-layout">
     <article class="story">
       <header class="story__head">
-        <h1 class="story__title">{% if article.is_urgent %}<span class="flag flag--lg">Срочно</span> {% endif %}{{ article.title }}</h1>
+        <h1 class="story__title">{% if article.urgent_now %}<span class="flag flag--lg">Срочно</span> {% endif %}{{ article.title }}</h1>
         <p class="story__lede">{{ article.teaser }}</p>
         <p class="story__meta">
           <time datetime="{{ article.published_at|default:article.created_at|date:'c' }}">

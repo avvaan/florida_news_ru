@@ -33,12 +33,12 @@
 
   {% if lead %}
   <section class="front" aria-label="Главное">
-    <article class="lead{% if lead.is_urgent %} lead--urgent{% endif %}">
+    <article class="lead{% if lead.urgent_now %} lead--urgent{% endif %}">
       <a class="lead__img" href="{{ lead.get_absolute_url }}" tabindex="-1" aria-hidden="true">
         <img src="{% cover lead %}" alt="" width="1200" height="675" fetchpriority="high">
       </a>
       <div class="lead__body">
-        <h2 class="lead__title"><a href="{{ lead.get_absolute_url }}">{% if lead.is_urgent %}<span class="flag">Срочно</span> {% endif %}{{ lead.title }}</a></h2>
+        <h2 class="lead__title"><a href="{{ lead.get_absolute_url }}">{% if lead.urgent_now %}<span class="flag">Срочно</span> {% endif %}{{ lead.title }}</a></h2>
         <p class="lead__teaser">{{ lead.teaser }}</p>
         {% include "includes/meta.html" with a=lead %}
       </div>
@@ -50,7 +50,7 @@
       <ol class="digest__list">
         {% for a in most_important %}
         <li class="digest__item">
-          <a href="{{ a.get_absolute_url }}">{% if a.is_urgent %}<span class="flag">Срочно</span> {% endif %}{{ a.title }}</a>
+          <a href="{{ a.get_absolute_url }}">{% if a.urgent_now %}<span class="flag">Срочно</span> {% endif %}{{ a.title }}</a>
           {% include "includes/meta.html" %}
         </li>
         {% endfor %}
@@ -80,8 +80,8 @@
         {% if not lead %}
         <div class="empty">
           <p class="empty__title">Здесь пока пусто</p>
-          <p>Новости обновляются дважды в день — утром и вечером. Подпишитесь на Telegram, чтобы не пропустить главное.</p>
-          <a class="btn" href="{{ telegram_url }}" target="_blank" rel="noopener">Подписаться в Telegram</a>
+          <p>Новости обновляются дважды в день — утром и вечером.{% if telegram_url %} Подпишитесь на Telegram, чтобы не пропустить главное.{% endif %}</p>
+          {% if telegram_url %}<a class="btn" href="{{ telegram_url }}" target="_blank" rel="noopener">Подписаться в Telegram</a>{% endif %}
         </div>
         {% endif %}
       {% endfor %}

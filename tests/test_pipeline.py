@@ -13,7 +13,7 @@ from news.models import Article, Story
 from pipeline import ai
 from pipeline.clustering import cluster_items
 from pipeline.models import AICall
-from pipeline.schemas import Classification, CoverChoice, Draft, Verification
+from pipeline.schemas import Classification, CoverChoice, Draft, DuplicateCheck, Verification
 from pipeline.services import RunLog, classify_new, rechoose_covers, run_pipeline, write_pending
 from sources.fetch import parse_feed, store_items
 from sources.models import Source
@@ -28,7 +28,7 @@ BODY = " ".join(["слово"] * 100)
 class FakeAI:
     """Отвечает по типу запрошенной схемы в форме DeepSeek или Anthropic. Ничего не шлёт в сеть."""
 
-    def __init__(self, classification=None, draft=None, verification=None, cover=None):
+    def __init__(self, classification=None, draft=None, verification=None, cover=None, duplicate=None):
         self.classification = classification or Classification(
             score=8, topic="safety", region="orlando", is_urgent=False, is_sensitive=False, reason="ЖКХ")
         self.draft = draft or Draft(title="В Орландо кипятите воду", teaser="Предписание для части округа",
@@ -36,17 +36,18 @@ class FakeAI:
                                     cover="covers/safety-3")
         self.verification = verification or Verification(ok=True, confidence=0.95, issues=[])
         self.cover = cover or CoverChoice(cover="covers/weather-photo-2")
+        self.duplicate = duplicate or DuplicateCheck(same_story=False, article_id=None, reason="Другое событие")
         self.calls = []
         self.messages = self  # Anthropic: client.messages.parse
         self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))  # DeepSeek
 
     def answer_for(self, schema):
         return {Classification: self.classification, Draft: self.draft, Verification: self.verification,
-                CoverChoice: self.cover}[schema]
+                CoverChoice: self.cover, DuplicateCheck: self.duplicate}[schema]
 
     @staticmethod
     def schema_from_prompt(system: str):
-        for schema in (Classification, Draft, Verification, CoverChoice):
+        for schema in (Classification, Draft, Verification, CoverChoice, DuplicateCheck):
             if json.dumps(schema.model_json_schema(), ensure_ascii=False) in system:
                 return schema
         raise AssertionError("в системном промпте нет JSON-схемы")
@@ -92,7 +93,8 @@ def test_full_flow_publishes_and_logs_costs(stories):
     assert article.sources.count() == 1 and article.tags.count() == 2
     assert article.slug.startswith("v-orlando-kipyatite-vodu")
     # 2 сюжета × (отбор + написание + проверка)
-    assert AICall.objects.count() == 6
+    assert AICall.objects.count() == 7  # +1: вторая заметка сверяется с уже опубликованной первой
+    assert AICall.objects.filter(purpose="dedup").count() == 1
     assert AICall.objects.filter(purpose="write", model="deepseek-v4-pro").count() == 2
     call = AICall.objects.filter(purpose="classify").first()
     assert (call.input_tokens, call.cache_read_tokens, call.output_tokens) == (300, 1200, 300)

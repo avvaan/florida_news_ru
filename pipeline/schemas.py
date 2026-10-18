@@ -45,6 +45,23 @@ class Verification(BaseModel):
     ok: bool = Field(description="true, если заметка не противоречит источникам и ничего не выдумано")
     confidence: float = Field(description="Уверенность 0.0–1.0")
     issues: list[str] = Field(description="Конкретные проблемы: выдуманные факты, искажённые цифры, обвинения без ссылки на полицию")
+    source_conflicts: list[str] = Field(
+        default_factory=list,
+        description="Противоречия МЕЖДУ источниками: разное место, число пострадавших или погибших, имена, "
+                    "даты, время, суммы. Каждое — одной строкой «что: источник А говорит X, источник Б — Y». "
+                    "Пусто, если источник один или они согласны",
+    )
+
+
+class DuplicateCheck(BaseModel):
+    same_story: bool = Field(description="true, если новая заметка о том же событии, что одна из опубликованных")
+    article_id: int | None = Field(default=None, description="id той опубликованной заметки; null, если дубля нет")
+    reason: str = Field(description="Одна короткая фраза: почему это то же событие или другое")
+    new_facts: list[str] = Field(
+        default_factory=list,
+        description="Если это то же событие: существенно новые факты из новой заметки, которых нет в опубликованной "
+                    "(0–3 коротких предложения на русском). Пусто, если нового нет",
+    )
 
 
 class CoverChoice(BaseModel):

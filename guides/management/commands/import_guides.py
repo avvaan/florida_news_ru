@@ -10,6 +10,7 @@ from news.models import Topic
 class Command(BaseCommand):
     help = (
         "Гайды из guides/content/*.md → база: создаёт и обновляет изменённые файлы. "
+        "Публикует только гайды с отметкой «проверено человеком», остальные — черновиками. "
         "Пост в Telegram не отправляет (опубликовать в канал — действием в админке)."
     )
 
@@ -61,6 +62,7 @@ class Command(BaseCommand):
         is_new = guide is None
         guide = guide or Guide(slug=data.slug)
         now = timezone.now()
+        content_changed = not is_new and guide.body != data.body
         if guide.is_published and guide.body.strip() and guide.body != data.body:
             guide.revised_at = now
         guide.title, guide.teaser, guide.body = data.title, data.teaser, data.body
@@ -69,10 +71,15 @@ class Command(BaseCommand):
         guide.official_domains = guide.official_domains or ", ".join(
             sorted({url.split("/")[2].removeprefix("www.") for _, url, _ in data.sources})
         )[:500]
-        if data.status == "published":
+        if content_changed and guide.human_reviewed:
+            # Текст поменялся после проверки — нужна новая проверка человеком.
+            guide.human_reviewed, guide.reviewed_at = False, None
+            guide.review_notes = f"{now:%d.%m.%Y}: файл гайда изменён — проверьте заново и опубликуйте."
+        if data.status == "published" and guide.human_reviewed:
             guide.status = Guide.Status.PUBLISHED
             guide.published_at = guide.published_at or now
         else:
+            # Публикует только редактор после проверки: из файла гайд приходит черновиком.
             guide.status = Guide.Status.DRAFT
         guide.save()
         guide.topics.set(Topic.objects.filter(slug__in=data.topics))

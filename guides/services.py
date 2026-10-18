@@ -9,8 +9,17 @@ from .models import Guide
 log = logging.getLogger(__name__)
 
 
+class NotReviewed(ValueError):
+    pass
+
+
 def publish_guide(guide: Guide) -> str:
-    """Публикация — только вручную, редактором. Отдельный пост в Telegram, если он включён."""
+    """Публикация — только вручную, редактором и только проверенного человеком гайда.
+
+    Отдельный пост в Telegram, если он включён.
+    """
+    if not guide.can_publish:
+        raise NotReviewed(f"«{guide.title}»: сначала отметьте «проверено человеком»")
     guide.status = Guide.Status.PUBLISHED
     guide.published_at = guide.published_at or timezone.now()
     guide.save(update_fields=["status", "published_at", "updated_at"])

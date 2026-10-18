@@ -128,6 +128,7 @@ class Article(models.Model):
         PUBLISHED = "published", "опубликовано"
         REJECTED = "rejected", "отклонено"
         DRAFT = "draft", "черновик"
+        MERGED = "merged", "объединена с другой"
 
     story = models.OneToOneField(
         Story, verbose_name="сюжет", null=True, blank=True, on_delete=models.SET_NULL, related_name="article"
@@ -154,6 +155,15 @@ class Article(models.Model):
 
     status = models.CharField("статус", max_length=20, choices=Status.choices, default=Status.REVIEW, db_index=True)
     is_urgent = models.BooleanField("🚨 срочно", default=False)
+    expires_at = models.DateTimeField(
+        "«Срочно» до", null=True, blank=True,
+        help_text="Плашка и флажок «Срочно» снимаются сами после этого времени: срок предупреждения NWS "
+                  "или 6 часов после публикации",
+    )
+    merged_into = models.ForeignKey(
+        "self", verbose_name="объединена с", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="merged_duplicates", help_text="Дубль: адрес отдаёт 301 на эту заметку",
+    )
     is_sensitive = models.BooleanField("чувствительно", default=False)
     score = models.PositiveSmallIntegerField("важность", null=True, blank=True)
     review_reason = models.CharField("почему на проверке", max_length=500, blank=True)
@@ -182,6 +192,11 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         return reverse("news:article", args=[self.slug])
+
+    @property
+    def urgent_now(self) -> bool:
+        """«Срочно» ещё действует: флажок и плашка показываются только до expires_at."""
+        return self.is_urgent and (self.expires_at is None or self.expires_at > timezone.now())
 
     @property
     def paragraphs(self) -> list[str]:

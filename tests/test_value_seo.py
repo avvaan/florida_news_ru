@@ -17,7 +17,7 @@ from guides.models import Guide
 from guides.schemas import GuideCheck, GuideDraft
 from news.models import Article, ArticleSource, Story
 from pipeline import ai, services
-from pipeline.schemas import Classification, Draft, Verification
+from pipeline.schemas import Classification, Draft, DuplicateCheck, Verification
 from pipeline.services import RunLog, classify_story, write_pending
 from pipeline.telegram import post_article
 from sources.models import FeedItem
@@ -39,6 +39,7 @@ def answers(*, draft=None, classification=None):
         Draft: draft or Draft(title="Новый закон о правах", teaser="Что меняется", body=BODY, tags=["законы"],
                               insufficient_facts=False, cover="covers/laws-2"),
         Verification: Verification(ok=True, confidence=0.95, issues=[]),
+        DuplicateCheck: DuplicateCheck(same_story=False, article_id=None, reason="Другое событие"),
     }
 
 
@@ -179,6 +180,14 @@ def test_guide_is_published_only_by_editor_and_posted_to_telegram(admin_client, 
     guide = Guide.objects.get(slug="podgotovka-k-uraganu")
     guide.body = "Текст гайда.\n\n## Набор на случай ЧС\n\nВода и фонарик."
     guide.teaser = "Что сделать до сезона ураганов"
+    guide.save()
+    # Без отметки «проверено человеком» гайд не публикуется
+    with mock.patch("guides.services.post_guide", return_value="dry-run") as post:
+        admin_client.post("/admin/guides/guide/", {"action": "action_publish", "_selected_action": [guide.pk]},
+                          follow=True)
+    guide.refresh_from_db()
+    assert not guide.is_published and not post.called
+    guide.human_reviewed = True
     guide.save()
     with mock.patch("guides.services.post_guide", return_value="dry-run") as post:
         resp = admin_client.post("/admin/guides/guide/", {"action": "action_publish", "_selected_action": [guide.pk]},

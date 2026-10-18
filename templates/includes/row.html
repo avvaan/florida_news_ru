@@ -1,9 +1,9 @@
-{% load news_extras %}<article class="row{% if a.is_urgent %} row--urgent{% endif %}">
+{% load news_extras %}<article class="row{% if a.urgent_now %} row--urgent{% endif %}">
   <a class="row__img" href="{{ a.get_absolute_url }}" tabindex="-1" aria-hidden="true">
     <img src="{% cover a '640' %}" alt="" width="640" height="360" loading="lazy">
   </a>
   <div class="row__body">
-    <h3 class="row__title"><a href="{{ a.get_absolute_url }}">{% if a.is_urgent %}<span class="flag">Срочно</span> {% endif %}{{ a.title }}</a></h3>
+    <h3 class="row__title"><a href="{{ a.get_absolute_url }}">{% if a.urgent_now %}<span class="flag">Срочно</span> {% endif %}{{ a.title }}</a></h3>
     <p class="row__teaser">{{ a.teaser }}</p>
     {% include "includes/meta.html" %}
   </div>

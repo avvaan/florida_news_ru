@@ -74,6 +74,11 @@ class Guide(models.Model):
         help_text="Через запятую, например: flhsmv.gov, floridadisaster.org. draft_guide берёт факты только оттуда",
     )
     review_notes = models.TextField("замечания проверки", blank=True)
+    human_reviewed = models.BooleanField(
+        "проверено человеком", default=False,
+        help_text="Редактор прочитал гайд и сверил факты. Публиковать можно только проверенные гайды",
+    )
+    reviewed_at = models.DateTimeField("дата проверки", null=True, blank=True)
 
     created_at = models.DateTimeField("создан", default=timezone.now)
     updated_at = models.DateTimeField("изменён", auto_now=True)
@@ -98,6 +103,10 @@ class Guide(models.Model):
     @property
     def is_published(self) -> bool:
         return self.status == self.Status.PUBLISHED and self.published_at is not None
+
+    @property
+    def can_publish(self) -> bool:
+        return self.human_reviewed and bool(self.body.strip())
 
     @property
     def domains(self) -> list[str]:

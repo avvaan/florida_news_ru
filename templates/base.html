@@ -42,9 +42,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <header class="masthead">
   <div class="masthead__top wrap">
     <p class="masthead__date">{{ now|date:"l, j E Y" }}</p>
-    <a class="tg-link" href="{{ telegram_url }}" target="_blank" rel="noopener">
+    {% if telegram_url %}<a class="tg-link" href="{{ telegram_url }}" target="_blank" rel="noopener">
       <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>Наш Telegram
-    </a>
+    </a>{% endif %}
   </div>
   <div class="masthead__brand wrap">
     <a class="logo" href="{% url 'news:home' %}" aria-label="{{ site_name }} — на главную">
@@ -112,9 +112,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         {% for p in footer_pages %}<li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></li>{% endfor %}
         <li><a href="{% url 'news:rss' %}">RSS</a></li>
       </ul>
-      <a class="btn btn--tg" href="{{ telegram_url }}" target="_blank" rel="noopener">
+      {% if telegram_url %}<a class="btn btn--tg" href="{{ telegram_url }}" target="_blank" rel="noopener">
         <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>Подписаться в Telegram
-      </a>
+      </a>{% endif %}
     </nav>
   </div>
   <div class="wrap footer__legal">
