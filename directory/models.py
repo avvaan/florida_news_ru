@@ -2,10 +2,20 @@
 
 import uuid
 from datetime import timedelta
+from functools import lru_cache
+from pathlib import Path
+
+from django.conf import settings
 
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
+
+
+@lru_cache(maxsize=256)
+def category_icon(slug: str) -> str:
+    path = f"directory/{slug}.webp"
+    return path if (Path(settings.BASE_DIR) / "static" / path).exists() else ""
 
 
 class CategoryQuerySet(models.QuerySet):
@@ -41,6 +51,11 @@ class Category(models.Model):
 
     def get_absolute_url(self):
         return reverse("directory:category", args=[self.slug])
+
+    @property
+    def icon(self) -> str:
+        """Путь иконки в static/ (directory/<slug>.webp) или пусто, если иконки нет."""
+        return category_icon(self.slug)
 
 
 class ListingQuerySet(models.QuerySet):

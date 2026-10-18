@@ -123,3 +123,11 @@ def test_batch3_verified_table():
     assert Listing.objects.get(name__startswith="Alenka").phone == "(407) 910-7351"
     for name in ("Law Offices of George Lambert", "Toyota of Hollywood", "Valeria Studio — брови и ресницы"):
         assert not Listing.objects.get(name=name).is_active, name
+
+
+def test_category_icons(client):
+    for cat in Category.objects.all():
+        assert cat.icon == f"directory/{cat.slug}.webp", cat.slug  # у каждой стартовой категории есть иконка
+    html = client.get("/links/").content.decode()
+    assert html.count('class="dir__icon') == Category.objects.count()
+    assert "directory/cerkvi" in client.get("/links/cerkvi/").content.decode()

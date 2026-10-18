@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load news_extras %}
+{% load static news_extras %}
 {% block title %}{{ category.name }} во Флориде{% if category.kind == "business" %} — по-русски{% endif %} — {{ site_name }}{% endblock %}
 {% block description %}{{ category.description|default:category.name }}{% endblock %}
 {% block og %}{% include "includes/og.html" with title=category.name|add:" — "|add:site_name description=category.description|default:category.name url=request.path %}{% endblock %}
@@ -11,7 +11,7 @@
     <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">Ссылки и бизнесы</a>
   </nav>
   <section class="story dir">
-    <h1 class="story__title">{{ category.name }}</h1>
+    <div class="dir__head">{% if category.icon %}<span class="dir__icon dir__icon--lg"><img src="{% static category.icon %}" alt="" width="72" height="72"></span>{% endif %}<h1 class="story__title">{{ category.name }}</h1></div>
     {% if category.description %}<p class="story__lede">{{ category.description }}</p>{% endif %}
 
     {% if regions %}

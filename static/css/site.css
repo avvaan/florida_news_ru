@@ -378,6 +378,15 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .dir__facts a { color: var(--gulf-deep); }
 .dir__empty { margin-top: 24px; padding: 18px 20px; border: 1px dashed var(--line); border-radius: 10px; color: var(--ink-2); max-width: 760px; }
 .dir__others { margin-top: 40px; }
+.dir__icon { display: inline-grid; place-items: center; flex: none; width: 56px; height: 56px; border-radius: 12px; background: var(--mist); overflow: hidden; }
+.dir__icon img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+.dir__icon--sm { width: 36px; height: 36px; border-radius: 8px; }
+.dir__icon--lg { width: 72px; height: 72px; border-radius: 14px; }
+.dir__group-h { display: flex; align-items: center; gap: 10px; }
+.dir__cat.has-icon { grid-template-columns: 56px 1fr; column-gap: 14px; align-content: start; }
+.dir__cat.has-icon .dir__icon { grid-row: 1 / span 3; }
+.dir__cat.has-icon b, .dir__cat.has-icon span:not(.dir__icon), .dir__cat.has-icon em { grid-column: 2; }
+.dir__head { display: flex; align-items: center; gap: 16px; }
 .dir__badge--owner { background: var(--line); color: var(--ink-2); }
 .dir-form__rules { margin-top: 22px; padding: 14px 18px; border-radius: 10px; background: var(--mist); }
 .dir-form__rules summary { cursor: pointer; font-weight: 700; }
