@@ -36,6 +36,7 @@ BUSINESS_CATEGORIES = [
     ("prazdniki", "Праздники и развлечения", "Аниматоры, шоу и организация детских и семейных праздников.", "EntertainmentBusiness", 12),
     ("pozhilye", "Уход за пожилыми и дневные центры", "Дневные центры для пенсионеров, уход на дому, досуг для старшего поколения.", "LocalBusiness", 2),
     ("podarki", "Подарки, цветы и сладости на заказ", "Торты, букеты, сладкие подарки и композиции с доставкой.", "Store", 12),
+    ("it", "IT, сайты и реклама", "Разработка сайтов и приложений, SEO, реклама и компьютерная помощь.", "ProfessionalService", 13),
     ("perevody", "Переводы и нотариус", "Сертифицированные переводы, нотариусы, апостиль.", "ProfessionalService", 13),
     ("remont", "Ремонт и строительство", "Ремонт, кровля, кондиционеры, электрика — с лицензией штата.", "HomeAndConstructionBusiness", 14),
     ("zhivotnye", "Животные: груминг, ветеринары, зоотовары", "Груминг, ветеринарные клиники, зоомагазины и передержка.", "PetStore", 14),
@@ -260,3 +261,17 @@ def import_batch3(apps, schema_editor):
 
 def import_batch4(apps, schema_editor):
     apply_business_updates(apps, schema_editor, "businesses_2026_10_batch4.json")
+
+
+def import_batch5(apps, schema_editor):
+    import_batch2_categories(apps)
+    apply_business_updates(apps, schema_editor, "businesses_2026_10_batch5.json")
+
+
+def import_batch2_categories(apps):
+    """Создаёт недостающие категории бизнесов из BUSINESS_CATEGORIES."""
+    Category = apps.get_model("directory", "Category")
+    for slug, name, description, schema_type, order in BUSINESS_CATEGORIES:
+        Category.objects.get_or_create(slug=slug, defaults={
+            "kind": "business", "name": name, "description": description, "schema_type": schema_type, "order": order,
+        })

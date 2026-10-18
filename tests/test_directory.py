@@ -17,7 +17,7 @@ def ld(html: str) -> dict:
 
 def test_seeded_categories_and_st_nina_church():
     assert Category.objects.filter(kind="links").count() == 9
-    assert Category.objects.filter(kind="business").count() == 20
+    assert Category.objects.filter(kind="business").count() == 21
     church = Listing.objects.get(category__slug="cerkvi")
     assert church.url == "https://www.stninaorlando.org/" and church.is_recommended
     assert church.region.slug == "orlando" and "Hanging Moss" in church.address
