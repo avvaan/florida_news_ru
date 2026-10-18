@@ -9,7 +9,7 @@ class SiteSettings(models.Model):
     """Единственная запись с порогами, лимитами и переключателями."""
 
     min_score_to_write = models.PositiveSmallIntegerField(
-        "порог важности для заметки", default=6,
+        "порог важности для заметки", default=4,
         help_text="Сюжеты с оценкой ниже не идут в работу (0–10)",
     )
     publish_without_review = models.BooleanField(
