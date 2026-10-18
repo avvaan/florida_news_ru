@@ -14,7 +14,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone as dt_timezone
 from urllib import robotparser
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 import feedparser
 import requests
@@ -101,6 +101,16 @@ def _entry_datetime(entry) -> datetime | None:
     return None
 
 
+def unwrap_link(link: str) -> str:
+    """Ссылка-переходник агрегатора (Bing News: apiclick.aspx?url=…) → прямой адрес первоисточника."""
+    parts = urlsplit(link)
+    if parts.netloc.endswith("bing.com") and parts.path.endswith("/apiclick.aspx"):
+        target = parse_qs(parts.query).get("url", [""])[0]
+        if target.startswith(("http://", "https://")):
+            return target
+    return link
+
+
 def parse_feed(content: bytes) -> list[dict]:
     """Разбирает RSS/Atom и возвращает нормализованные записи."""
     parsed = feedparser.parse(content)
@@ -110,7 +120,7 @@ def parse_feed(content: bytes) -> list[dict]:
         raise ValueError("не похоже на RSS/Atom: пустой документ")
     items = []
     for entry in parsed.entries:
-        link = entry.get("link") or ""
+        link = unwrap_link(entry.get("link") or "")
         title = clean_text(entry.get("title", ""), limit=400)
         if not link or not title:
             continue

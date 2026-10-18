@@ -80,7 +80,7 @@ def test_failing_source_marked_broken_after_three_errors_and_others_continue():
         names = [r.source.name for r in fetch_all()]
     finally:
         fetch_module.make_session = original
-    assert names == ["Good"]
+    assert "Good" in names and "Bad" not in names
 
 
 def test_success_resets_failure_counter():
@@ -122,5 +122,16 @@ def test_check_source_detects_non_feed():
 
 
 def test_seeded_sources_are_inactive_until_verified():
-    assert Source.objects.filter(is_active=True).count() == 0
+    # включён сразу только IRS: его ленту проверили при добавлении (миграция sources 0003)
+    assert list(Source.objects.filter(is_active=True).values_list("name", flat=True)) == ["IRS (налоговая служба США)"]
     assert Source.objects.filter(is_verified=False).count() >= 15
+
+
+def test_bing_news_redirect_unwrapped_to_original():
+    from sources.fetch import unwrap_link
+
+    bing = ("http://www.bing.com/news/apiclick.aspx?ref=FexRss&aid=&tid=abc"
+            "&url=https%3a%2f%2fwww.irs.gov%2fnewsroom%2firs-relief&c=1")
+    assert unwrap_link(bing) == "https://www.irs.gov/newsroom/irs-relief"
+    assert unwrap_link("https://www.wfla.com/a") == "https://www.wfla.com/a"
+    assert unwrap_link("http://www.bing.com/news/apiclick.aspx?url=javascript%3aalert(1)").startswith("http://www.bing")
