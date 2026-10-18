@@ -1,9 +1,16 @@
-from django.shortcuts import get_object_or_404, render
+import hashlib
+import hmac
+
+from django.conf import settings
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
 
 from core.models import SiteSettings
 from guides.models import Guide
 
-from .models import Category, Listing
+from . import moderation
+from .forms import SubmissionForm
+from .models import Category, Listing, Submission
 
 
 def guides_by_slug(listings) -> dict:
@@ -47,3 +54,34 @@ def directory_category(request, slug):
         "regions": regions if len(regions) + has_other > 1 else [], "has_other": has_other, "current_region": current,
         "contact_email": SiteSettings.load().contact_email,
     })
+
+
+def ip_hash(request) -> str:
+    """Обезличенный IP для лимита заявок: сам адрес не храним."""
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    ip = forwarded.split(",")[0].strip() if forwarded else request.META.get("REMOTE_ADDR", "")
+    return hmac.new(settings.SECRET_KEY.encode(), f"submission:{ip}".encode(), hashlib.sha256).hexdigest()[:32]
+
+
+@never_cache
+def submit(request):
+    form = SubmissionForm(request.POST or None, initial={"category": request.GET.get("category")})
+    if request.method == "POST" and form.is_valid():
+        if form.cleaned_data.get("company"):  # бот заполнил скрытое поле — делаем вид, что всё хорошо
+            return render(request, "directory/submit_done.html", {"submission": None})
+        key = ip_hash(request)
+        if Submission.objects.since(24).filter(ip_hash=key).count() >= moderation.MAX_PER_IP_PER_DAY:
+            form.add_error(None, "С этого адреса уже отправлено несколько заявок за сутки. Попробуйте завтра.")
+        else:
+            sub = form.save(commit=False)
+            sub.ip_hash = key
+            sub.save()
+            moderation.start_moderation(sub)
+            return redirect("directory:submission", token=sub.token)
+    return render(request, "directory/submit.html", {"form": form})
+
+
+@never_cache
+def submission_status(request, token):
+    sub = get_object_or_404(Submission.objects.select_related("listing__category"), token=token)
+    return render(request, "directory/submit_done.html", {"submission": sub})

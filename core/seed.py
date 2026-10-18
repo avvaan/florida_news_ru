@@ -117,6 +117,10 @@ PAGES = [
 Если вы пишете нам на электронную почту, мы используем ваш адрес только для ответа и не \
 передаём его третьим лицам.
 
+Если вы отправляете заявку в справочник бизнесов, мы храним имя и e-mail контактного лица, \
+чтобы связаться по заявке; на сайте они не публикуются. Текст заявки проверяет автоматическая \
+модерация с помощью ИИ. Для защиты от спама мы храним не IP-адрес, а обезличенный код.
+
 По вопросам, связанным с данными, пишите CITRUSTACK LLC на адрес редакции, указанный на \
 странице «Контакты»."""),
     ("disclaimer", "Отказ от ответственности", 5, f"""\
@@ -245,6 +249,22 @@ def update_privacy_counter(apps, schema_editor):
         paragraphs = [p for p in page.body.replace("\r\n", "\n").split("\n\n")]
         page.body = "\n\n".join(new if " ".join(p.split()) == old else p for p in paragraphs)
         page.save(update_fields=["body"])
+
+
+def update_privacy_submissions(apps, schema_editor):
+    """Добавляет в политику абзац о заявках в справочник, если его ещё нет."""
+    Page = apps.get_model("core", "Page")
+    page = Page.objects.filter(slug="privacy").first()
+    body = next(body for slug, _, _, body in PAGES if slug == "privacy")
+    paragraph = next(p for p in body.split("\n\n") if p.startswith("Если вы отправляете заявку"))
+    anchor = "Если вы пишете нам на электронную почту"
+    if not page or "заявку в справочник" in page.body:
+        return
+    parts = page.body.replace("\r\n", "\n").split("\n\n")
+    at = next((i for i, part in enumerate(parts) if part.startswith(anchor)), len(parts) - 1)
+    parts.insert(at + 1, paragraph)
+    page.body = "\n\n".join(parts)
+    page.save(update_fields=["body"])
 
 
 def update_about_schedule(apps, schema_editor):

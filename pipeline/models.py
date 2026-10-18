@@ -29,6 +29,7 @@ class AICall(models.Model):
         SIGNALS = "signals", "сбор сигналов"
         TRIAGE = "triage", "разбор сигналов"
         GUIDE = "guide", "гайды"
+        MODERATE = "moderate", "проверка заявок бизнесов"
 
     created_at = models.DateTimeField("время", default=timezone.now, db_index=True)
     purpose = models.CharField("задача", max_length=20, choices=Purpose.choices)

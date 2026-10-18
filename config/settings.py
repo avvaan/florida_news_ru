@@ -70,6 +70,9 @@ INSTALLED_APPS = [
     "api",
 ]
 
+# Заявки бизнесов в справочник: True — проверять ИИ прямо в запросе (тесты), иначе в фоновом потоке.
+DIRECTORY_MODERATION_SYNC = env_bool("DIRECTORY_MODERATION_SYNC")
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",

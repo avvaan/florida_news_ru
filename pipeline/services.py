@@ -414,6 +414,13 @@ def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | N
             except Exception as exc:  # noqa: BLE001 — сбой соцсетей не мешает новостям
                 say(f"Соцсети: сбой этапа — {type(exc).__name__}: {exc}")
                 log.exception("Сбой этапа сигналов")
+            try:
+                from directory.moderation import moderate_pending
+
+                stats["submissions_moderated"] = moderate_pending(say)
+            except Exception as exc:  # noqa: BLE001 — сбой модерации заявок не мешает новостям
+                say(f"Заявки бизнесов: сбой — {type(exc).__name__}: {exc}")
+                log.exception("Сбой модерации заявок")
             stats["classified"] = classify_new(say)
             stats["written"] = write_pending(say)
             say(f"Отбор: {stats['classified']}, написано заметок: {stats['written']}")

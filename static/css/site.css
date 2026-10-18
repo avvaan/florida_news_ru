@@ -378,6 +378,27 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .dir__facts a { color: var(--gulf-deep); }
 .dir__empty { margin-top: 24px; padding: 18px 20px; border: 1px dashed var(--line); border-radius: 10px; color: var(--ink-2); max-width: 760px; }
 .dir__others { margin-top: 40px; }
+.dir__badge--owner { background: var(--line); color: var(--ink-2); }
+.dir-form__rules { margin-top: 22px; padding: 14px 18px; border-radius: 10px; background: var(--mist); }
+.dir-form__rules summary { cursor: pointer; font-weight: 700; }
+.dir-form__rules p { margin-top: 10px; line-height: 1.55; color: var(--ink-2); }
+.dir-form__form { display: grid; gap: 18px; margin-top: 26px; max-width: 640px; }
+.dir-form__field { display: grid; gap: 6px; }
+.dir-form__field label { font-weight: 600; }
+.dir-form__field input:not([type=checkbox]), .dir-form__field select, .dir-form__field textarea {
+  width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+  font: inherit; color: var(--ink); background: var(--paper);
+}
+.dir-form__field textarea { min-height: 120px; resize: vertical; }
+.dir-form__field input:focus, .dir-form__field select:focus, .dir-form__field textarea:focus { outline: 3px solid var(--sun); outline-offset: 1px; border-color: var(--gulf); }
+.dir-form__field.has-error input, .dir-form__field.has-error select, .dir-form__field.has-error textarea { border-color: #b42318; }
+.dir-form__check label { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; line-height: 1.45; }
+.dir-form__check input { width: 20px; height: 20px; margin-top: 2px; flex: none; }
+.dir-form__help { font-size: .9rem; color: var(--muted); }
+.dir-form__field-error, .dir-form__error { color: #b42318; font-size: .92rem; }
+.dir-form__error { padding: 10px 14px; border: 1px solid #f4c7c3; background: #fef3f2; border-radius: 8px; }
+.dir-form__trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.dir-form .btn { justify-self: start; }
 .dir__city { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--muted); font-size: .9rem; font-weight: 600; }
 .dir__city .i { color: var(--gulf); width: 1em; height: 1em; }
 .chip.is-current { background: var(--gulf); color: #fff; }

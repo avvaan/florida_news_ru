@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Заявка в справочник — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block head %}{% if submission and submission.status == "pending" %}<meta http-equiv="refresh" content="6">{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">Ссылки и бизнесы</a>
+  </nav>
+  <section class="story story--page dir-form">
+    {% if not submission or submission.status == "pending" %}
+    <h1 class="story__title">Заявка на проверке</h1>
+    <p class="story__lede">Спасибо! Проверяем заявку — обычно это занимает пару минут. Страница обновится сама.</p>
+    {% if submission %}<p class="dir-form__help">Сохраните ссылку на эту страницу, чтобы узнать результат позже.</p>{% endif %}
+    {% elif submission.status == "approved" %}
+    <h1 class="story__title">Готово, бизнес в справочнике</h1>
+    <p class="story__lede">«{{ submission.listing.name|default:submission.name }}» опубликован в разделе «{{ submission.listing.category.name }}» с меткой «Данные от владельца». Описание мы могли сократить.</p>
+    {% if submission.listing %}<p><a class="btn" href="{{ submission.listing.category.get_absolute_url }}">Посмотреть в справочнике</a></p>{% endif %}
+    {% else %}
+    <h1 class="story__title">Заявка не прошла проверку</h1>
+    <p class="story__lede">{{ submission.public_reason|default:"Заявка не прошла проверку." }}</p>
+    <p>Если вы считаете, что это ошибка, напишите нам через страницу <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a> и укажите название бизнеса.</p>
+    {% endif %}
+    <p><a href="{% url 'directory:index' %}">← К справочнику</a></p>
+  </section>
+</div>
+{% endblock %}

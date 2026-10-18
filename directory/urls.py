@@ -6,5 +6,7 @@ app_name = "directory"
 
 urlpatterns = [
     path("", views.directory_index, name="index"),
+    path("add/", views.submit, name="submit"),
+    path("add/<uuid:token>/", views.submission_status, name="submission"),
     path("<slug:slug>/", views.directory_category, name="category"),
 ]

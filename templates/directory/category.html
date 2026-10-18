@@ -26,7 +26,7 @@
     <ul class="dir__cards">
       {% for item in listings %}
       <li class="dir__card">
-        {% if item.is_partner or item.is_recommended %}<p class="dir__badges">{% if item.is_partner %}<span class="dir__badge dir__badge--partner">Партнёр</span>{% endif %}{% if item.is_recommended %}<span class="dir__badge">Рекомендуем</span>{% endif %}</p>{% endif %}
+        {% if item.is_partner or item.is_recommended or item.from_owner %}<p class="dir__badges">{% if item.is_partner %}<span class="dir__badge dir__badge--partner">Партнёр</span>{% endif %}{% if item.is_recommended %}<span class="dir__badge">Рекомендуем</span>{% endif %}{% if item.from_owner %}<span class="dir__badge dir__badge--owner" title="Бизнес добавил себя сам; данные проверены автоматически">Данные от владельца</span>{% endif %}</p>{% endif %}
         {% if item.city %}<p class="dir__city"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ item.city }}{% if item.region and item.region.name != item.city %} · {{ item.region.name }}{% endif %}</p>{% endif %}
         <h2 class="dir__card-h">{% if item.url %}<a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h2>
         {% if item.description %}<p>{{ item.description }}</p>{% endif %}

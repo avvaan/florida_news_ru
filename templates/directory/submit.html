@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}Добавить бизнес в справочник — {{ site_name }}{% endblock %}
+{% block description %}Бесплатно добавьте русскоязычный бизнес во Флориде в справочник Florida RU: заявка проверяется автоматически за пару минут.{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">Ссылки и бизнесы</a>
+  </nav>
+  <section class="story story--page dir-form">
+    <h1 class="story__title">Добавить бизнес</h1>
+    <p class="story__lede">Бесплатно. Заявку проверяет автоматическая модерация, обычно за пару минут; одобренный бизнес сразу появляется в справочнике с меткой «Данные от владельца».</p>
+
+    <details class="dir-form__rules">
+      <summary>Что мы принимаем и что нет</summary>
+      <p><b>Принимаем</b> законные бизнесы и организации во Флориде: врачей и стоматологов, юристов, бухгалтеров, риелторов, страховых агентов, автосервисы, магазины и рестораны, салоны красоты, мастеров, переводчиков, школы и кружки, приходы традиционных конфессий.</p>
+      <p><b>Не принимаем</b> услуги для взрослых и «досуг», гадания, таро, астрологию, магию и целительство, финансовые схемы, MLM и «пассивный доход», помощь с гарантированными визами и грин-картами, азартные игры, оружие, вейпы и THC, медицину без лицензии, политическую агитацию и рекламу без настоящего бизнеса за ней.</p>
+      <p>Описание мы можем сократить и переписать нейтрально. Неверные данные удалим. Платное размещение с меткой «Партнёр» — по договорённости с редакцией.</p>
+    </details>
+
+    <form class="dir-form__form" method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="dir-form__error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+      <div class="dir-form__trap" aria-hidden="true"><label for="id_company">Компания</label>{{ form.company }}</div>
+      {% for field in form %}{% if field.name != "company" and field.name != "agree" %}
+      <div class="dir-form__field{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.help_text %}<p class="dir-form__help">{{ field.help_text }}</p>{% endif %}
+        {% for e in field.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}
+      </div>
+      {% endif %}{% endfor %}
+      <div class="dir-form__field dir-form__check{% if form.agree.errors %} has-error{% endif %}">
+        <label>{{ form.agree }} {{ form.agree.label }}</label>
+        {% for e in form.agree.errors %}<p class="dir-form__field-error">Нужно подтвердить.</p>{% endfor %}
+      </div>
+      <button class="btn" type="submit">Отправить заявку</button>
+      <p class="dir-form__help">Поля со звёздочкой обязательны. Нужен телефон или сайт.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}
