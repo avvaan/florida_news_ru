@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Заявка в афишу — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block head %}{% if event and event.status == "pending" %}<meta http-equiv="refresh" content="6">{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'events:list' %}">Куда сходить</a>
+  </nav>
+  <section class="story story--page dir-form">
+    {% if not event or event.status == "pending" %}
+    <h1 class="story__title">Заявка на проверке</h1>
+    <p class="story__lede">Спасибо! Проверяем событие — обычно это занимает пару минут. Страница обновится сама.</p>
+    {% if event %}<p class="dir-form__help">Сохраните ссылку на эту страницу, чтобы узнать результат позже.</p>{% endif %}
+    {% elif event.status == "approved" %}
+    <h1 class="story__title">Готово, событие в афише</h1>
+    <p class="story__lede">«{{ event.title }}» опубликовано. Описание мы могли сократить.</p>
+    {% if event.image_status == "rejected" or event.image_status == "skipped" %}<p>Картинку мы не опубликовали: она не прошла автоматическую проверку. Событие показываем без неё.</p>{% elif event.image_status == "pending" %}<p>Картинка появится чуть позже.</p>{% endif %}
+    <p><a class="btn" href="{{ event.get_absolute_url }}">Посмотреть в афише</a></p>
+    {% else %}
+    <h1 class="story__title">Заявка не прошла проверку</h1>
+    <p class="story__lede">{{ event.public_reason|default:"Заявка не прошла проверку." }}</p>
+    <p>Если вы считаете, что это ошибка, напишите нам через страницу <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a> и укажите название события.</p>
+    {% endif %}
+    <p><a href="{% url 'events:list' %}">← Вся афиша</a></p>
+  </section>
+</div>
+{% endblock %}

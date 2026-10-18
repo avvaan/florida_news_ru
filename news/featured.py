@@ -1,7 +1,8 @@
 """Избранные события для блока «Куда сходить» на главной и в рубрике «Афиша и события».
 
 Список ведётся вручную: новое событие — новая запись, картинки — в static/events/
-({image}-960.webp, {image}-480.webp и {image}.jpg 1200×630 для разметки Event).
+({image}-960.webp, {image}-480.webp и {image}.jpg 1200×630 для страницы события и соцсетей).
+Само событие с разметкой Event — в афише (приложение events), карточки ведут на его страницу.
 Событие показывается до конца дня окончания, потом скрывается само.
 """
 
@@ -10,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime, time
 
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -30,6 +32,11 @@ class FeaturedEvent:
     image: str
     image_alt: str
     tag: str
+    slug: str  # событие в афише /afisha/<slug>/ (events/migrations/0003_festivals_2027.py)
+
+    @property
+    def page_url(self) -> str:
+        return reverse("events:detail", args=[self.slug])
 
     @property
     def start_dt(self) -> datetime:
@@ -55,7 +62,7 @@ EVENTS = [
         price="Вход $10, дети до 12 лет — $5",
         url="https://slavicfoodfestival.com/ru/", tickets_url="https://slavicfoodfestival.com/ru/tickets/",
         image="slavic-food-fest", image_alt="Танцоры в народных костюмах на Slavic Food Festival",
-        tag="Еда и музыка",
+        tag="Еда и музыка", slug="festival-slavyanskoy-edy-2027-02-27",
     ),
     FeaturedEvent(
         key="georgian-festival-2027",
@@ -67,9 +74,13 @@ EVENTS = [
         price="Вход $20, дети 5–12 лет — $10, до 5 лет — бесплатно",
         url="https://georgianfestival.com/ru/", tickets_url="https://georgianfestival.com/ru/tickets/",
         image="georgian-festival", image_alt="Trio Mandili в грузинских костюмах",
-        tag="Концерт Trio Mandili",
+        tag="Концерт Trio Mandili", slug="festival-gruzinskoy-kultury-2027-05-08",
     ),
 ]
+
+
+def slugs() -> set[str]:
+    return {e.slug for e in EVENTS}
 
 
 def upcoming(today: date | None = None) -> list[FeaturedEvent]:

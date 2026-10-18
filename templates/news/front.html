@@ -17,6 +17,7 @@
   <header class="section-head">
     <h1 class="section-head__h">{% if region %}Новости {{ region.name_locative }}{% else %}{{ topic.name }}{% endif %}</h1>
     {% if region and not region.is_statewide %}<p class="section-head__sub">Плюс общештатные новости, которые касаются всех жителей Флориды</p>{% endif %}
+    {% if topic.slug == "events" %}<p class="section-head__sub">Ищете, куда сходить? <a href="{% url 'events:list' %}">Афиша событий</a> от организаторов — концерты, спектакли и праздники.</p>{% endif %}
     {% if region %}
     <ul class="chips" aria-label="Темы">
       {% for t in nav_topics %}<li><a class="chip" href="{% url 'news:home' %}?region={{ region.slug }}&amp;topic={{ t.slug }}">{{ t.short_name }}</a></li>{% endfor %}

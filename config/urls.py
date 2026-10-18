@@ -31,6 +31,7 @@ urlpatterns = [
     path("author/<slug:slug>/", core_views.author, name="core-author"),
     path("guides/", include("guides.urls")),
     path("links/", include("directory.urls")),
+    path("afisha/", include("events.urls")),
     path("dmca/", core_views.dmca, name="core-dmca"),
     path("corrections/", core_views.corrections, name="core-corrections"),
     path("", include("news.urls")),

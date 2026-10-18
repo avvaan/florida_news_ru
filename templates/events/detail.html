@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}{{ event.title }} — {{ event.starts_on|date:"j E"|lower }}, {{ event.city }} — {{ site_name }}{% endblock %}
+{% block description %}{{ event.description|truncatechars:160 }}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=event.title description=event.description|truncatechars:200 url=request.path %}{% endblock %}
+{% block robots %}{% if event.is_past %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'events:list' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Куда сходить" list_url event.title event.get_absolute_url %}{% event_jsonld event %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'events:list' %}">Куда сходить</a>
+  </nav>
+  <article class="story story--page ev-detail">
+    {% if event.is_past %}<p class="ev-detail__past">Событие прошло</p>{% endif %}
+    <h1 class="story__title">{{ event.title }}</h1>
+    <dl class="dir__facts ev-detail__facts">
+      <div><dt>Когда</dt><dd><time datetime="{{ event.starts_on|date:'Y-m-d' }}">{{ event.starts_on|date:"j E Y, l"|lower }}</time>{% if event.starts_at %}, {{ event.starts_at|time:"H:i" }}{% endif %}{% if event.is_multiday %} — {{ event.ends_on|date:"j E"|lower }}{% endif %}</dd></div>
+      <div><dt>Где</dt><dd>{{ event.venue }}<br><a href="https://www.google.com/maps/search/?api=1&amp;query={{ event.address|add:', '|add:event.city|urlencode }}" target="_blank" rel="noopener">{{ event.address }}, {{ event.city }}</a></dd></div>
+      {% if event.price %}<div><dt>Цена</dt><dd>{{ event.price }}</dd></div>{% endif %}
+      <div><dt>Организатор</dt><dd>{{ event.organizer }}</dd></div>
+    </dl>
+    {% if event.url %}<p class="dir__card-actions"><a class="btn" href="{{ event.url }}" target="_blank" rel="noopener nofollow">Билеты и подробности</a></p>{% endif %}
+    {% if event.image_url %}<figure class="story__figure ev-detail__figure"><img src="{{ event.image_url|ik:1200 }}" alt="Афиша: {{ event.title }}" width="1200" height="1200"></figure>{% endif %}
+    <div class="story__body"><p>{{ event.description|linebreaksbr }}</p></div>
+    <p class="story__disclaimer">Событие добавил организатор, его проверила автоматическая модерация. Перед поездкой уточните дату и время у организатора. Нашли ошибку? Напишите через <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a>.</p>
+
+    {% if more %}
+    <section class="ev-detail__more" aria-labelledby="more-h">
+      <h2 class="sidebar__h" id="more-h">Ещё события</h2>
+      <ul class="ev__grid">{% for e in more %}{% include "events/_card.html" %}{% endfor %}</ul>
+    </section>
+    {% endif %}
+    <p><a href="{% url 'events:list' %}">← Вся афиша</a></p>
+  </article>
+</div>
+{% endblock %}

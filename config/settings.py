@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "ads",
     "stats",
     "directory",
+    "events",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
@@ -198,6 +199,16 @@ AI_DEDUP_MODEL = os.environ.get("AI_DEDUP_MODEL") or (
 )
 AI_WRITER_MODEL = os.environ.get("AI_WRITER_MODEL") or _DEFAULT_MODELS["writer"]
 AI_VERIFIER_MODEL = os.environ.get("AI_VERIFIER_MODEL") or AI_CLASSIFIER_MODEL
+# Проверка картинок из форм (афиши, фото бизнесов): нужна модель со зрением — Claude через ключ Anthropic.
+# Без ключа картинки из форм не публикуются, текст проверяется как обычно.
+AI_VISION_MODEL = os.environ.get("AI_VISION_MODEL") or ("claude-haiku-5-5" if ANTHROPIC_API_KEY else "")
+
+# ImageKit: хранилище и CDN для картинок из форм. Загружаем только то, что одобрила модерация.
+IMAGEKIT_PRIVATE_KEY = os.environ.get("IMAGEKIT_PRIVATE_KEY", "")
+IMAGEKIT_PUBLIC_KEY = os.environ.get("IMAGEKIT_PUBLIC_KEY", "")
+IMAGEKIT_URL_ENDPOINT = os.environ.get("IMAGEKIT_URL_ENDPOINT", "").rstrip("/")
+IMAGEKIT_FOLDER = os.environ.get("IMAGEKIT_FOLDER", "/florida-ru")
+
 # Уровень усилий для модели-автора Anthropic (low/medium/high). Пусто — не передавать.
 AI_WRITER_EFFORT = os.environ.get("AI_WRITER_EFFORT", "medium")
 

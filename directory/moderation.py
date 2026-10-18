@@ -129,7 +129,10 @@ public_reason при отказе — без цитат правил и подр
 
 
 def stop_word_violation(sub: Submission) -> str | None:
-    text = " ".join([sub.name, sub.description, sub.url, sub.hours, sub.address])
+    return stop_text_violation(" ".join([sub.name, sub.description, sub.url, sub.hours, sub.address]))
+
+
+def stop_text_violation(text: str) -> str | None:
     for violation, pattern in _STOP_RE.items():
         if pattern.search(text):
             return violation

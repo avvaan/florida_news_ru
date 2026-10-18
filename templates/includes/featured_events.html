@@ -1,19 +1,19 @@
 {% load static featured %}{% featured_events as fests %}{% if fests %}
 <section class="fests{% if wide %} fests--wide{% endif %}" aria-labelledby="fests-h{{ wide|yesno:'-wide,' }}">
   <div class="fests__head">
-    <h2 class="{% if wide %}feed__h{% else %}sidebar__h{% endif %}" id="fests-h{{ wide|yesno:'-wide,' }}">Куда сходить</h2>
+    <h2 class="{% if wide %}feed__h{% else %}sidebar__h{% endif %}" id="fests-h{{ wide|yesno:'-wide,' }}">{{ heading|default:"Куда сходить" }}</h2>
     <span class="fests__kicker">Фестивали в Орландо</span>
   </div>
   <div class="fests__list">
     {% for e in fests %}
     <article class="fest">
-      <a class="fest__media" href="{{ e.url }}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
+      <a class="fest__media" href="{{ e.page_url }}" tabindex="-1" aria-hidden="true">
         <img src="{% static e.image_static|add:'-480.webp' %}" srcset="{% static e.image_static|add:'-480.webp' %} 480w, {% static e.image_static|add:'-960.webp' %} 960w" sizes="{% if wide %}(min-width: 900px) 560px, 100vw{% else %}(min-width: 1100px) 340px, 100vw{% endif %}" alt="{{ e.image_alt }}" width="480" height="270" loading="lazy">
         <time class="fest__date" datetime="{{ e.day|date:'Y-m-d' }}"><b>{{ e.day|date:"j" }}</b><span>{{ e.day|date:"E" }}</span></time>
         <span class="fest__tag">{{ e.tag }}</span>
       </a>
       <div class="fest__body">
-        <h3 class="fest__title"><a href="{{ e.url }}" target="_blank" rel="noopener">{{ e.title }}</a></h3>
+        <h3 class="fest__title"><a href="{{ e.page_url }}">{{ e.title }}</a></h3>
         <p class="fest__teaser">{{ e.teaser }}</p>
         <ul class="fest__meta">
           <li><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>{{ e.day|date:"l, j E"|capfirst }} · {{ e.starts|time:"G:i" }}–{{ e.ends|time:"G:i" }}</li>
@@ -23,7 +23,6 @@
         <a class="fest__cta" href="{{ e.tickets_url }}" target="_blank" rel="noopener">Билеты и программа<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
     </article>
-    {% event_jsonld e %}
     {% endfor %}
   </div>
 </section>

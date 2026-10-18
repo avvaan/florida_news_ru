@@ -260,3 +260,48 @@ def person_jsonld(author) -> str:
     if author.photo:
         data["image"] = f"{settings.SITE_URL}{author.photo.url}"
     return _jsonld(data)
+
+
+@register.filter
+def ik(url: str, width: int = 800) -> str:
+    """Картинка из ImageKit нужной ширины: {{ event.image_url|ik:640 }}"""
+    from core.images import resized
+
+    return resized(url, int(width))
+
+
+@register.simple_tag
+def event_jsonld(event) -> str:
+    """Event для расширенных результатов Google: дата, место, цена, картинка."""
+    def iso(day, time=None):
+        return f"{day:%Y-%m-%d}T{time:%H:%M}" if time else f"{day:%Y-%m-%d}"
+
+    data = {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        "name": event.title,
+        "description": event.description,
+        "startDate": iso(event.starts_on, event.starts_at),
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": {
+            "@type": "Place", "name": event.venue,
+            "address": {"@type": "PostalAddress", "streetAddress": event.address, "addressLocality": event.city,
+                        "addressRegion": "FL", "addressCountry": "US"},
+        },
+        "organizer": {"@type": "Organization", "name": event.organizer, **({"url": event.url} if event.url else {})},
+        "url": absolute(event.get_absolute_url()),
+        "inLanguage": "ru",
+    }
+    if event.ends_on:
+        data["endDate"] = iso(event.ends_on)
+    if event.image_url:
+        data["image"] = [event.image_url]
+    if event.is_free:
+        data["isAccessibleForFree"] = True
+    if event.url or event.price:
+        data["offers"] = {"@type": "Offer", "url": event.url or absolute(event.get_absolute_url()),
+                          "availability": "https://schema.org/InStock"}
+        if event.is_free:
+            data["offers"].update({"price": "0", "priceCurrency": "USD"})
+    return _jsonld(data)

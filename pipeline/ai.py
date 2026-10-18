@@ -77,16 +77,19 @@ def get_client(provider: str | None = None):
     return _clients[provider]
 
 
-def ask(*, purpose: str, model: str, system: str, user: str, output: type[T],
+def ask(*, purpose: str, model: str, system: str, user: str | list, output: type[T],
         max_tokens: int = 2000, story=None, effort: str | None = None, provider: str | None = None) -> T:
     """Один запрос со структурированным ответом. Каждый вызов логируется в AICall.
 
     provider — провайдер для этого вызова (по умолчанию AI_PROVIDER): так проверка дублей идёт
     в Claude Haiku, даже если основной конвейер работает на DeepSeek.
+    user — текст или список блоков Anthropic (текст + картинки); картинки понимает только Anthropic.
     """
     if (provider or settings.AI_PROVIDER) == "anthropic":
         return _ask_anthropic(purpose=purpose, model=model, system=system, user=user, output=output,
                               max_tokens=max_tokens, story=story, effort=effort)
+    if not isinstance(user, str):
+        raise AIError("Картинки в запросе поддерживает только провайдер anthropic")
     return _ask_deepseek(purpose=purpose, model=model, system=system, user=user, output=output,
                          max_tokens=max_tokens, story=story)
 

@@ -30,6 +30,7 @@ class AICall(models.Model):
         TRIAGE = "triage", "разбор сигналов"
         GUIDE = "guide", "гайды"
         MODERATE = "moderate", "проверка заявок бизнесов"
+        MODERATE_EVENT = "moderate_event", "проверка афиш"
         DEDUP = "dedup", "проверка дублей"
 
     created_at = models.DateTimeField("время", default=timezone.now, db_index=True)

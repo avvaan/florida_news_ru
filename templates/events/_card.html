@@ -1,0 +1,11 @@
+{% load news_extras %}
+<li class="ev-card">
+  <a class="ev-card__link" href="{{ e.get_absolute_url }}">
+    {% if e.image_url %}<img class="ev-card__img" src="{{ e.image_url|ik:640 }}" alt="" loading="lazy" width="640" height="400">{% else %}<span class="ev-card__date" aria-hidden="true"><b>{{ e.starts_on|date:"j" }}</b>{{ e.starts_on|date:"b" }}</span>{% endif %}
+    <span class="ev-card__body">
+      <span class="ev-card__when"><time datetime="{{ e.starts_on|date:'Y-m-d' }}">{{ e.starts_on|date:"j E, D"|lower }}</time>{% if e.starts_at %} · {{ e.starts_at|time:"H:i" }}{% endif %}{% if e.is_multiday %} — {{ e.ends_on|date:"j E"|lower }}{% endif %}</span>
+      <span class="ev-card__title">{{ e.title }}</span>
+      <span class="ev-card__where">{{ e.venue }}, {{ e.city }}{% if e.price %} · {{ e.price }}{% endif %}</span>
+    </span>
+  </a>
+</li>

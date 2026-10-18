@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}Афиша: куда сходить во Флориде — события на русском — {{ site_name }}{% endblock %}
+{% block description %}Концерты, спектакли, фестивали, детские праздники и встречи для русско- и украиноязычных во Флориде: Майами, Орландо, Тампа, Джексонвилл. Организаторы добавляют события бесплатно.{% endblock %}
+{% block og %}{% include "includes/og.html" with title="Куда сходить во Флориде — "|add:site_name description="Концерты, спектакли, фестивали и детские праздники для русско- и украиноязычных во Флориде." url=request.path %}{% endblock %}
+{% block robots %}{% if current_region or not total %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'events:list' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Куда сходить" list_url %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><span>Куда сходить</span>
+  </nav>
+  <section class="story ev">
+    <div class="ev__head">
+      <div>
+        <h1 class="story__title">Куда сходить</h1>
+        <p class="story__lede">Концерты, спектакли, фестивали, детские праздники и встречи во Флориде, где говорят по-русски и по-украински.</p>
+      </div>
+      <a class="btn btn--sun" href="{% url 'events:submit' %}">Добавить событие</a>
+    </div>
+
+    {% if regions %}
+    <nav class="guides__nav" aria-label="Регион">
+      <a class="chip{% if not current_region %} is-current{% endif %}" href="{{ request.path }}">Все ({{ total }})</a>
+      {% for r in regions %}<a class="chip{% if current_region == r.slug %} is-current{% endif %}" href="?region={{ r.slug }}" rel="nofollow">{{ r.name }}</a>{% endfor %}
+      {% if has_other %}<a class="chip{% if current_region == 'other' %} is-current{% endif %}" href="?region=other" rel="nofollow">Другие города</a>{% endif %}
+    </nav>
+    {% endif %}
+
+    {% if not current_region %}<div class="ev__featured">{% include "includes/featured_events.html" with wide=True heading="Главные события" %}</div>{% endif %}
+
+    {% if events %}
+    {% if not current_region %}<h2 class="feed__h ev__all-h">Все события</h2>{% endif %}
+    <ul class="ev__grid">{% for e in events %}{% include "events/_card.html" %}{% endfor %}</ul>
+    {% else %}
+    <p class="dir__empty">{% if current_region or not total %}Пока ближайших событий нет{% else %}Других событий пока нет{% endif %}. Организуете концерт, праздник или встречу? <a href="{% url 'events:submit' %}">Добавьте событие</a> — это бесплатно.</p>
+    {% endif %}
+
+    <aside class="dir__suggest" aria-labelledby="ev-add-h">
+      <h3 id="ev-add-h">Вы организатор?</h3>
+      <p>Добавьте событие сами — бесплатно. Заявку проверяет автоматическая модерация, обычно за пару минут, и событие сразу появляется в афише.</p>
+      <p class="dir__suggest-actions"><a class="btn" href="{% url 'events:submit' %}">Добавить событие</a></p>
+    </aside>
+  </section>
+</div>
+{% endblock %}

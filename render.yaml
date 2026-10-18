@@ -42,6 +42,15 @@ envVarGroups:
         sync: false
       - key: TELEGRAM_CHANNEL_URL      # пусто — кнопки «Подписаться» не показываются
         sync: false
+      # Картинки из форм (афиша): проверка — Claude со зрением, хранение — ImageKit
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: IMAGEKIT_PRIVATE_KEY
+        sync: false
+      - key: IMAGEKIT_PUBLIC_KEY
+        sync: false
+      - key: IMAGEKIT_URL_ENDPOINT
+        sync: false
       # Сверьте названия моделей командой `python manage.py check_ai` и поправьте здесь.
       - key: AI_CLASSIFIER_MODEL
         value: deepseek-flash

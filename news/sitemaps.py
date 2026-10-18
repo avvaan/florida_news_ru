@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from core.models import Author, Page
 from directory.models import Category
+from events.models import Event
 from guides.models import Guide
 
 from .models import Article, Region, Topic
@@ -119,6 +120,26 @@ class DirectorySitemap(SiteRootSitemap):
         return reverse("directory:index") if item == "index" else item.get_absolute_url()
 
 
+class EventSitemap(SiteRootSitemap):
+    changefreq = "daily"
+    priority = 0.6
+
+    def items(self):
+        # прошедшие события закрыты noindex — в sitemap только ближайшие
+        return ["list", *Event.objects.upcoming()]
+
+    def location(self, item):
+        return reverse("events:list") if item == "list" else item.get_absolute_url()
+
+    def lastmod(self, item):
+        return None if item == "list" else item.moderated_at
+
+    def images(self, item) -> list[dict]:
+        if item == "list" or not item.image_url:
+            return []
+        return [{"loc": item.image_url, "title": item.title}]
+
+
 class AuthorSitemap(SiteRootSitemap):
     changefreq = "monthly"
     priority = 0.3
@@ -135,4 +156,4 @@ def google_news_items():
 
 SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,
             "authors": AuthorSitemap, "legal": LegalSitemap,
-            "directory": DirectorySitemap}
+            "directory": DirectorySitemap, "events": EventSitemap}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}Добавить событие в афишу — {{ site_name }}{% endblock %}
+{% block description %}Бесплатно добавьте концерт, спектакль, фестиваль или праздник во Флориде в афишу Florida RU: заявка проверяется автоматически за пару минут.{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'events:list' %}">Куда сходить</a>
+  </nav>
+  <section class="story story--page dir-form">
+    <h1 class="story__title">Добавить событие</h1>
+    <p class="story__lede">Бесплатно. Заявку проверяет автоматическая модерация, обычно за пару минут; одобренное событие сразу появляется в афише.</p>
+
+    <details class="dir-form__rules">
+      <summary>Что мы принимаем и что нет</summary>
+      <p><b>Принимаем</b> события во Флориде с датой и местом: концерты, спектакли, кино, фестивали, ярмарки, выставки, детские праздники, спорт, лекции и встречи клубов, праздники общин и традиционных конфессий, благотворительные события.</p>
+      <p><b>Не принимаем</b> эротические шоу и вечеринки «для взрослых», эзотерику и духовные практики (таро, астрология, ретриты, «женские практики», целительство), презентации MLM и семинары про «пассивный доход» и крипту, «помощь» с грин-картой и убежищем, азартные игры, вечеринки вокруг алкоголя, кальянов и THC, политические митинги и агитацию, онлайн-вебинары и рекламу бизнеса вместо события.</p>
+      <p>Картинку проверяем так же строго: непристойная афиша отклоняет всё событие. Описание мы можем сократить и переписать нейтрально.</p>
+    </details>
+
+    <form class="dir-form__form" method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="dir-form__error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+      <div class="dir-form__trap" aria-hidden="true"><label for="id_company">Компания</label>{{ form.company }}</div>
+      {% for field in form %}{% if field.name != "company" and field.name != "agree" %}
+      <div class="dir-form__field{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.help_text %}<p class="dir-form__help">{{ field.help_text }}</p>{% endif %}
+        {% for e in field.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}
+      </div>
+      {% endif %}{% endfor %}
+      <div class="dir-form__field dir-form__check{% if form.agree.errors %} has-error{% endif %}">
+        <label>{{ form.agree }} {{ form.agree.label }}</label>
+        {% for e in form.agree.errors %}<p class="dir-form__field-error">Нужно подтвердить.</p>{% endfor %}
+      </div>
+      <button class="btn" type="submit">Отправить событие</button>
+      <p class="dir-form__help">Поля со звёздочкой обязательны.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}

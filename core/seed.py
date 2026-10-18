@@ -121,6 +121,10 @@ PAGES = [
 чтобы связаться по заявке; на сайте они не публикуются. Текст заявки проверяет автоматическая \
 модерация с помощью ИИ. Для защиты от спама мы храним не IP-адрес, а обезличенный код.
 
+Если вы добавляете событие в афишу, мы так же храним имя и e-mail контактного лица и не публикуем \
+их. Текст и картинку события проверяет автоматическая модерация с помощью ИИ; одобренная картинка \
+хранится и показывается через сервис ImageKit, отклонённая удаляется.
+
 По вопросам, связанным с данными, пишите CITRUSTACK LLC на адрес редакции, указанный на \
 странице «Контакты»."""),
     ("disclaimer", "Отказ от ответственности", 5, f"""\
@@ -262,6 +266,21 @@ def update_privacy_submissions(apps, schema_editor):
         return
     parts = page.body.replace("\r\n", "\n").split("\n\n")
     at = next((i for i, part in enumerate(parts) if part.startswith(anchor)), len(parts) - 1)
+    parts.insert(at + 1, paragraph)
+    page.body = "\n\n".join(parts)
+    page.save(update_fields=["body"])
+
+
+def update_privacy_events(apps, schema_editor):
+    """Добавляет в политику абзац об афише после абзаца о справочнике, если его ещё нет."""
+    Page = apps.get_model("core", "Page")
+    page = Page.objects.filter(slug="privacy").first()
+    body = next(body for slug, _, _, body in PAGES if slug == "privacy")
+    paragraph = next(p for p in body.split("\n\n") if p.startswith("Если вы добавляете событие"))
+    if not page or "событие в афишу" in page.body:
+        return
+    parts = page.body.replace("\r\n", "\n").split("\n\n")
+    at = next((i for i, part in enumerate(parts) if part.startswith("Если вы отправляете заявку")), len(parts) - 2)
     parts.insert(at + 1, paragraph)
     page.body = "\n\n".join(parts)
     page.save(update_fields=["body"])
