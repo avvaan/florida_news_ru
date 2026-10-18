@@ -131,3 +131,13 @@ def test_category_icons(client):
     html = client.get("/links/").content.decode()
     assert html.count('class="dir__icon') == Category.objects.count()
     assert "directory/cerkvi" in client.get("/links/cerkvi/").content.decode()
+
+
+def test_orthodox_parishes_batch(client):
+    from directory.models import Listing
+
+    churches = Listing.objects.filter(category__slug="cerkvi")
+    assert churches.filter(is_active=True).count() == 11  # Святая Нина + 10 приходов
+    assert not churches.get(name__contains="Григория Богослова").is_active  # без адреса — скрыт
+    html = client.get("/links/cerkvi/").content.decode()
+    assert "Почаевской" in html and "Все (11)" in html and "stnicholasftl.org" in html

@@ -275,3 +275,7 @@ def import_batch2_categories(apps):
         Category.objects.get_or_create(slug=slug, defaults={
             "kind": "business", "name": name, "description": description, "schema_type": schema_type, "order": order,
         })
+
+
+def import_batch6(apps, schema_editor):
+    apply_business_updates(apps, schema_editor, "businesses_2026_10_batch6.json")
