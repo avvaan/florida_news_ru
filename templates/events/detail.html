@@ -15,7 +15,7 @@
     <h1 class="story__title">{{ event.title }}</h1>
     <dl class="dir__facts ev-detail__facts">
       <div><dt>Когда</dt><dd><time datetime="{{ event.starts_on|date:'Y-m-d' }}">{{ event.starts_on|date:"j E Y, l"|lower }}</time>{% if event.starts_at %}, {{ event.starts_at|time:"H:i" }}{% endif %}{% if event.is_multiday %} — {{ event.ends_on|date:"j E"|lower }}{% endif %}</dd></div>
-      <div><dt>Где</dt><dd>{{ event.venue }}<br><a href="https://www.google.com/maps/search/?api=1&amp;query={{ event.address|add:', '|add:event.city|urlencode }}" target="_blank" rel="noopener">{{ event.address }}, {{ event.city }}</a></dd></div>
+      <div><dt>Где</dt><dd>{{ event.venue }}<br>{% if event.address %}<a href="https://www.google.com/maps/search/?api=1&amp;query={{ event.address|add:', '|add:event.city|urlencode }}" target="_blank" rel="noopener">{{ event.address }}, {{ event.city }}</a>{% elif event.venue != "Площадка уточняется" %}<a href="https://www.google.com/maps/search/?api=1&amp;query={{ event.venue|add:', '|add:event.city|add:', FL'|urlencode }}" target="_blank" rel="noopener">{{ event.city }}</a>{% else %}{{ event.city }}{% endif %}</dd></div>
       {% if event.price %}<div><dt>Цена</dt><dd>{{ event.price }}</dd></div>{% endif %}
       <div><dt>Организатор</dt><dd>{{ event.organizer }}</dd></div>
     </dl>

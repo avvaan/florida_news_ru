@@ -48,3 +48,15 @@ def test_festivals_in_afisha_with_event_markup(client):
 def test_past_festival_hidden():
     assert [e.key for e in featured.upcoming(date(2027, 3, 1))] == ["georgian-festival-2027"]
     assert featured.upcoming(date(2027, 5, 9)) == []
+
+
+def test_festivals_stay_on_top_of_imported_events(client):
+    listing = get(client, "/afisha/")
+    with mock.patch("events.models.timezone.localdate", return_value=TODAY):
+        assert Event.objects.upcoming().count() == 22  # 2 фестиваля + 20 событий из таблицы редакции
+    top, grid = listing.split("Все события", 1)
+    assert "Фестиваль славянской еды" in top and "Фестиваль грузинской культуры" in top
+    assert "Мумий Тролль" not in top and "Мумий Тролль" in grid and "Валерий Меладзе" in grid
+    assert SLAVIC not in grid  # фестивали в общей сетке не дублируются
+    page = get(client, "/afisha/the-hardkiss-tampa-2027-02-19/")
+    assert "площадка уточняется" in page and "maps/search" not in page.split("<dt>Где</dt>", 1)[1][:300]

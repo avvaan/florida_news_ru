@@ -286,8 +286,8 @@ def event_jsonld(event) -> str:
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
         "location": {
             "@type": "Place", "name": event.venue,
-            "address": {"@type": "PostalAddress", "streetAddress": event.address, "addressLocality": event.city,
-                        "addressRegion": "FL", "addressCountry": "US"},
+            "address": {"@type": "PostalAddress", **({"streetAddress": event.address} if event.address else {}),
+                        "addressLocality": event.city, "addressRegion": "FL", "addressCountry": "US"},
         },
         "organizer": {"@type": "Organization", "name": event.organizer, **({"url": event.url} if event.url else {})},
         "url": absolute(event.get_absolute_url()),
