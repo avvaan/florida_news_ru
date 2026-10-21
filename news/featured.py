@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, time
+from datetime import date, time
 
 from django.urls import reverse
 from django.utils import timezone
@@ -21,8 +21,8 @@ class FeaturedEvent:
     title: str
     teaser: str
     day: date
-    starts: time
-    ends: time
+    starts: time | None  # None — время не объявлено
+    ends: time | None
     venue: str
     address: str
     city: str
@@ -37,14 +37,6 @@ class FeaturedEvent:
     @property
     def page_url(self) -> str:
         return reverse("events:detail", args=[self.slug])
-
-    @property
-    def start_dt(self) -> datetime:
-        return timezone.make_aware(datetime.combine(self.day, self.starts))
-
-    @property
-    def end_dt(self) -> datetime:
-        return timezone.make_aware(datetime.combine(self.day, self.ends))
 
     @property
     def image_static(self) -> str:
@@ -76,7 +68,23 @@ EVENTS = [
         image="georgian-festival", image_alt="Trio Mandili в грузинских костюмах",
         tag="Концерт Trio Mandili", slug="festival-gruzinskoy-kultury-2027-05-08",
     ),
+    FeaturedEvent(
+        key="po-shchuchemu-veleniyu-2026",
+        title="«По щучьему велению» — новогодний спектакль для всей семьи",
+        teaser="Музыкальная сказка от Musical Traditions: Емеля, волшебная щука, живая музыка и костюмы "
+               "ручной работы, а после спектакля — Дед Мороз, Снегурочка, игры и подарки для детей.",
+        day=date(2026, 12, 19), starts=None, ends=None,
+        venue="William Beardall Senior Center", address="800 S Delaney Ave", city="Орландо",
+        price="Детский билет $35, взрослый $25, подарок $20; есть семейные пакеты",
+        url="https://www.canva.com/design/DAHXLSxyx8U/uendstZqgOEvkhzameiYdg/view",
+        tickets_url="https://www.canva.com/design/DAHXLSxyx8U/uendstZqgOEvkhzameiYdg/view",
+        image="po-shchuchemu-veleniyu", image_alt="Актёры в костюмах героев сказки «По щучьему велению»",
+        tag="Детям и семьям", slug="po-shchuchemu-veleniyu-muzykalnyy-novogodniy-spektakl-dlya-vsey-semi-2026-12-19",
+    ),
 ]
+
+# Порядок в блоке: сначала фестивали (по дате), потом остальное (по дате).
+FESTIVAL_KEYS = {"slavic-food-fest-2027", "georgian-festival-2027"}
 
 
 def slugs() -> set[str]:
@@ -85,4 +93,4 @@ def slugs() -> set[str]:
 
 def upcoming(today: date | None = None) -> list[FeaturedEvent]:
     today = today or timezone.localdate()
-    return sorted((e for e in EVENTS if e.day >= today), key=lambda e: e.day)
+    return sorted((e for e in EVENTS if e.day >= today), key=lambda e: (e.key not in FESTIVAL_KEYS, e.day))

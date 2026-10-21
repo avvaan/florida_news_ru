@@ -60,3 +60,10 @@ def test_festivals_stay_on_top_of_imported_events(client):
     assert SLAVIC not in grid  # фестивали в общей сетке не дублируются
     page = get(client, "/afisha/the-hardkiss-tampa-2027-02-19/")
     assert "площадка уточняется" in page and "maps/search" not in page.split("<dt>Где</dt>", 1)[1][:300]
+
+
+def test_play_featured_right_after_festivals():
+    keys = [e.key for e in featured.upcoming(TODAY)]
+    assert keys == ["slavic-food-fest-2027", "georgian-festival-2027", "po-shchuchemu-veleniyu-2026"]
+    play = featured.upcoming(TODAY)[2]
+    assert play.starts is None and play.page_url.endswith("-2026-12-19/")

@@ -629,3 +629,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .ev__featured { margin-top: 28px; }
 .ev__featured .fests--wide { margin-bottom: 0; }
 .ev__all-h { margin-top: 36px; }
+/* Третье избранное событие в «Афише» — во всю ширину: фото слева, текст справа */
+@media (min-width: 720px) {
+  .fests--wide .fest:nth-child(3):last-child { grid-column: 1 / -1; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .fests--wide .fest:nth-child(3):last-child .fest__media { display: flex; align-items: center; background: #2a1d17; }
+  .fests--wide .fest:nth-child(3):last-child .fest__body { border-top: 0; border-left: 4px solid var(--storm); align-content: center; padding: 24px 26px; }
+  .fests--wide .fest:nth-child(3):last-child .fest__title { font-size: 1.45rem; }
+}

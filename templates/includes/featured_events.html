@@ -2,7 +2,7 @@
 <section class="fests{% if wide %} fests--wide{% endif %}" aria-labelledby="fests-h{{ wide|yesno:'-wide,' }}">
   <div class="fests__head">
     <h2 class="{% if wide %}feed__h{% else %}sidebar__h{% endif %}" id="fests-h{{ wide|yesno:'-wide,' }}">{{ heading|default:"Куда сходить" }}</h2>
-    <span class="fests__kicker">Фестивали в Орландо</span>
+    <span class="fests__kicker">Фестивали и праздники в Орландо</span>
   </div>
   <div class="fests__list">
     {% for e in fests %}
@@ -16,7 +16,7 @@
         <h3 class="fest__title"><a href="{{ e.page_url }}">{{ e.title }}</a></h3>
         <p class="fest__teaser">{{ e.teaser }}</p>
         <ul class="fest__meta">
-          <li><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>{{ e.day|date:"l, j E"|capfirst }} · {{ e.starts|time:"G:i" }}–{{ e.ends|time:"G:i" }}</li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>{{ e.day|date:"l, j E"|capfirst }}{% if e.starts %} · {{ e.starts|time:"G:i" }}{% if e.ends %}–{{ e.ends|time:"G:i" }}{% endif %}{% endif %}</li>
           <li><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ e.city }}, {{ e.address }}</li>
           <li class="fest__price">{{ e.price }}</li>
         </ul>
