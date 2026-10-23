@@ -31,6 +31,10 @@ class Region(models.Model):
         return reverse("news:region", args=[self.slug])
 
 
+# Бизнес — отдельный раздел /business/: свой дневной лимит и в общую ленту не попадает.
+BUSINESS = "business"
+
+
 class Topic(models.Model):
     slug = models.SlugField("код", unique=True)
     name = models.CharField("название", max_length=60)
@@ -55,6 +59,8 @@ class Topic(models.Model):
         return self.name
 
     def get_absolute_url(self):
+        if self.slug == BUSINESS:
+            return reverse("news:business")
         return reverse("news:topic", args=[self.slug])
 
 
@@ -148,6 +154,10 @@ class Article(models.Model):
     region = models.ForeignKey(Region, verbose_name="регион", null=True, blank=True, on_delete=models.SET_NULL)
     topic = models.ForeignKey(Topic, verbose_name="тема", null=True, blank=True, on_delete=models.SET_NULL)
     tags = models.ManyToManyField(Tag, verbose_name="теги", blank=True)
+    business_kind = models.CharField(
+        "бизнес: вид", max_length=10, blank=True, choices=[("stocks", "акции"), ("deals", "сделки"), ("other", "другое")],
+        help_text="Только для темы «Бизнес»: в какой блок раздела /business/ попадает заметка",
+    )
     cover_image = models.CharField(
         "обложка", max_length=100, blank=True,
         help_text="Выбирает ИИ по смыслу заметки. Пусто — обложка из набора рубрики по очереди",

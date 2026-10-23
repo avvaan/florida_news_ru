@@ -8,7 +8,7 @@ from decimal import Decimal
 from django.utils import timezone
 
 from core.models import SiteSettings
-from news.models import Article
+from news.models import BUSINESS, Article
 
 from .models import AICall
 
@@ -37,11 +37,16 @@ class BudgetState:
         return is_urgent or not self.urgent_only
 
 
-def counted_articles_today() -> int:
-    """Заметки, которые идут в дневной лимит публикаций: несрочные, не отклонённые и не черновики."""
+def counted_articles_today(business: bool = False) -> int:
+    """Заметки, которые идут в дневной лимит: несрочные, не отклонённые и не черновики.
+
+    У раздела «Бизнес» свой лимит, поэтому его заметки считаются отдельно.
+    """
     day_start = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
-    return (Article.objects.filter(created_at__gte=day_start, is_urgent=False)
-            .exclude(status__in=[Article.Status.REJECTED, Article.Status.DRAFT]).count())
+    qs = (Article.objects.filter(created_at__gte=day_start, is_urgent=False)
+          .exclude(status__in=[Article.Status.REJECTED, Article.Status.DRAFT]))
+    qs = qs.filter(topic__slug=BUSINESS) if business else qs.exclude(topic__slug=BUSINESS)
+    return qs.count()
 
 
 def current_budget(conf: SiteSettings | None = None) -> BudgetState:

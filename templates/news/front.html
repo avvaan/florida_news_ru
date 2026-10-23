@@ -102,6 +102,15 @@
         <a class="useful__all" href="{% url 'guides:list' %}">Все гайды →</a>
       </nav>
       {% endif %}
+      {% if business_latest %}
+      <nav class="useful" aria-labelledby="biz-h">
+        <h2 class="sidebar__h" id="biz-h">Бизнес: акции и сделки</h2>
+        <ul class="useful__list">
+          {% for a in business_latest %}<li><a href="{{ a.get_absolute_url }}">{{ a.title }}</a></li>{% endfor %}
+        </ul>
+        <a class="useful__all" href="{% url 'news:business' %}">Все бизнес-новости →</a>
+      </nav>
+      {% endif %}
       <nav class="topic-index" aria-labelledby="topics-h">
         <h2 class="sidebar__h" id="topics-h">Темы</h2>
         <ul>

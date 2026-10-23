@@ -13,7 +13,7 @@ from ads.models import AdBanner
 from guides.models import Guide
 from sources.models import WeatherAlert
 
-from .models import Article, Region, Tag, Topic
+from .models import BUSINESS, Article, Region, Tag, Topic
 
 PER_PAGE = 16
 
@@ -47,6 +47,8 @@ def urgent_strip():
 
 def _filtered(region=None, topic=None):
     qs = published()
+    if topic is None:
+        qs = qs.exclude(topic__slug=BUSINESS)  # у бизнеса своя страница /business/
     if region and not region.is_statewide:
         qs = qs.for_region(region)
     elif region:
@@ -96,6 +98,7 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
         "ads": ads_for(region),
         "is_home": region is None and topic is None and first_page,
         "guides": Guide.objects.featured(),
+        "business_latest": list(published().filter(topic__slug=BUSINESS)[:4]) if region is None and topic is None else [],
         "guide_sections": Guide.objects.by_section() if region is None and topic is None and first_page else [],
         **(extra or {}),
     }
@@ -108,8 +111,40 @@ def region_view(request, slug):
 
 
 def topic_view(request, slug):
+    if slug == BUSINESS:  # одна страница — один адрес
+        return redirect("news:business", permanent=True)
     topic = get_object_or_404(Topic, slug=slug)
     return front(request, topic=topic)
+
+
+BUSINESS_KINDS = {"stocks": "Акции", "deals": "Сделки"}
+
+
+def business_view(request, kind=None):
+    """Раздел «Бизнес: акции и сделки»: обзор с блоками и общая лента; /business/stocks/ и /deals/ — фильтры."""
+    if kind is not None and kind not in BUSINESS_KINDS:
+        raise Http404
+    topic = get_object_or_404(Topic, slug=BUSINESS)
+    qs = published().filter(topic=topic)
+    if kind:
+        qs = qs.filter(business_kind=kind)
+    page = Paginator(qs, PER_PAGE).get_page(request.GET.get("page") or 1)
+    overview = kind is None and page.number == 1
+    stocks = list(qs.filter(business_kind="stocks")[:4]) if overview else []
+    deals = list(qs.filter(business_kind="deals")[:4]) if overview else []
+    shown = {a.pk for a in stocks + deals}
+    return render(request, "news/business.html", {
+        "topic": topic,
+        "kind": kind,
+        "kind_name": BUSINESS_KINDS.get(kind, ""),
+        "kinds": BUSINESS_KINDS,
+        "stocks": stocks,
+        "deals": deals,
+        "feed": [a for a in page.object_list if a.pk not in shown],  # без повторов блоков
+        "page_obj": page,
+        "ads": ads_for(),
+        "urgent": urgent_strip(),
+    })
 
 
 def tag_view(request, slug):

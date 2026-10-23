@@ -33,6 +33,11 @@ class SiteSettings(models.Model):
         help_text="Пишем и публикуем самые важные; остальное отклоняется. Утренний проход берёт не больше "
         "половины, вечерний — остаток. Срочное (ураган, эвакуация) публикуется сверх лимита",
     )
+    max_business_per_day = models.PositiveSmallIntegerField(
+        "бизнес-заметок в день", default=4,
+        help_text="Свой лимит раздела «Бизнес: акции и сделки», не входит в «публикаций в день». "
+        "Утром — не больше половины, вечером — остаток",
+    )
     ai_budget_per_day_usd = models.DecimalField(
         "бюджет на ИИ в день, $", max_digits=7, decimal_places=2, default=Decimal("3.00"),
         help_text="При превышении пишем только срочное",
