@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import html
 import logging
 import re
@@ -160,6 +161,8 @@ def store_items(source: Source, items: list[dict], limit: int) -> FetchResult:
 
 def fetch_source(source: Source, session: requests.Session | None = None,
                  robots: RobotsCache | None = None) -> FetchResult:
+    if source.kind == Source.Kind.TELEGRAM:
+        return fetch_telegram([source])[0]
     session = session or make_session()
     robots = robots or RobotsCache(session)
     try:
@@ -260,19 +263,59 @@ def expire_weather_alerts():
     return WeatherAlert.objects.filter(is_active=True, expires__lt=timezone.now()).update(is_active=False)
 
 
+def telegram_item(post) -> dict:
+    """Пост канала → запись ленты: первая строка — заголовок, весь текст — описание."""
+    first_line = next((line for line in post.text.splitlines() if line.strip()), post.text)
+    return {
+        "guid": post.url[:500],
+        "url": post.url,
+        "title": clean_text(first_line, limit=300),
+        "summary": clean_text(post.text),
+        "published_at": post.date,
+    }
+
+
+def fetch_telegram(sources: list[Source]) -> list[FetchResult]:
+    """Публичные Telegram-каналы — одним подключением Telethon (сессия TG_SESSION)."""
+    from social.collectors import channel_username, read_channels
+
+    limit = SiteSettings.load().max_items_per_source
+    jobs = [(source.pk, channel_username(source.url), 0) for source in sources]
+    try:
+        posts = asyncio.run(read_channels(jobs, limit, max_text=SUMMARY_MAX_CHARS))
+    except Exception as exc:  # noqa: BLE001 — нет сессии, сеть: каналы пропускаем, остальной сбор идёт
+        posts = {source.pk: exc for source in sources}
+    results = []
+    for source in sources:
+        result = posts.get(source.pk) or []
+        if isinstance(result, Exception):
+            log.warning("Telegram %s: %s", source.name, result)
+            source.record_failure(f"{type(result).__name__}: {result}")
+            results.append(FetchResult(source=source, error=str(result)))
+            continue
+        results.append(store_items(source, [telegram_item(post) for post in result], limit))
+        source.record_success()
+    return results
+
+
 def fetch_all(sources=None, include_broken: bool = False) -> list[FetchResult]:
     qs = sources if sources is not None else Source.objects.filter(is_active=True)
     if not include_broken:
         qs = qs.filter(is_broken=False)
     session = make_session()
     robots = RobotsCache(session)
-    results = [fetch_source(source, session, robots) for source in qs]
+    telegram = [source for source in qs if source.kind == Source.Kind.TELEGRAM]
+    results = [fetch_source(source, session, robots) for source in qs if source.kind != Source.Kind.TELEGRAM]
+    if telegram:
+        results += fetch_telegram(telegram)
     expire_weather_alerts()
     return results
 
 
 def check_source(source: Source, session: requests.Session | None = None) -> tuple[bool, str]:
-    """Проверяет, что адрес реально отдаёт RSS/Atom (или GeoJSON для NWS)."""
+    """Проверяет, что адрес реально отдаёт RSS/Atom (или GeoJSON для NWS, или посты публичного канала)."""
+    if source.kind == Source.Kind.TELEGRAM:
+        return check_telegram(source)
     session = session or make_session()
     try:
         resp = session.get(source.url, timeout=settings.FETCH_TIMEOUT)
@@ -290,3 +333,17 @@ def check_source(source: Source, session: requests.Session | None = None) -> tup
     except Exception as exc:  # noqa: BLE001
         return False, f"{type(exc).__name__}: {exc}"[:500]
     return ok, detail
+
+
+def check_telegram(source: Source) -> tuple[bool, str]:
+    from social.collectors import channel_username, read_channels
+
+    try:
+        posts = asyncio.run(read_channels([(source.pk, channel_username(source.url), 0)], 5,
+                                          max_text=SUMMARY_MAX_CHARS))[source.pk]
+    except Exception as exc:  # noqa: BLE001
+        return False, f"{type(exc).__name__}: {exc}"[:500]
+    if isinstance(posts, Exception):
+        return False, f"{type(posts).__name__}: {posts}"[:500]
+    detail = f"публичный канал; свежих постов: {len(posts)}"
+    return True, detail + (f"; первый: {telegram_item(posts[0])['title'][:80]}" if posts else "")

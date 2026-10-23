@@ -9,6 +9,7 @@ class Source(models.Model):
     class Kind(models.TextChoices):
         RSS = "rss", "RSS / Atom"
         NWS_ALERTS = "nws_alerts", "NWS alerts API (GeoJSON)"
+        TELEGRAM = "telegram", "Telegram-канал (публичный)"
 
     class SourceType(models.TextChoices):
         MEDIA = "media", "СМИ"

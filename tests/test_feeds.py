@@ -122,9 +122,12 @@ def test_check_source_detects_non_feed():
 
 
 def test_seeded_sources_are_inactive_until_verified():
-    # включён сразу только IRS: его ленту проверили при добавлении (миграция sources 0003)
-    assert list(Source.objects.filter(is_active=True).values_list("name", flat=True)) == ["IRS (налоговая служба США)"]
-    assert Source.objects.filter(is_verified=False).count() >= 15
+    # включены сразу только проверенные при добавлении: IRS (sources 0003) и Telegram-каналы (sources 0005)
+    active = Source.objects.filter(is_active=True)
+    assert all(source.is_verified for source in active)
+    assert "IRS (налоговая служба США)" in active.values_list("name", flat=True)
+    assert active.exclude(kind=Source.Kind.TELEGRAM).count() == 1
+    assert Source.objects.filter(is_verified=False, is_active=False).count() >= 15
 
 
 def test_bing_news_redirect_unwrapped_to_original():
