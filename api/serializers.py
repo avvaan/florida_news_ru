@@ -46,7 +46,8 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = [
-            "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "tags", "sources",
+            "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "business_kind",
+            "tags", "sources",
             "is_urgent", "is_sensitive", "score", "cover_image", "cover_url", "review_reason",
             "verification", "published_at", "revised_at", "created_at", "updated_at", "telegram_posted_at", "url",
         ]

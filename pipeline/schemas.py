@@ -5,8 +5,10 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 TopicSlug = Literal[
-    "weather", "safety", "roads", "laws", "money", "housing", "events", "incidents", "education", "health", "other"
+    "weather", "safety", "roads", "laws", "money", "housing", "events", "incidents", "education", "health",
+    "business", "other",
 ]
+BusinessKind = Literal["stocks", "deals", "other"]
 RegionSlug = Literal["miami", "orlando", "tampa", "jacksonville", "florida", "outside"]
 
 
@@ -17,6 +19,10 @@ class Classification(BaseModel):
     is_urgent: bool = Field(description="Ураган, эвакуация, прямая опасность для жизни или имущества")
     is_sensitive: bool = Field(description="Криминал, имена частных лиц, дети, обвинения, суды")
     reason: str = Field(description="Одна короткая фраза: почему такая оценка")
+    business_kind: BusinessKind | None = Field(
+        default=None,
+        description="Только для topic=business: stocks — акции компании на бирже, deals — сделка, other — другое",
+    )
     same_as_article_id: int | None = Field(
         default=None,
         description="id заметки из списка «Уже опубликовано», если сюжет о том же событии и не приносит "

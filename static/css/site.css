@@ -321,6 +321,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .useful__list a:hover { text-decoration: underline; }
 .useful__all { display: inline-block; margin-top: 10px; color: var(--gulf-deep); font-weight: 600; text-decoration: none; }
 .useful { margin-bottom: 28px; }
+.biz-blocks { display: grid; gap: 32px; margin-bottom: 36px; }
+.biz-block__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.biz-block__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 14px; }
+@media (min-width: 960px) {
+  .biz-blocks { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .biz-block__grid { grid-template-columns: 1fr 1fr; }
+}
+.chip--on { background: var(--ink); color: #fff; }
 /* Гайды: список по разделам */
 .guides__nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
 .guides__section { margin-top: 44px; scroll-margin-top: 16px; }

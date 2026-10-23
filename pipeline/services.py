@@ -13,7 +13,7 @@ from django.utils import timezone
 from core.models import SiteSettings
 from guides.models import Guide
 from news.covers import candidates_for
-from news.models import Article, ArticleSource, Region, Story, Tag, Topic
+from news.models import BUSINESS, Article, ArticleSource, Region, Story, Tag, Topic
 from social.services import has_trusted_source, run_social
 from sources.fetch import fetch_all
 from sources.models import Source, WeatherAlert
@@ -218,6 +218,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             guide=next((g for g in guides if g.slug == draft.guide), None),
             region=story.region,
             topic=story.topic,
+            business_kind=business_kind(story),
             is_urgent=story.is_urgent,
             is_sensitive=story.is_sensitive,
             score=story.score,
@@ -367,15 +368,23 @@ def attach_tags(article: Article, names: list[str]) -> None:
         article.tags.add(tag)
 
 
-def publication_quota(conf: SiteSettings) -> int:
+def business_kind(story: Story) -> str:
+    """Блок раздела /business/ (акции, сделки, другое) — только для темы «Бизнес»."""
+    if not story.topic or story.topic.slug != BUSINESS:
+        return ""
+    kind = (story.classification or {}).get("business_kind")
+    return kind if kind in ("stocks", "deals", "other") else "other"
+
+
+def publication_quota(conf: SiteSettings, business: bool = False) -> int:
     """Сколько ещё несрочных заметок можно выпустить в этот проход.
 
     Утренний проход берёт не больше половины дневного лимита, вечерний — остаток.
-    Срочное в лимит не входит и не считается.
+    Срочное в лимит не входит и не считается. У раздела «Бизнес» свой лимит.
     """
     now = timezone.localtime()
-    used = counted_articles_today()
-    limit = conf.max_articles_per_day
+    used = counted_articles_today(business=business)
+    limit = conf.max_business_per_day if business else conf.max_articles_per_day
     cap = math.ceil(limit / 2) if now.hour < MORNING_UNTIL_HOUR else limit
     return max(0, cap - used)
 
@@ -383,26 +392,29 @@ def publication_quota(conf: SiteSettings) -> int:
 def write_pending(say: RunLog) -> int:
     conf = SiteSettings.load()
     queue = (
-        Story.objects.filter(status=Story.Status.CLASSIFIED, article__isnull=True)
+        Story.objects.filter(status=Story.Status.CLASSIFIED, article__isnull=True).select_related("topic")
         .order_by("-is_urgent", "-score", "created_at")
     )
     written = 0
-    quota = publication_quota(conf)
+    quotas = {False: publication_quota(conf), True: publication_quota(conf, business=True)}
+    limits = {False: conf.max_articles_per_day, True: conf.max_business_per_day}
     for story in queue:
+        business = story.topic_id is not None and story.topic.slug == BUSINESS
         if not story.is_urgent and (story.score or 0) < conf.min_score_to_write:
             story.status = Story.Status.SKIPPED
             story.note = story.note or f"Важность {story.score} ниже порога {conf.min_score_to_write}"
             story.save(update_fields=["status", "note", "updated_at"])
             continue
-        if not story.is_urgent and quota <= 0:
+        if not story.is_urgent and quotas[business] <= 0:
             # Очередь отсортирована по важности: всё, что ниже, — менее важное, отклоняем.
             story.status = Story.Status.SKIPPED
-            story.note = (f"Лимит публикаций на сегодня ({conf.max_articles_per_day}): "
+            section = "бизнес-заметок" if business else "публикаций"
+            story.note = (f"Лимит {section} на сегодня ({limits[business]}): "
                           f"взяли более важные (важность {story.score})")
             story.save(update_fields=["status", "note", "updated_at"])
             continue
         budget = current_budget(conf)
-        if not budget.allows(story.is_urgent):
+        if budget.money_exceeded if business else not budget.allows(story.is_urgent):
             say(
                 f"Лимит: заметок {budget.articles_today}/{budget.max_articles}, "
                 f"ИИ ${budget.spent_today:.2f}/${budget.budget} — пишем только срочное"
@@ -412,7 +424,7 @@ def write_pending(say: RunLog) -> int:
             write_article(story, conf, say)
             written += 1
             if not story.is_urgent:
-                quota -= 1
+                quotas[business] -= 1
         except ai.AIError as exc:
             story.status = Story.Status.FAILED
             story.note = f"Написание: {exc}"[:500]

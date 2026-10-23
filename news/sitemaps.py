@@ -60,10 +60,14 @@ class SectionSitemap(SiteRootSitemap):
     priority = 0.6
 
     def items(self):
-        return ["home", *Region.objects.all(), *Topic.objects.all()]
+        return ["home", *Region.objects.all(), *Topic.objects.all(), "stocks", "deals"]
 
     def location(self, item):
-        return reverse("news:home") if item == "home" else item.get_absolute_url()
+        if item == "home":
+            return reverse("news:home")
+        if item in ("stocks", "deals"):
+            return reverse("news:business-kind", args=[item])
+        return item.get_absolute_url()
 
     def lastmod(self, item):
         if item == "home":

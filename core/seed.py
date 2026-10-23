@@ -22,6 +22,7 @@ TOPICS = [
     ("health", "Здоровье", "Здоровье", 3, "covers/health"),
     ("events", "Афиша и события", "Афиша", 4, "covers/events"),
     ("incidents", "Происшествия", "Происшествия", 5, "covers/incidents"),
+    ("business", "Бизнес: акции и сделки", "Бизнес", 4, "covers/business"),
 ]
 
 SITE_OWNER = "CITRUSTACK LLC"
