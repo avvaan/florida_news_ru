@@ -38,3 +38,10 @@ def test_sitemap_lists_legal_pages(client):
     xml = client.get("/sitemap.xml").content.decode()
     cache.clear()
     assert "/dmca/</loc>" in xml and "/corrections/</loc>" in xml
+
+
+def test_contact_email_is_in_footer_and_contacts(client):
+    assert SiteSettings.load().contact_email == "info@florida-ru.com"
+    html = client.get("/").content.decode()
+    assert 'href="mailto:info@florida-ru.com"' in html
+    assert "info@florida-ru.com" in client.get("/p/contacts/").content.decode()

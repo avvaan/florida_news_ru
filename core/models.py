@@ -64,7 +64,7 @@ class SiteSettings(models.Model):
     adsense_enabled = models.BooleanField("Google AdSense", default=False)
     adsense_client = models.CharField("AdSense client id", max_length=60, blank=True)
 
-    contact_email = models.EmailField("e-mail редакции", blank=True)
+    contact_email = models.EmailField("e-mail редакции", blank=True, default="info@florida-ru.com")
 
     signals_perplexity_enabled = models.BooleanField(
         "сигналы: Perplexity", default=False, help_text="Поиск по сети. Нужен PERPLEXITY_API_KEY")

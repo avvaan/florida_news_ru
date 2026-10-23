@@ -487,6 +487,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .logo--footer .logo__word { font-size: 1.25rem; }
 .logo--footer .logo__mark { width: 44px; height: 44px; }
 .footer__note { margin-top: 16px; max-width: 42ch; font-size: .92rem; line-height: 1.5; }
+.footer__mail { margin-top: 12px; font-size: .92rem; }
+.footer__mail a { color: #fff; }
 .footer__h { font: 800 .72rem/1 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--shallow); margin-bottom: 12px; }
 .footer__list { display: grid; gap: 6px; }
 .footer__list a { color: #fff; text-decoration: none; }
