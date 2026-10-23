@@ -277,7 +277,7 @@ def is_public_channel(entity) -> bool:
             and bool(getattr(entity, "username", None)))
 
 
-async def read_channel(client, username: str, min_id: int, limit: int) -> list[TgPost]:
+async def read_channel(client, username: str, min_id: int, limit: int, max_text: int = MAX_TEXT) -> list[TgPost]:
     entity = await client.get_entity(username)
     if not is_public_channel(entity):
         raise CollectorError("это не публичный канал: читаем только открытые каналы, без чатов и групп")
@@ -288,7 +288,7 @@ async def read_channel(client, username: str, min_id: int, limit: int) -> list[T
         if not text or (message.date and message.date < since):
             continue
         posts.append(TgPost(id=message.id, url=f"https://t.me/{entity.username}/{message.id}",
-                            text=text[:MAX_TEXT], author=getattr(entity, "title", "") or f"@{entity.username}",
+                            text=text[:max_text], author=getattr(entity, "title", "") or f"@{entity.username}",
                             date=message.date))
     return posts
 
@@ -304,7 +304,8 @@ def make_telegram_client():
     return TelegramClient(StringSession(settings.TG_SESSION), int(settings.TG_API_ID), settings.TG_API_HASH)
 
 
-async def read_channels(jobs: list[tuple[int, str, int]], limit: int) -> dict[int, list[TgPost] | Exception]:
+async def read_channels(jobs: list[tuple[int, str, int]], limit: int,
+                        max_text: int = MAX_TEXT) -> dict[int, list[TgPost] | Exception]:
     """Сеть — отдельно от базы: ORM Django нельзя звать внутри цикла asyncio."""
     client = make_telegram_client()
     results: dict[int, list[TgPost] | Exception] = {}
@@ -314,7 +315,7 @@ async def read_channels(jobs: list[tuple[int, str, int]], limit: int) -> dict[in
             raise CollectorError("сессия Telegram недействительна — выполните python manage.py telegram_login")
         for source_id, username, min_id in jobs:
             try:
-                results[source_id] = await read_channel(client, username, min_id, limit)
+                results[source_id] = await read_channel(client, username, min_id, limit, max_text)
             except Exception as exc:  # noqa: BLE001 — ошибка одного канала не мешает остальным
                 results[source_id] = exc
     finally:
