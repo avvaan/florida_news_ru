@@ -99,6 +99,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <span class="logo__word">Florida<br>RU</span>
       </a>
       <p class="footer__note">{{ disclaimer }}</p>
+      {% if site_conf.contact_email %}<p class="footer__mail">Почта редакции: <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>{% endif %}
     </div>
     <nav aria-label="Разделы">
       <h2 class="footer__h">Регионы</h2>
