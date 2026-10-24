@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils import timezone
 
-from news.models import Region, Topic
+from news.models import HIDDEN_IN_NAV, Region, Topic
 
 from .models import Page, SiteSettings
 from .seed import DISCLAIMER, SITE_OWNER
@@ -24,7 +24,7 @@ def site(request):
         "site_conf": conf,
         "telegram_url": telegram_url(conf),
         "nav_regions": Region.objects.all(),
-        "nav_topics": Topic.objects.all(),
+        "nav_topics": Topic.objects.exclude(slug__in=HIDDEN_IN_NAV),
         "footer_pages": Page.objects.filter(in_footer=True),
         "disclaimer": DISCLAIMER,
         "site_owner": SITE_OWNER,

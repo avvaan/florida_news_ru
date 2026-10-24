@@ -388,3 +388,21 @@ def test_admin_restore_hidden(admin_client):
     assert resp.status_code == 302 and ad.status == Ad.Status.APPROVED and not ad.reports.exists()
     assert admin_client.get(f"/admin/classifieds/ad/{ad.pk}/change/").status_code == 200
     assert admin_client.get("/admin/classifieds/ad/").status_code == 200
+
+
+def test_sort_by_distance_from_hub(client):
+    miami = make_ad(title="Шкаф в Майами", city="Майами")
+    aventura = make_ad(title="Шкаф в Авентуре", city="Авентура")
+    orlando = make_ad(title="Шкаф в Орландо", city="Орландо", region=Region.objects.get(slug="orlando"))
+    unknown = make_ad(title="Шкаф где-то", city="Деревня Простоквашино", region=None)
+    assert (aventura.lat, aventura.lon) == (25.9565, -80.1392) and unknown.lat is None
+
+    resp = client.get("/obyavleniya/?sort=near-orlando")
+    assert [a.title for a in resp.context["page_obj"].object_list] == [
+        orlando.title, aventura.title, miami.title, unknown.title]
+    html = resp.content.decode()
+    assert "≈ 194 мили от Орландо" in html and "≈ 204 мили от Орландо" in html
+    assert 'href="/obyavleniya/" rel="nofollow" aria-current="true"' in html  # повторный клик сбрасывает
+    assert [a.title for a in client.get("/obyavleniya/mebel/?sort=near-miami").context["page_obj"].object_list][:2] \
+        == [miami.title, aventura.title]
+    assert "миль от" not in client.get("/obyavleniya/").content.decode()  # без сортировки расстояния не пишем

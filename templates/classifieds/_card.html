@@ -5,7 +5,7 @@
     <span class="ad-card__body">
       <span class="ad-card__price">{{ a.price_text }}</span>
       <span class="ad-card__title">{{ a.title }}</span>
-      <span class="ad-card__meta">{{ a.place }} · <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|date:"j E"|lower }}</time></span>
+      <span class="ad-card__meta">{{ a.place }}{% if a.distance %} · <b class="ad-card__dist">{{ a.distance }}</b>{% endif %} · <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|date:"j E"|lower }}</time></span>
     </span>
   </a>
 </li>

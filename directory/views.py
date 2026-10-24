@@ -5,6 +5,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 
+from core import geo
 from core.models import SiteSettings
 from guides.models import Guide
 
@@ -35,6 +36,15 @@ def directory_index(request):
     })
 
 
+def sort_by_distance(listings, hub: str):
+    """Ближе к главному городу — выше; без адреса и города (онлайн, «по всей Флориде») — в конце, как были."""
+    origin = geo.hub_point(hub)
+    for item in listings:
+        item.point = geo.locate_place(item.address, item.city)
+        item.distance = geo.distance_text(item.point, hub)
+    return sorted(listings, key=lambda item: geo.miles(item.point, origin) if item.point else float("inf"))
+
+
 def directory_category(request, slug):
     category = get_object_or_404(Category, slug=slug)
     all_listings = list(Listing.objects.active().filter(category=category).select_related("region"))
@@ -47,11 +57,19 @@ def directory_category(request, slug):
         listings = [item for item in all_listings if item.region and item.region.slug == current]
     else:
         listings = all_listings
+    near = request.GET.get("near", "")
+    if near in geo.HUBS and category.kind == Category.Kind.BUSINESS:
+        listings = sort_by_distance(listings, near)
+    else:
+        near = ""
     attach_guides(listings)
     others = Category.objects.filter(kind=category.kind).exclude(pk=category.pk)
     return render(request, "directory/category.html", {
         "category": category, "listings": listings, "others": others, "total": len(all_listings),
         "regions": regions if len(regions) + has_other > 1 else [], "has_other": has_other, "current_region": current,
+        "near": near,
+        "near_links": geo.near_links(request, "near") if category.kind == Category.Kind.BUSINESS and len(all_listings) > 1
+        else [],
         "contact_email": SiteSettings.load().contact_email,
     })
 

@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% load news_extras %}
-{% block title %}Афиша: куда сходить во Флориде — события на русском — {{ site_name }}{% endblock %}
+{% block title %}Афиша Флориды: куда сходить — события на русском — {{ site_name }}{% endblock %}
 {% block description %}Концерты, спектакли, фестивали, детские праздники и встречи для русско- и украиноязычных во Флориде: Майами, Орландо, Тампа, Джексонвилл. Организаторы добавляют события бесплатно.{% endblock %}
 {% block og %}{% include "includes/og.html" with title="Куда сходить во Флориде — "|add:site_name description="Концерты, спектакли, фестивали и детские праздники для русско- и украиноязычных во Флориде." url=request.path %}{% endblock %}
 {% block robots %}{% if current_region or not total %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'events:list' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Куда сходить" list_url %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'events:list' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Афиша" list_url %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <nav class="crumbs" aria-label="Навигация">
-    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><span>Куда сходить</span>
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><span>Афиша</span>
   </nav>
   <section class="story ev">
     <div class="ev__head">
       <div>
-        <h1 class="story__title">Куда сходить</h1>
+        <h1 class="story__title">Афиша: куда сходить</h1>
         <p class="story__lede">Концерты, спектакли, фестивали, детские праздники и встречи во Флориде, где говорят по-русски и по-украински.</p>
       </div>
       <a class="btn btn--sun" href="{% url 'events:submit' %}">Добавить событие</a>
@@ -34,6 +34,13 @@
     <ul class="ev__grid">{% for e in events %}{% include "events/_card.html" %}{% endfor %}</ul>
     {% else %}
     <p class="dir__empty">{% if current_region or not total %}Пока ближайших событий нет{% else %}Других событий пока нет{% endif %}. Организуете концерт, праздник или встречу? <a href="{% url 'events:submit' %}">Добавьте событие</a> — это бесплатно.</p>
+    {% endif %}
+
+    {% if news %}
+    <section class="ev__news" aria-labelledby="ev-news-h">
+      <h2 class="feed__h" id="ev-news-h">Новости о событиях</h2>
+      <div class="ev__news-grid">{% for a in news %}{% include "includes/tile.html" %}{% endfor %}</div>
+    </section>
     {% endif %}
 
     <aside class="dir__suggest" aria-labelledby="ev-add-h">

@@ -13,7 +13,7 @@ REGIONS = [
 TOPICS = [
     # slug, name, short, priority, cover
     ("weather", "Погода и ураганы", "Погода", 1, "covers/weather"),
-    ("safety", "Безопасность и ЧП", "ЧП", 1, "covers/safety"),
+    ("safety", "ЧП и происшествия", "ЧП и происшествия", 1, "covers/safety"),
     ("laws", "Законы и правила", "Законы", 2, "covers/laws"),
     ("housing", "Жильё и страховка", "Жильё", 2, "covers/housing"),
     ("roads", "Дороги и транспорт", "Дороги", 2, "covers/roads"),
@@ -22,7 +22,7 @@ TOPICS = [
     ("health", "Здоровье", "Здоровье", 3, "covers/health"),
     ("events", "Афиша и события", "Афиша", 4, "covers/events"),
     ("incidents", "Происшествия", "Происшествия", 5, "covers/incidents"),
-    ("business", "Бизнес: акции и сделки", "Бизнес", 4, "covers/business"),
+    ("business", "Деньги и бизнес", "Деньги и бизнес", 4, "covers/business"),
 ]
 
 SITE_OWNER = "CITRUSTACK LLC"

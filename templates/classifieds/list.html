@@ -51,7 +51,7 @@
           </label>
           <label class="ads-filter__check"><input type="checkbox" name="photo" value="1"{% if form.data.photo %} checked{% endif %}> Только с фото</label>
         </div>
-        <p class="dir-form__help">С ZIP-кодом сначала покажем объявления из вашего ZIP, потом из соседних.</p>
+        <p class="dir-form__help">С ZIP-кодом сначала покажем объявления из вашего ZIP, потом из соседних. «Ближе к Майами» и другие — по расстоянию от главного города региона.</p>
         <p class="ads-filter__actions"><button class="btn" type="submit">Показать</button>{% if filtered %} <a href="{{ request.path }}">Сбросить</a>{% endif %}</p>
       </details>
     </form>
@@ -70,6 +70,7 @@
 
     {% if page_obj.object_list %}
     <h2 class="feed__h ads__h">{% if filtered %}Найдено: {{ page_obj.paginator.count }}{% elif category %}Объявления{% else %}Свежие объявления{% endif %}</h2>
+    {% include "includes/near_chips.html" %}
     <ul class="ads__grid">{% for a in page_obj.object_list %}{% include "classifieds/_card.html" %}{% endfor %}</ul>
     {% if page_obj.has_other_pages %}
     <nav class="pager" aria-label="Страницы">

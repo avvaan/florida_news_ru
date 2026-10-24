@@ -680,6 +680,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .ad-card__price { font-weight: 800; font-size: 1.05rem; }
 .ad-card__title { font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .ad-card__meta { color: var(--muted); font-size: .85rem; line-height: 1.35; }
+.ad-card__dist { color: var(--gulf-deep); font-weight: 700; }
 
 .ad-detail__price { margin-top: 10px; font: 800 1.6rem/1.2 var(--font); letter-spacing: -.02em; }
 .ad-detail__price-label { font-size: .9rem; font-weight: 600; color: var(--muted); letter-spacing: 0; }
@@ -739,3 +740,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .ad-contact { position: sticky; top: 20px; }
 }
 @media print { .ad-contact form, .ad-report, .ads-filter, .ad-detail__map { display: none !important; } }
+
+/* Сортировка по расстоянию от главного города */
+.near { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.near__label { color: var(--muted); font-size: .9rem; font-weight: 600; margin-right: 2px; }
+.dir__dist { color: var(--gulf-deep); font-weight: 700; }
+.ev__news { margin-top: 40px; }
+.ev__news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 14px; }

@@ -1,12 +1,15 @@
+import math
+
 from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.db.models import Case, Count, F, IntegerField, Max, Prefetch, Value, When
+from django.db.models import Case, Count, ExpressionWrapper, F, FloatField, IntegerField, Max, Prefetch, Value, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
+from core import geo
 from directory.views import ip_hash
 from news.models import Region
 
@@ -42,8 +45,11 @@ def _filtered(request, ads):
         ads = ads.filter(price__lte=data["price_max"])
     if data.get("photo"):
         ads = ads.filter(photos__status=Photo.Status.PUBLISHED).distinct()
-    order = {"cheap": [F("price").asc(nulls_last=True)], "expensive": [F("price").desc(nulls_last=True)]}.get(
-        data.get("sort") or "", [])
+    sort = data.get("sort") or ""
+    order = {"cheap": [F("price").asc(nulls_last=True)], "expensive": [F("price").desc(nulls_last=True)]}.get(sort, [])
+    if hub := hub_from_sort(sort):
+        ads = ads.annotate(dist=_squared_distance(hub))
+        order = [F("dist").asc(nulls_last=True)]  # объявления из неизвестных городов — в конце
     if zip_code := data.get("zip"):
         # Сначала тот же ZIP, потом соседние (те же первые три цифры), потом остальные.
         ads = ads.annotate(near=Case(
@@ -57,13 +63,35 @@ def _filtered(request, ads):
     return ads, form, active
 
 
+def hub_from_sort(sort: str) -> str:
+    hub = sort.removeprefix("near-")
+    return hub if sort.startswith("near-") and hub in geo.HUBS else ""
+
+
+def _squared_distance(hub: str):
+    """Квадрат расстояния до главного города в «градусах широты»: для сортировки хватает плоской проекции."""
+    lat, lon = geo.hub_point(hub)
+    k = math.cos(math.radians(lat))
+    dlat = F("lat") - Value(lat)
+    dlon = (F("lon") - Value(lon)) * Value(k)
+    return ExpressionWrapper(dlat * dlat + dlon * dlon, output_field=FloatField())
+
+
+def _with_distance(request, page):
+    """Подпись «≈ 12 миль от Майами» на карточках, когда список отсортирован по расстоянию."""
+    if hub := hub_from_sort(request.GET.get("sort", "")):
+        for ad in page.object_list:
+            ad.distance = geo.distance_text(ad.point, hub)
+    return page
+
+
 def _regions():
     return Region.objects.filter(is_statewide=False).order_by("order")
 
 
 def _page(request, ads):
-    return Paginator(ads.select_related("category", "region").prefetch_related(_photos()), PER_PAGE) \
-        .get_page(request.GET.get("page"))
+    return _with_distance(request, Paginator(ads.select_related("category", "region").prefetch_related(_photos()),
+                                             PER_PAGE).get_page(request.GET.get("page")))
 
 
 def index(request):
@@ -78,6 +106,7 @@ def index(request):
     return render(request, "classifieds/list.html", {
         "sections": sections, "page_obj": page, "form": form, "filtered": filtered,
         "total": sum(s.count for s in sections), "regions": _regions(),
+        "near_links": geo.near_links(request, "sort", "near-"),
     })
 
 
@@ -95,7 +124,7 @@ def category(request, slug):
     return render(request, "classifieds/list.html", {
         "category": cat, "section": section, "children": children, "page_obj": page, "form": form,
         "filtered": filtered, "total": sum(counts.values()) if cat.is_section else counts.get(cat.pk, 0),
-        "regions": _regions(),
+        "regions": _regions(), "near_links": geo.near_links(request, "sort", "near-"),
     })
 
 

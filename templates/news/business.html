@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 {% load static news_extras %}
 
-{% block title %}{% if kind %}{{ kind_name }} — бизнес Флориды на русском{% else %}Бизнес Флориды: акции и сделки — новости на русском{% endif %} — {{ site_name }}{% endblock %}
+{% block title %}{% if kind %}{{ kind_name }} — бизнес Флориды на русском{% else %}Деньги и бизнес во Флориде: цены, налоги, акции и сделки — новости на русском{% endif %} — {{ site_name }}{% endblock %}
 {% block description %}{% if kind == "stocks" %}Акции компаний Флориды на бирже: отчёты, IPO, резкие движения — коротко на русском и со ссылкой на первоисточник.{% elif kind == "deals" %}Сделки во Флориде: слияния и поглощения, покупки компаний, крупная недвижимость, инвестиции — коротко на русском.{% else %}{{ topic.description }}. Коротко, на русском и со ссылкой на первоисточник.{% endif %}{% endblock %}
 {% block canonical %}{{ request.path|absolute }}{% if page_obj.number > 1 %}?page={{ page_obj.number }}{% endif %}{% endblock %}
-{% block og %}{% with t="Бизнес Флориды: акции и сделки — "|add:site_name %}{% include "includes/og.html" with title=t description=topic.description url=request.path image=topic.cover %}{% endwith %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'news:business' as biz_url %}{% if kind %}{% breadcrumbs_jsonld "Главная" home_url "Бизнес" biz_url kind_name request.path %}{% else %}{% breadcrumbs_jsonld "Главная" home_url "Бизнес" biz_url %}{% endif %}{% if feed %}{% collection_jsonld topic.name topic.description request.path feed %}{% endif %}{% endblock %}
+{% block og %}{% with t="Деньги и бизнес во Флориде — "|add:site_name %}{% include "includes/og.html" with title=t description=topic.description url=request.path image=topic.cover %}{% endwith %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'news:business' as biz_url %}{% if kind %}{% breadcrumbs_jsonld "Главная" home_url "Деньги и бизнес" biz_url kind_name request.path %}{% else %}{% breadcrumbs_jsonld "Главная" home_url "Деньги и бизнес" biz_url %}{% endif %}{% if feed %}{% collection_jsonld topic.name topic.description request.path feed %}{% endif %}{% endblock %}
 
 {% block top_ad %}{% endblock %}
 
 {% block content %}
 <div class="wrap">
   <header class="section-head">
-    <h1 class="section-head__h">{% if kind %}Бизнес: {{ kind_name|lower }}{% else %}Бизнес: акции и сделки{% endif %}</h1>
-    <p class="section-head__sub">Компании Флориды на бирже, слияния и покупки, крупная недвижимость и инвестиции. Коротко и со ссылкой на первоисточник.</p>
+    <h1 class="section-head__h">{% if kind %}Бизнес: {{ kind_name|lower }}{% else %}Деньги и бизнес{% endif %}</h1>
+    <p class="section-head__sub">Цены, налоги и пособия, компании Флориды на бирже, слияния и покупки, крупная недвижимость и инвестиции. Коротко и со ссылкой на первоисточник.</p>
     <ul class="chips" aria-label="Разделы бизнеса">
       <li><a class="chip{% if not kind %} chip--on{% endif %}" href="{% url 'news:business' %}"{% if not kind %} aria-current="page"{% endif %}>Все</a></li>
       {% for slug, name in kinds.items %}
@@ -49,7 +49,7 @@
 
   <div class="columns">
     <section class="feed" aria-label="Лента бизнес-новостей">
-      {% if feed or not stocks and not deals %}<h2 class="feed__h" id="feed-h">{% if kind %}{{ kind_name }}{% elif stocks or deals %}Ещё бизнес-новости{% else %}Бизнес-новости{% endif %}{% if page_obj.number > 1 %} · страница {{ page_obj.number }}{% endif %}</h2>{% endif %}
+      {% if feed or not stocks and not deals %}<h2 class="feed__h" id="feed-h">{% if kind %}{{ kind_name }}{% elif stocks or deals %}Цены, налоги и другие новости{% else %}Новости о деньгах и бизнесе{% endif %}{% if page_obj.number > 1 %} · страница {{ page_obj.number }}{% endif %}</h2>{% endif %}
       {% for a in feed %}
         {% include "includes/row.html" %}
         {% if forloop.counter == 5 and ads.infeed %}{% include "includes/ad.html" with ad=ads.infeed %}{% endif %}
@@ -57,7 +57,7 @@
         {% if not stocks and not deals %}
         <div class="empty">
           <p class="empty__title">Здесь пока пусто</p>
-          <p>Бизнес-новости появляются дважды в день, вместе с остальными новостями.</p>
+          <p>Новости о деньгах и бизнесе появляются дважды в день, вместе с остальными новостями.</p>
         </div>
         {% endif %}
       {% endfor %}

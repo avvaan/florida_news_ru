@@ -12,6 +12,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from core import geo
 from core.text import make_slug
 
 LIFETIME = timedelta(days=30)
@@ -90,6 +91,8 @@ class Ad(models.Model):
     city = models.CharField("город", max_length=80)
     zip_code = models.CharField("ZIP", max_length=5, blank=True, db_index=True)
     region = models.ForeignKey("news.Region", verbose_name="регион", null=True, blank=True, on_delete=models.SET_NULL)
+    lat = models.FloatField("широта", null=True, blank=True, editable=False, help_text="Центр города — для сортировки по расстоянию")
+    lon = models.FloatField("долгота", null=True, blank=True, editable=False)
 
     contact_name = models.CharField("имя", max_length=60)
     phone = models.CharField("телефон", max_length=16, blank=True, help_text="+13055551234")
@@ -125,8 +128,9 @@ class Ad(models.Model):
     def save(self, *args, **kwargs):
         self.slug = make_slug(self.title, max_length=80) or "obyavlenie"
         self.search = " ".join([self.title, self.description, self.city, self.zip_code]).lower().replace("ё", "е")
+        self.lat, self.lon = geo.locate(self.city) or (None, None)
         if kwargs.get("update_fields") is not None:
-            kwargs["update_fields"] = {*kwargs["update_fields"], "slug", "search"}
+            kwargs["update_fields"] = {*kwargs["update_fields"], "slug", "search", "lat", "lon"}
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -176,6 +180,10 @@ class Ad(models.Model):
     @property
     def map_query(self) -> str:
         return f"{self.zip_code} FL" if self.zip_code else f"{self.city}, FL"
+
+    @property
+    def point(self) -> tuple[float, float] | None:
+        return (self.lat, self.lon) if self.lat is not None else None
 
     @property
     def phone_digits(self) -> str:

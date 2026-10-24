@@ -24,7 +24,7 @@ def article():
 
 @override_settings(TELEGRAM_CHANNEL_URL="https://t.me/florida_ru")
 def test_home_and_sections(client, article):
-    for url in ("/", "/region/miami/", "/region/florida/", "/topic/money/", "/about/", "/rss/"):
+    for url in ("/", "/region/miami/", "/region/florida/", "/topic/safety/", "/business/", "/about/", "/rss/"):
         assert client.get(url).status_code == 200, url
     html = client.get("/").content.decode()
     assert article.title in html and "Подписаться" in html and "https://t.me/florida_ru" in html
@@ -122,3 +122,28 @@ def test_admin_pages_render(client):
                  "admin:ads_adbanner_changelist", "admin:news_article_changelist"):
         assert client.get(reverse(name)).status_code == 200, name
     assert client.get(reverse("admin:core_sitesettings_changelist")).status_code == 302
+
+
+def test_merged_topics_share_pages(client):
+    """«ЧП» + «Происшествия», «Деньги» + «Бизнес», «Афиша» + «Куда сходить»: один пункт меню, одна страница."""
+    def make(title, slug):
+        return Article.objects.create(title=title, teaser="t", body="Текст.", topic=Topic.objects.get(slug=slug),
+                                      status=Article.Status.PUBLISHED, published_at=timezone.now())
+
+    make("Пожар на складе в Хайалиа", "safety")
+    make("Ограбление магазина в Тампе", "incidents")
+    make("Цены на бензин снизились", "money")
+    make("Фестиваль в парке Орландо", "events")
+    safety = client.get("/topic/safety/").content.decode()
+    assert "Пожар на складе" in safety and "Ограбление магазина" in safety and "ЧП и происшествия" in safety
+    assert "Цены на бензин снизились" in client.get("/business/").content.decode()
+    assert "Фестиваль в парке Орландо" in client.get("/afisha/").content.decode()
+    for old, new in [("/topic/incidents/", "/topic/safety/"), ("/topic/money/", "/business/"),
+                     ("/topic/events/", "/afisha/"), ("/topic/business/", "/business/")]:
+        resp = client.get(old)
+        assert resp.status_code == 301 and resp["Location"] == new, old
+    nav = client.get("/").content.decode().split('aria-label="Темы"')[1].split("</nav>")[0]
+    assert ">ЧП и происшествия<" in nav and ">Деньги и бизнес<" in nav and ">Афиша<" in nav
+    for gone in (">Происшествия<", ">Деньги<", ">Бизнес<", ">Куда сходить<", ">ЧП<"):
+        assert gone not in nav, gone
+    assert nav.count('href="/afisha/"') == 1

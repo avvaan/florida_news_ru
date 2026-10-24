@@ -33,6 +33,13 @@ class Region(models.Model):
 
 # Бизнес — отдельный раздел /business/: свой дневной лимит и в общую ленту не попадает.
 BUSINESS = "business"
+EVENTS = "events"
+
+# Темы, которые на сайте показываются вместе с другой: в меню их нет, их адрес ведёт на общий раздел.
+# Сами заметки остаются в своей теме — отбор, лимиты и обложки работают как раньше.
+MERGED_INTO = {"incidents": "safety", "money": BUSINESS}
+# «Афиша и события» показывается в разделе «Афиша» (/afisha/) вместе с событиями от организаторов.
+HIDDEN_IN_NAV = {*MERGED_INTO, EVENTS}
 
 
 class Topic(models.Model):
@@ -59,9 +66,17 @@ class Topic(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        if self.slug == BUSINESS:
+        slug = MERGED_INTO.get(self.slug, self.slug)
+        if slug == BUSINESS:
             return reverse("news:business")
-        return reverse("news:topic", args=[self.slug])
+        if slug == EVENTS:
+            return reverse("events:list")
+        return reverse("news:topic", args=[slug])
+
+    @property
+    def page_slugs(self) -> list[str]:
+        """Темы, заметки которых показываются на странице этой темы: она сама и влитые в неё."""
+        return [self.slug, *(s for s, target in MERGED_INTO.items() if target == self.slug)]
 
 
 class Tag(models.Model):

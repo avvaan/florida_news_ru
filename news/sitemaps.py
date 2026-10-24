@@ -13,7 +13,7 @@ from classifieds.models import Category as AdCategory
 from events.models import Event
 from guides.models import Guide
 
-from .models import Article, Region, Topic
+from .models import HIDDEN_IN_NAV, Article, Region, Topic
 
 
 class SiteRootSitemap(Sitemap):
@@ -62,7 +62,7 @@ class SectionSitemap(SiteRootSitemap):
     priority = 0.6
 
     def items(self):
-        return ["home", *Region.objects.all(), *Topic.objects.all(), "stocks", "deals"]
+        return ["home", *Region.objects.all(), *Topic.objects.exclude(slug__in=HIDDEN_IN_NAV), "stocks", "deals"]
 
     def location(self, item):
         if item == "home":

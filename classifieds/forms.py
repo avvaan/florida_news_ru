@@ -2,7 +2,7 @@ import re
 
 from django import forms
 
-from core import images
+from core import geo, images
 
 from .models import MAX_PHOTOS, Ad, Category, Report
 from .places import is_florida_zip
@@ -170,7 +170,8 @@ class ReportForm(forms.Form):
 class FilterForm(forms.Form):
     """Фильтры списка. Ошибочные значения просто игнорируются."""
 
-    SORTS = [("", "Сначала новые"), ("cheap", "Сначала дешёвые"), ("expensive", "Сначала дорогие")]
+    SORTS = [("", "Сначала новые"), ("cheap", "Сначала дешёвые"), ("expensive", "Сначала дорогие"),
+             *[(f"near-{slug}", label) for slug, label in geo.hub_choices()]]
 
     q = forms.CharField(required=False, max_length=80)
     region = forms.CharField(required=False, max_length=20)

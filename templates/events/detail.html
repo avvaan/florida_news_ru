@@ -4,11 +4,11 @@
 {% block description %}{{ event.description|truncatechars:160 }}{% endblock %}
 {% block og %}{% include "includes/og.html" with title=event.title description=event.description|truncatechars:200 url=request.path %}{% endblock %}
 {% block robots %}{% if event.is_past %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'events:list' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Куда сходить" list_url event.title event.get_absolute_url %}{% event_jsonld event %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'events:list' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Афиша" list_url event.title event.get_absolute_url %}{% event_jsonld event %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <nav class="crumbs" aria-label="Навигация">
-    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'events:list' %}">Куда сходить</a>
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'events:list' %}">Афиша</a>
   </nav>
   <article class="story story--page ev-detail">
     {% if event.is_past %}<p class="ev-detail__past">Событие прошло</p>{% endif %}

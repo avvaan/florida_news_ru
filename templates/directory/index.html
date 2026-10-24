@@ -11,12 +11,30 @@
   </nav>
   <section class="story dir">
     <h1 class="story__title">Полезные ссылки и бизнесы</h1>
-    <p class="story__lede">Официальные сайты, которые нужны каждому жителю Флориды, и проверенные места, где вас поймут по-русски и по-украински.</p>
+    <p class="story__lede">Проверенные места, где вас поймут по-русски и по-украински, и официальные сайты, которые нужны каждому жителю Флориды.</p>
     <nav class="guides__nav" aria-label="Разделы справочника">
-      <a class="chip" href="#links">Официальные ссылки</a>
       <a class="chip" href="#business">Рекомендации бизнесов</a>
+      <a class="chip" href="#links">Официальные ссылки</a>
       {% for c in business_categories %}{% if c.listings.all %}<a class="chip" href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% endif %}{% endfor %}
     </nav>
+
+    <section class="guides__section" id="business" aria-labelledby="business-h">
+      <div class="section-head"><h2 class="section-head__h" id="business-h">Рекомендации бизнесов</h2></div>
+      <p class="dir__intro">Приходы, врачи, юристы, магазины и мастера, где говорят по-русски или по-украински. Мы добавляем места после проверки; платное размещение всегда отмечено меткой «Партнёр».</p>
+      <ul class="dir__cats">
+        {% for c in business_categories %}
+        {% with n=c.listings.all|length %}
+        <li><a class="dir__cat{% if not n %} is-empty{% endif %}{% if c.icon %} has-icon{% endif %}" href="{{ c.get_absolute_url }}">
+          {% if c.icon %}<span class="dir__icon"><img src="{% static c.icon %}" alt="" width="56" height="56" loading="lazy"></span>{% endif %}
+          <b>{{ c.name }}</b>
+          <span>{{ c.description }}</span>
+          <em>{% if n %}{{ n }} {{ n|plural_ru:"место,места,мест" }}{% else %}Пока пусто — предложите{% endif %}</em>
+        </a></li>
+        {% endwith %}
+        {% endfor %}
+      </ul>
+      {% include "directory/suggest.html" %}
+    </section>
 
     <section class="guides__section" id="links" aria-labelledby="links-h">
       <div class="section-head"><h2 class="section-head__h" id="links-h">Официальные ссылки</h2></div>
@@ -37,24 +55,6 @@
         </section>
         {% endfor %}
       </div>
-    </section>
-
-    <section class="guides__section" id="business" aria-labelledby="business-h">
-      <div class="section-head"><h2 class="section-head__h" id="business-h">Рекомендации бизнесов</h2></div>
-      <p class="dir__intro">Приходы, врачи, юристы, магазины и мастера, где говорят по-русски или по-украински. Мы добавляем места после проверки; платное размещение всегда отмечено меткой «Партнёр».</p>
-      <ul class="dir__cats">
-        {% for c in business_categories %}
-        {% with n=c.listings.all|length %}
-        <li><a class="dir__cat{% if not n %} is-empty{% endif %}{% if c.icon %} has-icon{% endif %}" href="{{ c.get_absolute_url }}">
-          {% if c.icon %}<span class="dir__icon"><img src="{% static c.icon %}" alt="" width="56" height="56" loading="lazy"></span>{% endif %}
-          <b>{{ c.name }}</b>
-          <span>{{ c.description }}</span>
-          <em>{% if n %}{{ n }} {{ n|plural_ru:"место,места,мест" }}{% else %}Пока пусто — предложите{% endif %}</em>
-        </a></li>
-        {% endwith %}
-        {% endfor %}
-      </ul>
-      {% include "directory/suggest.html" %}
     </section>
   </section>
 </div>
