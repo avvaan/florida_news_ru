@@ -593,6 +593,13 @@ def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | N
             except Exception as exc:  # noqa: BLE001 — сбой объявлений не мешает новостям
                 say(f"Объявления: сбой — {type(exc).__name__}: {exc}")
                 log.exception("Сбой модерации объявлений")
+            try:
+                from comments.moderation import moderate_pending as moderate_comments
+
+                stats["comments_moderated"] = moderate_comments(say)
+            except Exception as exc:  # noqa: BLE001 — сбой комментариев не мешает новостям
+                say(f"Комментарии: сбой — {type(exc).__name__}: {exc}")
+                log.exception("Сбой модерации комментариев")
             stats["classified"] = classify_new(say)
             stats["written"] = write_pending(say)
             say(f"Отбор: {stats['classified']}, написано заметок: {stats['written']}")

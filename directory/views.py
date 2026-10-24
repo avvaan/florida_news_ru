@@ -2,6 +2,7 @@ import hashlib
 import hmac
 
 from django.conf import settings
+from django.db.models import Avg, Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 
@@ -36,6 +37,18 @@ def directory_index(request):
     })
 
 
+def attach_ratings(listings):
+    """Средняя оценка и число опубликованных отзывов — для карточек в списке."""
+    from comments.models import Comment
+
+    rows = (Comment.objects.filter(listing__in=listings, status=Comment.Status.APPROVED, rating__isnull=False)
+            .values("listing").annotate(avg=Avg("rating"), n=Count("pk")))
+    by_id = {row["listing"]: row for row in rows}
+    for item in listings:
+        row = by_id.get(item.pk)
+        item.rating_avg, item.rating_count = (round(row["avg"], 1), row["n"]) if row else (None, 0)
+
+
 def sort_by_distance(listings, hub: str):
     """Ближе к главному городу — выше; без адреса и города (онлайн, «по всей Флориде») — в конце, как были."""
     origin = geo.hub_point(hub)
@@ -63,6 +76,7 @@ def directory_category(request, slug):
     else:
         near = ""
     attach_guides(listings)
+    attach_ratings(listings)
     others = Category.objects.filter(kind=category.kind).exclude(pk=category.pk)
     return render(request, "directory/category.html", {
         "category": category, "listings": listings, "others": others, "total": len(all_listings),
@@ -72,6 +86,19 @@ def directory_category(request, slug):
         else [],
         "contact_email": SiteSettings.load().contact_email,
     })
+
+
+def listing_detail(request, slug, pk, item_slug):
+    """Страница бизнеса: карточка, отзывы с оценками и форма отзыва."""
+    item = get_object_or_404(Listing.objects.select_related("category", "region"), pk=pk, is_active=True,
+                             category__kind=Category.Kind.BUSINESS)
+    if request.path != item.get_absolute_url():
+        return redirect(item.get_absolute_url(), permanent=True)
+    attach_guides([item])
+    others = (Listing.objects.active().filter(category=item.category).exclude(pk=item.pk)
+              .select_related("region")[:20])
+    nearby = sorted(others, key=lambda other: other.region_id != item.region_id)[:4]  # сначала из того же региона
+    return render(request, "directory/listing.html", {"item": item, "category": item.category, "nearby": nearby})
 
 
 def ip_hash(request) -> str:

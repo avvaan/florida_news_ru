@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models import Author, Page
-from directory.models import Category
+from directory.models import Category, Listing
 from classifieds.models import Ad
 from classifieds.models import Category as AdCategory
 from events.models import Event
@@ -120,7 +120,9 @@ class DirectorySitemap(SiteRootSitemap):
 
     def items(self):
         # пустые категории закрыты noindex — в sitemap только те, где есть записи
-        return ["index", *Category.objects.filter(listings__is_active=True).distinct().order_by("kind", "order")]
+        return ["index", *Category.objects.filter(listings__is_active=True).distinct().order_by("kind", "order"),
+                *Listing.objects.filter(is_active=True, category__kind=Category.Kind.BUSINESS)
+                .select_related("category").order_by("category__order", "pk")]
 
     def location(self, item):
         return reverse("directory:index") if item == "index" else item.get_absolute_url()

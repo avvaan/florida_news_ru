@@ -249,6 +249,33 @@ def directory_jsonld(category, listings) -> str:
 
 
 @register.simple_tag
+def listing_jsonld(item) -> str:
+    """LocalBusiness (или Church, Dentist…) со средней оценкой и последними отзывами читателей."""
+    data = {"@context": "https://schema.org", "@type": item.category.schema_type or "LocalBusiness",
+            "name": item.name, "url": absolute(item.get_absolute_url())}
+    if item.description:
+        data["description"] = item.description
+    if item.url:
+        data["sameAs"] = item.url
+    if item.phone:
+        data["telephone"] = item.phone
+    if item.address:
+        data["address"] = {"@type": "PostalAddress", "streetAddress": item.address,
+                           "addressRegion": "FL", "addressCountry": "US"}
+    reviews = [c for c in item.comments.published() if c.rating][-10:]
+    if reviews:
+        rating = item.comments.rating()
+        data["aggregateRating"] = {"@type": "AggregateRating", "ratingValue": rating["avg"],
+                                   "reviewCount": rating["count"], "bestRating": 5, "worstRating": 1}
+        data["review"] = [{
+            "@type": "Review", "author": {"@type": "Person", "name": c.name},
+            "datePublished": f"{c.created_at:%Y-%m-%d}", "reviewBody": c.text,
+            "reviewRating": {"@type": "Rating", "ratingValue": c.rating, "bestRating": 5, "worstRating": 1},
+        } for c in reviews]
+    return _jsonld(data)
+
+
+@register.simple_tag
 def person_jsonld(author) -> str:
     data = {
         "@context": "https://schema.org", "@type": "Person", "name": author.name,

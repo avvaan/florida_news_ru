@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if kind == "listing" %}Отзыв{% else %}Комментарий{% endif %} — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{{ target.get_absolute_url }}">{% if kind == "listing" %}{{ target.name }}{% else %}{{ target.title|truncatechars:60 }}{% endif %}</a>
+  </nav>
+  <section class="story story--page dir-form cmt" id="comments">
+    <h1 class="story__title">{% if kind == "listing" %}Отзыв: {{ target.name }}{% else %}Комментарий к новости{% endif %}</h1>
+    <p class="story__lede">Проверьте, пожалуйста, форму — что-то не так.</p>
+    {% include "comments/_form.html" with action=request.path %}
+    <p><a href="{{ target.get_absolute_url }}">← Вернуться</a></p>
+  </section>
+</div>
+{% endblock %}

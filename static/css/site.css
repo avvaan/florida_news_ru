@@ -749,3 +749,41 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .dir__dist { color: var(--gulf-deep); font-weight: 700; }
 .ev__news { margin-top: 40px; }
 .ev__news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 14px; }
+
+/* Комментарии и отзывы */
+.cmt { margin-top: 36px; max-width: 760px; }
+.cmt-rating { margin-top: 10px; font-size: 1rem; }
+.cmt-rating a { color: var(--ink); text-decoration: none; }
+.cmt-rating__stars, .cmt-item__stars { color: #e0a100; letter-spacing: 1px; }
+.cmt-mine { margin-top: 14px; padding: 12px 16px; border-radius: 10px; background: var(--mist); line-height: 1.5; }
+.cmt-mine--approved { background: #e8f6ee; }
+.cmt-mine--rejected, .cmt-mine--hidden { background: #fef3f2; }
+.cmt-list { display: grid; margin-top: 12px; }
+.cmt-item { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.cmt-item__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.cmt-item__head time { color: var(--muted); font-size: .88rem; }
+.cmt-item__text { margin-top: 6px; line-height: 1.6; overflow-wrap: anywhere; }
+.cmt-item__report { margin-top: 6px; }
+.cmt-item__report button { padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: .82rem; cursor: pointer; text-decoration: underline; text-underline-offset: .18em; }
+.cmt-item__reported { margin-top: 6px; color: var(--muted); font-size: .85rem; }
+.cmt-empty { margin-top: 12px; color: var(--ink-2); }
+.cmt-add { margin-top: 18px; }
+.cmt-add > summary { list-style: none; width: max-content; cursor: pointer; }
+.cmt-add > summary::-webkit-details-marker { display: none; }
+.cmt-add[open] > summary { display: none; }
+.cmt-form { margin-top: 4px; }
+.cmt-form .btn { justify-self: start; }
+.cmt-form__row { display: grid; gap: 18px; align-items: start; }
+.cmt-stars { border: 0; margin: 0; padding: 0; }
+.cmt-stars legend { font-weight: 600; margin-bottom: 4px; }
+/* Звёзды справа налево: выбранная и все «левее» неё подсвечиваются без JS */
+.cmt-stars__row { position: relative; display: flex; flex-direction: row-reverse; justify-content: flex-end; justify-self: start; gap: 2px; }
+/* сильнее общего правила .dir-form__field input (width: 100%), иначе невидимые кнопки перекрывают звёзды */
+.cmt-stars .cmt-stars__row input[type=radio] { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; padding: 0; border: 0; pointer-events: none; }
+.cmt-stars__row label { font-size: 2rem; line-height: 1; color: var(--line); cursor: pointer; padding: 2px; }
+.cmt-stars__row input:checked ~ label, .cmt-stars__row label:hover, .cmt-stars__row label:hover ~ label { color: #e0a100; }
+.cmt-stars__row input:focus-visible + label { outline: 3px solid var(--sun); border-radius: 4px; }
+.dir__reviews { margin-top: 6px; font-size: .92rem; }
+.dir__reviews a { color: var(--gulf-deep); font-weight: 600; text-decoration: none; }
+.dir__reviews a:hover { text-decoration: underline; }
+@media (min-width: 600px) { .cmt-form__row { grid-template-columns: 1fr 1fr; } }

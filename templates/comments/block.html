@@ -1,0 +1,37 @@
+{% load comments_tags news_extras %}
+<section class="cmt" id="comments" aria-labelledby="comments-h">
+  <h2 class="feed__h" id="comments-h">{% if kind == "listing" %}Отзывы{% else %}Комментарии{% endif %}{% if comments %} · {{ comments|length }}{% endif %}</h2>
+
+  {% if rating.count %}
+  <p class="cmt-rating"><span class="cmt-rating__stars" aria-hidden="true">{{ rating.avg|stars }}</span> <b>{{ rating.avg|floatformat:1 }}</b> из 5 · {{ rating.count }} {{ rating.count|plural_ru:"отзыв,отзыва,отзывов" }}</p>
+  {% endif %}
+
+  {% if mine %}
+  <div class="cmt-mine cmt-mine--{{ mine.status }}" id="my-comment" role="status">
+    {% if mine.status == "pending" %}<b>{{ noun|capfirst }} на проверке.</b>{% if mine_fresh %} Обычно это несколько секунд — страница обновится сама.
+    <script>setTimeout(function () { location.reload(); }, 6000);</script>{% else %} Проверка задерживается — {{ noun }} появится на странице, как только её пройдёт.{% endif %}
+    {% elif mine.status == "approved" %}<b>Спасибо, {{ noun }} опубликован.</b>
+    {% else %}<b>{{ noun|capfirst }} не опубликован.</b> {{ mine.public_reason }}{% endif %}
+  </div>
+  {% endif %}
+
+  {% if comments %}
+  <ol class="cmt-list">
+    {% for c in comments %}
+    <li class="cmt-item" id="comment-{{ c.pk }}">
+      <p class="cmt-item__head"><b>{{ c.name }}</b>{% if c.rating %} <span class="cmt-item__stars" aria-label="Оценка {{ c.rating }} из 5">{{ c.rating|stars }}</span>{% endif %} <time datetime="{{ c.created_at|date:'c' }}">{{ c.created_at|date:"j E Y"|lower }}</time></p>
+      <p class="cmt-item__text">{{ c.text|linebreaksbr }}</p>
+      {% if reported == c.pk %}<p class="cmt-item__reported" role="status">Спасибо, жалоба принята.</p>
+      {% else %}<form class="cmt-item__report" method="post" action="{% url 'comments:report' c.pk %}">{% csrf_token %}<button type="submit">Пожаловаться</button></form>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+  {% elif not mine %}
+  <p class="cmt-empty">{% if kind == "listing" %}Отзывов пока нет. Были здесь? Расскажите другим.{% else %}Комментариев пока нет — будьте первым.{% endif %}</p>
+  {% endif %}
+
+  <details class="cmt-add"{% if not comments and not mine %} open{% endif %}>
+    <summary class="btn btn--ghost">{% if kind == "listing" %}Оставить отзыв{% else %}Написать комментарий{% endif %}</summary>
+    {% include "comments/_form.html" %}
+  </details>
+</section>

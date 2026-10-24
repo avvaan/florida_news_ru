@@ -33,6 +33,7 @@ urlpatterns = [
     path("links/", include("directory.urls")),
     path("afisha/", include("events.urls")),
     path("obyavleniya/", include("classifieds.urls")),
+    path("comments/", include("comments.urls")),
     path("dmca/", core_views.dmca, name="core-dmca"),
     path("corrections/", core_views.corrections, name="core-corrections"),
     path("", include("news.urls")),
