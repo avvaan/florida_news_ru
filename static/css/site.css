@@ -120,6 +120,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 .topics { border-bottom: 1px solid var(--line); }
 .topics__row { display: flex; gap: 4px 20px; overflow-x: auto; padding-block: 2px; scrollbar-width: none; }
+@media (max-width: 1279px) { .topics__row { column-gap: 10px; } }  /* все пункты в одну строку от ~950px */
 .topics__link {
   display: inline-block; padding: 12px 0; white-space: nowrap; color: var(--ink-2);
   font-weight: 600; font-size: .95rem; text-decoration: none; border-bottom: 3px solid transparent;
@@ -241,6 +242,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 /* Лента + сайдбар */
 .columns { display: grid; gap: 40px; margin-top: 40px; }
 .row { display: grid; grid-template-columns: 112px 1fr; gap: 14px; padding-block: 18px; border-bottom: 1px solid var(--line); }
+.row__img { align-self: start; }
 .row__img img { aspect-ratio: 1; }
 .row__body { display: grid; gap: 6px; align-content: start; }
 .row__title { font: 700 1.08rem/1.28 var(--font); letter-spacing: -.01em; }

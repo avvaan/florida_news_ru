@@ -13,7 +13,7 @@ REGIONS = [
 TOPICS = [
     # slug, name, short, priority, cover
     ("weather", "Погода и ураганы", "Погода", 1, "covers/weather"),
-    ("safety", "ЧП и происшествия", "ЧП и происшествия", 1, "covers/safety"),
+    ("safety", "ЧП и происшествия", "ЧП", 1, "covers/safety"),
     ("laws", "Законы и правила", "Законы", 2, "covers/laws"),
     ("housing", "Жильё и страховка", "Жильё", 2, "covers/housing"),
     ("roads", "Дороги и транспорт", "Дороги", 2, "covers/roads"),

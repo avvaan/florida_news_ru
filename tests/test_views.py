@@ -143,7 +143,7 @@ def test_merged_topics_share_pages(client):
         resp = client.get(old)
         assert resp.status_code == 301 and resp["Location"] == new, old
     nav = client.get("/").content.decode().split('aria-label="Темы"')[1].split("</nav>")[0]
-    assert ">ЧП и происшествия<" in nav and ">Деньги и бизнес<" in nav and ">Афиша<" in nav
-    for gone in (">Происшествия<", ">Деньги<", ">Бизнес<", ">Куда сходить<", ">ЧП<"):
+    assert ">ЧП<" in nav and ">Деньги и бизнес<" in nav and ">Афиша<" in nav and ">Справочник<" in nav
+    for gone in (">Происшествия<", ">Деньги<", ">Бизнес<", ">Куда сходить<", ">Ссылки и бизнесы<"):
         assert gone not in nav, gone
     assert nav.count('href="/afisha/"') == 1
