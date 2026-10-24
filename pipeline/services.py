@@ -12,8 +12,8 @@ from django.utils import timezone
 
 from core.models import SiteSettings
 from guides.models import Guide
-from news.covers import candidates_for
-from news.models import BUSINESS, Article, ArticleSource, Region, Story, Tag, Topic
+from news.covers import candidates_for, fresh_choices, primary_pool, replacement
+from news.models import BUSINESS, Article, ArticleSource, Region, Story, Tag, Topic, neighbour_articles, neighbour_covers
 from social.services import has_trusted_source, run_social
 from sources.fetch import fetch_all
 from sources.models import Source, WeatherAlert
@@ -147,7 +147,8 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     region = story.region.name if story.region else "Флорида"
     topic = story.topic.name if story.topic else "—"
 
-    covers = candidates_for(story.topic.slug if story.topic else None, story.is_urgent)
+    neighbours = neighbour_covers(story.topic)
+    covers = cover_choices(story.topic, story.is_urgent, neighbours)
     guides = list(Guide.objects.published().order_by("title"))
     draft: Draft = ai.ask(
         purpose=AICall.Purpose.WRITE,
@@ -156,7 +157,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         user=(
             f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}\n\n"
             f"{prompts.hints_context(story.hints.values_list('summary', flat=True))}"
-            f"Обложки на выбор:\n{prompts.covers_brief(covers, recent_covers(story.topic))}\n\n"
+            f"Обложки на выбор:\n{prompts.covers_brief(covers, set(neighbours))}\n\n"
             f"Гайды:\n{prompts.guides_brief(guides)}"
         ),
         output=Draft,
@@ -277,25 +278,27 @@ def update_existing(article: Article, items, new_facts: list[str]) -> Article:
     return article
 
 
-def recent_covers(topic, limit: int = 5) -> set[str]:
-    """Обложки последних заметок рубрики — чтобы ИИ не ставил одну и ту же подряд."""
-    qs = Article.objects.exclude(cover_image="")
-    if topic:
-        qs = qs.filter(topic=topic)
-    return set(qs.order_by("-created_at").values_list("cover_image", flat=True)[:limit])
+def cover_choices(topic, is_urgent: bool, neighbours: list[str]):
+    """Обложки, из которых ИИ выбирает: подходящие рубрике и не повторяющие соседей в ленте."""
+    slug = topic.slug if topic else None
+    return fresh_choices(candidates_for(slug, is_urgent), neighbours, primary_pool(slug, is_urgent))
+
+
+def article_neighbours(article: Article) -> list[str]:
+    return neighbour_covers(article.topic, at=article.published_at, exclude_pk=article.pk)
 
 
 def choose_cover(article: Article) -> str:
     """Заново подбирает обложку уже написанной заметке по её тексту. Возвращает id или ""."""
-    covers = candidates_for(article.topic.slug if article.topic else None, article.is_urgent)
-    recent = recent_covers(article.topic) - {article.cover_image}
+    neighbours = article_neighbours(article)
+    covers = cover_choices(article.topic, article.is_urgent, neighbours)
     choice: CoverChoice = ai.ask(
         purpose=AICall.Purpose.COVER,
         model=settings.AI_CLASSIFIER_MODEL,
         system=prompts.COVER_SYSTEM,
         user=(
             f"<article>\nЗаголовок: {article.title}\nАнонс: {article.teaser}\n\n{article.body}\n</article>\n\n"
-            f"Обложки на выбор:\n{prompts.covers_brief(covers, recent)}"
+            f"Обложки на выбор:\n{prompts.covers_brief(covers, set(neighbours))}"
         ),
         output=CoverChoice,
         max_tokens=500,
@@ -304,8 +307,39 @@ def choose_cover(article: Article) -> str:
     if choice.cover not in {c.base for c in covers}:
         return ""
     article.cover_image = choice.cover
-    article.save(update_fields=["cover_image", "updated_at"])
+    article.cover_manual = False
+    article.save(update_fields=["cover_image", "cover_manual", "updated_at"])
     return choice.cover
+
+
+def repeats_neighbour(article: Article) -> bool:
+    """Обложка повторяет более раннюю соседнюю заметку или выбранную вручную более позднюю.
+
+    Повтор с более поздней обычной заметкой исправит она сама: замены идут от старых к новым.
+    """
+    at = article.published_at or timezone.now()
+    near = neighbour_articles(article.topic, at=at, exclude_pk=article.pk)
+    return article.cover in {a.cover for a in near if a.published_at <= at or a.cover_manual}
+
+
+def refresh_cover(article: Article) -> bool:
+    """Если обложка повторяет соседей в ленте — ставит другую без ИИ. Вручную выбранную не трогает.
+
+    Не сохраняет: вызывающий пишет cover_image сам. Возвращает True, если обложка сменилась.
+    """
+    if article.cover_manual:
+        return False
+    neighbours = article_neighbours(article)
+    current = article.cover_info
+    if current.base not in neighbours:
+        return False
+    slug = article.topic.slug if article.topic else None
+    choices = cover_choices(article.topic, article.is_urgent, neighbours)
+    new = replacement(choices, (current.pool, primary_pool(slug, article.is_urgent)), article.pk)
+    if new.base == current.base:
+        return False
+    article.cover_image = new.base
+    return True
 
 
 def rechoose_covers(articles, *, run: PipelineRun | None = None) -> PipelineRun:
@@ -336,6 +370,49 @@ def rechoose_covers(articles, *, run: PipelineRun | None = None) -> PipelineRun:
         run.success = False
         say(f"Сбой: {type(exc).__name__}: {exc}")
         log.exception("Сбой подбора обложек")
+    run.finished_at = timezone.now()
+    run.stats = {**run.stats, **stats}
+    run.log = say.text()
+    run.save()
+    return run
+
+
+def fix_repeated_covers(articles, *, use_ai: bool = True, run: PipelineRun | None = None) -> PipelineRun:
+    """Заменяет обложки, которые повторяют соседей в ленте. Вручную выбранные не трогает.
+
+    Идём от старых заметок к новым. Новую картинку подбирает ИИ из неповторяющихся; без ИИ
+    (use_ai=False, лимит, сбой) — берём другую из того же набора.
+    """
+    run = run or PipelineRun.objects.create(stats={"task": "covers"})
+    say = RunLog()
+    stats = {"task": "covers", "covers_changed": 0, "covers_failed": 0}
+    try:
+        for article in sorted(articles, key=lambda a: (a.published_at or a.created_at, a.pk)):
+            old = article.cover
+            if article.cover_manual or not repeats_neighbour(article):
+                continue
+            cover = ""
+            if use_ai and not current_budget().money_exceeded:
+                try:
+                    cover = choose_cover(article)
+                except ai.AIError as exc:
+                    say(f"«{article.title[:60]}»: ошибка ИИ — {exc}")
+            if cover == old:
+                cover = ""
+            if not cover and refresh_cover(article):
+                article.save(update_fields=["cover_image", "updated_at"])
+                cover = article.cover_image
+            if cover:
+                stats["covers_changed"] += 1
+                say(f"«{article.title[:60]}»: {old} → {cover}")
+            else:
+                stats["covers_failed"] += 1
+                say(f"«{article.title[:60]}»: замены нет, оставили {old}")
+        say(f"Повторы обложек: заменено {stats['covers_changed']}, не вышло {stats['covers_failed']}")
+    except Exception as exc:  # noqa: BLE001
+        run.success = False
+        say(f"Сбой: {type(exc).__name__}: {exc}")
+        log.exception("Сбой замены повторов обложек")
     run.finished_at = timezone.now()
     run.stats = {**run.stats, **stats}
     run.log = say.text()
@@ -452,7 +529,10 @@ def publish_article(article: Article, *, say=log.info) -> Article:
     article.review_reason = ""
     if article.is_urgent and not article.expires_at:
         article.expires_at = urgent_expiry(article)
-    article.save(update_fields=["status", "published_at", "review_reason", "expires_at", "updated_at"])
+    # Пока заметка ждала проверки, соседи в ленте могли взять ту же картинку.
+    refresh_cover(article)
+    article.save(update_fields=["status", "published_at", "review_reason", "expires_at", "cover_image",
+                                "updated_at"])
     say(f"Опубликовано: «{article.title}»")
     try:
         result = post_article(article)

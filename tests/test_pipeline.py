@@ -267,7 +267,7 @@ def test_run_pipeline_without_network_records_run(stories):
 def test_writer_chooses_cover_by_meaning(stories):
     fake = FakeAI()
     run_with(fake)
-    article = Article.objects.first()
+    article, other = Article.objects.order_by("published_at")
     assert article.cover_image == "covers/safety-3"
     assert article.cover == "covers/safety-3"
     write_call = next(c for c in fake.calls if c["schema"] is Draft)
@@ -276,9 +276,10 @@ def test_writer_chooses_cover_by_meaning(stories):
     assert "covers/safety-3 — иллюстрация: кипячение воды" in user_msg
     # для ЧП в списке есть и обложки урагана, и общие виды Флориды
     assert "covers/hurricane" in user_msg and "covers/florida-photo-1" in user_msg
-    # второй сюжет видит, что эта обложка уже была
+    # второму сюжету обложку соседа уже не предлагают, и картинки у соседей разные
     second = [c for c in fake.calls if c["schema"] is Draft][1]["messages"][1]["content"]
-    assert "covers/safety-3 — иллюстрация: кипячение воды — кастрюля на плите, бутыли с водой, кран (недавно была)" in second
+    assert "covers/safety-3 —" not in second and "covers/safety-2 —" in second
+    assert other.cover != article.cover
 
 
 @override_settings(AI_PROVIDER="deepseek")

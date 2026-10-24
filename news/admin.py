@@ -87,12 +87,17 @@ class BaseArticleAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {"fields": ("title", "teaser", "body", "for_you", "guide", "word_count")}),
         ("Разметка", {"fields": ("region", "topic", "tags", "is_urgent", "is_sensitive", "score")}),
-        ("Обложка", {"fields": ("cover_image", "cover_preview")}),
+        ("Обложка", {"fields": ("cover_image", "cover_manual", "cover_preview")}),
         ("Публикация", {"fields": ("status", "review_reason", "slug", "published_at", "revised_at")}),
         ("Проверка ИИ", {"fields": ("verification_box", "story_link")}),
         ("Telegram", {"fields": ("telegram_preview", "telegram_posted_at"), "classes": ("collapse",)}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
     )
+
+    def save_model(self, request, obj, form, change):
+        if "cover_image" in form.changed_data and "cover_manual" not in form.changed_data:
+            obj.cover_manual = bool(obj.cover_image)
+        super().save_model(request, obj, form, change)
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         if db_field.name == "cover_image":
