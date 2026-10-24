@@ -108,6 +108,20 @@ class AdAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def _warn_about_photos(self, request):
+        if missing := images.missing_setup():
+            self.message_user(request, f"Фото объявлений сейчас не публикуются — не хватает: {', '.join(missing)}. "
+                              "Фото хранятся в базе и опубликуются сами, когда ключи появятся в Render.",
+                              messages.WARNING)
+
+    def changelist_view(self, request, extra_context=None):
+        self._warn_about_photos(request)
+        return super().changelist_view(request, extra_context)
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        self._warn_about_photos(request)
+        return super().change_view(request, object_id, form_url, extra_context)
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

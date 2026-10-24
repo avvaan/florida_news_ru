@@ -129,7 +129,7 @@ def test_approved_ad_with_photos_is_published(client):
     assert AICall.objects.filter(purpose="moderate_ad").exists()
 
     manage = client.get(resp["Location"]).content.decode()
-    assert "Объявление опубликовано" in manage and "не прошло проверку" in manage
+    assert "Объявление опубликовано" in manage and "не опубликовано: не похоже на то, что в объявлении" in manage
     listing = client.get("/obyavleniya/").content.decode()
     assert "Диван IKEA, как новый" in listing and "1.jpg?tr=w-480" in listing and "$250" in listing
     assert "Диван IKEA" in client.get("/obyavleniya/veshchi/").content.decode()
@@ -168,11 +168,47 @@ def test_indecent_photo_rejects_whole_ad(client):
     assert client.get(ad.get_absolute_url()).status_code == 404
 
 
-def test_without_vision_photos_are_skipped(client):
+def test_without_keys_photos_wait_and_publish_later(client, admin_client):
+    """Нет модели со зрением или ImageKit: фото не теряется, а ждёт ключей и публикуется конвейером."""
     with mock.patch.object(images, "upload") as up:
         submit(client, photos=[png()])
     ad = Ad.objects.get()
-    assert ad.status == Ad.Status.APPROVED and ad.photos.get().status == Photo.Status.SKIPPED and not up.called
+    photo = ad.photos.get()
+    assert ad.status == Ad.Status.APPROVED and not up.called
+    assert photo.status == Photo.Status.PENDING and photo.data and "Ждёт настройки" in photo.note
+    assert "скоро появится" in client.get(ad.get_manage_url()).content.decode()
+    warning = admin_client.get("/admin/classifieds/ad/").content.decode()
+    assert "Фото объявлений сейчас не публикуются" in warning and "IMAGEKIT_PRIVATE_KEY" in warning
+
+    with override_settings(**WITH_IMAGES), \
+         mock.patch.object(images, "check_many", return_value=[seen()]), \
+         mock.patch.object(images, "upload", return_value=("https://ik.imagekit.io/x/1.jpg", "f1")):
+        moderation.moderate_pending()
+        assert "Фото объявлений сейчас не публикуются" not in admin_client.get("/admin/classifieds/ad/").content.decode()
+    photo.refresh_from_db()
+    assert photo.status == Photo.Status.PUBLISHED and photo.url.endswith("1.jpg") and photo.data is None
+
+
+@override_settings(**WITH_IMAGES)
+def test_photo_rejection_reason_shown_and_upload_retried(client):
+    uploads = mock.Mock(side_effect=[images.ImageError("ImageKit: 500"), ("https://ik.imagekit.io/x/2.jpg", "f2")])
+    with mock.patch.object(ai, "get_client", return_value=FakeDeepSeek({moderation.AdVerdict: verdict()})), \
+         mock.patch.object(images, "check_many", return_value=[seen(), seen(False, "mismatch", "Машина, а не диван")]), \
+         mock.patch.object(images, "upload", uploads):
+        post(client, photos=[png(), png("blue", "b.png")])
+        ad = Ad.objects.get()
+        first, second = ad.photos.order_by("order")
+        assert first.status == Photo.Status.CHECKED and first.data  # ImageKit не ответил — фото ждёт
+        manage = client.get(ad.get_manage_url()).content.decode()
+        assert "скоро появится" in manage and "не опубликовано: не похоже на то, что в объявлении" in manage
+        moderation.moderate_pending()
+    first.refresh_from_db()
+    assert first.status == Photo.Status.PUBLISHED and uploads.call_count == 2
+
+
+def test_portfolio_photos_allowed_in_prompt():
+    assert "Портфолио мастера" in moderation.IMAGE_SYSTEM and "фотографа" in moderation.IMAGE_SYSTEM
+    assert "чужие люди или дети крупным планом" not in moderation.IMAGE_SYSTEM
 
 
 def test_stop_words_reject_without_ai(client):
@@ -406,3 +442,37 @@ def test_sort_by_distance_from_hub(client):
     assert [a.title for a in client.get("/obyavleniya/mebel/?sort=near-miami").context["page_obj"].object_list][:2] \
         == [miami.title, aventura.title]
     assert "миль от" not in client.get("/obyavleniya/").content.decode()  # без сортировки расстояния не пишем
+
+
+@override_settings(**WITH_IMAGES)
+def test_photo_check_failure_does_not_hide_ad(client):
+    """Сбой модели со зрением (любой, не только ошибка API): объявление публикуется, фото проверим позже."""
+    with mock.patch.object(ai, "get_client", return_value=FakeDeepSeek({moderation.AdVerdict: verdict()})), \
+         mock.patch.object(images, "check_many", side_effect=ValueError("schema mismatch")), \
+         mock.patch.object(images, "upload") as up:
+        post(client, photos=[png()])
+    ad = Ad.objects.get()
+    photo = ad.photos.get()
+    assert ad.status == Ad.Status.APPROVED and ad.is_active and not up.called
+    assert photo.status == Photo.Status.PENDING and photo.data and "ValueError: schema mismatch" in photo.note
+    assert "Диван IKEA" in client.get("/obyavleniya/").content.decode()
+
+    with mock.patch.object(images, "check_many", return_value=[seen()]), \
+         mock.patch.object(images, "upload", return_value=("https://ik.imagekit.io/x/3.jpg", "f3")):
+        moderation.moderate_pending()
+    photo.refresh_from_db()
+    assert photo.status == Photo.Status.PUBLISHED
+
+
+@override_settings(**WITH_IMAGES)
+def test_vague_photo_problem_drops_only_photo(client):
+    """«other» по фото (например, детская фотосессия в портфолио фотографа) не отклоняет всё объявление."""
+    with mock.patch.object(ai, "get_client", return_value=FakeDeepSeek({moderation.AdVerdict: verdict(
+            category="foto-video", title="Профессиональный фотограф")})), \
+         mock.patch.object(images, "check_many", return_value=[seen(False, "other", "Дети на фото")]), \
+         mock.patch.object(images, "upload") as up:
+        post(client, photos=[png()], category=Category.objects.get(slug="foto-video").pk,
+             title="Профессиональный фотограф", description="Фотограф на мероприятие или семейную фотосессию.")
+    ad = Ad.objects.get()
+    assert ad.status == Ad.Status.APPROVED and ad.photos.get().status == Photo.Status.REJECTED and not up.called
+    assert "не опубликовано: не подходит для семейного сайта" in client.get(ad.get_manage_url()).content.decode()

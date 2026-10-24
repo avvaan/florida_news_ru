@@ -109,6 +109,18 @@ def can_publish_images() -> bool:
     return vision_available() and storage_available()
 
 
+def missing_setup() -> list[str]:
+    """Каких настроек не хватает, чтобы публиковать картинки из форм (для подсказки в админке)."""
+    missing = []
+    if not settings.ANTHROPIC_API_KEY:
+        missing.append("ANTHROPIC_API_KEY (проверка фото моделью со зрением)")
+    elif not settings.AI_VISION_MODEL:
+        missing.append("AI_VISION_MODEL")
+    if not settings.IMAGEKIT_PRIVATE_KEY:
+        missing.append("IMAGEKIT_PRIVATE_KEY (хранилище фото)")
+    return missing
+
+
 class NumberedImageVerdict(ImageVerdict):
     number: int = Field(description="Номер картинки по порядку, начиная с 1")
 

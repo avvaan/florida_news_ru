@@ -225,7 +225,8 @@ def edit(request, token):
     ad = _own_ad(token)
     if ad.status in (Ad.Status.CLOSED, Ad.Status.HIDDEN):
         return redirect(ad.get_manage_url())
-    kept = [p for p in ad.photos.all() if p.status in (Photo.Status.PUBLISHED, Photo.Status.PENDING)]
+    kept = [p for p in ad.photos.all() if p.status in (Photo.Status.PUBLISHED, Photo.Status.PENDING,
+                                                        Photo.Status.CHECKED)]
     remove_ids = {int(x) for x in request.POST.getlist("remove_photo") if x.isdigit()} if request.method == "POST" else set()
     form = AdForm(request.POST or None, request.FILES or None, instance=ad,
                   existing_photos=len([p for p in kept if p.pk not in remove_ids]))

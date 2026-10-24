@@ -41,7 +41,7 @@
 
     {% if photos %}
     <ul class="ads-form__photos">
-      {% for p in photos %}<li>{% if p.url %}<img src="{{ p.url|ik:200 }}" alt="Фото {{ forloop.counter }}" width="100" height="75">{% else %}<span class="ads-form__photo-wait">фото {{ forloop.counter }}</span>{% endif %}<span class="ads-manage__photo-status">{% if p.status == "published" %}опубликовано{% elif p.status == "pending" %}{% if ad.status == "approved" %}скоро появится{% else %}на проверке{% endif %}{% else %}не прошло проверку{% endif %}</span></li>{% endfor %}
+      {% for p in photos %}<li>{% if p.url %}<img src="{{ p.url|ik:200 }}" alt="Фото {{ forloop.counter }}" width="100" height="75">{% else %}<span class="ads-form__photo-wait">фото {{ forloop.counter }}</span>{% endif %}<span class="ads-manage__photo-status">{% if p.status == "published" %}опубликовано{% elif p.status == "pending" or p.status == "checked" %}{% if ad.status == "approved" %}скоро появится{% else %}на проверке{% endif %}{% elif p.status == "rejected" %}не опубликовано: {{ p.public_note }}{% else %}не опубликовано{% endif %}</span></li>{% endfor %}
     </ul>
     {% endif %}
 

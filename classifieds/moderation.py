@@ -36,8 +36,9 @@ REPORTS_TO_HIDE = 3
 PURPOSE = "moderate_ad"
 CLEANUP_AFTER = timedelta(days=30)  # фото снятых и истёкших объявлений удаляем из ImageKit через месяц
 
-# Фото с такими нарушениями отклоняет всё объявление; остальные — только само фото.
-SEVERE_IMAGE = {"adult", "violence", "drugs", "weapons", "hate", "spiritual", "fraud", "gambling", "politics", "other"}
+# Фото с такими нарушениями отклоняет всё объявление; остальные (в том числе расплывчатое «other») —
+# только само фото: спорная картинка не должна прятать нормальное объявление.
+SEVERE_IMAGE = {"adult", "violence", "drugs", "weapons", "hate", "fraud", "gambling"}
 
 Violation = Literal[
     "none", "adult", "prostitution", "dating", "spiritual", "fraud", "scam", "gambling", "drugs",
@@ -165,12 +166,15 @@ ok=false, если на фото:
 - politics: агитация, партии, кандидаты;
 - mismatch: фото явно не про то, что в объявлении (в объявлении диван — на фото машина);
 - unreadable: пустое или битое изображение, мем, скриншот переписки, документ с личными данными \
-(паспорт, права, SSN), фото, где главное — чужие люди или дети крупным планом;
+(паспорт, права, SSN), случайное фото посторонних людей, не связанное с объявлением;
 - other: всё, что нельзя показать детям.
 
 ok=true: обычные фото товара, квартиры или дома, автомобиля, лодки, животного, результата работы мастера, \
 инструмента, вещей; аккуратные фото человека, который предлагает свои услуги или ищет работу; \
-логотип или визитка. Номерные знаки автомобиля и обычные интерьеры — это нормально."""
+логотип или визитка. Номерные знаки автомобиля и обычные интерьеры — это нормально.
+Портфолио мастера — тоже ok=true: у фотографа и видеографа портреты, семейные, свадебные и детские \
+фотосессии (приличные, без наготы); у парикмахера, визажиста, мастера маникюра — люди с результатом \
+работы; у аниматора — праздник с детьми. Это пример работы, а не «чужие люди»."""
 
 
 def _norm(text: str) -> str:
@@ -220,7 +224,8 @@ def describe(ad: Ad) -> str:
 
 
 def drop_pending_photos(ad: Ad, status: str, note: str = "") -> None:
-    ad.photos.filter(status=Photo.Status.PENDING).update(status=status, data=None, note=note[:500])
+    ad.photos.filter(status__in=[Photo.Status.PENDING, Photo.Status.CHECKED]).update(status=status, data=None,
+                                                                                    note=note[:500])
 
 
 def reject(ad: Ad, violation: str, reason: str, public_reason: str = "") -> Ad:
@@ -256,20 +261,29 @@ def upload_photo(ad: Ad, photo: Photo) -> None:
     photo.save()
 
 
+WAITING_SETUP = "Ждёт настройки: " + "нет модели со зрением (ANTHROPIC_API_KEY) или ключа IMAGEKIT_PRIVATE_KEY. " \
+    "Фото хранится и опубликуется само, когда ключи появятся."
+
+
 def check_photos(ad: Ad, pending: list[Photo]) -> str | None:
-    """Проверяет новые фото. Возвращает нарушение, если фото отклоняет всё объявление."""
+    """Проверяет новые фото. Возвращает нарушение, если фото отклоняет всё объявление.
+
+    Без модели со зрением или ImageKit фото не выбрасываем: оно ждёт в базе, конвейер проверит
+    и опубликует его, когда ключи появятся.
+    """
     if not images.can_publish_images():
         for photo in pending:
-            photo.status, photo.data = Photo.Status.SKIPPED, None
-            photo.note = "Нет модели со зрением или ключа ImageKit — фото не опубликовано"
-            photo.save()
+            photo.note = WAITING_SETUP[:500]
+            photo.save(update_fields=["note"])
         return None
     verdicts = images.check_many([bytes(p.data) for p in pending], describe(ad), purpose=PURPOSE,
                                  system=IMAGE_SYSTEM)
     severe = None
     for photo, seen in zip(pending, verdicts):
         photo.note = f"{seen.violation}: {seen.reason}"[:500]
-        if not seen.ok:
+        if seen.ok:
+            photo.status = Photo.Status.CHECKED
+        else:
             photo.status, photo.data = Photo.Status.REJECTED, None
             if seen.violation in SEVERE_IMAGE:
                 severe = severe or (seen.violation, seen.reason)
@@ -302,17 +316,17 @@ def moderate(ad: Ad) -> Ad:
         verdict = ai.ask(purpose=PURPOSE, model=settings.AI_CLASSIFIER_MODEL, system=SYSTEM,
                          user=f"<рубрики>\n{categories_text()}\n</рубрики>\n\n<объявление>\n{describe(ad)}\n</объявление>",
                          output=AdVerdict, max_tokens=2500)
-        if verdict.decision != "approve" or verdict.violation != "none":
-            violation = verdict.violation if verdict.violation != "none" else "other"
-            return reject(ad, violation, verdict.reason, verdict.public_reason)
-        pending = list(ad.photos.filter(status=Photo.Status.PENDING).exclude(data=None))
-        if pending and (violation := check_photos(ad, pending)):
-            return reject(ad, violation, ad.reason)
     except ai.AIError as exc:
         log.warning("Модерация объявления %s: сбой ИИ — %s", ad.pk, exc)
         if ad.attempts >= MAX_ATTEMPTS:
             return reject(ad, "other", f"ИИ не смог проверить: {exc}"[:500])
         return ad
+    if verdict.decision != "approve" or verdict.violation != "none":
+        violation = verdict.violation if verdict.violation != "none" else "other"
+        return reject(ad, violation, verdict.reason, verdict.public_reason)
+    pending = list(ad.photos.filter(status=Photo.Status.PENDING).exclude(data=None))
+    if pending and (violation := safe_check_photos(ad, pending)):
+        return reject(ad, violation, ad.reason)
 
     if Ad.objects.filter(pk=ad.pk).values_list("status", flat=True).first() != Ad.Status.PENDING:
         return ad  # пока шла проверка, автор снял объявление — не публикуем
@@ -332,9 +346,39 @@ def moderate(ad: Ad) -> Ad:
         ad.published_at = ad.moderated_at
         ad.expires_at = ad.moderated_at + LIFETIME
     ad.save()
-    for photo in ad.photos.filter(status=Photo.Status.PENDING).exclude(data=None):
-        upload_photo(ad, photo)
+    upload_checked(ad)
     return ad
+
+
+def upload_checked(ad: Ad) -> None:
+    if images.storage_available():
+        for photo in ad.photos.filter(status=Photo.Status.CHECKED).exclude(data=None):
+            upload_photo(ad, photo)
+
+
+def safe_check_photos(ad: Ad, pending: list[Photo]) -> str | None:
+    """Проверка фото, которая никогда не держит объявление: при любом сбое фото ждут, а текст публикуется.
+
+    Ошибку пишем в note фото — её видно в админке, конвейер повторит проверку.
+    """
+    try:
+        return check_photos(ad, pending)
+    except Exception as exc:  # noqa: BLE001 — сбой модели со зрением не должен прятать объявление
+        log.warning("Объявление %s: фото не проверены — %s: %s", ad.pk, type(exc).__name__, exc)
+        for photo in pending:
+            photo.note = f"Проверка не удалась, повторим позже: {type(exc).__name__}: {exc}"[:500]
+            photo.save(update_fields=["note"])
+        return None
+
+
+def finish_photos(ad: Ad) -> None:
+    """Опубликованное объявление с непроверенными фото (не было ключей или сбой): проверить и загрузить."""
+    pending = list(ad.photos.filter(status=Photo.Status.PENDING).exclude(data=None))
+    if pending and images.can_publish_images() and can_spend() and (violation := safe_check_photos(ad, pending)):
+        delete_photos(ad, ad.photos.exclude(file_id=""))
+        reject(ad, violation, ad.reason)
+        return
+    upload_checked(ad)
 
 
 def report(ad: Ad, reason: str, comment: str, ip: str) -> bool:
@@ -380,10 +424,10 @@ def moderate_pending(say=None, older_than_minutes: int = 5) -> int:
     for ad in Ad.objects.filter(status=Ad.Status.PENDING, created_at__lt=cutoff).select_related("category"):
         if moderate(ad).status != Ad.Status.PENDING:
             done += 1
-    if images.storage_available():
-        for photo in (Photo.objects.filter(status=Photo.Status.PENDING, ad__status=Ad.Status.APPROVED)
-                      .exclude(data=None).select_related("ad")):
-            upload_photo(photo.ad, photo)
+    waiting = Ad.objects.filter(status=Ad.Status.APPROVED, photos__status__in=[Photo.Status.PENDING,
+                                                                            Photo.Status.CHECKED]).distinct()
+    for ad in waiting.select_related("category"):
+        finish_photos(ad)
     removed = cleanup()
     if say and (done or removed):
         say(f"Объявления: проверено {done}, удалено старых фото {removed}")

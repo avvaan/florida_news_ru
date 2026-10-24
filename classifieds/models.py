@@ -214,10 +214,17 @@ class Ad(models.Model):
 
 class Photo(models.Model):
     class Status(models.TextChoices):
-        PENDING = "pending", "ждёт проверки или загрузки"
+        PENDING = "pending", "ждёт проверки"
+        CHECKED = "checked", "проверено, ждёт загрузки в ImageKit"
         PUBLISHED = "published", "опубликовано"
         REJECTED = "rejected", "отклонено"
-        SKIPPED = "skipped", "не проверить: нет модели со зрением или ImageKit"
+        SKIPPED = "skipped", "не проверено (старое: фото удалено)"
+
+    # Что сказать автору про отклонённое фото — по коду нарушения в начале note.
+    REJECT_TEXT = {
+        "mismatch": "не похоже на то, что в объявлении",
+        "unreadable": "похоже на скриншот, мем или документ",
+    }
 
     ad = models.ForeignKey(Ad, verbose_name="объявление", on_delete=models.CASCADE, related_name="photos")
     order = models.PositiveSmallIntegerField("порядок", default=0)
@@ -234,6 +241,12 @@ class Photo(models.Model):
 
     def __str__(self):
         return f"Фото {self.order + 1} · {self.get_status_display()}"
+
+    @property
+    def public_note(self) -> str:
+        if self.status != self.Status.REJECTED:
+            return ""
+        return self.REJECT_TEXT.get(self.note.split(":", 1)[0], "не подходит для семейного сайта")
 
 
 class Report(models.Model):
