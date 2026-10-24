@@ -31,6 +31,7 @@ class AICall(models.Model):
         GUIDE = "guide", "гайды"
         MODERATE = "moderate", "проверка заявок бизнесов"
         MODERATE_EVENT = "moderate_event", "проверка афиш"
+        MODERATE_AD = "moderate_ad", "проверка объявлений"
         DEDUP = "dedup", "проверка дублей"
 
     created_at = models.DateTimeField("время", default=timezone.now, db_index=True)

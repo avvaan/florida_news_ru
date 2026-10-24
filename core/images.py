@@ -109,18 +109,49 @@ def can_publish_images() -> bool:
     return vision_available() and storage_available()
 
 
-def check(data: bytes, context: str, *, purpose: str) -> ImageVerdict:
+class NumberedImageVerdict(ImageVerdict):
+    number: int = Field(description="Номер картинки по порядку, начиная с 1")
+
+
+class ImagesVerdict(BaseModel):
+    images: list[NumberedImageVerdict] = Field(description="Решение по каждой картинке, в том же порядке")
+
+
+def _image_block(data: bytes) -> dict:
+    small = to_jpeg(Image.open(io.BytesIO(data)), CHECK_SIDE, quality=80)
+    return {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
+                                        "data": base64.standard_b64encode(small).decode()}}
+
+
+def check(data: bytes, context: str, *, purpose: str, system: str = IMAGE_SYSTEM) -> ImageVerdict:
     """Проверка картинки моделью со зрением. Бросает pipeline.ai.AIError при сбое."""
     from pipeline import ai
 
-    small = to_jpeg(Image.open(io.BytesIO(data)), CHECK_SIDE, quality=80)
     content = [
-        {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
-                                     "data": base64.standard_b64encode(small).decode()}},
+        _image_block(data),
         {"type": "text", "text": f"Что заявитель написал в форме:\n<заявка>\n{context}\n</заявка>"},
     ]
-    return ai.ask(purpose=purpose, model=settings.AI_VISION_MODEL, system=IMAGE_SYSTEM, user=content,
+    return ai.ask(purpose=purpose, model=settings.AI_VISION_MODEL, system=system, user=content,
                   output=ImageVerdict, max_tokens=600, provider="anthropic")
+
+
+def check_many(datas: list[bytes], context: str, *, purpose: str, system: str = IMAGE_SYSTEM) -> list[ImageVerdict]:
+    """Несколько картинок одним запросом — дешевле, чем по одной. Порядок ответа = порядок картинок.
+
+    Картинка, по которой модель не ответила, считается непроверенной (ok=false, unreadable).
+    """
+    from pipeline import ai
+
+    content = []
+    for n, data in enumerate(datas, start=1):
+        content += [{"type": "text", "text": f"Картинка {n}:"}, _image_block(data)]
+    content.append({"type": "text", "text": f"Что заявитель написал в форме:\n<заявка>\n{context}\n</заявка>"})
+    answer = ai.ask(purpose=purpose, model=settings.AI_VISION_MODEL, system=system, user=content,
+                    output=ImagesVerdict, max_tokens=300 + 250 * len(datas), provider="anthropic")
+    by_number = {v.number: v for v in answer.images}
+    missing = ImageVerdict(ok=False, violation="unreadable", reason="Модель не дала ответа по картинке",
+                           text_on_image="")
+    return [by_number.get(n, missing) for n in range(1, len(datas) + 1)]
 
 
 def upload(data: bytes, name: str, folder: str) -> tuple[str, str]:

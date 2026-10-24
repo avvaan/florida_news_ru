@@ -8,6 +8,8 @@ from django.utils import timezone
 
 from core.models import Author, Page
 from directory.models import Category
+from classifieds.models import Ad
+from classifieds.models import Category as AdCategory
 from events.models import Event
 from guides.models import Guide
 
@@ -144,6 +146,30 @@ class EventSitemap(SiteRootSitemap):
         return [{"loc": item.image_url, "title": item.title}]
 
 
+class ClassifiedSitemap(SiteRootSitemap):
+    changefreq = "daily"
+    priority = 0.5
+
+    def items(self):
+        # рубрики без объявлений и истёкшие объявления закрыты noindex — в sitemap их нет
+        active = Ad.objects.active()
+        used = set(active.values_list("category_id", flat=True))
+        used |= set(AdCategory.objects.filter(pk__in=used).values_list("parent_id", flat=True))
+        cats = AdCategory.objects.filter(pk__in=used).order_by("parent_id", "order")
+        return ["index", *cats, *active.newest().prefetch_related("photos")]
+
+    def location(self, item):
+        return reverse("classifieds:index") if item == "index" else item.get_absolute_url()
+
+    def lastmod(self, item):
+        return item.moderated_at if isinstance(item, Ad) else None
+
+    def images(self, item) -> list[dict]:
+        if not isinstance(item, Ad):
+            return []
+        return [{"loc": p.url, "title": item.title} for p in item.public_photos()]
+
+
 class AuthorSitemap(SiteRootSitemap):
     changefreq = "monthly"
     priority = 0.3
@@ -160,4 +186,5 @@ def google_news_items():
 
 SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,
             "authors": AuthorSitemap, "legal": LegalSitemap,
-            "directory": DirectorySitemap, "events": EventSitemap}
+            "directory": DirectorySitemap, "events": EventSitemap,
+            "classifieds": ClassifiedSitemap}

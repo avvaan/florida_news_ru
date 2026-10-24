@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}Моё объявление — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block head %}<meta name="referrer" content="no-referrer">{% if ad and ad.status == "pending" %}<meta http-equiv="refresh" content="6">{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'classifieds:index' %}">Объявления</a>
+  </nav>
+  <section class="story story--page dir-form ads-manage">
+    {% if not ad or ad.status == "pending" %}
+    <h1 class="story__title">Объявление на проверке</h1>
+    <p class="story__lede">Спасибо! Проверяем текст и фото — обычно это пара минут. Страница обновится сама.</p>
+    {% elif ad.status == "approved" and ad.is_active %}
+    <h1 class="story__title">Объявление опубликовано</h1>
+    <p class="story__lede">«{{ ad.title }}» в рубрике «{{ ad.category.name }}». Висит до {{ ad.expires_at|date:"j E"|lower }}.</p>
+    {% elif ad.status == "approved" %}
+    <h1 class="story__title">Срок объявления истёк</h1>
+    <p class="story__lede">«{{ ad.title }}» больше не показывается в списках.{% if ad.can_renew %} Его можно продлить ещё на 30 дней.{% else %} Подайте новое объявление, если оно всё ещё актуально.{% endif %}</p>
+    {% elif ad.status == "rejected" %}
+    <h1 class="story__title">Объявление не прошло проверку</h1>
+    <p class="story__lede">{{ ad.public_reason|default:"Объявление не прошло проверку." }}</p>
+    <p>Можно исправить его и отправить ещё раз. Если вы считаете, что это ошибка, напишите через <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a> и укажите номер объявления — {{ ad.pk }}.</p>
+    {% elif ad.status == "hidden" %}
+    <h1 class="story__title">Объявление скрыто</h1>
+    <p class="story__lede">На него пожаловались несколько посетителей. Редакция проверит его и вернёт, если всё в порядке.</p>
+    {% else %}
+    <h1 class="story__title">Объявление снято</h1>
+    <p class="story__lede">«{{ ad.title }}» больше не показывается. Спасибо, что пользуетесь Florida RU!</p>
+    {% endif %}
+
+    {% if ad %}
+    <div class="ads-manage__link">
+      <b>Сохраните эту страницу в закладки</b>
+      <p>Это ваша личная ссылка: по ней можно поправить, продлить или снять объявление. Восстановить её нельзя — мы не спрашиваем почту. Никому её не пересылайте.</p>
+      <input type="text" readonly value="{{ request.path|absolute }}" aria-label="Ссылка на управление объявлением" onclick="this.select()">
+    </div>
+
+    {% if ad.status == "approved" or ad.status == "closed" %}<p><a class="btn btn--ghost" href="{{ ad.get_absolute_url }}">Открыть объявление на сайте</a></p>{% endif %}
+
+    {% if photos %}
+    <ul class="ads-form__photos">
+      {% for p in photos %}<li>{% if p.url %}<img src="{{ p.url|ik:200 }}" alt="Фото {{ forloop.counter }}" width="100" height="75">{% else %}<span class="ads-form__photo-wait">фото {{ forloop.counter }}</span>{% endif %}<span class="ads-manage__photo-status">{% if p.status == "published" %}опубликовано{% elif p.status == "pending" %}{% if ad.status == "approved" %}скоро появится{% else %}на проверке{% endif %}{% else %}не прошло проверку{% endif %}</span></li>{% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if ad.status == "approved" or ad.status == "rejected" %}
+    <div class="dir__suggest-actions">
+      {% if ad.can_renew %}<form method="post" action="{% url 'classifieds:renew' ad.token %}">{% csrf_token %}<button class="btn btn--sun" type="submit">Продлить на 30 дней</button></form>{% endif %}
+      <a class="btn" href="{% url 'classifieds:edit' ad.token %}">{% if ad.status == "rejected" %}Исправить и отправить снова{% else %}Изменить{% endif %}</a>
+      <form method="post" action="{% url 'classifieds:close' ad.token %}">{% csrf_token %}<button class="btn btn--ghost" type="submit">{% if ad.status == "rejected" %}Удалить{% else %}Снять — продано или неактуально{% endif %}</button></form>
+    </div>
+    {% if ad.status == "approved" and ad.is_active and not ad.can_renew %}<p class="dir-form__help">Продлить можно будет за 5 дней до окончания срока.</p>{% endif %}
+    {% if ad.status == "approved" and ad.views %}<p class="dir-form__help">Просмотров: {{ ad.views }}, контакты открывали: {{ ad.contact_views }}.</p>{% endif %}
+    {% endif %}
+    {% endif %}
+    <p><a href="{% url 'classifieds:index' %}">← Все объявления</a></p>
+  </section>
+</div>
+{% endblock %}

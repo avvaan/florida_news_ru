@@ -126,6 +126,12 @@ PAGES = [
 их. Текст и картинку события проверяет автоматическая модерация с помощью ИИ; одобренная картинка \
 хранится и показывается через сервис ImageKit, отклонённая удаляется.
 
+Если вы подаёте объявление, мы публикуем имя, город, ZIP-код и контакты, которые вы указали \
+(телефон, WhatsApp, Telegram): посетители видят их, нажав «Показать контакты». Почту мы не спрашиваем. \
+Текст и фото объявления проверяет автоматическая модерация с помощью ИИ; одобренные фото хранятся \
+и показываются через сервис ImageKit и удаляются через месяц после того, как объявление снято или \
+истекло. Карта района на странице объявления загружается с Google Maps.
+
 По вопросам, связанным с данными, пишите CITRUSTACK LLC на адрес редакции, указанный на \
 странице «Контакты»."""),
     ("disclaimer", "Отказ от ответственности", 5, f"""\
@@ -282,6 +288,21 @@ def update_privacy_events(apps, schema_editor):
         return
     parts = page.body.replace("\r\n", "\n").split("\n\n")
     at = next((i for i, part in enumerate(parts) if part.startswith("Если вы отправляете заявку")), len(parts) - 2)
+    parts.insert(at + 1, paragraph)
+    page.body = "\n\n".join(parts)
+    page.save(update_fields=["body"])
+
+
+def update_privacy_classifieds(apps, schema_editor):
+    """Добавляет в политику абзац об объявлениях после абзаца об афише, если его ещё нет."""
+    Page = apps.get_model("core", "Page")
+    page = Page.objects.filter(slug="privacy").first()
+    body = next(body for slug, _, _, body in PAGES if slug == "privacy")
+    paragraph = next(p for p in body.split("\n\n") if p.startswith("Если вы подаёте объявление"))
+    if not page or "подаёте объявление" in page.body:
+        return
+    parts = page.body.replace("\r\n", "\n").split("\n\n")
+    at = next((i for i, part in enumerate(parts) if part.startswith("Если вы добавляете событие")), len(parts) - 2)
     parts.insert(at + 1, paragraph)
     page.body = "\n\n".join(parts)
     page.save(update_fields=["body"])

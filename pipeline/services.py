@@ -506,6 +506,13 @@ def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | N
             except Exception as exc:  # noqa: BLE001 — сбой афиши не мешает новостям
                 say(f"Афиша: сбой — {type(exc).__name__}: {exc}")
                 log.exception("Сбой модерации афиши")
+            try:
+                from classifieds.moderation import moderate_pending as moderate_ads
+
+                stats["ads_moderated"] = moderate_ads(say)
+            except Exception as exc:  # noqa: BLE001 — сбой объявлений не мешает новостям
+                say(f"Объявления: сбой — {type(exc).__name__}: {exc}")
+                log.exception("Сбой модерации объявлений")
             stats["classified"] = classify_new(say)
             stats["written"] = write_pending(say)
             say(f"Отбор: {stats['classified']}, написано заметок: {stats['written']}")

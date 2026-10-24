@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "stats",
     "directory",
     "events",
+    "classifieds",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",

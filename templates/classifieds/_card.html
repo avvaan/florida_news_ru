@@ -1,0 +1,11 @@
+{% load news_extras %}
+<li class="ad-card">
+  <a class="ad-card__link" href="{{ a.get_absolute_url }}">
+    {% with cover=a.cover %}{% if cover %}<img class="ad-card__img" src="{{ cover.url|ik:480 }}" alt="" loading="lazy" width="480" height="360">{% else %}<span class="ad-card__img ad-card__img--none" aria-hidden="true">{{ a.category.name|slice:":1" }}</span>{% endif %}{% endwith %}
+    <span class="ad-card__body">
+      <span class="ad-card__price">{{ a.price_text }}</span>
+      <span class="ad-card__title">{{ a.title }}</span>
+      <span class="ad-card__meta">{{ a.place }} · <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|date:"j E"|lower }}</time></span>
+    </span>
+  </a>
+</li>

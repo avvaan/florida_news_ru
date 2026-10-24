@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}{% if category %}{{ category.name }} — объявления во Флориде{% else %}Объявления на русском во Флориде: жильё, работа, услуги, вещи{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}{% if category.description %}{{ category.description }}{% elif category %}{{ category.name }}: частные объявления на русском в Майами, Орландо, Тампе и Джексонвилле.{% else %}Бесплатные частные объявления на русском во Флориде: аренда жилья, работа, услуги мастеров, авто и вещи в Майами, Орландо, Тампе и Джексонвилле.{% endif %}{% endblock %}
+{% block og %}{% include "includes/og.html" with title="Объявления — "|add:site_name description="Аренда жилья, работа, услуги, авто и вещи во Флориде — частные объявления на русском." url=request.path %}{% endblock %}
+{% block robots %}{% if filtered or page_obj.number > 1 or not total %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'classifieds:index' as list_url %}{% if category %}{% if category.is_section %}{% breadcrumbs_jsonld "Главная" home_url "Объявления" list_url category.name category.get_absolute_url %}{% else %}{% breadcrumbs_jsonld "Главная" home_url "Объявления" list_url section.name section.get_absolute_url category.name category.get_absolute_url %}{% endif %}{% else %}{% breadcrumbs_jsonld "Главная" home_url "Объявления" list_url %}{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span>
+    {% if category %}<a href="{% url 'classifieds:index' %}">Объявления</a>{% if not category.is_section %}<span aria-hidden="true">/</span><a href="{{ section.get_absolute_url }}">{{ section.name }}</a>{% endif %}{% else %}<span>Объявления</span>{% endif %}
+  </nav>
+  <section class="story ads">
+    <div class="ev__head">
+      <div>
+        <h1 class="story__title">{% if category %}{{ category.name }}{% else %}Объявления{% endif %}</h1>
+        <p class="story__lede">{% if category.description %}{{ category.description }}{% elif category %}Частные объявления во Флориде.{% else %}Жильё, работа, услуги, авто и вещи — частные объявления на русском во Флориде. Подать объявление бесплатно.{% endif %}</p>
+      </div>
+      <a class="btn btn--sun" href="{% url 'classifieds:submit' %}{% if category and not category.is_section %}?category={{ category.slug }}{% endif %}">Подать объявление</a>
+    </div>
+
+    {% if children %}
+    <nav class="guides__nav" aria-label="Рубрики">
+      <a class="chip{% if category.is_section %} is-current{% endif %}" href="{{ section.get_absolute_url }}">Все</a>
+      {% for c in children %}<a class="chip{% if category.pk == c.pk %} is-current{% endif %}" href="{{ c.get_absolute_url }}">{{ c.name }}{% if c.count %} <span class="ads__n">{{ c.count }}</span>{% endif %}</a>{% endfor %}
+    </nav>
+    {% endif %}
+
+    <form class="ads-filter" method="get" role="search" aria-label="Поиск по объявлениям">
+      <div class="ads-filter__q">
+        <label class="visually-hidden" for="f-q">Что ищете</label>
+        <input id="f-q" type="search" name="q" value="{{ form.data.q|default:'' }}" placeholder="Диван, няня, 2 bedroom…" maxlength="80">
+        <button class="btn" type="submit">Найти</button>
+      </div>
+      <details class="ads-filter__more"{% if filtered %} open{% endif %}>
+        <summary>Где и почём</summary>
+        <div class="ads-filter__grid">
+          <label>Регион
+            <select name="region">
+              <option value="">Вся Флорида</option>
+              {% for r in regions %}<option value="{{ r.slug }}"{% if form.data.region == r.slug %} selected{% endif %}>{{ r.name }}</option>{% endfor %}
+              <option value="other"{% if form.data.region == "other" %} selected{% endif %}>Другие города</option>
+            </select>
+          </label>
+          <label>Мой ZIP <input type="text" name="zip" value="{{ form.data.zip|default:'' }}" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="33160"></label>
+          <label>Цена от, $ <input type="number" name="price_min" min="0" value="{{ form.data.price_min|default:'' }}" inputmode="numeric"></label>
+          <label>до, $ <input type="number" name="price_max" min="0" value="{{ form.data.price_max|default:'' }}" inputmode="numeric"></label>
+          <label>Порядок
+            <select name="sort">{% for value, label in form.fields.sort.choices %}<option value="{{ value }}"{% if form.data.sort == value %} selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+          </label>
+          <label class="ads-filter__check"><input type="checkbox" name="photo" value="1"{% if form.data.photo %} checked{% endif %}> Только с фото</label>
+        </div>
+        <p class="dir-form__help">С ZIP-кодом сначала покажем объявления из вашего ZIP, потом из соседних.</p>
+        <p class="ads-filter__actions"><button class="btn" type="submit">Показать</button>{% if filtered %} <a href="{{ request.path }}">Сбросить</a>{% endif %}</p>
+      </details>
+    </form>
+
+    {% if sections and not filtered and page_obj.number == 1 %}
+    <h2 class="feed__h ads__h">Рубрики</h2>
+    <ul class="ads__sections">
+      {% for s in sections %}
+      <li class="ads__section">
+        <a class="ads__section-h" href="{{ s.get_absolute_url }}">{{ s.name }}{% if s.count %} <span class="ads__n">{{ s.count }}</span>{% endif %}</a>
+        <ul class="ads__subs">{% for c in s.children.all %}<li><a href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% if c.count %} <span class="ads__n">{{ c.count }}</span>{% endif %}</li>{% endfor %}</ul>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if page_obj.object_list %}
+    <h2 class="feed__h ads__h">{% if filtered %}Найдено: {{ page_obj.paginator.count }}{% elif category %}Объявления{% else %}Свежие объявления{% endif %}</h2>
+    <ul class="ads__grid">{% for a in page_obj.object_list %}{% include "classifieds/_card.html" %}{% endfor %}</ul>
+    {% if page_obj.has_other_pages %}
+    <nav class="pager" aria-label="Страницы">
+      {% if page_obj.has_previous %}<a class="btn btn--ghost" href="{% querystring page=page_obj.previous_page_number %}" rel="prev">← Назад</a>{% endif %}
+      <span class="pager__num">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a class="btn btn--ghost" href="{% querystring page=page_obj.next_page_number %}" rel="next">Дальше →</a>{% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <p class="dir__empty">{% if filtered %}Ничего не нашли. Попробуйте убрать часть фильтров{% else %}Здесь пока нет объявлений{% endif %}. <a href="{% url 'classifieds:submit' %}{% if category and not category.is_section %}?category={{ category.slug }}{% endif %}">Подайте своё</a> — это бесплатно.</p>
+    {% endif %}
+
+    <aside class="dir__suggest" aria-labelledby="ads-add-h">
+      <h3 id="ads-add-h">Подать объявление</h3>
+      <p>Бесплатно и без регистрации. До пяти фото, привязка к городу и ZIP. Объявление проверяет автоматическая модерация — обычно за пару минут — и оно висит 30 дней; продлить, поправить или снять его можно по личной ссылке.</p>
+      <p class="dir__suggest-actions"><a class="btn" href="{% url 'classifieds:submit' %}">Подать объявление</a></p>
+    </aside>
+  </section>
+</div>
+{% endblock %}
