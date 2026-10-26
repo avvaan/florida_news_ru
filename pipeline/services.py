@@ -466,13 +466,16 @@ def publication_quota(conf: SiteSettings, business: bool = False) -> int:
     return max(0, cap - used)
 
 
+MAX_WRITE_FAILURES = 2  # столько неожиданных сбоев подряд — и запись заметок на этот запуск прекращается
+
+
 def write_pending(say: RunLog) -> int:
     conf = SiteSettings.load()
     queue = (
         Story.objects.filter(status=Story.Status.CLASSIFIED, article__isnull=True).select_related("topic")
         .order_by("-is_urgent", "-score", "created_at")
     )
-    written = 0
+    written = failures = 0
     quotas = {False: publication_quota(conf), True: publication_quota(conf, business=True)}
     limits = {False: conf.max_articles_per_day, True: conf.max_business_per_day}
     for story in queue:
@@ -502,11 +505,24 @@ def write_pending(say: RunLog) -> int:
             written += 1
             if not story.is_urgent:
                 quotas[business] -= 1
+            failures = 0
         except ai.AIError as exc:
             story.status = Story.Status.FAILED
             story.note = f"Написание: {exc}"[:500]
             story.save(update_fields=["status", "note", "updated_at"])
             say(f"Ошибка написания «{story.title[:60]}»: {exc}")
+        except Exception as exc:  # noqa: BLE001 — сбой одной заметки не останавливает остальные
+            log.exception("Сбой записи заметки по сюжету #%s", story.pk)
+            failures += 1
+            story.status = Story.Status.FAILED
+            story.note = f"Сбой записи: {type(exc).__name__}: {exc}"[:500]
+            story.save(update_fields=["status", "note", "updated_at"])
+            say(f"Сбой записи «{story.title[:60]}»: {type(exc).__name__}: {str(exc)[:200]}")
+            if failures >= MAX_WRITE_FAILURES:
+                # Подряд падает одно и то же — похоже на поломку (база, выкладка), а не на сюжет.
+                # Остальное оставляем в очереди до следующего запуска, деньги на ИИ не тратим.
+                say(f"Сбой записи {failures} раза подряд — остальные сюжеты ждут следующего запуска")
+                break
     return written
 
 
