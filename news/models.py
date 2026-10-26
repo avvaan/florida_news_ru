@@ -178,7 +178,7 @@ class Article(models.Model):
         help_text="Выбирает ИИ по смыслу заметки. Пусто — обложка из набора рубрики по очереди",
     )
     cover_manual = models.BooleanField(
-        "обложка выбрана вручную", default=False,
+        "обложка выбрана вручную", default=False, db_default=False,
         help_text="Ставится сам, когда обложку меняют в админке или через API. Такую обложку не меняют "
                   "ни при публикации, ни при замене повторов (pick_covers --fix-repeats)",
     )
