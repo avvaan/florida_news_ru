@@ -27,7 +27,7 @@ def business_article(title, kind, **kw):
 
 def test_business_topic_and_sources_are_seeded():
     topic = Topic.objects.get(slug="business")
-    assert topic.short_name == "Бизнес" and topic.get_absolute_url() == "/business/"
+    assert topic.short_name == "Деньги и бизнес" and topic.get_absolute_url() == "/business/"
     sources = Source.objects.filter(notes__startswith="Бизнес")
     assert sources.count() == 7 and all(s.url.startswith("https://www.bing.com/news/search?") for s in sources)
     assert all(s.source_type == "media" and not s.is_active and not s.is_verified for s in sources)
@@ -38,7 +38,7 @@ def test_business_page_blocks_filters_and_redirect(client):
     business_article("Застройщик купил участок в Брикелле за $300 млн", "deals")
     business_article("Сеть магазинов закрывает склад в Орландо", "other")
     html = client.get("/business/").content.decode()
-    assert "Бизнес: акции и сделки" in html and "не инвестиционная рекомендация" in html
+    assert "Деньги и бизнес" in html and "не инвестиционная рекомендация" in html
     assert 'id="biz-stocks-h"' in html and 'id="biz-deals-h"' in html and "Сеть магазинов закрывает" in html
 
     stocks = client.get("/business/stocks/").content.decode()

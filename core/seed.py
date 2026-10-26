@@ -13,7 +13,7 @@ REGIONS = [
 TOPICS = [
     # slug, name, short, priority, cover
     ("weather", "Погода и ураганы", "Погода", 1, "covers/weather"),
-    ("safety", "Безопасность и ЧП", "ЧП", 1, "covers/safety"),
+    ("safety", "ЧП и происшествия", "ЧП", 1, "covers/safety"),
     ("laws", "Законы и правила", "Законы", 2, "covers/laws"),
     ("housing", "Жильё и страховка", "Жильё", 2, "covers/housing"),
     ("roads", "Дороги и транспорт", "Дороги", 2, "covers/roads"),
@@ -22,7 +22,7 @@ TOPICS = [
     ("health", "Здоровье", "Здоровье", 3, "covers/health"),
     ("events", "Афиша и события", "Афиша", 4, "covers/events"),
     ("incidents", "Происшествия", "Происшествия", 5, "covers/incidents"),
-    ("business", "Бизнес: акции и сделки", "Бизнес", 4, "covers/business"),
+    ("business", "Деньги и бизнес", "Деньги и бизнес", 4, "covers/business"),
 ]
 
 SITE_OWNER = "CITRUSTACK LLC"
@@ -125,6 +125,16 @@ PAGES = [
 Если вы добавляете событие в афишу, мы так же храним имя и e-mail контактного лица и не публикуем \
 их. Текст и картинку события проверяет автоматическая модерация с помощью ИИ; одобренная картинка \
 хранится и показывается через сервис ImageKit, отклонённая удаляется.
+
+Если вы подаёте объявление, мы публикуем имя, город, ZIP-код и контакты, которые вы указали \
+(телефон, WhatsApp, Telegram): посетители видят их, нажав «Показать контакты». Почту мы не спрашиваем. \
+Текст и фото объявления проверяет автоматическая модерация с помощью ИИ; одобренные фото хранятся \
+и показываются через сервис ImageKit и удаляются через месяц после того, как объявление снято или \
+истекло. Карта района на странице объявления загружается с Google Maps.
+
+Если вы оставляете комментарий или отзыв, мы публикуем имя и текст, а e-mail храним только для \
+связи с вами и на сайте не показываем. Комментарии проверяет автоматическая модерация с помощью ИИ. \
+Для защиты от спама мы храним не IP-адрес, а обезличенный код.
 
 По вопросам, связанным с данными, пишите CITRUSTACK LLC на адрес редакции, указанный на \
 странице «Контакты»."""),
@@ -282,6 +292,36 @@ def update_privacy_events(apps, schema_editor):
         return
     parts = page.body.replace("\r\n", "\n").split("\n\n")
     at = next((i for i, part in enumerate(parts) if part.startswith("Если вы отправляете заявку")), len(parts) - 2)
+    parts.insert(at + 1, paragraph)
+    page.body = "\n\n".join(parts)
+    page.save(update_fields=["body"])
+
+
+def update_privacy_classifieds(apps, schema_editor):
+    """Добавляет в политику абзац об объявлениях после абзаца об афише, если его ещё нет."""
+    Page = apps.get_model("core", "Page")
+    page = Page.objects.filter(slug="privacy").first()
+    body = next(body for slug, _, _, body in PAGES if slug == "privacy")
+    paragraph = next(p for p in body.split("\n\n") if p.startswith("Если вы подаёте объявление"))
+    if not page or "подаёте объявление" in page.body:
+        return
+    parts = page.body.replace("\r\n", "\n").split("\n\n")
+    at = next((i for i, part in enumerate(parts) if part.startswith("Если вы добавляете событие")), len(parts) - 2)
+    parts.insert(at + 1, paragraph)
+    page.body = "\n\n".join(parts)
+    page.save(update_fields=["body"])
+
+
+def update_privacy_comments(apps, schema_editor):
+    """Добавляет в политику абзац о комментариях после абзаца об объявлениях, если его ещё нет."""
+    Page = apps.get_model("core", "Page")
+    page = Page.objects.filter(slug="privacy").first()
+    body = next(body for slug, _, _, body in PAGES if slug == "privacy")
+    paragraph = next(p for p in body.split("\n\n") if p.startswith("Если вы оставляете комментарий"))
+    if not page or "оставляете комментарий" in page.body:
+        return
+    parts = page.body.replace("\r\n", "\n").split("\n\n")
+    at = next((i for i, part in enumerate(parts) if part.startswith("Если вы подаёте объявление")), len(parts) - 2)
     parts.insert(at + 1, paragraph)
     page.body = "\n\n".join(parts)
     page.save(update_fields=["body"])

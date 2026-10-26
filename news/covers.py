@@ -6,8 +6,8 @@
 Для каждой обложки есть .webp (1200×675), -640.webp и .jpg. Новая картинка подхватится
 сама после перезапуска, если положить три файла по этому шаблону.
 
-Заметке достаётся обложка из набора её рубрики по номеру заметки, поэтому соседние
-заметки одной рубрики получают разные картинки, а у одной заметки обложка не меняется.
+Обложку выбирает ИИ по смыслу заметки (Article.cover_image) из картинок, которых нет у соседей
+в ленте (см. fresh_choices); без выбора — обложка из набора рубрики по номеру заметки.
 """
 
 from __future__ import annotations
@@ -25,6 +25,11 @@ COVER_RE = re.compile(r"^(?P<pool>[a-z]+)(?P<photo>-photo)?(?:-(?P<n>\d+))?\.jpg
 class Cover:
     base: str       # путь в static/ без расширения: covers/weather-2
     is_photo: bool  # стоковое фото, а не наша иллюстрация
+
+    @property
+    def pool(self) -> str:
+        """Набор, к которому относится картинка: covers/incidents-photo-1 → incidents."""
+        return self.base.split("/")[-1].split("-")[0]
 
     @property
     def credit(self) -> str:
@@ -52,6 +57,13 @@ def cover_pools() -> dict[str, tuple[Cover, ...]]:
             mixed += drawings[i:i + 1] + photos[i:i + 1]
         result[name] = tuple(mixed)
     return result
+
+
+def primary_pool(topic_slug: str | None, is_urgent: bool = False) -> str:
+    """Главный набор заметки: ураган для срочной погоды и ЧП, иначе набор рубрики."""
+    if is_urgent and topic_slug in ("weather", "safety"):
+        return "hurricane"
+    return topic_slug or "florida"
 
 
 def pick_cover(pool: str, number: int | None) -> Cover:
@@ -144,9 +156,9 @@ def describe(cover: Cover) -> str:
 def candidates_for(topic_slug: str | None, is_urgent: bool = False) -> list[Cover]:
     """Обложки, из которых ИИ выбирает: рубрика, ураган для срочной погоды/ЧП и общие виды Флориды."""
     pools = cover_pools()
-    names = [topic_slug or "florida"]
+    names = [primary_pool(topic_slug, is_urgent)]
     if topic_slug in ("weather", "safety"):
-        names.insert(0 if is_urgent else 1, "hurricane")
+        names.insert(1, topic_slug if is_urgent else "hurricane")
     if topic_slug == "business":
         names.append("money")  # фото с деньгами подходит к отчётам и сделкам
     if "florida" not in names:
@@ -158,3 +170,29 @@ def candidates_for(topic_slug: str | None, is_urgent: bool = False) -> list[Cove
                 seen.add(cover.base)
                 result.append(cover)
     return result
+
+
+def fresh_choices(candidates: list[Cover], neighbours: list[str], primary: str | None = None) -> list[Cover]:
+    """Обложки без повторов у соседей в ленте.
+
+    neighbours — обложки соседних заметок, ближайшие первыми. Если без всех соседских картинок
+    в главном наборе ничего не остаётся, перестаём учитывать самых дальних соседей: при маленьком
+    наборе обложка хотя бы не совпадёт с ближайшей заметкой.
+    """
+    for keep in range(len(neighbours), 0, -1):
+        used = set(neighbours[:keep])
+        fresh = [c for c in candidates if c.base not in used]
+        if fresh and (primary is None or any(c.pool == primary for c in fresh)):
+            return fresh
+    if primary is not None:
+        return fresh_choices(candidates, neighbours)
+    return list(candidates)
+
+
+def replacement(choices: list[Cover], prefer: tuple[str, ...], number: int | None) -> Cover:
+    """Обложка без ИИ: из того же набора, что прежняя, иначе из главного; по номеру заметки."""
+    for pool in prefer:
+        same = [c for c in choices if c.pool == pool]
+        if same:
+            return same[(number or 0) % len(same)]
+    return choices[(number or 0) % len(choices)]

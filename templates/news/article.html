@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static news_extras %}
+{% load static news_extras comments_tags %}
 
 {% block title %}{{ article.title }} — {{ site_name }}{% endblock %}
 {% block description %}{{ article.teaser }}{% endblock %}
@@ -97,6 +97,7 @@
 
       {% include "includes/tg_cta.html" %}
       {% if ads.infeed %}{% include "includes/ad.html" with ad=ads.infeed %}{% endif %}
+      {% if not is_preview %}{% comments_block article %}{% endif %}
     </article>
 
     <aside class="sidebar sidebar--story" aria-label="Боковая колонка">

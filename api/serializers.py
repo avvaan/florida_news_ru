@@ -48,11 +48,11 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "business_kind",
             "tags", "sources",
-            "is_urgent", "is_sensitive", "score", "cover_image", "cover_url", "review_reason",
+            "is_urgent", "is_sensitive", "score", "cover_image", "cover_manual", "cover_url", "review_reason",
             "verification", "published_at", "revised_at", "created_at", "updated_at", "telegram_posted_at", "url",
         ]
         read_only_fields = ["slug", "review_reason", "verification", "revised_at", "created_at", "updated_at",
-                            "telegram_posted_at"]
+                            "telegram_posted_at", "cover_manual"]
         extra_kwargs = {"status": {"required": False}}
 
     def get_url(self, obj) -> str:
@@ -78,6 +78,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         validated.setdefault("status", Article.Status.DRAFT)
         if validated["status"] == Article.Status.PUBLISHED and not validated.get("published_at"):
             validated["published_at"] = timezone.now()
+        validated["cover_manual"] = bool(validated.get("cover_image"))
         article = Article.objects.create(**validated)
         self._save_relations(article, tags, sources)
         return article
@@ -89,6 +90,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         if article.published_at and any(
                 key in validated and validated[key] != getattr(article, key) for key in ("title", "teaser", "body", "for_you")):
             article.revised_at = timezone.now()
+        if "cover_image" in validated and validated["cover_image"] != article.cover_image:
+            article.cover_manual = bool(validated["cover_image"])
         for key, value in validated.items():
             setattr(article, key, value)
         if article.status == Article.Status.PUBLISHED and not article.published_at:

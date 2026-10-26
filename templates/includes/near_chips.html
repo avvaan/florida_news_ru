@@ -1,0 +1,7 @@
+{# Сортировка по расстоянию от главного города региона: near_links из core.geo.near_links. #}
+{% if near_links %}
+<nav class="near" aria-label="Сортировка по расстоянию">
+  <span class="near__label">По расстоянию:</span>
+  {% for link in near_links %}<a class="chip{% if link.current %} is-current{% endif %}" href="{{ link.url }}" rel="nofollow"{% if link.current %} aria-current="true" title="Нажмите ещё раз, чтобы сбросить"{% endif %}>{{ link.label }}</a>{% endfor %}
+</nav>
+{% endif %}

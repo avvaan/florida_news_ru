@@ -24,12 +24,13 @@ def get(client, url):
 
 
 def test_festivals_on_home_and_events_topic(client):
-    home, topic = get(client, "/"), get(client, "/topic/events/")
+    assert client.get("/topic/events/")["Location"] == "/afisha/"  # тема «Афиша» влита в раздел афиши
+    home, topic = get(client, "/"), get(client, "/afisha/")
     for html in (home, topic):
         assert "Фестиваль славянской еды" in html and "Фестиваль грузинской культуры" in html
         assert f'href="{SLAVIC}"' in html and f'href="{GEORGIAN}"' in html  # карточки ведут в афишу
         assert "https://slavicfoodfestival.com/ru/tickets/" in html and "events/slavic-food-fest-480.webp" in html
-    assert topic.count('<section class="fests') == 1 and "fests--wide" in topic  # в рубрике — крупно, без дубля
+    assert topic.count('<section class="fests') == 1 and "fests--wide" in topic  # в афише — крупно, без дубля
 
 
 def test_festivals_in_afisha_with_event_markup(client):

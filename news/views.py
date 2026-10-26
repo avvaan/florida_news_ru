@@ -13,7 +13,7 @@ from ads.models import AdBanner
 from guides.models import Guide
 from sources.models import WeatherAlert
 
-from .models import BUSINESS, Article, Region, Tag, Topic
+from .models import BUSINESS, HIDDEN_IN_NAV, Article, Region, Tag, Topic
 
 PER_PAGE = 16
 
@@ -54,14 +54,14 @@ def _filtered(region=None, topic=None):
     elif region:
         qs = qs.filter(region=region)
     if topic:
-        qs = qs.filter(topic=topic)
+        qs = qs.filter(topic__slug__in=topic.page_slugs)  # «ЧП» вместе с «Происшествиями»
     return qs
 
 
 def front(request, region=None, topic=None, template="news/front.html", extra=None):
     """Главная и страницы регионов/тем: одна и та же лента с фильтрами."""
     region = region or Region.objects.filter(slug=request.GET.get("region")).first()
-    topic = topic or Topic.objects.filter(slug=request.GET.get("topic")).first()
+    topic = topic or Topic.objects.exclude(slug__in=HIDDEN_IN_NAV).filter(slug=request.GET.get("topic")).first()
     qs = _filtered(region, topic)
 
     page_number = request.GET.get("page") or 1
@@ -111,9 +111,9 @@ def region_view(request, slug):
 
 
 def topic_view(request, slug):
-    if slug == BUSINESS:  # одна страница — один адрес
-        return redirect("news:business", permanent=True)
     topic = get_object_or_404(Topic, slug=slug)
+    if slug == BUSINESS or slug in HIDDEN_IN_NAV:  # одна страница — один адрес: влитые темы ведут в общий раздел
+        return redirect(topic.get_absolute_url(), permanent=True)
     return front(request, topic=topic)
 
 
@@ -125,7 +125,7 @@ def business_view(request, kind=None):
     if kind is not None and kind not in BUSINESS_KINDS:
         raise Http404
     topic = get_object_or_404(Topic, slug=BUSINESS)
-    qs = published().filter(topic=topic)
+    qs = published().filter(topic__slug__in=topic.page_slugs)  # бизнес вместе с «Деньгами и ценами»
     if kind:
         qs = qs.filter(business_kind=kind)
     page = Paginator(qs, PER_PAGE).get_page(request.GET.get("page") or 1)

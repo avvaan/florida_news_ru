@@ -27,7 +27,7 @@ def test_index_lists_official_links_and_business_categories(client):
     html = client.get("/links/").content.decode()
     assert "Официальные ссылки" in html and "https://www.flhsmv.gov/" in html
     assert 'href="/links/cerkvi/"' in html and "1 место" in html and "Пока пусто — предложите" in html
-    assert "Ссылки и бизнесы" in client.get("/").content.decode()  # пункт меню
+    assert ">Справочник<" in client.get("/").content.decode()  # пункт меню
 
 
 def test_church_page_has_local_business_markup(client):

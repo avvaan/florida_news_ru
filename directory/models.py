@@ -11,6 +11,8 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 
+from core.text import make_slug
+
 
 @lru_cache(maxsize=256)
 def category_icon(slug: str) -> str:
@@ -107,6 +109,12 @@ class Listing(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        """Своя страница с отзывами — только у бизнесов; официальные ссылки ведут на свой сайт."""
+        if self.category.kind != Category.Kind.BUSINESS:
+            return self.url
+        return reverse("directory:listing", args=[self.category.slug, self.pk, make_slug(self.name, 60) or "biznes"])
 
     @property
     def phone_href(self) -> str:

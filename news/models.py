@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from core.text import make_slug
 
-from .covers import all_covers, pick_cover
+from .covers import all_covers, pick_cover, primary_pool
 
 
 class Region(models.Model):
@@ -33,6 +33,13 @@ class Region(models.Model):
 
 # Бизнес — отдельный раздел /business/: свой дневной лимит и в общую ленту не попадает.
 BUSINESS = "business"
+EVENTS = "events"
+
+# Темы, которые на сайте показываются вместе с другой: в меню их нет, их адрес ведёт на общий раздел.
+# Сами заметки остаются в своей теме — отбор, лимиты и обложки работают как раньше.
+MERGED_INTO = {"incidents": "safety", "money": BUSINESS}
+# «Афиша и события» показывается в разделе «Афиша» (/afisha/) вместе с событиями от организаторов.
+HIDDEN_IN_NAV = {*MERGED_INTO, EVENTS}
 
 
 class Topic(models.Model):
@@ -59,9 +66,17 @@ class Topic(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        if self.slug == BUSINESS:
+        slug = MERGED_INTO.get(self.slug, self.slug)
+        if slug == BUSINESS:
             return reverse("news:business")
-        return reverse("news:topic", args=[self.slug])
+        if slug == EVENTS:
+            return reverse("events:list")
+        return reverse("news:topic", args=[slug])
+
+    @property
+    def page_slugs(self) -> list[str]:
+        """Темы, заметки которых показываются на странице этой темы: она сама и влитые в неё."""
+        return [self.slug, *(s for s, target in MERGED_INTO.items() if target == self.slug)]
 
 
 class Tag(models.Model):
@@ -162,6 +177,11 @@ class Article(models.Model):
         "обложка", max_length=100, blank=True,
         help_text="Выбирает ИИ по смыслу заметки. Пусто — обложка из набора рубрики по очереди",
     )
+    cover_manual = models.BooleanField(
+        "обложка выбрана вручную", default=False,
+        help_text="Ставится сам, когда обложку меняют в админке или через API. Такую обложку не меняют "
+                  "ни при публикации, ни при замене повторов (pick_covers --fix-repeats)",
+    )
 
     status = models.CharField("статус", max_length=20, choices=Status.choices, default=Status.REVIEW, db_index=True)
     is_urgent = models.BooleanField("🚨 срочно", default=False)
@@ -225,11 +245,7 @@ class Article(models.Model):
         """Выбранная обложка или, если её нет, обложка из набора рубрики (см. news/covers.py)."""
         if self.cover_image and (chosen := all_covers().get(self.cover_image)):
             return chosen
-        if self.is_urgent and self.topic and self.topic.slug in ("weather", "safety"):
-            pool = "hurricane"
-        else:
-            pool = self.topic.slug if self.topic else "florida"
-        return pick_cover(pool, self.pk)
+        return pick_cover(primary_pool(self.topic.slug if self.topic else None, self.is_urgent), self.pk)
 
     @property
     def cover(self) -> str:
@@ -240,6 +256,26 @@ class Article(models.Model):
         if not self.slug:
             self.slug = unique_article_slug(self.title, exclude_pk=self.pk)
         super().save(*args, **kwargs)
+
+
+def neighbour_articles(topic, *, at=None, exclude_pk=None, same_topic: int = 4, feed: int = 2) -> list["Article"]:
+    """Опубликованные заметки рядом по времени, ближайшие первыми.
+
+    Соседи — по `same_topic` заметок той же темы до и после `at` и по `feed` заметок любой темы
+    (их видно рядом в общей ленте). Для новой заметки (at — сейчас) соседи только предыдущие.
+    """
+    at = at or timezone.now()
+    qs = Article.objects.filter(status=Article.Status.PUBLISHED).exclude(pk=exclude_pk).select_related("topic")
+    found: dict[int, Article] = {}
+    for scope, limit in ((qs.filter(topic=topic), same_topic), (qs, feed)):
+        found.update({a.pk: a for a in scope.filter(published_at__lte=at).order_by("-published_at")[:limit]})
+        found.update({a.pk: a for a in scope.filter(published_at__gt=at).order_by("published_at")[:limit]})
+    return sorted(found.values(), key=lambda a: abs((a.published_at - at).total_seconds()))
+
+
+def neighbour_covers(topic, **kwargs) -> list[str]:
+    """Обложки соседей в ленте (см. neighbour_articles), ближайшие первыми."""
+    return list(dict.fromkeys(a.cover for a in neighbour_articles(topic, **kwargs)))
 
 
 class ArticleSource(models.Model):

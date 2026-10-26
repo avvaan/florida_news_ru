@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}{{ ad.title }} — {{ ad.price_text|lower }}, {{ ad.city }} — объявления {{ site_name }}{% endblock %}
+{% block description %}{{ ad.description|truncatechars:160 }}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=ad.title description=ad.description|truncatechars:200 url=ad.get_absolute_url %}{% endblock %}
+{% block canonical %}{{ ad.get_absolute_url|absolute }}{% endblock %}
+{% block robots %}{% if not ad.is_active or show_contacts or reported or report_open %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'classifieds:index' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Объявления" list_url ad.category.parent.name ad.category.parent.get_absolute_url ad.category.name ad.category.get_absolute_url ad.title ad.get_absolute_url %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'classifieds:index' %}">Объявления</a><span aria-hidden="true">/</span><a href="{{ ad.category.parent.get_absolute_url }}">{{ ad.category.parent.name }}</a><span aria-hidden="true">/</span><a href="{{ ad.category.get_absolute_url }}">{{ ad.category.name }}</a>
+  </nav>
+  <article class="story story--page ad-detail">
+    {% if ad.status == "closed" %}<p class="ev-detail__past">Автор снял объявление</p>{% elif ad.is_expired %}<p class="ev-detail__past">Срок объявления истёк</p>{% endif %}
+    <h1 class="story__title">{{ ad.title }}</h1>
+    <p class="ad-detail__price">{% if ad.price is not None and ad.price > 0 %}<span class="ad-detail__price-label">{{ ad.category.price_label }}</span> {% endif %}{{ ad.price_text }}</p>
+    <p class="ad-detail__meta">{{ ad.place }} · опубликовано <time datetime="{{ ad.published_at|date:'c' }}">{{ ad.published_at|date:"j E Y"|lower }}</time>{% if ad.views > 9 %} · {{ ad.views }} просмотров{% endif %}</p>
+
+    {% if photos %}
+    <div class="ad-gallery" aria-label="Фото">
+      {% for p in photos %}<a class="ad-gallery__item" href="{{ p.url }}" target="_blank" rel="noopener"><img src="{{ p.url|ik:1000 }}" alt="Фото {{ forloop.counter }}: {{ ad.title }}" width="1000" height="750"{% if not forloop.first %} loading="lazy"{% endif %}></a>{% endfor %}
+    </div>
+    {% if photos|length > 1 %}<p class="dir-form__help">{{ photos|length }} фото — листайте вбок. Нажмите на фото, чтобы открыть крупно.</p>{% endif %}
+    {% endif %}
+
+    <div class="ad-detail__cols">
+      <div class="story__body ad-detail__text"><p>{{ ad.description|linebreaksbr }}</p></div>
+
+      <aside class="ad-contact" aria-labelledby="contact-h">
+        <h2 class="ad-contact__h" id="contact-h">{{ ad.contact_name }}</h2>
+        {% if ad.is_active %}
+          {% if show_contacts %}
+          <ul class="ad-contact__list">
+            {% if ad.phone %}<li><a class="btn" href="tel:{{ ad.phone }}">{{ ad.phone_display }}</a></li>{% endif %}
+            {% if ad.whatsapp_url %}<li><a class="btn btn--ghost" href="{{ ad.whatsapp_url }}" target="_blank" rel="noopener nofollow">Написать в WhatsApp</a></li>{% endif %}
+            {% if ad.telegram_url %}<li><a class="btn btn--ghost" href="{{ ad.telegram_url }}" target="_blank" rel="noopener nofollow">Telegram @{{ ad.telegram }}</a></li>{% endif %}
+          </ul>
+          <p class="dir-form__help">Скажите, что нашли объявление на Florida RU.</p>
+          {% elif contacts_limited %}
+          <p class="dir-form__error" role="alert">Слишком много просмотров контактов с вашего адреса. Попробуйте через час.</p>
+          {% else %}
+          <form method="post" action="{% url 'classifieds:contacts' ad.pk %}#contact-h">{% csrf_token %}<button class="btn" type="submit">Показать контакты</button></form>
+          {% endif %}
+          <div class="ad-contact__safety">
+            <b>Осторожно, мошенники</b>
+            <p>Не переводите предоплату за осмотр, бронь или доставку, не платите подарочными картами и криптой, не отправляйте фото документов и коды из SMS. Смотрите товар и жильё лично.</p>
+          </div>
+        {% else %}
+          <p>Объявление больше не актуально, контакты скрыты.</p>
+        {% endif %}
+      </aside>
+    </div>
+
+    <section class="ad-detail__map" aria-labelledby="map-h">
+      <h2 class="sidebar__h" id="map-h">Где</h2>
+      <p>{{ ad.place }}{% if ad.region %} · {{ ad.region.name }}{% endif %}. Точный адрес уточняйте у автора.</p>
+      <iframe class="ad-detail__iframe" title="Карта: {{ ad.place }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+              src="https://maps.google.com/maps?q={{ ad.map_query|urlencode }}&amp;z={% if ad.zip_code %}13{% else %}11{% endif %}&amp;output=embed"></iframe>
+    </section>
+
+    <p class="story__disclaimer">Объявление подал частный пользователь, его проверила автоматическая модерация. Редакция не участвует в сделках и не отвечает за товары и услуги. Объявление № {{ ad.pk }}.</p>
+
+    <details class="ad-report" id="report"{% if report_open %} open{% endif %}>
+      <summary>Пожаловаться на объявление</summary>
+      {% if reported %}
+      <p role="status">Спасибо, жалоба принята. Если жалоб несколько, объявление скрывается до проверки редакцией.</p>
+      {% else %}
+      <form class="dir-form__form" method="post" action="{% url 'classifieds:report' ad.pk %}#report">{% csrf_token %}
+        <fieldset class="dir-form__field ad-report__reasons{% if report_form.reason.errors %} has-error{% endif %}">
+          <legend>{{ report_form.reason.label }}</legend>
+          {% for radio in report_form.reason %}<label>{{ radio.tag }} {{ radio.choice_label }}</label>{% endfor %}
+          {% if report_form.reason.errors %}<p class="dir-form__field-error">Выберите причину.</p>{% endif %}
+        </fieldset>
+        <div class="dir-form__field"><label for="{{ report_form.comment.id_for_label }}">{{ report_form.comment.label }}</label>{{ report_form.comment }}</div>
+        <button class="btn btn--ghost" type="submit">Отправить жалобу</button>
+      </form>
+      {% endif %}
+    </details>
+
+    {% if similar %}
+    <section class="ev-detail__more" aria-labelledby="similar-h">
+      <h2 class="sidebar__h" id="similar-h">Похожие объявления</h2>
+      <ul class="ads__grid">{% for a in similar %}{% include "classifieds/_card.html" %}{% endfor %}</ul>
+    </section>
+    {% endif %}
+    <p><a href="{{ ad.category.get_absolute_url }}">← {{ ad.category.name }}</a></p>
+  </article>
+</div>
+{% endblock %}

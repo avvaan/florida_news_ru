@@ -3,6 +3,7 @@ from django.views.decorators.cache import never_cache
 
 from directory.views import ip_hash
 from news import featured
+from news.models import EVENTS, Article
 
 from . import moderation
 from .forms import EventForm
@@ -21,8 +22,10 @@ def event_list(request):
     else:
         # Без фильтра фестивали от редакции стоят сверху крупными карточками — в сетке их не дублируем.
         events = [e for e in upcoming if e.slug not in featured.slugs()]
+    news = list(Article.objects.published().filter(topic__slug=EVENTS).select_related("region", "topic")[:6]) \
+        if not current else []
     return render(request, "events/list.html", {
-        "events": events, "total": len(upcoming), "current_region": current, "has_other": has_other,
+        "events": events, "total": len(upcoming), "current_region": current, "has_other": has_other, "news": news,
         "regions": regions if len(regions) + has_other > 1 else [],
     })
 

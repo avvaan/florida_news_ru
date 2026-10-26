@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load news_extras %}
+{% block title %}{% if ad %}Правка объявления{% else %}Подать объявление бесплатно{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}Бесплатно подайте частное объявление на русском во Флориде: жильё, работа, услуги, авто, вещи. До 5 фото, проверка за пару минут.{% endblock %}
+{% block robots %}noindex, {% if ad %}nofollow{% else %}follow{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'classifieds:index' %}">Объявления</a>{% if ad %}<span aria-hidden="true">/</span><a href="{{ ad.get_manage_url }}">Моё объявление</a>{% endif %}
+  </nav>
+  <section class="story story--page dir-form">
+    <h1 class="story__title">{% if ad %}Правка объявления{% else %}Подать объявление{% endif %}</h1>
+    <p class="story__lede">{% if ad %}После сохранения объявление снова проверит автоматическая модерация — обычно за пару минут. Пока идёт проверка, на сайте его не видно.{% else %}Бесплатно и без регистрации. Объявление проверяет автоматическая модерация, обычно за пару минут, и оно сразу появляется на сайте на 30 дней.{% endif %}</p>
+
+    <details class="dir-form__rules">
+      <summary>Что можно и что нельзя</summary>
+      <p><b>Можно</b>: аренда и продажа жилья, вакансии и резюме, услуги мастеров, авто и лодки, вещи, «отдам даром», пристройство и потерявшиеся животные, попутчики, клубы, продажа бизнеса и оборудования — во Флориде.</p>
+      <p><b>Нельзя</b>: оружие и боеприпасы, алкоголь, табак, вейпы, CBD и THC, лекарства и медицинские услуги, «помощь» с документами и иммиграцией, кредиты, MLM и «пассивный доход», знакомства и услуги для взрослых, эзотерику, азартные игры, политическую агитацию.</p>
+      <p><b>Без дискриминации</b>: в объявлениях о жилье и работе нельзя указывать, каких жильцов или работников вы не хотите по национальности, религии, полу, возрасту, семье и детям — это запрещено законами США. Исключение — сосед в вашу же квартиру.</p>
+      <p>Подозрительные схемы (предоплата за осмотр, «работа» с оплатой обучения, пересылка посылок) отклоняем. Текст мы можем слегка почистить: убрать капс, эмодзи и телефоны из текста — контакты указываются в отдельных полях.</p>
+    </details>
+
+    <form class="dir-form__form" method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="dir-form__error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+      <div class="dir-form__trap" aria-hidden="true"><label for="id_company">Компания</label>{{ form.company }}</div>
+
+      {% include "classifieds/_field.html" with field=form.category %}
+      {% include "classifieds/_field.html" with field=form.title %}
+      {% include "classifieds/_field.html" with field=form.description %}
+      <div class="ads-form__row">
+        {% include "classifieds/_field.html" with field=form.price %}
+        {% include "classifieds/_field.html" with field=form.price_unit %}
+      </div>
+
+      <fieldset class="ads-form__group">
+        <legend>Где</legend>
+        <div class="ads-form__row">
+          {% include "classifieds/_field.html" with field=form.city %}
+          {% include "classifieds/_field.html" with field=form.zip_code %}
+        </div>
+      </fieldset>
+
+      <fieldset class="ads-form__group">
+        <legend>Фото</legend>
+        {% if photos %}
+        <ul class="ads-form__photos">
+          {% for p in photos %}<li>{% if p.url %}<img src="{{ p.url|ik:200 }}" alt="Фото {{ forloop.counter }}" width="100" height="75">{% else %}<span class="ads-form__photo-wait">на проверке</span>{% endif %}<label><input type="checkbox" name="remove_photo" value="{{ p.pk }}"> убрать</label></li>{% endfor %}
+        </ul>
+        {% endif %}
+        <div class="dir-form__field{% if form.photos.errors %} has-error{% endif %}">
+          <label for="{{ form.photos.id_for_label }}">{% if photos %}Добавить фото{% else %}Выберите до {{ max_photos }} фото{% endif %}</label>
+          {{ form.photos }}
+          <p class="dir-form__help">{{ form.photos.help_text }} На телефоне можно выбрать несколько фото сразу.</p>
+          {% for e in form.photos.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset class="ads-form__group">
+        <legend>Как с вами связаться</legend>
+        <p class="dir-form__help">Контакты увидят посетители, которые нажмут «Показать контакты». Почта не нужна.</p>
+        {% include "classifieds/_field.html" with field=form.contact_name %}
+        {% include "classifieds/_field.html" with field=form.phone %}
+        <div class="dir-form__field dir-form__check"><label>{{ form.has_whatsapp }} {{ form.has_whatsapp.label }}</label></div>
+        {% include "classifieds/_field.html" with field=form.telegram %}
+      </fieldset>
+
+      <div class="dir-form__field dir-form__check{% if form.agree.errors %} has-error{% endif %}">
+        <label>{{ form.agree }} {{ form.agree.label }}</label>
+        {% for e in form.agree.errors %}<p class="dir-form__field-error">Нужно подтвердить.</p>{% endfor %}
+      </div>
+      <button class="btn" type="submit">{% if ad %}Сохранить и отправить на проверку{% else %}Подать объявление{% endif %}</button>
+      <p class="dir-form__help">Поля со звёздочкой обязательны. После отправки вы получите личную ссылку для управления объявлением — сохраните её.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}
