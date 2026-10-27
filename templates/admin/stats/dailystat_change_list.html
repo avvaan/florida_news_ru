@@ -29,12 +29,18 @@
   .st-meter { height: 6px; background: var(--hairline-color); border-radius: 3px; margin-top: 4px; }
   .st-meter span { display: block; height: 100%; background: #0b7a75; border-radius: 3px; }
   .st-note { color: var(--body-quiet-color); font-size: 13px; margin: -8px 0 22px; max-width: 900px; }
+  .st-bots { display: flex; gap: 14px; flex-wrap: wrap; align-items: baseline; margin: -10px 0 20px; font-size: 13px; color: var(--body-quiet-color); }
+  .st-bots a { font-weight: 600; }
+  .st-bar__legacy { position: absolute; left: 0; right: 0; background: #d5dde3; border-radius: 3px 3px 0 0; }
+  .st-days td, .st-days th { padding: 5px 8px; border-bottom: 1px solid var(--hairline-color); text-align: right; font-variant-numeric: tabular-nums; }
+  .st-days th:first-child, .st-days td:first-child { text-align: left; }
+  .st-days .is-old { color: var(--body-quiet-color); }
 </style>
 {% endblock %}
 {% block content_title %}
   <h1>Посещаемость сайта</h1>
   <nav class="st-periods" aria-label="Период">
-    {% for p in periods %}<a href="?days={{ p }}"{% if p == days %} class="is-on"{% endif %}>{% if p == 365 %}год{% else %}{{ p }} дней{% endif %}</a>{% endfor %}
+    {% for p in periods %}<a href="?days={{ p }}{% if raw %}&amp;bots=1{% endif %}"{% if p == days %} class="is-on"{% endif %}>{% if p == 365 %}год{% else %}{{ p }} дней{% endif %}</a>{% endfor %}
   </nav>
 
   <div class="st-cards">
@@ -56,22 +62,33 @@
     <div class="st-card">
       <div class="st-card__label">В среднем в день</div>
       <div class="st-card__num">{{ avg_visitors|intcomma }}</div>
-      <div class="st-card__sub">посетителей</div>
+      <div class="st-card__sub">посетителей{% if js_since and not raw %} · считаем с {{ js_since|date:"j E" }}{% endif %}</div>
     </div>
+    <div class="st-card">
+      <div class="st-card__label">Просмотров на посетителя</div>
+      <div class="st-card__num">{{ views_per_visitor }}</div>
+      <div class="st-card__sub">за {% if days == 365 %}год{% else %}{{ days }} дней{% endif %}</div>
+    </div>
+  </div>
+  <div class="st-bots">
+    <span>Отсеяно ботов сегодня: {{ bots_today|intcomma }} ({{ bots_today_pct }}%)</span>
+    {% if raw %}<a href="?days={{ days }}">скрыть ботов — только люди</a><span>Сейчас показано всё подряд: люди, боты и старый серверный счётчик.</span>
+    {% else %}<a href="?days={{ days }}&amp;bots=1">показать ботов</a>{% endif %}
   </div>
 
   <div class="st-box">
     <h2>По дням</h2>
     <div class="st-chart" role="img" aria-label="Посетители и просмотры по дням">
       {% for d in series %}
-      <div class="st-bar" title="{{ d.date|date:'j E, D' }}: {{ d.visitors }} посетителей, {{ d.views }} просмотров">
+      <div class="st-bar" title="{{ d.date|date:'j E, D' }}: {{ d.visitors }} посетителей, {{ d.views }} просмотров{% if d.bots %}; ботов отсеяно: {{ d.bots }}{% endif %}{% if d.legacy_views %}; старый счётчик (с ботами): {{ d.legacy_views }} просмотров{% endif %}">
+        {% if d.legacy_views %}<span class="st-bar__legacy" style="bottom: {{ d.views_pct|stringformat:'s' }}%; height: {{ d.legacy_pct|stringformat:'s' }}%"></span>{% endif %}
         <span class="st-bar__views" style="height: {{ d.views_pct|stringformat:'s' }}%"></span>
         <span class="st-bar__visitors" style="height: {{ d.visitors_pct|stringformat:'s' }}%"></span>
       </div>
       {% endfor %}
     </div>
     <div class="st-axis">{% for d in series %}<span>{% if show_dates %}{{ d.date|date:"j" }}{% elif d.date.day == 1 %}{{ d.date|date:"M" }}{% endif %}</span>{% endfor %}</div>
-    <div class="st-legend"><span><i style="background:#0b7a75"></i>посетители</span><span><i style="background:#7fd1c7"></i>просмотры</span><span>максимум за день: {{ peak|intcomma }} просмотров</span></div>
+    <div class="st-legend"><span><i style="background:#0b7a75"></i>посетители</span><span><i style="background:#7fd1c7"></i>просмотры</span>{% if legacy_in_period %}<span><i style="background:#d5dde3"></i>старый счётчик, с ботами{% if not raw %} — в итоги не входит{% endif %}</span>{% endif %}<span>максимум за день: {{ peak|intcomma }} просмотров</span></div>
   </div>
 
   <div class="st-two">
@@ -88,7 +105,7 @@
         <h2>Откуда приходят</h2>
         {% if sources %}
         <table class="st-table">
-          {% for s in sources %}<tr><td>{{ s.source }}<div class="st-meter"><span style="width: {{ s.pct }}%"></span></div></td><td class="num">{{ s.total|intcomma }} · {{ s.pct }}%</td></tr>{% endfor %}
+          {% for s in sources %}<tr><td>{{ s.source }}{% if s.utm %}<small>из них по меткам utm: {{ s.utm|intcomma }}</small>{% endif %}<div class="st-meter"><span style="width: {{ s.pct }}%"></span></div></td><td class="num">{{ s.total|intcomma }} · {{ s.pct }}%</td></tr>{% endfor %}
         </table>
         {% else %}<p>Пока нет данных.</p>{% endif %}
       </div>
@@ -98,8 +115,30 @@
           {% for d in devices %}<tr><td>{{ d.label }}<div class="st-meter"><span style="width: {{ d.pct }}%"></span></div></td><td class="num">{{ d.count|intcomma }} · {{ d.pct }}%</td></tr>{% endfor %}
         </table>
       </div>
+      <div class="st-box">
+        <h2>Боты — отсеяны</h2>
+        {% if bots %}
+        <table class="st-table">
+          {% for b in bots %}<tr><td>{{ b.agent|default:"(пустой User-Agent)"|truncatechars:90 }}<small>{{ b.bot_reason }}</small></td><td class="num">{{ b.total|intcomma }}</td></tr>{% endfor %}
+        </table>
+        {% else %}<p>Ботов за период не было.</p>{% endif %}
+      </div>
     </div>
   </div>
 
-  <p class="st-note">Счётчик свой, без cookie и сторонних сервисов. Не учитываются боты, админка и вошедшие редакторы. «Посетитель» — уникальный за день: IP и браузер не сохраняются, из них считается обезличенный код, который меняется каждые сутки. Поэтому за период указана сумма дневных посетителей (посещений), а не число разных людей. Ниже — таблица по дням.</p>
+  <p class="st-note">Счётчик свой, без cookie и сторонних сервисов. Просмотр засчитывается, только когда страницу открыли в браузере: скрипт на странице присылает сигнал. Роботы, сборщики превью и сканеры его обычно не выполняют, а тех, кто выполнил, отсеиваем по названию браузера и признаку автоматизации. Не учитываются админка и вошедшие редакторы. «Посетитель» — уникальный за день: IP не сохраняется, код посетителя меняется каждые сутки, поэтому за период указана сумма дневных посетителей (посещений), а не число разных людей.{% if legacy_in_period %} До {{ js_since|date:"j E"|default:"перехода" }} работал старый серверный счётчик: он не видел, выполняет ли гость скрипт, и засчитывал многих ботов — эти дни на графике бледные{% if not raw %} и в итоги не входят{% endif %}.{% endif %}</p>
+{% endblock %}
+
+{% block date_hierarchy %}{% endblock %}
+{% block pagination %}{% endblock %}
+{% block result_list %}
+  <div class="st-box">
+    <h2>По дням</h2>
+    <table class="st-days">
+      <thead><tr><th>День</th><th>Посетители</th><th>Просмотры</th><th>Ботов отсеяно</th><th>Старый счётчик, просмотры</th></tr></thead>
+      <tbody>
+      {% for d in table %}<tr><td>{{ d.date|date:"j E, D" }}</td><td>{{ d.visitors|intcomma }}</td><td>{{ d.views|intcomma }}</td><td>{{ d.bots|intcomma }}</td><td class="is-old">{{ d.legacy_views|default:"—" }}</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

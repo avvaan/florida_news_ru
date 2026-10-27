@@ -9,6 +9,7 @@ from django.views.decorators.cache import cache_page
 
 from core import views as core_views
 from news.sitemaps import SITEMAPS, google_news_items
+from stats import views as stats_views
 
 
 def news_sitemap(request):
@@ -26,6 +27,7 @@ urlpatterns = [
     path("news-sitemap.xml", cache_page(300)(news_sitemap), name="news_sitemap"),
     path("robots.txt", core_views.robots_txt),
     path("healthz", core_views.healthz),
+    path("stats/hit/", stats_views.hit, name="stats-hit"),
     path("p/<slug:slug>/", core_views.page, name="core-page"),
     path("about/", core_views.about, name="core-about"),
     path("author/<slug:slug>/", core_views.author, name="core-author"),
