@@ -25,6 +25,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site_conf.adsense_client }}" crossorigin="anonymous"></script>
   {% endif %}
   {% block head %}{% endblock %}
+  {% block stats %}<script defer src="{% static 'js/hit.js' %}"></script>{% endblock %}{# счётчик: сигнал из браузера, см. stats/tracking.py #}
 </head>
 <body class="{% block body_class %}{% endblock %}">
 <!--

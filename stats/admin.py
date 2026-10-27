@@ -1,11 +1,13 @@
+from collections import Counter
 from datetime import timedelta
 
 from django.contrib import admin
-from django.db.models import Sum
+from django.db.models import Count, Q
 from django.urls import Resolver404, resolve
 from django.utils import timezone
 
-from .models import DailyStat, PageView, Source
+from .models import DailyStat, Hit, PageView, Source
+from .tracking import canonical_host, source_name
 
 PERIODS = (7, 30, 90, 365)
 
@@ -32,53 +34,120 @@ def page_title(path: str) -> str:
     return {"news:home": "Главная", "guides:list": "Все гайды", "core-about": "О проекте"}.get(match.view_name, path)
 
 
-def build_dashboard(days: int) -> dict:
+def first_day(raw: bool):
+    """С какого дня есть данные: сигналы из браузера, а в режиме «с ботами» — и старый счётчик."""
+    days = [Hit.objects.order_by("date").values_list("date", flat=True).first()]
+    if raw:
+        days.append(DailyStat.objects.order_by("date").values_list("date", flat=True).first())
+    return min((d for d in days if d), default=None)
+
+
+def average_per_day(total: int, start, today, since) -> int:
+    """Среднее за день: делим на дни, когда счётчик уже работал, а не на всю длину периода."""
+    if since is None:
+        return 0
+    days = (today - max(start, since)).days + 1
+    return round(total / days) if days > 0 else 0
+
+
+def build_dashboard(days: int, raw: bool = False) -> dict:
+    """Люди — по сигналам из браузера без ботов. raw=True: плюс боты и старый серверный счётчик."""
     today = timezone.localdate()
     start = today - timedelta(days=days - 1)
-    stats = {s.date: s for s in DailyStat.objects.filter(date__gte=start)}
+    hits = Hit.objects.filter(date__gte=start)
+    counted = hits if raw else hits.filter(is_bot=False)
+    per_day = {r["date"]: r for r in counted.values("date").annotate(views=Count("id"),
+                                                                     visitors=Count("visitor", distinct=True))}
+    bots_per_day = dict(hits.filter(is_bot=True).values("date").annotate(n=Count("id")).values_list("date", "n"))
+    humans_per_day = dict(hits.filter(is_bot=False).values("date").annotate(n=Count("id")).values_list("date", "n"))
+    legacy = {s.date: s for s in DailyStat.objects.filter(date__gte=start)}
+
     series = []
     for n in range(days):
         day = start + timedelta(days=n)
-        s = stats.get(day)
-        series.append({"date": day, "views": s.views if s else 0, "visitors": s.visitors if s else 0})
-    peak = max([d["views"] for d in series] + [1])
+        row, old = per_day.get(day, {}), legacy.get(day)
+        series.append({
+            "date": day, "views": row.get("views", 0), "visitors": row.get("visitors", 0),
+            "bots": bots_per_day.get(day, 0),
+            "legacy_views": old.views if old else 0, "legacy_visitors": old.visitors if old else 0,
+        })
+    peak = max([d["views"] + d["legacy_views"] for d in series] + [1])
     for d in series:
         d["views_pct"] = round(d["views"] / peak * 100, 1)
         d["visitors_pct"] = round(d["visitors"] / peak * 100, 1)
-
-    period = DailyStat.objects.filter(date__gte=start).aggregate(
-        views=Sum("views"), visitors=Sum("visitors"), mobile=Sum("mobile"), tablet=Sum("tablet"), desktop=Sum("desktop"),
-    )
-    period = {k: v or 0 for k, v in period.items()}
-    devices_total = period["mobile"] + period["tablet"] + period["desktop"] or 1
-    devices = [
-        {"label": label, "count": period[key], "pct": round(period[key] / devices_total * 100)}
-        for key, label in (("mobile", "Телефон"), ("desktop", "Компьютер"), ("tablet", "Планшет"))
-    ]
-    pages = (PageView.objects.filter(date__gte=start).values("path")
-             .annotate(total=Sum("views")).order_by("-total")[:25])
-    sources = (Source.objects.filter(date__gte=start).values("source")
-               .annotate(total=Sum("visits")).order_by("-total")[:15])
-    sources_total = sum(s["total"] for s in sources) or 1
+        d["legacy_pct"] = round(d["legacy_views"] / peak * 100, 1)
 
     def day_card(day):
-        s = stats.get(day) or DailyStat.objects.filter(date=day).first()
-        return {"views": s.views if s else 0, "visitors": s.visitors if s else 0}
+        d = next((d for d in series if d["date"] == day), None)
+        if d is None:
+            return {"views": 0, "visitors": 0}
+        extra = (d["legacy_views"], d["legacy_visitors"]) if raw else (0, 0)
+        return {"views": d["views"] + extra[0], "visitors": d["visitors"] + extra[1]}
+
+    views = sum(d["views"] + (d["legacy_views"] if raw else 0) for d in series)
+    visitors = sum(d["visitors"] + (d["legacy_visitors"] if raw else 0) for d in series)
+    bots_today = bots_per_day.get(today, 0)
+    seen_today = bots_today + humans_per_day.get(today, 0)
+    js_since = first_day(raw=False)
 
     return {
         "days": days,
         "periods": PERIODS,
+        "raw": raw,
         "today": day_card(today),
         "yesterday": day_card(today - timedelta(days=1)),
-        "period": period,
-        "avg_visitors": round(period["visitors"] / days),
+        "period": {"views": views, "visitors": visitors},
+        "avg_visitors": average_per_day(visitors, start, today, first_day(raw)),
+        "views_per_visitor": round(views / visitors, 1) if visitors else 0,
+        "bots_today": bots_today,
+        "bots_today_pct": round(bots_today / seen_today * 100) if seen_today else 0,
+        "js_since": js_since,
+        "legacy_in_period": sum(d["legacy_views"] for d in series),
         "series": series,
+        "table": list(reversed(series)),
         "peak": peak,
         "show_dates": days <= 31,
-        "devices": devices,
-        "pages": [{**p, "title": page_title(p["path"])} for p in pages],
-        "sources": [{**s, "pct": round(s["total"] / sources_total * 100)} for s in sources],
+        "devices": devices(counted, legacy.values() if raw else ()),
+        "pages": pages(counted, start, raw),
+        "sources": sources(counted, start, raw),
+        "bots": list(hits.filter(is_bot=True).values("agent", "bot_reason").annotate(total=Count("id"))
+                     .order_by("-total")[:15]),
     }
+
+
+def devices(hits, legacy_days) -> list[dict]:
+    """Устройство — у посетителя за день (не у каждого просмотра)."""
+    seen = {}
+    for day, visitor, kind in hits.values_list("date", "visitor", "device"):
+        seen.setdefault((day, visitor), kind)
+    counts = Counter(seen.values())
+    for s in legacy_days:
+        counts.update({"mobile": s.mobile, "tablet": s.tablet, "desktop": s.desktop})
+    total = sum(counts.values()) or 1
+    return [{"label": label, "count": counts[key], "pct": round(counts[key] / total * 100)}
+            for key, label in (("mobile", "Телефон"), ("desktop", "Компьютер"), ("tablet", "Планшет"))]
+
+
+def pages(hits, start, raw: bool) -> list[dict]:
+    counts = Counter(dict(hits.values("path").annotate(n=Count("id")).values_list("path", "n")))
+    if raw:
+        for path, n in PageView.objects.filter(date__gte=start).values_list("path", "views"):
+            counts[path] += n
+    return [{"path": path, "total": n, "title": page_title(path)} for path, n in counts.most_common(25)]
+
+
+def sources(hits, start, raw: bool) -> list[dict]:
+    """Входы на сайт по источникам; метки utm — внутри своего источника («из них по меткам»)."""
+    rows = (hits.exclude(source="").values("source")
+            .annotate(n=Count("id"), utm=Count("id", filter=~Q(utm_source=""))))
+    counts = Counter({r["source"]: r["n"] for r in rows})
+    tagged = {r["source"]: r["utm"] for r in rows}
+    if raw:  # старые записи: IP-адреса Cloudflare и т.п. — это не сайты, а прямые заходы
+        for label, n in Source.objects.filter(date__gte=start).values_list("source", "visits"):
+            counts[label if label == Source.DIRECT else canonical_host(label)] += n
+    total = sum(counts.values()) or 1
+    return [{"source": source_name(s), "total": n, "utm": tagged.get(s, 0), "pct": round(n / total * 100)}
+            for s, n in counts.most_common(15)]
 
 
 @admin.register(DailyStat)
@@ -86,7 +155,6 @@ class DailyStatAdmin(admin.ModelAdmin):
     change_list_template = "admin/stats/dailystat_change_list.html"
     list_display = ("date", "visitors", "views", "mobile", "desktop", "tablet")
     list_display_links = None
-    date_hierarchy = "date"
 
     def has_add_permission(self, request):
         return False
@@ -100,9 +168,26 @@ class DailyStatAdmin(admin.ModelAdmin):
         except ValueError:
             days = 30
         days = days if days in PERIODS else 30
-        if "days" in request.GET:  # не фильтр модели — убираем, иначе админка ответит ошибкой
+        raw = request.GET.get("bots") == "1"
+        if "days" in request.GET or "bots" in request.GET:  # не фильтры модели — иначе админка ответит ошибкой
             query = request.GET.copy()
-            del query["days"]
+            query.pop("days", None)
+            query.pop("bots", None)
             request.GET = query
-        extra_context = {**(extra_context or {}), **build_dashboard(days)}
+        extra_context = {**(extra_context or {}), **build_dashboard(days, raw)}
         return super().changelist_view(request, extra_context=extra_context)
+
+
+@admin.register(Hit)
+class HitAdmin(admin.ModelAdmin):
+    """Сырые просмотры — проверить, кого счётчик посчитал ботом и почему."""
+
+    list_display = ("created_at", "path", "source", "device", "is_bot", "bot_reason", "agent")
+    list_filter = ("is_bot", "bot_reason", "device", "source", "date")
+    search_fields = ("path", "agent", "utm_source", "utm_campaign")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
