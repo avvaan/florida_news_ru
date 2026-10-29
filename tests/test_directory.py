@@ -39,11 +39,11 @@ def test_church_page_has_local_business_markup(client):
 
 
 def test_empty_category_is_noindex_and_partner_is_labelled_first(client):
-    assert 'content="noindex, follow"' in client.get("/links/remont/").content.decode()
-    avto = Category.objects.get(slug="remont")
+    assert 'content="noindex, follow"' in client.get("/links/strahovanie/").content.decode()  # только скрытые
+    avto = Category.objects.get(slug="strahovanie")
     Listing.objects.create(category=avto, name="Клиника А", url="https://a.example/")
     Listing.objects.create(category=avto, name="Клиника Б", url="https://b.example/", is_partner=True)
-    html = client.get("/links/remont/").content.decode()
+    html = client.get("/links/strahovanie/").content.decode()
     assert html.index("Клиника Б") < html.index("Клиника А") and "Партнёр" in html
     assert 'content="index, follow' in html
 
@@ -61,7 +61,7 @@ def test_sitemap_includes_only_filled_categories(client):
     cache.clear()  # sitemap кэшируется на 10 минут
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/links/</loc>" in sitemap and "/links/cerkvi/</loc>" in sitemap
-    assert "/links/vrachi/</loc>" in sitemap and "/links/remont/</loc>" not in sitemap
+    assert "/links/vrachi/</loc>" in sitemap and "/links/strahovanie/</loc>" not in sitemap
     assert "/links/produkty/</loc>" in sitemap  # «Лакомка» и Green Hills включены
 
 
@@ -141,3 +141,15 @@ def test_orthodox_parishes_batch(client):
     assert not churches.get(name__contains="Григория Богослова").is_active  # без адреса — скрыт
     html = client.get("/links/cerkvi/").content.decode()
     assert "Почаевской" in html and "Все (11)" in html and "stnicholasftl.org" in html
+
+
+@pytest.mark.django_db
+def test_batch8_ukrainian_businesses(client):
+    """Таблица украинских бизнесов: с контактами — на сайте, без контактов — скрыты до проверки."""
+    batch = Listing.objects.filter(editor_note__contains="Ukrainian Business in Florida")
+    assert batch.count() == 62 and batch.filter(is_active=True).count() == 11
+    pierogi = batch.get(name="Pierogi Bar St. Pete")
+    assert pierogi.region.slug == "tampa" and pierogi.url == "https://pierogi.bar/"
+    assert all(item.phone or item.url or item.address for item in batch.filter(is_active=True))
+    assert "Pierogi Bar St. Pete" in client.get("/links/restorany/").content.decode()
+    assert "Mudslide Coffee" not in client.get("/links/restorany/").content.decode()
