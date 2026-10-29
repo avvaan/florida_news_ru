@@ -15,7 +15,7 @@ from sources.models import WeatherAlert
 
 from .models import BUSINESS, HIDDEN_IN_NAV, Article, Region, Tag, Topic
 
-PER_PAGE = 16
+PER_PAGE = 20
 
 
 def published():
@@ -84,6 +84,9 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
     most_important = list(
         qs.filter(published_at__gte=since).exclude(pk__in=shown).order_by("-score", "-published_at")[:5]
     )
+    if first_page and lead:  # дайджест стоит рядом с главной темой — в ленте те же заметки не повторяем
+        digest = {a.pk for a in most_important}
+        feed = [a for a in feed if a.pk not in digest]
 
     context = {
         "region": region,
