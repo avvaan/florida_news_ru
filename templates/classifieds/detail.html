@@ -38,7 +38,7 @@
                 src="https://maps.google.com/maps?q={{ ad.map_query|urlencode }}&amp;z={% if ad.zip_code %}13{% else %}11{% endif %}&amp;output=embed"></iframe>
       </section>
 
-      <p class="story__disclaimer">Объявление подал частный пользователь, его проверила автоматическая модерация. Редакция не участвует в сделках и не отвечает за товары и услуги. Объявление № {{ ad.pk }}.</p>
+      <p class="story__disclaimer">{% if ad.ip_hash %}Объявление подал частный пользователь, его проверила автоматическая модерация.{% else %}Объявление добавила редакция по публикации автора в соцсетях.{% endif %} Редакция не участвует в сделках и не отвечает за товары и услуги. Объявление № {{ ad.pk }}.</p>
 
       <details class="ad-report" id="report"{% if report_open %} open{% endif %}>
         <summary>Пожаловаться на объявление</summary>

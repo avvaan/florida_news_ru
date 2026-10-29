@@ -54,7 +54,7 @@ def test_past_festival_hidden():
 def test_festivals_stay_on_top_of_imported_events(client):
     listing = get(client, "/afisha/")
     with mock.patch("events.models.timezone.localdate", return_value=TODAY):
-        assert Event.objects.upcoming().count() == 22  # 2 фестиваля + 20 событий из таблицы редакции
+        assert Event.objects.upcoming().count() == 23  # 2 фестиваля + 20 событий из таблицы редакции + «Ёлка» (0006)
     top, grid = listing.split("Все события", 1)
     assert "Фестиваль славянской еды" in top and "Фестиваль грузинской культуры" in top
     assert "Мумий Тролль" not in top and "Мумий Тролль" in grid and "Валерий Меладзе" in grid
