@@ -730,6 +730,8 @@ article.split { margin-top: 0; }
 .ad-gallery__item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; background: var(--mist); }
 .ad-gallery:has(.ad-gallery__item:only-child) .ad-gallery__item { flex-basis: 100%; max-width: 760px; }
 .ad-gallery:has(.ad-gallery__item:only-child) img { object-fit: contain; max-height: 70vh; }
+.ad-illustration { margin: 20px 0 0; max-width: 760px; }
+.ad-illustration img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 10px; background: var(--mist); }
 .ad-detail__text { overflow-wrap: anywhere; }
 .ad-contact { padding: 18px 20px; border-radius: 12px; background: var(--mist); }
 .ad-contact__h { font-size: 1.15rem; line-height: 1.3; }

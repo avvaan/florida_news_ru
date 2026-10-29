@@ -2,6 +2,7 @@
 
 import importlib
 import io
+import re
 from datetime import timedelta
 from unittest import mock
 
@@ -113,6 +114,19 @@ def test_editorial_ads_from_orlando_groups(client):
     assert "добавила редакция" in client.get(ad.get_absolute_url()).content.decode()
     truck = Ad.objects.get(category__slug="pereezdy")
     assert truck.expires_at.date().isoformat() == "2026-11-08"
+
+
+def test_ad_without_photos_shows_rubric_illustration(client):
+    from classifieds.data import SECTIONS
+
+    assert all(Category.objects.get(slug=slug).illustration for _, _, _, rubrics in SECTIONS for slug, _, _ in rubrics)
+    ad = make_ad()  # «Мебель», без фото
+    listing = client.get("/obyavleniya/").content.decode()
+    assert "classifieds/rubrics/mebel-480.webp" in listing and "ad-card__img--none" not in listing
+    html = client.get(ad.get_absolute_url()).content.decode()
+    assert "classifieds/rubrics/mebel.webp" in html and "Иллюстрация рубрики «Мебель»" in html
+    assert re.search(r'og:image" content="[^"]+/static/classifieds/rubrics/mebel\.jpg"', html)
+    assert Category(slug="novaya-rubrika").illustration == ""  # рубрика без картинки — буква, как раньше
 
 
 def test_pages_and_nav(client):

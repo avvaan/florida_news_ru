@@ -8,6 +8,7 @@ import re
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -19,6 +20,12 @@ LIFETIME = timedelta(days=30)
 RENEW_WINDOW = timedelta(days=5)  # продлить можно за 5 дней до конца и после
 RENEW_GRACE = timedelta(days=60)  # …но не позже, чем через 60 дней после окончания
 MAX_PHOTOS = 5
+
+# Иллюстрации рубрик (Higgsfield, 28.10.2026) для объявлений без фото: {slug}.webp 960×720,
+# {slug}-480.webp для карточек и {slug}.jpg 1200×675 для соцсетей. Список — по файлам, чтобы новая рубрика
+# без картинки просто показывала букву, как раньше.
+ILLUSTRATIONS = "classifieds/rubrics"
+_ILLUSTRATED = {p.stem for p in (settings.BASE_DIR / "static" / ILLUSTRATIONS).glob("*.jpg")}
 
 
 class Category(models.Model):
@@ -50,6 +57,11 @@ class Category(models.Model):
     @property
     def is_section(self) -> bool:
         return self.parent_id is None
+
+    @property
+    def illustration(self) -> str:
+        """Путь в static без расширения или пусто, если картинки у рубрики нет."""
+        return f"{ILLUSTRATIONS}/{self.slug}" if self.slug in _ILLUSTRATED else ""
 
 
 class AdQuerySet(models.QuerySet):

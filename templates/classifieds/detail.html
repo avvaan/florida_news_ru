@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% load news_extras %}
+{% load static news_extras %}
 {% block title %}{{ ad.title }} — {{ ad.price_text|lower }}, {{ ad.city }} — объявления {{ site_name }}{% endblock %}
 {% block description %}{{ ad.description|truncatechars:160 }}{% endblock %}
-{% block og %}{% include "includes/og.html" with title=ad.title description=ad.description|truncatechars:200 url=ad.get_absolute_url %}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=ad.title description=ad.description|truncatechars:200 url=ad.get_absolute_url image=ad.category.illustration image_alt=ad.category.name %}{% endblock %}
 {% block canonical %}{{ ad.get_absolute_url|absolute }}{% endblock %}
 {% block robots %}{% if not ad.is_active or show_contacts or reported or report_open %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% url 'classifieds:index' as list_url %}{% breadcrumbs_jsonld "Главная" home_url "Объявления" list_url ad.category.parent.name ad.category.parent.get_absolute_url ad.category.name ad.category.get_absolute_url ad.title ad.get_absolute_url %}{% endblock %}
@@ -27,6 +27,11 @@
         </div>
         {% if photos|length > 1 %}<p class="dir-form__help">{{ photos|length }} фото — листайте вбок. Нажмите на фото, чтобы открыть крупно.</p>{% endif %}
       </div>
+      {% elif ad.category.illustration %}
+      <figure class="split__media ad-illustration">
+        <img src="{% static ad.category.illustration|add:'.webp' %}" alt="" width="960" height="720">
+        <figcaption class="dir-form__help">Иллюстрация рубрики «{{ ad.category.name }}»: автор не приложил фото.</figcaption>
+      </figure>
       {% endif %}
 
       <div class="story__body ad-detail__text"><p>{{ ad.description|linebreaksbr }}</p></div>
