@@ -91,7 +91,7 @@
 
       {% if article.tags.all %}
       <ul class="chips" aria-label="Теги">
-        {% for t in article.tags.all %}<li><a class="chip" href="{{ t.get_absolute_url }}">#{{ t.name }}</a></li>{% endfor %}
+        {% for t in article.tags.all %}<li>{% if t.pk in linked_tag_ids %}<a class="chip" href="{{ t.get_absolute_url }}">#{{ t.name }}</a>{% else %}<span class="chip">#{{ t.name }}</span>{% endif %}</li>{% endfor %}
       </ul>
       {% endif %}
 

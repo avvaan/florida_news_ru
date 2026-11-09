@@ -172,6 +172,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background: var(--mist); color: var(--gulf-deep); font-weight: 600; font-size: .875rem; text-decoration: none;
 }
 .chip:hover { background: var(--shallow); color: var(--ink); }
+span.chip { cursor: default; }
+span.chip:hover { background: var(--mist); color: var(--gulf-deep); }
 
 /* Погода и ураганы */
 .weather {
