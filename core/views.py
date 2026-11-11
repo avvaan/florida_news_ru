@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.templatetags.static import static
 
 from .models import Author, Page
 
@@ -37,6 +38,11 @@ def corrections(request):
 def healthz(request):
     """Проверка здоровья для Render: отвечает на любом хосте, без редиректа."""
     return HttpResponse("ok", content_type="text/plain")
+
+
+def favicon(request):
+    """/favicon.ico: браузеры и боты запрашивают его по старой привычке — отдаём постоянный редирект на файл."""
+    return redirect(static("img/favicon.ico"), permanent=True)
 
 
 def robots_txt(request):

@@ -6,9 +6,7 @@
   <title>{% block title %}{{ site_name }} — новости Флориды по-русски{% endblock %}</title>
   <meta name="description" content="{% block description %}Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник.{% endblock %}">
   <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endblock %}">
-  <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% endblock %}">
-  <link rel="alternate" hreflang="ru" href="{{ request.path|absolute }}">
-  <link rel="alternate" hreflang="x-default" href="{{ request.path|absolute }}">
+  <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% if page_obj and page_obj.number > 1 %}?page={{ page_obj.number }}{% endif %}{% endblock %}">
   <meta name="theme-color" content="#0f2433">
   {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
