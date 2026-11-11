@@ -314,3 +314,48 @@ def test_brand_and_about_migration():
     privacy.refresh_from_db()
     assert "Издатель сайта — компания CITRUSTACK LLC" in page.body
     assert privacy.body == "Сайт «Florida RU» принадлежит компании CITRUSTACK LLC."
+
+
+def test_article_links_only_tags_open_for_indexing(client):
+    """Тег с <3 заметками закрыт noindex — статья на него не ссылается, чтобы не тратить обход Google."""
+    from news.models import Tag
+
+    now = timezone.now()
+    big, thin = Tag.objects.create(name="Ураганы"), Tag.objects.create(name="Алкоголь")
+    articles = [Article.objects.create(title=f"Шторм {i}", teaser="t", body=BODY, status=Article.Status.PUBLISHED,
+                                       published_at=now - timedelta(hours=i + 1)) for i in range(3)]
+    for a in articles:
+        a.tags.add(big)
+    articles[0].tags.add(thin)
+    html = client.get(articles[0].get_absolute_url()).content.decode()
+    assert f'href="{big.get_absolute_url()}"' in html
+    assert f'href="{thin.get_absolute_url()}"' not in html and "#Алкоголь" in html
+    assert 'content="noindex, follow"' in client.get(thin.get_absolute_url()).content.decode()
+    assert 'content="noindex' not in client.get(big.get_absolute_url()).content.decode()
+
+
+# --- Канонические адреса пагинации, hreflang, favicon --------------------------------
+
+def test_tag_page2_canonical_points_to_itself(client):
+    from news.models import Tag
+    from news.views import PER_PAGE
+    tag = Tag.objects.create(name="ураганы", slug="uragany")
+    for i in range(PER_PAGE + 3):
+        published(title=f"Заметка про ураган номер {i}").tags.add(tag)
+    resp = client.get(f"/tag/{tag.slug}/?page=2")
+    assert resp.status_code == 200
+    html = resp.content.decode()
+    canon = re.search(r'<link rel="canonical" href="([^"]+)"', html).group(1)
+    assert canon.endswith("?page=2")
+    first = client.get(f"/tag/{tag.slug}/").content.decode()
+    assert "?page=" not in re.search(r'<link rel="canonical" href="([^"]+)"', first).group(1)
+
+
+def test_no_hreflang_on_single_language_site(client):
+    assert 'hreflang="ru"' not in client.get("/").content.decode()
+
+
+def test_favicon_ico_redirects_to_static(client):
+    resp = client.get("/favicon.ico")
+    assert resp.status_code == 301
+    assert resp["Location"].endswith(".ico")

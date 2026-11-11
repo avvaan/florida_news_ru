@@ -283,3 +283,8 @@ def import_batch6(apps, schema_editor):
 
 def import_batch7(apps, schema_editor):
     apply_business_updates(apps, schema_editor, "businesses_2026_10_batch7.json")
+
+
+def import_batch8(apps, schema_editor):
+    """Украинские бизнесы Флориды из таблицы владельца (группа Facebook): 11 с контактами, остальные скрыты."""
+    import_businesses(apps, schema_editor, "businesses_2026_10_batch8.json")

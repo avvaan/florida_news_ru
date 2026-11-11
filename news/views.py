@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -15,7 +15,9 @@ from sources.models import WeatherAlert
 
 from .models import BUSINESS, HIDDEN_IN_NAV, Article, Region, Tag, Topic
 
-PER_PAGE = 16
+PER_PAGE = 20
+# Тег с меньшим числом заметок закрыт noindex — на него не ссылаемся, чтобы Google не тратил обход.
+TAG_MIN_ARTICLES = 3
 
 
 def published():
@@ -84,6 +86,9 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
     most_important = list(
         qs.filter(published_at__gte=since).exclude(pk__in=shown).order_by("-score", "-published_at")[:5]
     )
+    if first_page and lead:  # дайджест стоит рядом с главной темой — в ленте те же заметки не повторяем
+        digest = {a.pk for a in most_important}
+        feed = [a for a in feed if a.pk not in digest]
 
     context = {
         "region": region,
@@ -153,7 +158,20 @@ def tag_view(request, slug):
     page = Paginator(qs, PER_PAGE).get_page(request.GET.get("page") or 1)
     return render(request, "news/tag.html", {
         "tag": tag, "feed": page.object_list, "page_obj": page, "ads": ads_for(),
+        "is_thin": page.paginator.count < TAG_MIN_ARTICLES,
     })
+
+
+def indexable_tag_ids(tags) -> set:
+    """Теги, у которых своя страница открыта для индексации (не меньше TAG_MIN_ARTICLES заметок)."""
+    now = timezone.now()
+    return set(
+        Tag.objects.filter(pk__in=[t.pk for t in tags])
+        .annotate(n=Count("article", filter=Q(article__status=Article.Status.PUBLISHED,
+                                              article__published_at__lte=now)))
+        .filter(n__gte=TAG_MIN_ARTICLES)
+        .values_list("pk", flat=True)
+    )
 
 
 def article_view(request, slug):
@@ -177,6 +195,7 @@ def article_view(request, slug):
         "ads": ads_for(article.region),
         "is_preview": is_preview,
         "urgent": urgent_strip(),
+        "linked_tag_ids": indexable_tag_ids(article.tags.all()),
     })
 
 
