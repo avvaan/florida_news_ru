@@ -35,7 +35,7 @@ class Draft(BaseModel):
     teaser: str = Field(description="Одна строка-анонс для Telegram, до 200 знаков")
     body: str = Field(description="Текст заметки 400–600 слов, абзацы через пустую строку, подзаголовки — "
                                   "отдельные абзацы, начинающиеся с «## »")
-    tags: list[str] = Field(description="2–4 коротких тега на русском")
+    tags: list[str] = Field(description="1–3 широких тега на русском, по возможности из списка существующих")
     insufficient_facts: bool = Field(
         description="true, если по данным источников нельзя написать 400 слов без домыслов и воды"
     )
