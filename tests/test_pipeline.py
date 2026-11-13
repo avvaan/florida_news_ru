@@ -22,7 +22,7 @@ from .helpers import fake_ai_response, fake_deepseek_response, fixture_bytes, ma
 
 pytestmark = pytest.mark.django_db
 
-BODY = " ".join(["слово"] * 100)
+BODY = " ".join(["слово"] * 450)
 
 
 class FakeAI:

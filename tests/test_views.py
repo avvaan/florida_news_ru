@@ -17,6 +17,7 @@ def article():
         title="Налоговые каникулы на товары к урагану", teaser="Что входит в список",
         body="Первый абзац.\n\nВторой абзац.", region=Region.objects.get(slug="miami"),
         topic=Topic.objects.get(slug="money"), status=Article.Status.PUBLISHED, published_at=timezone.now(),
+        keep_indexed=True,
     )
     ArticleSource.objects.create(article=a, name="Florida Phoenix", url="https://floridaphoenix.com/x")
     return a

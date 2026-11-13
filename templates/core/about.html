@@ -15,12 +15,20 @@
       {% if authors %}
       <ul class="about-team__list">
         {% for a in authors %}
-        <li><a href="{{ a.get_absolute_url }}"><b>{{ a.name }}</b>{% if a.role %}<span>{{ a.role }}</span>{% endif %}</a></li>
+        <li class="about-team__person">
+          {% if a.photo %}<img class="about-team__photo" src="{{ a.photo.url }}" alt="{{ a.name }}" width="72" height="72" loading="lazy">{% endif %}
+          <div>
+            <a href="{{ a.get_absolute_url }}"><b>{{ a.name }}</b>{% if a.role %}<span>{{ a.role }}</span>{% endif %}</a>
+            {% if a.bio %}<p>{{ a.bio|truncatewords:40 }}</p>{% endif %}
+            {% if a.email %}<p><a href="mailto:{{ a.email }}">{{ a.email }}</a></p>{% endif %}
+          </div>
+        </li>
         {% endfor %}
       </ul>
       {% else %}
       <p>Заметки готовит редакция {{ site_name }}.</p>
       {% endif %}
+      {% if site_conf.contact_email %}<p class="about-team__mail">Написать редакции: <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>{% endif %}
     </section>
 
     <ul class="about-links">

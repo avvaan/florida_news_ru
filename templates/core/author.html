@@ -17,6 +17,18 @@
       </div>
     </header>
     {% if author.bio %}<div class="story__body">{{ author.bio|linebreaks }}</div>{% endif %}
+    {% if author.email or author.link_list %}
+    <ul class="author__contacts">
+      {% if author.email %}<li><a href="mailto:{{ author.email }}">{{ author.email }}</a></li>{% endif %}
+      {% for url in author.link_list %}<li><a href="{{ url }}" rel="me noopener" target="_blank">{{ url|cut:"https://"|cut:"http://"|cut:"www." }}</a></li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% if articles %}
+    <section class="author__articles" aria-labelledby="author-articles-h">
+      <h2 class="about-team__h" id="author-articles-h">Материалы</h2>
+      <ul class="about-team__list">{% for a in articles %}<li><a href="{{ a.get_absolute_url }}"><b>{{ a.title }}</b><span>{{ a.published_at|date:"j E Y" }}</span></a></li>{% endfor %}</ul>
+    </section>
+    {% endif %}
     <p class="more-guide"><a href="{% url 'core-about' %}">О проекте и о том, как мы работаем</a></p>
   </article>
 </div>

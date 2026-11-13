@@ -9,6 +9,7 @@ from django.core.cache import cache
 from django.test import override_settings
 from django.utils import timezone
 
+from core.models import SiteSettings
 from news.models import Article, ArticleSource, Region, Story
 from pipeline import ai, toponyms
 from pipeline.decisions import decide
@@ -24,7 +25,7 @@ CANON = {"SITE_URL": "https://florida-ru.com", "CANONICAL_HOST": "florida-ru.com
 
 def published(title="Аллигатор напал на рыбака", **kw):
     a = Article.objects.create(title=title, teaser="t", body="Первый абзац.", region=Region.objects.get(slug="tampa"),
-                               status=Article.Status.PUBLISHED, published_at=timezone.now(), **kw)
+                               status=Article.Status.PUBLISHED, published_at=timezone.now(), keep_indexed=True, **kw)
     ArticleSource.objects.create(article=a, name="WFLA", url="https://wfla.com/a")
     return a
 
@@ -63,6 +64,7 @@ def test_onrender_host_redirects_301_keeping_path(client):
 
 @override_settings(AI_PROVIDER="deepseek", AI_DEDUP_PROVIDER="deepseek", AI_DEDUP_MODEL="deepseek-flash")
 def test_same_story_updates_existing_instead_of_new_article(stories):  # noqa: F811
+    SiteSettings.objects.update(max_articles_per_day=8)  # оба сюжета дня доходят до проверки дублей
     existing = published("В Орландо кипятите воду")
     fake = FakeAI(duplicate=DuplicateCheck(same_story=True, article_id=existing.pk, reason="Тот же сюжет",
                                            new_facts=["Предписание продлено до пятницы."]))

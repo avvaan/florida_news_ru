@@ -29,14 +29,25 @@ class SiteSettings(models.Model):
         "мин. уверенность проверки", max_digits=3, decimal_places=2, default=Decimal("0.80"),
     )
     max_articles_per_day = models.PositiveSmallIntegerField(
-        "публикаций в день", default=8,
+        "публикаций в день", default=4,
         help_text="Пишем и публикуем самые важные; остальное отклоняется. Утренний проход берёт не больше "
         "половины, вечерний — остаток. Срочное (ураган, эвакуация) публикуется сверх лимита",
     )
     max_business_per_day = models.PositiveSmallIntegerField(
-        "бизнес-заметок в день", default=4,
+        "бизнес-заметок в день", default=1,
         help_text="Свой лимит раздела «Бизнес: акции и сделки», не входит в «публикаций в день». "
         "Утром — не больше половины, вечером — остаток",
+    )
+    min_article_words = models.PositiveSmallIntegerField(
+        "минимум слов в заметке", default=400,
+        help_text="Несрочная заметка короче этого не публикуется сама, даже с «публиковать всё без проверки», — "
+        "уходит на проверку: допишите или отклоните. Короткие заметки закрыты от поисковиков",
+    )
+    default_author = models.ForeignKey(
+        "Author", verbose_name="редактор по умолчанию", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+",
+        help_text="Ставится автором новых заметок: имя в подписи и в разметке NewsArticle. "
+        "Работает, только если у автора отмечено «показывать на сайте»",
     )
     ai_budget_per_day_usd = models.DecimalField(
         "бюджет на ИИ в день, $", max_digits=7, decimal_places=2, default=Decimal("3.00"),
@@ -132,6 +143,12 @@ class Author(models.Model):
     role = models.CharField("должность", max_length=120, blank=True)
     bio = models.TextField("коротко о себе", blank=True)
     photo = models.ImageField("фото", upload_to="authors/", blank=True)
+    email = models.EmailField("e-mail для читателей", blank=True)
+    links = models.TextField(
+        "профили", blank=True,
+        help_text="Ссылки на профили в соцсетях, LinkedIn, другие публикации — по одной в строке. "
+        "Видны на странице автора и в разметке (sameAs)",
+    )
     is_active = models.BooleanField("показывать на сайте", default=False)
     order = models.PositiveSmallIntegerField("порядок", default=0)
 
@@ -145,3 +162,7 @@ class Author(models.Model):
 
     def get_absolute_url(self):
         return reverse("core-author", args=[self.slug])
+
+    @property
+    def link_list(self) -> list[str]:
+        return [line.strip() for line in self.links.splitlines() if line.strip().startswith(("http://", "https://"))]

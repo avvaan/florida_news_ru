@@ -31,6 +31,10 @@ class Region(models.Model):
         return reverse("news:region", args=[self.slug])
 
 
+# Заметки короче этого закрыты noindex и не попадают в sitemap: короткие пересказы чужих новостей
+# Google считает слабыми страницами, и они тянут вниз весь сайт. Новые заметки пишутся на 400–600 слов.
+MIN_INDEX_WORDS = 350
+
 # Бизнес — отдельный раздел /business/: свой дневной лимит и в общую ленту не попадает.
 BUSINESS = "business"
 EVENTS = "events"
@@ -162,6 +166,17 @@ class Article(models.Model):
         "что это значит для вас", blank=True,
         help_text="2–4 пункта, по одному на строку: что новость меняет для читателя. Пусто — блок не показывается",
     )
+    author = models.ForeignKey(
+        "core.Author", verbose_name="автор / редактор", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="articles",
+        help_text="Человек, который отвечает за заметку: его имя в подписи и в разметке NewsArticle. "
+                  "Новым заметкам ставится «редактор по умолчанию» из настроек",
+    )
+    keep_indexed = models.BooleanField(
+        "оставить в индексе", default=False, db_default=False,
+        help_text=f"Короткие заметки (меньше {MIN_INDEX_WORDS} слов) закрыты от поисковиков (noindex) и не попадают "
+                  "в sitemap. Отметьте, если короткая заметка сильная и должна остаться в Google",
+    )
     guide = models.ForeignKey(
         "guides.Guide", verbose_name="гайд «Подробнее»", null=True, blank=True, on_delete=models.SET_NULL,
         related_name="articles",
@@ -233,12 +248,27 @@ class Article(models.Model):
         return [p.strip() for p in self.body.replace("\r\n", "\n").split("\n\n") if p.strip()]
 
     @property
+    def blocks(self) -> list[tuple[str, str]]:
+        """Абзацы для показа: ("h", текст) — подзаголовок (абзац с «## »), ("p", текст) — обычный абзац."""
+        return [("h", p[3:].strip()) if p.startswith("## ") else ("p", p) for p in self.paragraphs]
+
+    @property
     def for_you_points(self) -> list[str]:
         return [line.strip(" -•\t") for line in self.for_you.splitlines() if line.strip(" -•\t")]
 
     @property
     def word_count(self) -> int:
         return len(self.body.split())
+
+    @property
+    def is_indexable(self) -> bool:
+        """Показывать ли заметку поисковикам: опубликована и достаточно длинная (или редактор оставил вручную)."""
+        return self.status == self.Status.PUBLISHED and (self.keep_indexed or self.word_count >= MIN_INDEX_WORDS)
+
+    @property
+    def byline_author(self):
+        """Автор для подписи и разметки — только если он включён на сайте."""
+        return self.author if self.author_id and self.author.is_active else None
 
     @property
     def cover_info(self):

@@ -27,7 +27,7 @@ from .test_social import FakeDeepSeek
 
 pytestmark = pytest.mark.django_db
 
-BODY = " ".join(["слово"] * 100)
+BODY = " ".join(["слово"] * 450)
 SM = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 NEWS = "{http://www.google.com/schemas/sitemap-news/0.9}"
 
