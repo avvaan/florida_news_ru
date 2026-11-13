@@ -48,7 +48,9 @@ class ArticleSitemap(SiteRootSitemap):
     limit = 5000
 
     def items(self):
-        return Article.objects.published().order_by("-published_at")
+        # короткие заметки закрыты noindex — в sitemap только полноценные материалы
+        articles = Article.objects.published().select_related("topic").order_by("-published_at")
+        return [a for a in articles if a.is_indexable]
 
     def lastmod(self, obj):
         return obj.revised_at or obj.published_at
@@ -183,7 +185,8 @@ class AuthorSitemap(SiteRootSitemap):
 def google_news_items():
     """Google News sitemap: только заметки за последние 48 часов."""
     since = timezone.now() - timedelta(hours=48)
-    return Article.objects.published().filter(published_at__gte=since).order_by("-published_at")[:1000]
+    articles = Article.objects.published().filter(published_at__gte=since).order_by("-published_at")[:1000]
+    return [a for a in articles if a.is_indexable]
 
 
 SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,

@@ -20,7 +20,7 @@
   {% if article.topic %}<meta property="article:section" content="{{ article.topic.name }}">{% endif %}
   {% for t in article.tags.all %}<meta property="article:tag" content="{{ t.name }}">{% endfor %}
 {% endblock %}
-{% block robots %}{% if is_preview %}noindex, nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block robots %}{% if is_preview %}noindex, nofollow{% elif not article.is_indexable %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block head %}{% article_jsonld article %}{% url 'news:home' as home_url %}{% if article.topic %}{% breadcrumbs_jsonld "Главная" home_url article.topic.name article.topic.get_absolute_url article.title article.get_absolute_url %}{% else %}{% breadcrumbs_jsonld "Главная" home_url article.title article.get_absolute_url %}{% endif %}{% endblock %}
 
 {% block content %}
@@ -48,7 +48,9 @@
           {% if article.region %}<a href="{{ article.region.get_absolute_url }}"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ article.region.name }}</a>{% endif %}
           <span>{{ article|reading_minutes }} {{ article|reading_minutes|plural_ru:"минута,минуты,минут" }} чтения</span>
         </p>
-        <p class="story__byline"><a href="{% url 'core-about' %}">Редакция {{ site_name }}</a></p>
+        {% with author=article.byline_author %}
+        <p class="story__byline">{% if author %}<a href="{{ author.get_absolute_url }}">{{ author.name }}</a>{% if author.role %}<span class="story__byline-role">, {{ author.role|lower }}</span>{% endif %}{% else %}<a href="{% url 'core-about' %}">Редакция {{ site_name }}</a>{% endif %}</p>
+        {% endwith %}
       </header>
 
       <figure class="story__figure">
@@ -57,7 +59,7 @@
       </figure>
 
       <div class="story__body">
-        {% for p in article.paragraphs %}<p>{{ p }}</p>{% endfor %}
+        {% for kind, text in article.blocks %}{% if kind == "h" %}<h2>{{ text }}</h2>{% else %}<p>{{ text }}</p>{% endif %}{% endfor %}
       </div>
 
       {% with points=article.for_you_points %}{% if points %}

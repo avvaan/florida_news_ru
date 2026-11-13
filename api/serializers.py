@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from ads.models import AdBanner
-from core.models import Page, SiteSettings
+from core.models import Author, Page, SiteSettings
 from guides.models import Guide
 from news.covers import all_covers
 from news.models import Article, ArticleSource, Region, Tag, Topic
@@ -42,12 +42,14 @@ class ArticleSerializer(serializers.ModelSerializer):
     cover_url = serializers.SerializerMethodField()
     guide = serializers.SlugRelatedField(slug_field="slug", queryset=Guide.objects.all(), required=False,
                                          allow_null=True)
+    author = serializers.SlugRelatedField(slug_field="slug", queryset=Author.objects.all(), required=False,
+                                          allow_null=True)
 
     class Meta:
         model = Article
         fields = [
             "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "business_kind",
-            "tags", "sources",
+            "tags", "sources", "author", "keep_indexed",
             "is_urgent", "is_sensitive", "score", "cover_image", "cover_manual", "cover_url", "review_reason",
             "verification", "published_at", "revised_at", "created_at", "updated_at", "telegram_posted_at", "url",
         ]

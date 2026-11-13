@@ -95,6 +95,18 @@ def publisher() -> dict:
     }
 
 
+def person(author) -> dict:
+    """Автор-человек для разметки: имя, страница, должность, профили."""
+    data = {"@type": "Person", "name": author.name, "url": f"{settings.SITE_URL}{author.get_absolute_url()}"}
+    if author.role:
+        data["jobTitle"] = author.role
+    if author.photo:
+        data["image"] = f"{settings.SITE_URL}{author.photo.url}"
+    if links := author.link_list:
+        data["sameAs"] = links
+    return data
+
+
 def editorial_author() -> dict:
     return {"@type": "Organization", "name": f"Редакция {settings.SITE_NAME}",
             "url": f"{settings.SITE_URL}{reverse('core-about')}"}
@@ -119,8 +131,9 @@ def article_jsonld(article) -> str:
         "datePublished": published.isoformat(),
         "dateModified": (article.revised_at or published).isoformat(),
         "inLanguage": "ru",
-        "author": editorial_author(),
+        "author": person(author) if (author := article.byline_author) else editorial_author(),
         "publisher": publisher(),
+        "wordCount": article.word_count,
         "isBasedOn": [s.url for s in article.sources.all()],
         "keywords": [t.name for t in article.tags.all()],
     }
@@ -132,7 +145,7 @@ def article_jsonld(article) -> str:
 
 
 @register.simple_tag
-def guide_jsonld(guide) -> str:
+def guide_jsonld(guide, editor=None) -> str:
     url = f"{settings.SITE_URL}{guide.get_absolute_url()}"
     published = guide.published_at or guide.created_at
     data = {
@@ -147,6 +160,7 @@ def guide_jsonld(guide) -> str:
         "author": editorial_author(),
         "publisher": publisher(),
         "citation": [s.url for s in guide.sources.all()],
+        **({"editor": person(editor)} if editor else {}),
         "wordCount": guide.word_count,
         "about": [t.name for t in guide.topics.all()],
         "spatialCoverage": {"@type": "State", "name": "Florida", "addressCountry": "US"},
@@ -277,15 +291,10 @@ def listing_jsonld(item) -> str:
 
 @register.simple_tag
 def person_jsonld(author) -> str:
-    data = {
-        "@context": "https://schema.org", "@type": "Person", "name": author.name,
-        "url": f"{settings.SITE_URL}{author.get_absolute_url()}",
-        "worksFor": {"@id": f"{settings.SITE_URL}/#organization", "name": settings.SITE_NAME},
-    }
-    if author.role:
-        data["jobTitle"] = author.role
-    if author.photo:
-        data["image"] = f"{settings.SITE_URL}{author.photo.url}"
+    data = {"@context": "https://schema.org", **person(author),
+            "worksFor": {"@id": f"{settings.SITE_URL}/#organization", "name": settings.SITE_NAME}}
+    if author.email:
+        data["email"] = author.email
     return _jsonld(data)
 
 

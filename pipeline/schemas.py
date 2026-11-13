@@ -33,10 +33,11 @@ class Classification(BaseModel):
 class Draft(BaseModel):
     title: str = Field(description="Заголовок на русском, до 80 знаков")
     teaser: str = Field(description="Одна строка-анонс для Telegram, до 200 знаков")
-    body: str = Field(description="Текст заметки 80–150 слов, абзацы через пустую строку")
+    body: str = Field(description="Текст заметки 400–600 слов, абзацы через пустую строку, подзаголовки — "
+                                  "отдельные абзацы, начинающиеся с «## »")
     tags: list[str] = Field(description="2–4 коротких тега на русском")
     insufficient_facts: bool = Field(
-        description="true, если по данным источников нельзя написать заметку без домыслов"
+        description="true, если по данным источников нельзя написать 400 слов без домыслов и воды"
     )
     cover: str = Field(description="id обложки из списка «Обложки на выбор», лучше всего подходящей по смыслу")
     for_you: list[str] = Field(

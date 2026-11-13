@@ -11,7 +11,7 @@
   {% for t in guide.topics.all %}<meta property="article:tag" content="{{ t.name }}">{% endfor %}
 {% endblock %}
 {% block robots %}{% if is_preview %}noindex, nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% if not is_preview %}{% guide_jsonld guide %}{% guide_faq_jsonld guide %}{% url 'news:home' as home_url %}{% url 'guides:list' as guides_url %}{% breadcrumbs_jsonld "Главная" home_url "Гайды" guides_url guide.title guide.get_absolute_url %}{% endif %}{% endblock %}
+{% block head %}{% if not is_preview %}{% guide_jsonld guide guide_editor %}{% guide_faq_jsonld guide %}{% url 'news:home' as home_url %}{% url 'guides:list' as guides_url %}{% breadcrumbs_jsonld "Главная" home_url "Гайды" guides_url guide.title guide.get_absolute_url %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
   {% if is_preview %}<p class="preview-note">Черновик: гайд не опубликован, читатели его не видят. Опубликуйте в админке после проверки.</p>{% endif %}
@@ -27,7 +27,7 @@
           {% with when=guide.revised_at|default:guide.published_at %}{% if when %}<span><svg class="i" aria-hidden="true"><use href="#i-clock"/></svg>Обновлено <time datetime="{{ when|date:'c' }}">{{ when|date:"j E Y" }}</time></span>{% endif %}{% endwith %}
           <span>{{ guide.reading_minutes }} {{ guide.reading_minutes|plural_ru:"минута,минуты,минут" }} чтения</span>
         </p>
-        <p class="story__byline"><a href="{% url 'core-about' %}">Редакция {{ site_name }}</a></p>
+        <p class="story__byline"><a href="{% url 'core-about' %}">Редакция {{ site_name }}</a>{% if guide_editor %}<span class="story__byline-role"> · редактор <a href="{{ guide_editor.get_absolute_url }}">{{ guide_editor.name }}</a></span>{% endif %}</p>
       </header>
 
       {% if guide.cover %}

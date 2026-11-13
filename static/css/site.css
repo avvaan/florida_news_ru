@@ -288,6 +288,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .story__body { margin-top: 28px; max-width: 68ch; font-size: 1.15rem; line-height: 1.7; }
 .story__body p + p { margin-top: 1.05em; }
 .story__body a { color: var(--gulf-deep); }
+.story__body h2 { margin-top: 1.6em; font-size: 1.25rem; line-height: 1.3; }
+.story__body h2 + p { margin-top: .6em; }
 
 .sources { margin-top: 32px; max-width: 68ch; background: var(--mist); border-radius: 10px; padding: 18px 20px; }
 .sources__h { font: 800 .78rem/1 var(--display); letter-spacing: .07em; text-transform: uppercase; color: var(--gulf-deep); }
@@ -478,6 +480,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .author__head { display: flex; gap: 20px; align-items: center; }
 .author__photo { border-radius: 50%; object-fit: cover; }
 .author__role { margin-top: 6px; color: var(--muted); }
+.author__contacts { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.author__articles { margin-top: 28px; }
+.about-team__person { display: flex; gap: 14px; align-items: flex-start; }
+.about-team__person p { margin-top: 4px; color: var(--muted); font-size: .95rem; }
+.about-team__person p a { display: inline; color: var(--gulf-deep); }
+.about-team__photo { flex: none; border-radius: 50%; object-fit: cover; }
+.about-team__mail { margin-top: 14px; }
+.story__byline-role { font-weight: 400; color: var(--muted); }
 .contact-line { margin-top: 20px; font-weight: 600; }
 .contact-line a { color: var(--gulf-deep); }
 .related { display: grid; gap: 24px; margin-top: 16px; }
