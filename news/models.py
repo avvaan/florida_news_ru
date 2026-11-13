@@ -104,6 +104,14 @@ class Tag(models.Model):
         return reverse("news:tag", args=[self.slug])
 
 
+def popular_tags(limit: int = 40) -> list[str]:
+    """Теги с наибольшим числом опубликованных заметок: автор выбирает из них, а не плодит одноразовые
+    («Палм-Харбор», «банкротство») — у тега с 1–2 заметками страница закрыта noindex и пуста для Google."""
+    published = models.Q(article__status="published")
+    return list(Tag.objects.annotate(n=models.Count("article", filter=published)).filter(n__gte=2)
+                .order_by("-n", "name").values_list("name", flat=True)[:limit])
+
+
 class Story(models.Model):
     """Сюжет: одна история, о которой написали одно или несколько СМИ."""
 

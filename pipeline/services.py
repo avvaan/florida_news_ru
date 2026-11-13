@@ -13,7 +13,8 @@ from django.utils import timezone
 from core.models import SiteSettings
 from guides.models import Guide
 from news.covers import candidates_for, fresh_choices, primary_pool, replacement
-from news.models import BUSINESS, Article, ArticleSource, Region, Story, Tag, Topic, neighbour_articles, neighbour_covers
+from news.models import (BUSINESS, Article, ArticleSource, Region, Story, Tag, Topic, neighbour_articles,
+                         neighbour_covers, popular_tags)
 from social.services import has_trusted_source, run_social
 from sources.article_text import full_texts
 from sources.fetch import fetch_all
@@ -162,7 +163,8 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             f"Регион: {region}. Тема: {topic}.\n\nДанные источников:\n\n{brief}\n\n"
             f"{prompts.hints_context(story.hints.values_list('summary', flat=True))}"
             f"Обложки на выбор:\n{prompts.covers_brief(covers, set(neighbours))}\n\n"
-            f"Гайды:\n{prompts.guides_brief(guides)}"
+            f"Гайды:\n{prompts.guides_brief(guides)}\n\n"
+            f"Теги, которые уже есть на сайте:\n{prompts.tags_brief(popular_tags())}"
         ),
         output=Draft,
         max_tokens=8000,
@@ -443,8 +445,11 @@ def attach_sources(article: Article, items) -> None:
             break
 
 
+MAX_TAGS = 3
+
+
 def attach_tags(article: Article, names: list[str]) -> None:
-    for name in names[:4]:
+    for name in names[:MAX_TAGS]:
         name = name.strip().strip("#")[:60]
         if not name:
             continue

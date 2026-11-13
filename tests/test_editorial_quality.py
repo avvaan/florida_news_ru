@@ -212,3 +212,24 @@ def test_guide_names_the_editor(client):
     assert "Анна Петрова" in html and ld_of(html, "Article")["editor"]["name"] == "Анна Петрова"
     Author.objects.filter(pk=editor.pk).update(is_active=False)  # редактор выключен — гайд как раньше
     assert "editor" not in ld_of(client.get(guide.get_absolute_url()).content.decode(), "Article")
+
+
+# --- Теги -----------------------------------------------------------------------------------------
+
+@override_settings(AI_PROVIDER="deepseek")
+def test_writer_reuses_popular_tags_and_adds_at_most_three(stories):  # noqa: F811
+    from news.models import Tag
+
+    SiteSettings.objects.update(max_articles_per_day=20)  # статьи ниже созданы сегодня и съели бы лимит
+    for i in range(2):
+        article(f"Про ураган {i}").tags.add(Tag.objects.get_or_create(name="ураган")[0])
+    article("Разовое").tags.add(Tag.objects.create(name="Палм-Харбор"))
+    draft = Draft(title="Новая", teaser="t", body=LONG, tags=["ураган", "a", "b", "c", "d"], insufficient_facts=False,
+                  cover="covers/safety-3")
+    fake = FakeAI(draft=draft)
+    run_with(fake)
+    write = next(c for c in fake.calls if "Теги, которые уже есть на сайте" in c["messages"][-1]["content"])
+    listed = write["messages"][-1]["content"].split("Теги, которые уже есть на сайте:\n")[1]
+    assert listed.startswith("ураган") and "Палм-Харбор" not in listed  # тег с одной заметкой не предлагаем
+    for new in Article.objects.filter(title="Новая"):  # в фикстуре два сюжета
+        assert sorted(new.tags.values_list("name", flat=True)) == ["a", "b", "ураган"]
