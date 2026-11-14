@@ -21,7 +21,7 @@
           <li><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ e.city }}, {{ e.address }}</li>
           <li class="fest__price">{{ e.price }}</li>
         </ul>
-        <a class="fest__cta" href="{{ e.tickets_url }}" target="_blank" rel="noopener">Билеты и программа<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="fest__cta" href="{{ e.tickets_url|default:e.url }}" target="_blank" rel="noopener">{% if e.tickets_url %}Билеты и программа{% else %}Программа{% endif %}<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
     </article>
     {% endfor %}
@@ -37,7 +37,7 @@
       <div class="fest-row__body">
         <time class="fest-row__when" datetime="{{ e.day|date:'Y-m-d' }}">{{ e.day|date:"D, j E"|capfirst }} · {{ e.city }}</time>
         <a class="fest-row__title" href="{{ e.page_url }}">{{ e.title }}</a>
-        <a class="fest-row__tickets" href="{{ e.tickets_url }}" target="_blank" rel="noopener">Билеты</a>
+        <a class="fest-row__tickets" href="{{ e.tickets_url|default:e.url }}" target="_blank" rel="noopener">{% if e.tickets_url %}Билеты{% else %}Подробнее{% endif %}</a>
       </div>
     </li>
     {% endfor %}

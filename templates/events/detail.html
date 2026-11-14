@@ -18,7 +18,7 @@
       </header>
       {% if event.image_url %}<figure class="story__figure ev-detail__figure"><img src="{{ event.image_url|ik:1200 }}" alt="Афиша: {{ event.title }}" width="1200" height="1200"></figure>{% endif %}
       <div class="story__body"><p>{{ event.description|linebreaksbr }}</p></div>
-      <p class="story__disclaimer">Событие добавил организатор, его проверила автоматическая модерация. Перед поездкой уточните дату и время у организатора. Нашли ошибку? Напишите через <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a>.</p>
+      <p class="story__disclaimer">{% if event.ip_hash %}Событие добавил организатор, его проверила автоматическая модерация.{% else %}Событие добавила редакция по данным организатора.{% endif %} Перед поездкой уточните дату и время у организатора. Нашли ошибку? Напишите через <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a>.</p>
     </div>
 
     <aside class="split__aside ticket" aria-label="Когда и где">

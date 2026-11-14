@@ -29,7 +29,8 @@ def test_festivals_on_home_and_events_topic(client):
     for html in (home, topic):
         assert "Фестиваль славянской еды" in html and "Фестиваль грузинской культуры" in html
         assert f'href="{SLAVIC}"' in html and f'href="{GEORGIAN}"' in html  # карточки ведут в афишу
-        assert "https://slavicfoodfestival.com/ru/tickets/" in html and "events/slavic-food-fest-480.webp" in html
+        assert 'href="https://slavicfoodfestival.com/ru/"' in html and "events/slavic-food-fest-480.webp" in html
+        assert "slavicfoodfestival.com/ru/tickets/" not in html  # вход бесплатный: билетов нет, кнопка ведёт на программу
     assert topic.count('<section class="fests') == 1 and "fests--wide" in topic  # в афише — крупно, без дубля
 
 
@@ -41,9 +42,10 @@ def test_festivals_in_afisha_with_event_markup(client):
     page = get(client, SLAVIC)
     ld = [json.loads(b) for b in re.findall(r'<script type="application/ld\+json">(.*?)</script>', page, re.S)]
     event = next(d for d in ld if d.get("@type") == "Event")
-    assert event["startDate"] == "2027-02-27T10:00" and event["location"]["address"]["addressLocality"] == "Касселберри"
+    assert event["startDate"] == "2027-02-27T10:00" and event["location"]["address"]["addressLocality"] == "Лонгвуд"
     assert event["image"][0].endswith("/static/events/slavic-food-fest.jpg")
-    assert "Миссия Святой Нины" in page and "https://slavicfoodfestival.com/ru/tickets/" in page
+    assert "Миссия Святой Нины" in page and "https://slavicfoodfestival.com/ru/" in page
+    assert "Reiter Park" in page and "Вход бесплатный" in page and "German American Society" not in page
 
 
 def test_past_festival_hidden():
@@ -54,7 +56,7 @@ def test_past_festival_hidden():
 def test_festivals_stay_on_top_of_imported_events(client):
     listing = get(client, "/afisha/")
     with mock.patch("events.models.timezone.localdate", return_value=TODAY):
-        assert Event.objects.upcoming().count() == 23  # 2 фестиваля + 20 событий из таблицы редакции + «Ёлка» (0006)
+        assert Event.objects.upcoming().count() == 32  # 2 фестиваля + 20 из таблицы + «Ёлка» (0006) + 9 из календаря (0007)
     top, grid = listing.split("Все события", 1)
     assert "Фестиваль славянской еды" in top and "Фестиваль грузинской культуры" in top
     assert "Мумий Тролль" not in top and "Мумий Тролль" in grid and "Валерий Меладзе" in grid
@@ -68,3 +70,20 @@ def test_play_featured_right_after_festivals():
     assert keys == ["slavic-food-fest-2027", "georgian-festival-2027", "po-shchuchemu-veleniyu-2026"]
     play = featured.upcoming(TODAY)[2]
     assert play.starts is None and play.page_url.endswith("-2026-12-19/")
+
+
+def test_folk_dance_calendar_events(client):
+    """Фестивали из календаря floridafolkdancer.org: многодневные — с датой окончания, регион по городу."""
+    folk = Event.objects.published().filter(reason__contains="floridafolkdancer.org")
+    assert folk.count() == 9
+    spiffs = folk.get(title__startswith="SPIFFS")
+    assert spiffs.starts_on == date(2027, 3, 6) and spiffs.region.slug == "tampa"  # открытый день, не школьные
+    assert folk.get(city="Форт-Майерс").region is None and folk.get(city="Форт-Майерс").price == ""
+    jax = folk.get(city="Джексонвилл")
+    assert (jax.starts_on, jax.ends_on, jax.region.slug) == (date(2026, 11, 13), date(2026, 11, 15), "jacksonville")
+    assert not folk.filter(title__icontains="Machol").exists()
+    with mock.patch("events.models.timezone.localdate", return_value=date(2026, 11, 14)):
+        assert jax in Event.objects.upcoming()  # идёт прямо сейчас — ещё в афише
+    assert "Super Greek Fest" in get(client, "/afisha/")
+    page = get(client, jax.get_absolute_url())
+    assert "добавила редакция" in page and "добавил организатор" not in page

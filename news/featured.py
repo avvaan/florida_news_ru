@@ -28,7 +28,7 @@ class FeaturedEvent:
     city: str
     price: str
     url: str
-    tickets_url: str
+    tickets_url: str  # пусто — билетов нет, кнопка ведёт на сайт события
     image: str
     image_alt: str
     tag: str
@@ -47,12 +47,12 @@ EVENTS = [
     FeaturedEvent(
         key="slavic-food-fest-2027",
         title="Фестиваль славянской еды",
-        teaser="Борщ, блины, шашлык, квас и медовуха, живая народная музыка и танцы — "
+        teaser="Борщ, блины, шашлык, квас и чай из самовара, живая народная музыка и танцы — "
                "семейный праздник на целый день.",
         day=date(2027, 2, 27), starts=time(10), ends=time(20),
-        venue="German American Society", address="381 Orange Lane", city="Касселберри",
-        price="Вход $10, дети до 12 лет — $5",
-        url="https://slavicfoodfestival.com/ru/", tickets_url="https://slavicfoodfestival.com/ru/tickets/",
+        venue="Reiter Park", address="311 W Warren Ave", city="Лонгвуд",
+        price="Вход бесплатный",
+        url="https://slavicfoodfestival.com/ru/", tickets_url="",  # вход бесплатный, билетов нет
         image="slavic-food-fest", image_alt="Танцоры в народных костюмах на Slavic Food Festival",
         tag="Еда и музыка", slug="festival-slavyanskoy-edy-2027-02-27",
     ),
