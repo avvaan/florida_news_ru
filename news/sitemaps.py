@@ -6,6 +6,7 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
 
+from core.i18n import Translatable
 from core.models import Author, Page
 from directory.models import Category, Listing
 from classifieds.models import Ad
@@ -20,6 +21,18 @@ class SiteRootSitemap(Sitemap):
     """Sitemap без django.contrib.sites: домен берём из SITE_URL."""
 
     protocol = "https"
+    # Украинская версия (/uk/…) — отдельными адресами со ссылками hreflang друг на друга.
+    # Материалы без перевода и чужой текст (объявления) — только русский адрес.
+    i18n = True
+    alternates = True
+    x_default = True
+
+    def get_languages_for_item(self, item):
+        if isinstance(item, Translatable) and not item.has_uk:
+            return [settings.LANGUAGE_CODE]
+        if isinstance(item, Ad):
+            return [settings.LANGUAGE_CODE]
+        return super().get_languages_for_item(item)
 
     def get_domain(self, site=None):
         return settings.SITE_URL.split("://", 1)[-1]
@@ -34,7 +47,8 @@ class SiteRootSitemap(Sitemap):
     def get_urls(self, page=1, site=None, protocol=None):
         urls = super().get_urls(page=page, site=site, protocol=protocol)
         for url in urls:
-            url["images"] = self.images(url["item"])
+            item = url["item"]
+            url["images"] = self.images(item[0] if isinstance(item, tuple) else item)
         return urls
 
 

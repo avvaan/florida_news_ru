@@ -1,21 +1,21 @@
 {% extends "base.html" %}
-{% load static news_extras %}
+{% load static news_extras i18n %}
 
-{% block title %}{% if kind %}{{ kind_name }} — бизнес Флориды на русском{% else %}Деньги и бизнес во Флориде: цены, налоги, акции и сделки — новости на русском{% endif %} — {{ site_name }}{% endblock %}
-{% block description %}{% if kind == "stocks" %}Акции компаний Флориды на бирже: отчёты, IPO, резкие движения — коротко на русском и со ссылкой на первоисточник.{% elif kind == "deals" %}Сделки во Флориде: слияния и поглощения, покупки компаний, крупная недвижимость, инвестиции — коротко на русском.{% else %}{{ topic.description }}. Коротко, на русском и со ссылкой на первоисточник.{% endif %}{% endblock %}
+{% block title %}{% if kind %}{% blocktranslate trimmed with kind=kind_name %}{{ kind }} — бизнес Флориды на русском{% endblocktranslate %}{% else %}{% translate "Деньги и бизнес во Флориде: цены, налоги, акции и сделки — новости на русском" %}{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}{% if kind == "stocks" %}{% translate "Акции компаний Флориды на бирже: отчёты, IPO, резкие движения — коротко на русском и со ссылкой на первоисточник." %}{% elif kind == "deals" %}{% translate "Сделки во Флориде: слияния и поглощения, покупки компаний, крупная недвижимость, инвестиции — коротко на русском." %}{% else %}{{ topic.tr.description }}. {% translate "Коротко, на русском и со ссылкой на первоисточник." %}{% endif %}{% endblock %}
 {% block canonical %}{{ request.path|absolute }}{% if page_obj.number > 1 %}?page={{ page_obj.number }}{% endif %}{% endblock %}
-{% block og %}{% with t="Деньги и бизнес во Флориде — "|add:site_name %}{% include "includes/og.html" with title=t description=topic.description url=request.path image=topic.cover %}{% endwith %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'news:business' as biz_url %}{% if kind %}{% breadcrumbs_jsonld "Главная" home_url "Деньги и бизнес" biz_url kind_name request.path %}{% else %}{% breadcrumbs_jsonld "Главная" home_url "Деньги и бизнес" biz_url %}{% endif %}{% if feed %}{% collection_jsonld topic.name topic.description request.path feed %}{% endif %}{% endblock %}
+{% block og %}{% blocktranslate trimmed asvar t with site=site_name %}Деньги и бизнес во Флориде — {{ site }}{% endblocktranslate %}{% include "includes/og.html" with title=t description=topic.tr.description url=request.path image=topic.cover %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'news:business' as biz_url %}{% translate "Главная" as home_name %}{% translate "Деньги и бизнес" as biz_name %}{% if kind %}{% breadcrumbs_jsonld home_name home_url biz_name biz_url kind_name request.path %}{% else %}{% breadcrumbs_jsonld home_name home_url biz_name biz_url %}{% endif %}{% if feed %}{% collection_jsonld topic.tr.name topic.tr.description request.path feed %}{% endif %}{% endblock %}
 
 {% block top_ad %}{% endblock %}
 
 {% block content %}
 <div class="wrap">
   <header class="section-head">
-    <h1 class="section-head__h">{% if kind %}Бизнес: {{ kind_name|lower }}{% else %}Деньги и бизнес{% endif %}</h1>
-    <p class="section-head__sub">Цены, налоги и пособия, компании Флориды на бирже, слияния и покупки, крупная недвижимость и инвестиции. Коротко и со ссылкой на первоисточник.</p>
-    <ul class="chips" aria-label="Разделы бизнеса">
-      <li><a class="chip{% if not kind %} chip--on{% endif %}" href="{% url 'news:business' %}"{% if not kind %} aria-current="page"{% endif %}>Все</a></li>
+    <h1 class="section-head__h">{% if kind %}{% blocktranslate trimmed with kind=kind_name|lower %}Бизнес: {{ kind }}{% endblocktranslate %}{% else %}{% translate "Деньги и бизнес" %}{% endif %}</h1>
+    <p class="section-head__sub">{% translate "Цены, налоги и пособия, компании Флориды на бирже, слияния и покупки, крупная недвижимость и инвестиции. Коротко и со ссылкой на первоисточник." %}</p>
+    <ul class="chips" aria-label="{% translate "Разделы бизнеса" %}">
+      <li><a class="chip{% if not kind %} chip--on{% endif %}" href="{% url 'news:business' %}"{% if not kind %} aria-current="page"{% endif %}>{% translate "Все" %}</a></li>
       {% for slug, name in kinds.items %}
       <li><a class="chip{% if kind == slug %} chip--on{% endif %}" href="{% url 'news:business-kind' slug %}"{% if kind == slug %} aria-current="page"{% endif %}>{{ name }}</a></li>
       {% endfor %}
@@ -27,8 +27,8 @@
     {% if stocks %}
     <section class="biz-block" aria-labelledby="biz-stocks-h">
       <div class="biz-block__head">
-        <h2 class="feed__h" id="biz-stocks-h">Акции</h2>
-        <a class="useful__all" href="{% url 'news:business-kind' 'stocks' %}">Все →</a>
+        <h2 class="feed__h" id="biz-stocks-h">{% translate "Акции" %}</h2>
+        <a class="useful__all" href="{% url 'news:business-kind' 'stocks' %}">{% translate "Все →" %}</a>
       </div>
       <div class="biz-block__grid">{% for a in stocks %}{% include "includes/tile.html" %}{% endfor %}</div>
     </section>
@@ -36,8 +36,8 @@
     {% if deals %}
     <section class="biz-block" aria-labelledby="biz-deals-h">
       <div class="biz-block__head">
-        <h2 class="feed__h" id="biz-deals-h">Сделки</h2>
-        <a class="useful__all" href="{% url 'news:business-kind' 'deals' %}">Все →</a>
+        <h2 class="feed__h" id="biz-deals-h">{% translate "Сделки" %}</h2>
+        <a class="useful__all" href="{% url 'news:business-kind' 'deals' %}">{% translate "Все →" %}</a>
       </div>
       <div class="biz-block__grid">{% for a in deals %}{% include "includes/tile.html" %}{% endfor %}</div>
     </section>
@@ -48,31 +48,31 @@
   {% if ads.top %}<div class="ad-top">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
 
   <div class="columns">
-    <section class="feed" aria-label="Лента бизнес-новостей">
-      {% if feed or not stocks and not deals %}<h2 class="feed__h" id="feed-h">{% if kind %}{{ kind_name }}{% elif stocks or deals %}Цены, налоги и другие новости{% else %}Новости о деньгах и бизнесе{% endif %}{% if page_obj.number > 1 %} · страница {{ page_obj.number }}{% endif %}</h2>{% endif %}
+    <section class="feed" aria-label="{% translate "Лента бизнес-новостей" %}">
+      {% if feed or not stocks and not deals %}<h2 class="feed__h" id="feed-h">{% if kind %}{{ kind_name }}{% elif stocks or deals %}{% translate "Цены, налоги и другие новости" %}{% else %}{% translate "Новости о деньгах и бизнесе" %}{% endif %}{% if page_obj.number > 1 %} · {% blocktranslate trimmed with n=page_obj.number %}страница {{ n }}{% endblocktranslate %}{% endif %}</h2>{% endif %}
       {% for a in feed %}
         {% include "includes/row.html" %}
         {% if forloop.counter == 5 and ads.infeed %}{% include "includes/ad.html" with ad=ads.infeed %}{% endif %}
       {% empty %}
         {% if not stocks and not deals %}
         <div class="empty">
-          <p class="empty__title">Здесь пока пусто</p>
-          <p>Новости о деньгах и бизнесе появляются дважды в день, вместе с остальными новостями.</p>
+          <p class="empty__title">{% translate "Здесь пока пусто" %}</p>
+          <p>{% translate "Новости о деньгах и бизнесе появляются дважды в день, вместе с остальными новостями." %}</p>
         </div>
         {% endif %}
       {% endfor %}
       {% include "includes/pager.html" %}
-      <p class="story__disclaimer">Мы пересказываем новости о компаниях и сделках. Это не инвестиционная рекомендация: решения о покупке или продаже ценных бумаг принимайте сами или с финансовым консультантом.</p>
+      <p class="story__disclaimer">{% translate "Мы пересказываем новости о компаниях и сделках. Это не инвестиционная рекомендация: решения о покупке или продаже ценных бумаг принимайте сами или с финансовым консультантом." %}</p>
     </section>
 
-    <aside class="sidebar" aria-label="Боковая колонка">
+    <aside class="sidebar" aria-label="{% translate "Боковая колонка" %}">
       {% include "includes/tg_cta.html" %}
       {% if ads.sidebar %}{% include "includes/ad.html" with ad=ads.sidebar %}{% endif %}
       <nav class="topic-index" aria-labelledby="topics-h">
-        <h2 class="sidebar__h" id="topics-h">Темы</h2>
+        <h2 class="sidebar__h" id="topics-h">{% translate "Темы" %}</h2>
         <ul>
           {% for t in nav_topics %}
-          <li><a href="{{ t.get_absolute_url }}"{% if t.slug == topic.slug %} aria-current="page"{% endif %}><img src="{% static t.cover|add:'-640.webp' %}" alt="" width="64" height="36" loading="lazy"><span>{{ t.name }}</span></a></li>
+          <li><a href="{{ t.get_absolute_url }}"{% if t.slug == topic.slug %} aria-current="page"{% endif %}><img src="{% static t.cover|add:'-640.webp' %}" alt="" width="64" height="36" loading="lazy"><span>{{ t.tr.name }}</span></a></li>
           {% endfor %}
         </ul>
       </nav>

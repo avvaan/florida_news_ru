@@ -1,9 +1,9 @@
-{% load static news_extras %}
+{% load static news_extras i18n %}
 <li class="ad-card">
   <a class="ad-card__link" href="{{ a.get_absolute_url }}">
-    {% with cover=a.cover %}{% if cover %}<img class="ad-card__img" src="{{ cover.url|ik:480 }}" alt="" loading="lazy" width="480" height="360">{% elif a.category.illustration %}{% with base=a.category.illustration %}<img class="ad-card__img" src="{% static base|add:'-480.webp' %}" srcset="{% static base|add:'-480.webp' %} 480w, {% static base|add:'.webp' %} 960w" sizes="(max-width: 600px) 50vw, 240px" alt="" loading="lazy" width="480" height="360">{% endwith %}{% else %}<span class="ad-card__img ad-card__img--none" aria-hidden="true">{{ a.category.name|slice:":1" }}</span>{% endif %}{% endwith %}
+    {% with cover=a.cover %}{% if cover %}<img class="ad-card__img" src="{{ cover.url|ik:480 }}" alt="" loading="lazy" width="480" height="360">{% elif a.category.illustration %}{% with base=a.category.illustration %}<img class="ad-card__img" src="{% static base|add:'-480.webp' %}" srcset="{% static base|add:'-480.webp' %} 480w, {% static base|add:'.webp' %} 960w" sizes="(max-width: 600px) 50vw, 240px" alt="" loading="lazy" width="480" height="360">{% endwith %}{% else %}<span class="ad-card__img ad-card__img--none" aria-hidden="true">{{ a.category.tr.name|slice:":1" }}</span>{% endif %}{% endwith %}
     <span class="ad-card__body">
-      <span class="ad-card__price">{{ a.price_text }}</span>
+      <span class="ad-card__price">{% if a.price is None %}{% translate "Договорная" %}{% elif a.price == 0 %}{% translate "Бесплатно" %}{% else %}{{ a.price_text }}{% endif %}</span>
       <span class="ad-card__title">{{ a.title }}</span>
       <span class="ad-card__meta">{{ a.place }}{% if a.distance %} · <b class="ad-card__dist">{{ a.distance }}</b>{% endif %} · <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|date:"j E"|lower }}</time></span>
     </span>

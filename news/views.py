@@ -8,6 +8,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy
 
 from ads.models import AdBanner
 from guides.models import Guide
@@ -122,7 +123,7 @@ def topic_view(request, slug):
     return front(request, topic=topic)
 
 
-BUSINESS_KINDS = {"stocks": "Акции", "deals": "Сделки"}
+BUSINESS_KINDS = {"stocks": gettext_lazy("Акции"), "deals": gettext_lazy("Сделки")}
 
 
 def business_view(request, kind=None):
@@ -200,12 +201,12 @@ def article_view(request, slug):
 
 
 class LatestFeed(Feed):
-    title = "Florida RU — новости штата по-русски"
-    description = "Короткие новости Флориды на русском со ссылками на первоисточники"
+    title = gettext_lazy("Florida RU — новости штата по-русски")
+    description = gettext_lazy("Короткие новости Флориды на русском со ссылками на первоисточники")
 
     # Ссылки только на канонический домен (SITE_URL), а не на хост, с которого пришёл запрос.
     def link(self):
-        return f"{settings.SITE_URL}/"
+        return f"{settings.SITE_URL}{reverse('news:home')}"  # / или /uk/
 
     def feed_url(self):
         return f"{settings.SITE_URL}{reverse('news:rss')}"
@@ -217,10 +218,10 @@ class LatestFeed(Feed):
         return published()[:30]
 
     def item_title(self, item):
-        return ("🚨 " if item.urgent_now else "") + item.title
+        return ("🚨 " if item.urgent_now else "") + item.loc("title")
 
     def item_description(self, item):
-        return item.teaser
+        return item.loc("teaser")
 
     def item_pubdate(self, item):
         return item.published_at

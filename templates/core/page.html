@@ -1,16 +1,18 @@
 {% extends "base.html" %}
-{% load news_extras %}
-{% block title %}{{ page.title }} — {{ site_name }}{% endblock %}
-{% block description %}{{ page.body|striptags|truncatechars:160 }}{% endblock %}
-{% block og %}{% include "includes/og.html" with title=page.title|add:" — "|add:site_name description=page.body|striptags|truncatechars:160 url=request.path %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url page.title request.path %}{% endblock %}
+{% load news_extras i18n %}
+{% block title %}{{ page.tr.title }} — {{ site_name }}{% endblock %}
+{% block description %}{{ page.tr.body|striptags|truncatechars:160 }}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=page.tr.title|add:" — "|add:site_name description=page.tr.body|striptags|truncatechars:160 url=request.path %}{% endblock %}
+{% block robots %}{% if not page.shown_translated %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block alternates %}{% include "includes/alternates.html" with obj=page %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_label %}{% breadcrumbs_jsonld home_label home_url page.tr.title request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page">
-    <h1 class="story__title">{{ page.title }}</h1>
-    <div class="story__body">{{ page.body|linebreaks }}</div>
+    <h1 class="story__title">{{ page.tr.title }}</h1>
+    <div class="story__body">{{ page.tr.body|linebreaks }}</div>
     {% if page.slug == "contacts" or page.slug == "advertising" %}{% if site_conf.contact_email %}
-    <p class="contact-line">Почта редакции: <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>
+    <p class="contact-line">{% translate "Почта редакции:" %} <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>
     {% endif %}{% endif %}
     {% include "includes/tg_cta.html" %}
   </article>

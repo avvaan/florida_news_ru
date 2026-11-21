@@ -2,6 +2,8 @@ from django.contrib import admin
 
 from django.contrib import messages
 
+from core.i18n import uk_fieldset
+
 from . import moderation
 from .models import Category, Listing, Submission
 
@@ -37,6 +39,7 @@ class ListingAdmin(admin.ModelAdmin):
         ("Где и когда", {"fields": ("address", "city", "region", "hours", "languages")}),
         ("Показ", {"fields": ("is_recommended", "is_partner", "is_active", "order", "guide_slug", "from_owner", "editor_note"),
                    "description": "Платное размещение обязательно отмечайте «партнёр»: читатели видят метку."}),
+        uk_fieldset(Listing),
     )
 
 

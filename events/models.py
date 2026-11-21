@@ -7,6 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from core.i18n import Translatable, uk_field
 from core.text import make_slug
 
 
@@ -24,7 +25,7 @@ class EventQuerySet(models.QuerySet):
         return self.filter(created_at__gte=timezone.now() - timedelta(hours=hours))
 
 
-class Event(models.Model):
+class Event(Translatable):
     class Status(models.TextChoices):
         PENDING = "pending", "на проверке"
         APPROVED = "approved", "опубликовано"
@@ -74,6 +75,12 @@ class Event(models.Model):
     moderated_at = models.DateTimeField("проверено", null=True, blank=True)
 
     objects = EventQuerySet.as_manager()
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("title", "description", "price")
+    title_uk = uk_field(title)
+    description_uk = uk_field(description)
+    price_uk = uk_field(price)
 
     class Meta:
         ordering = ["-created_at"]

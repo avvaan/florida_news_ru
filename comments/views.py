@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
@@ -21,9 +22,9 @@ def too_many(key: str, email: str) -> str:
     recent = Comment.objects.filter(ip_hash=key)
     if recent.since(1).count() >= moderation.MAX_PER_IP_PER_HOUR or \
             recent.since(24).count() >= moderation.MAX_PER_IP_PER_DAY:
-        return "С вашего адреса уже много комментариев. Попробуйте позже."
+        return _("С вашего адреса уже много комментариев. Попробуйте позже.")
     if Comment.objects.since(24).filter(email__iexact=email).count() >= moderation.MAX_PER_EMAIL_PER_DAY:
-        return "С этого e-mail уже много комментариев за сутки. Попробуйте завтра."
+        return _("С этого e-mail уже много комментариев за сутки. Попробуйте завтра.")
     return ""
 
 

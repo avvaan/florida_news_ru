@@ -11,6 +11,8 @@ import math
 import re
 from functools import lru_cache
 
+from django.utils.translation import gettext, gettext_noop
+
 # Главные города регионов сайта — от них считаем расстояние. (код региона, именительный, «к …», «от …», lat, lon)
 HUBS = {
     "miami": ("Майами", "к Майами", "от Майами", 25.7743, -80.1937),
@@ -18,6 +20,12 @@ HUBS = {
     "tampa": ("Тампа", "к Тампе", "от Тампы", 27.9506, -82.4572),
     "jacksonville": ("Джексонвилл", "к Джексонвиллу", "от Джексонвилла", 30.3322, -81.6557),
 }
+# Подписи для перевода на украинский (makemessages): «Ближе к …» и «… от …» собираются из HUBS.
+_HUB_MSGIDS = (
+    gettext_noop("Ближе к Майами"), gettext_noop("Ближе к Орландо"), gettext_noop("Ближе к Тампе"),
+    gettext_noop("Ближе к Джексонвиллу"), gettext_noop("от Майами"), gettext_noop("от Орландо"),
+    gettext_noop("от Тампы"), gettext_noop("от Джексонвилла"),
+)
 
 # (lat, lon, названия: английское, русское, другие написания)
 CITIES = [
@@ -263,12 +271,13 @@ def distance_text(point: tuple[float, float] | None, hub: str) -> str:
     if value < 3:
         return ""
     n = value % 100
-    word = "миля" if n % 10 == 1 and n != 11 else "мили" if n % 10 in (2, 3, 4) and not 12 <= n <= 14 else "миль"
-    return f"≈ {value} {word} {HUBS[hub][2]}"
+    one, few, many = gettext("миля,мили,миль").split(",")
+    word = one if n % 10 == 1 and n != 11 else few if n % 10 in (2, 3, 4) and not 12 <= n <= 14 else many
+    return f"≈ {value} {word} {gettext(HUBS[hub][2])}"
 
 
 def hub_choices() -> list[tuple[str, str]]:
-    return [(slug, f"Ближе {to}") for slug, (_, to, *_) in HUBS.items()]
+    return [(slug, gettext(f"Ближе {to}")) for slug, (_, to, *_) in HUBS.items()]
 
 
 def near_links(request, param: str, prefix: str = "") -> list[dict]:

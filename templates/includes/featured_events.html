@@ -1,8 +1,8 @@
-{% load static featured %}{% featured_events as fests %}{% if fests %}
+{% load static featured i18n %}{% featured_events as fests %}{% if fests %}
 <section class="fests{% if wide %} fests--wide{% endif %}" aria-labelledby="fests-h{{ wide|yesno:'-wide,' }}">
   <div class="fests__head">
-    <h2 class="{% if wide %}feed__h{% else %}sidebar__h{% endif %}" id="fests-h{{ wide|yesno:'-wide,' }}">{{ heading|default:"Куда сходить" }}</h2>
-    {% if wide %}<span class="fests__kicker">Фестивали и праздники в Орландо</span>{% endif %}
+    <h2 class="{% if wide %}feed__h{% else %}sidebar__h{% endif %}" id="fests-h{{ wide|yesno:'-wide,' }}">{% translate "Куда сходить" as default_heading %}{{ heading|default:default_heading }}</h2>
+    {% if wide %}<span class="fests__kicker">{% translate "Фестивали и праздники в Орландо" %}</span>{% endif %}
   </div>
   {% if wide %}
   <div class="fests__list">
@@ -21,7 +21,7 @@
           <li><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ e.city }}, {{ e.address }}</li>
           <li class="fest__price">{{ e.price }}</li>
         </ul>
-        <a class="fest__cta" href="{{ e.tickets_url|default:e.url }}" target="_blank" rel="noopener">{% if e.tickets_url %}Билеты и программа{% else %}Программа{% endif %}<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="fest__cta" href="{{ e.tickets_url|default:e.url }}" target="_blank" rel="noopener">{% if e.tickets_url %}{% translate "Билеты и программа" %}{% else %}{% translate "Программа" %}{% endif %}<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
       </div>
     </article>
     {% endfor %}
@@ -37,12 +37,12 @@
       <div class="fest-row__body">
         <time class="fest-row__when" datetime="{{ e.day|date:'Y-m-d' }}">{{ e.day|date:"D, j E"|capfirst }} · {{ e.city }}</time>
         <a class="fest-row__title" href="{{ e.page_url }}">{{ e.title }}</a>
-        <a class="fest-row__tickets" href="{{ e.tickets_url|default:e.url }}" target="_blank" rel="noopener">{% if e.tickets_url %}Билеты{% else %}Подробнее{% endif %}</a>
+        <a class="fest-row__tickets" href="{{ e.tickets_url|default:e.url }}" target="_blank" rel="noopener">{% if e.tickets_url %}{% translate "Билеты" %}{% else %}{% translate "Подробнее" %}{% endif %}</a>
       </div>
     </li>
     {% endfor %}
   </ul>
-  <a class="useful__all" href="{% url 'events:list' %}">Вся афиша →</a>
+  <a class="useful__all" href="{% url 'events:list' %}">{% translate "Вся афиша →" %}</a>
   {% endif %}
 </section>
 {% endif %}

@@ -93,6 +93,21 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .masthead__date::first-letter { text-transform: uppercase; }
 .tg-link { display: inline-flex; align-items: center; gap: .4em; color: var(--gulf-deep); font-weight: 600; text-decoration: none; }
 .tg-link:hover { text-decoration: underline; }
+.masthead__tools { display: flex; align-items: center; gap: 16px; }
+/* Переключатель языка: две таблички RU / UA, текущая — залита чернилом */
+.lang { display: inline-flex; border: 1.5px solid var(--ink); border-radius: 6px; overflow: hidden; }
+.lang__item {
+  display: inline-flex; align-items: center; min-height: 28px; padding: 2px 10px;
+  font-weight: 700; font-size: .8125rem; letter-spacing: .04em; color: var(--ink); text-decoration: none;
+}
+.lang__item + .lang__item { border-left: 1.5px solid var(--ink); }
+.lang__item:hover { background: var(--mist); }
+.lang__item[aria-current] { background: var(--ink); color: var(--paper); }
+.lang__item:focus-visible { outline: 2px solid var(--gulf); outline-offset: -4px; }
+@media (max-width: 599px) {
+  .masthead__tools { gap: 10px; }
+  .lang__item { min-height: 32px; padding-inline: 12px; }
+}
 
 .masthead__brand { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 6px 18px; }
 .logo { display: inline-flex; align-items: center; gap: 14px; color: var(--ink); text-decoration: none; }

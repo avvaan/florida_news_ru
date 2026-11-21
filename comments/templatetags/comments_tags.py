@@ -4,6 +4,7 @@ from datetime import timedelta
 from django import template
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from comments.forms import CommentForm
 from comments.models import Comment
@@ -29,7 +30,7 @@ def comments_block(context, target):
         "comments": comments, "rating": target.comments.rating() if kind == "listing" else None,
         "form": CommentForm(kind=kind, pk=target.pk), "mine": mine, "action": action_url(kind, target.pk),
         "reported": int(reported) if reported.isdigit() else None,
-        "noun": "отзыв" if kind == "listing" else "комментарий",
+        "noun": _("отзыв") if kind == "listing" else _("комментарий"),
         # Автообновление страницы — только первые две минуты, пока идёт проверка в фоне.
         "mine_fresh": bool(mine and timezone.now() - mine.created_at < timedelta(minutes=2)),
     }
