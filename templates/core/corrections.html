@@ -1,33 +1,35 @@
 {% extends "base.html" %}
-{% load news_extras %}
-{% block title %}Исправления — {{ site_name }}{% endblock %}
-{% block description %}Как сообщить об ошибке в заметке: мы быстро проверяем и исправляем ошибки и помечаем исправление в заметке.{% endblock %}
-{% block og %}{% include "includes/og.html" with title="Исправления — "|add:site_name description="Как сообщить об ошибке в заметке: мы быстро проверяем и исправляем ошибки и помечаем исправление в заметке." url=request.path %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url "Исправления" request.path %}{% endblock %}
+{% load news_extras i18n %}
+{% block title %}{% translate "Исправления" %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Как сообщить об ошибке в заметке: мы быстро проверяем и исправляем ошибки и помечаем исправление в заметке." %}{% endblock %}
+{% block og %}{% translate "Исправления" as og_title %}{% translate "Как сообщить об ошибке в заметке: мы быстро проверяем и исправляем ошибки и помечаем исправление в заметке." as og_description %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=og_description url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_label %}{% translate "Исправления" as corrections_label %}{% breadcrumbs_jsonld home_label home_url corrections_label request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page">
-    <h1 class="story__title">Исправления</h1>
+    <h1 class="story__title">{% translate "Исправления" %}</h1>
     <div class="story__body">
-      <p>Мы стараемся писать точно, но ошибки случаются. Если вы заметили в заметке неверную дату,
-        цифру, имя или вывод, которого нет в источнике, — сообщите нам.</p>
+      <p>{% blocktranslate trimmed %}Мы стараемся писать точно, но ошибки случаются. Если вы заметили в заметке неверную дату,
+        цифру, имя или вывод, которого нет в источнике, — сообщите нам.{% endblocktranslate %}</p>
 
-      <h2>Как сообщить об ошибке</h2>
-      <p>Напишите
-        {% if site_conf.contact_email %}на почту редакции <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a>{% else %}нам — контакты на странице <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a>{% endif %}.
-        В письме укажите:</p>
+      <h2>{% translate "Как сообщить об ошибке" %}</h2>
+      <p>{% if site_conf.contact_email %}{% blocktranslate trimmed with email=site_conf.contact_email %}Напишите
+        на почту редакции <a href="mailto:{{ email }}">{{ email }}</a>.
+        В письме укажите:{% endblocktranslate %}{% else %}{% url 'core-page' 'contacts' as contacts_url %}{% blocktranslate trimmed %}Напишите
+        нам — контакты на странице <a href="{{ contacts_url }}">«Контакты»</a>.
+        В письме укажите:{% endblocktranslate %}{% endif %}</p>
       <ul>
-        <li>ссылку на заметку;</li>
-        <li>что именно неверно;</li>
-        <li>если можете — ссылку на источник с правильными данными.</li>
+        <li>{% translate "ссылку на заметку;" %}</li>
+        <li>{% translate "что именно неверно;" %}</li>
+        <li>{% translate "если можете — ссылку на источник с правильными данными." %}</li>
       </ul>
 
-      <h2>Что мы делаем</h2>
-      <p>Проверяем сообщение и быстро исправляем ошибку. В исправленной заметке помечаем,
-        что и когда было исправлено.</p>
+      <h2>{% translate "Что мы делаем" %}</h2>
+      <p>{% blocktranslate trimmed %}Проверяем сообщение и быстро исправляем ошибку. В исправленной заметке помечаем,
+        что и когда было исправлено.{% endblocktranslate %}</p>
 
-      <p>Вопросы об авторских правах — на странице
-        <a href="{% url 'core-dmca' %}">«Авторские права и DMCA»</a>.</p>
+      {% url 'core-dmca' as dmca_url %}<p>{% blocktranslate trimmed %}Вопросы об авторских правах — на странице
+        <a href="{{ dmca_url }}">«Авторские права и DMCA»</a>.{% endblocktranslate %}</p>
     </div>
   </article>
 </div>

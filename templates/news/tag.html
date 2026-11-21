@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% load news_extras %}
-{% block title %}#{{ tag.name }} — новости Флориды на русском — {{ site_name }}{% endblock %}
-{% block description %}Все заметки с тегом «{{ tag.name }}»: новости Флориды на русском языке.{% endblock %}
-{% block og %}{% with t="#"|add:tag.name|add:" — новости Флориды на русском" %}{% include "includes/og.html" with title=t description="Все заметки с тегом «"|add:tag.name|add:"»: новости Флориды на русском языке." url=request.path %}{% endwith %}{% endblock %}
+{% load news_extras i18n %}
+{% block title %}#{{ tag.tr.name }} — {% translate "новости Флориды на русском" %} — {{ site_name }}{% endblock %}
+{% block description %}{% blocktranslate trimmed with tag=tag.tr.name %}Все заметки с тегом «{{ tag }}»: новости Флориды на русском языке.{% endblocktranslate %}{% endblock %}
+{% block og %}{% translate "новости Флориды на русском" as tagline %}{% blocktranslate trimmed asvar desc with tag=tag.tr.name %}Все заметки с тегом «{{ tag }}»: новости Флориды на русском языке.{% endblocktranslate %}{% with t="#"|add:tag.tr.name|add:" — "|add:tagline %}{% include "includes/og.html" with title=t description=desc url=request.path %}{% endwith %}{% endblock %}
 {% block robots %}{% if is_thin %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url "#"|add:tag.name tag.get_absolute_url %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_name %}{% breadcrumbs_jsonld home_name home_url "#"|add:tag.tr.name tag.get_absolute_url %}{% endblock %}
 {% block content %}
 <div class="wrap">
-  <header class="section-head"><h1 class="section-head__h">#{{ tag.name }}</h1></header>
+  <header class="section-head"><h1 class="section-head__h">#{{ tag.tr.name }}</h1></header>
   <div class="columns">
-    <section class="feed" aria-label="Заметки">
-      {% for a in feed %}{% include "includes/row.html" %}{% empty %}<p class="empty">Заметок с этим тегом пока нет.</p>{% endfor %}
+    <section class="feed" aria-label="{% translate "Заметки" %}">
+      {% for a in feed %}{% include "includes/row.html" %}{% empty %}<p class="empty">{% translate "Заметок с этим тегом пока нет." %}</p>{% endfor %}
       {% include "includes/pager.html" %}
     </section>
     <aside class="sidebar">{% include "includes/tg_cta.html" %}{% if ads.sidebar %}{% include "includes/ad.html" with ad=ads.sidebar %}{% endif %}</aside>

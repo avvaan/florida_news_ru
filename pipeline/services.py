@@ -626,6 +626,13 @@ def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | N
             stats["classified"] = classify_new(say)
             stats["written"] = write_pending(say)
             say(f"Отбор: {stats['classified']}, написано заметок: {stats['written']}")
+            try:
+                from core.translation import translate_pending
+
+                stats["translated_uk"] = translate_pending(say)
+            except Exception as exc:  # noqa: BLE001 — сбой перевода не мешает новостям
+                say(f"Перевод на украинский: сбой — {type(exc).__name__}: {exc}")
+                log.exception("Сбой перевода на украинский")
         stats["ai_cost_today"] = str(AICall.objects.today().total_cost())
     except Exception as exc:  # noqa: BLE001
         run.success = False

@@ -2,12 +2,13 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from core.i18n import Translatable, uk_field
 from core.text import make_slug
 
 from .covers import all_covers, pick_cover, primary_pool
 
 
-class Region(models.Model):
+class Region(Translatable):
     slug = models.SlugField("код", unique=True)
     name = models.CharField("название", max_length=60)
     name_locative = models.CharField(
@@ -18,6 +19,12 @@ class Region(models.Model):
     is_statewide = models.BooleanField(
         "весь штат", default=False, help_text="Новости этого региона показываются во всех фильтрах"
     )
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name", "name_locative", "description")
+    name_uk = uk_field(name)
+    name_locative_uk = uk_field(name_locative)
+    description_uk = uk_field(description)
 
     class Meta:
         ordering = ["order"]
@@ -46,7 +53,7 @@ MERGED_INTO = {"incidents": "safety", "money": BUSINESS}
 HIDDEN_IN_NAV = {*MERGED_INTO, EVENTS}
 
 
-class Topic(models.Model):
+class Topic(Translatable):
     slug = models.SlugField("код", unique=True)
     name = models.CharField("название", max_length=60)
     short_name = models.CharField("короткое название", max_length=30)
@@ -60,6 +67,12 @@ class Topic(models.Model):
         "(нужны файлы .webp, -640.webp и .jpg)",
     )
     order = models.PositiveSmallIntegerField("порядок", default=0)
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name", "short_name", "description")
+    name_uk = uk_field(name)
+    short_name_uk = uk_field(short_name)
+    description_uk = uk_field(description)
 
     class Meta:
         ordering = ["order"]
@@ -83,9 +96,13 @@ class Topic(models.Model):
         return [self.slug, *(s for s, target in MERGED_INTO.items() if target == self.slug)]
 
 
-class Tag(models.Model):
+class Tag(Translatable):
     name = models.CharField("тег", max_length=60, unique=True)
     slug = models.SlugField(max_length=80, unique=True)
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name",)
+    name_uk = uk_field(name)
 
     class Meta:
         ordering = ["name"]
@@ -145,7 +162,7 @@ class ArticleQuerySet(models.QuerySet):
         return self.filter(models.Q(region=region) | models.Q(region__is_statewide=True))
 
 
-class Article(models.Model):
+class Article(Translatable):
     """Наша заметка на русском."""
 
     class Status(models.TextChoices):
@@ -227,6 +244,13 @@ class Article(models.Model):
 
     objects = ArticleQuerySet.as_manager()
 
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("title", "teaser", "body", "for_you")
+    title_uk = uk_field(title)
+    teaser_uk = uk_field(teaser)
+    body_uk = uk_field(body)
+    for_you_uk = uk_field(for_you)
+
     class Meta:
         ordering = ["-published_at", "-created_at"]
         verbose_name = "заметка"
@@ -245,7 +269,7 @@ class Article(models.Model):
 
     @property
     def paragraphs(self) -> list[str]:
-        return [p.strip() for p in self.body.replace("\r\n", "\n").split("\n\n") if p.strip()]
+        return [p.strip() for p in self.loc("body").replace("\r\n", "\n").split("\n\n") if p.strip()]
 
     @property
     def blocks(self) -> list[tuple[str, str]]:
@@ -254,7 +278,7 @@ class Article(models.Model):
 
     @property
     def for_you_points(self) -> list[str]:
-        return [line.strip(" -•\t") for line in self.for_you.splitlines() if line.strip(" -•\t")]
+        return [line.strip(" -•\t") for line in self.loc("for_you").splitlines() if line.strip(" -•\t")]
 
     @property
     def word_count(self) -> int:

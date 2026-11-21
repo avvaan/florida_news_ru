@@ -4,6 +4,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 
+from core.i18n import Translatable, uk_field
+
 
 class SiteSettings(models.Model):
     """Единственная запись с порогами, лимитами и переключателями."""
@@ -111,7 +113,7 @@ class SiteSettings(models.Model):
         return obj
 
 
-class Page(models.Model):
+class Page(Translatable):
     """Статические страницы: «О проекте», «Реклама», «Контакты» и т.п."""
 
     slug = models.SlugField("адрес", unique=True)
@@ -120,6 +122,11 @@ class Page(models.Model):
     in_footer = models.BooleanField("в подвале", default=True)
     order = models.PositiveSmallIntegerField("порядок", default=0)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("title", "body")
+    title_uk = uk_field(title)
+    body_uk = uk_field(body)
 
     class Meta:
         ordering = ["order"]
@@ -135,7 +142,7 @@ class Page(models.Model):
         return reverse("core-page", args=[self.slug])
 
 
-class Author(models.Model):
+class Author(Translatable):
     """Автор или редактор. Заполняется в админке; на сайте видны только включённые."""
 
     name = models.CharField("имя", max_length=120)
@@ -151,6 +158,11 @@ class Author(models.Model):
     )
     is_active = models.BooleanField("показывать на сайте", default=False)
     order = models.PositiveSmallIntegerField("порядок", default=0)
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("role", "bio")
+    role_uk = uk_field(role)
+    bio_uk = uk_field(bio)
 
     class Meta:
         ordering = ["order", "name"]

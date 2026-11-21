@@ -13,7 +13,7 @@ class AuthorAdmin(admin.ModelAdmin):
     list_display = ("name", "role", "is_active", "order")
     list_editable = ("is_active", "order")
     prepopulated_fields = {"slug": ("name",)}
-    fields = ("name", "slug", "role", "bio", "photo", "email", "links", "is_active", "order")
+    fields = ("name", "slug", "role", "bio", "role_uk", "bio_uk", "photo", "email", "links", "is_active", "order")
 
 
 @admin.register(SiteSettings)

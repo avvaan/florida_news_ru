@@ -4,6 +4,7 @@ import hmac
 from django.conf import settings
 from django.db.models import Avg, Count
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
 from core import geo
@@ -116,7 +117,7 @@ def submit(request):
             return render(request, "directory/submit_done.html", {"submission": None})
         key = ip_hash(request)
         if Submission.objects.since(24).filter(ip_hash=key).count() >= moderation.MAX_PER_IP_PER_DAY:
-            form.add_error(None, "С этого адреса уже отправлено несколько заявок за сутки. Попробуйте завтра.")
+            form.add_error(None, _("С этого адреса уже отправлено несколько заявок за сутки. Попробуйте завтра."))
         else:
             sub = form.save(commit=False)
             sub.ip_hash = key

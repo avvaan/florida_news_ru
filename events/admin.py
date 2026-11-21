@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.utils.html import format_html
 
 from core import images
+from core.i18n import uk_fieldset
 
 from . import moderation
 from .models import Event
@@ -51,6 +52,7 @@ class EventAdmin(admin.ModelAdmin):
                        "description": "Событие одобряет или отклоняет ИИ. Снять с публикации — действие в списке."}),
         ("Картинка", {"fields": ("image_status", "image_url", "image_file_id", "image_note")}),
         ("Заявитель (не публикуется)", {"fields": ("contact_name", "contact_email", "ip_hash", "token")}),
+        uk_fieldset(Event),
     )
 
     @admin.display(description="картинка")

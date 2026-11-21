@@ -1,22 +1,23 @@
 {% extends "base.html" %}
-{% load news_extras %}
+{% load news_extras i18n %}
 {% block title %}{{ author.name }} — {{ site_name }}{% endblock %}
-{% block description %}{{ author.name }}{% if author.role %}, {{ author.role }}{% endif %} — {{ site_name }}. {{ author.bio|truncatechars:120 }}{% endblock %}
-{% block og %}{% include "includes/og.html" with type="profile" title=author.name|add:" — "|add:site_name description=author.bio|default:author.role|truncatechars:160 url=request.path %}{% endblock %}
-{% block robots %}{% if is_preview %}noindex, nofollow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% if not is_preview %}{% person_jsonld author %}{% url 'news:home' as home_url %}{% url 'core-about' as about_url %}{% breadcrumbs_jsonld "Главная" home_url "О проекте" about_url author.name request.path %}{% endif %}{% endblock %}
+{% block description %}{{ author.name }}{% if author.tr.role %}, {{ author.tr.role }}{% endif %} — {{ site_name }}. {{ author.tr.bio|truncatechars:120 }}{% endblock %}
+{% block og %}{% include "includes/og.html" with type="profile" title=author.name|add:" — "|add:site_name description=author.tr.bio|default:author.tr.role|truncatechars:160 url=request.path %}{% endblock %}
+{% block robots %}{% if author.bio and not author.shown_translated %}noindex, follow{% else %}{% if is_preview %}noindex, nofollow{% else %}{{ block.super }}{% endif %}{% endif %}{% endblock %}
+{% block alternates %}{% if author.bio %}{% include "includes/alternates.html" with obj=author %}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% if not is_preview %}{% person_jsonld author %}{% url 'news:home' as home_url %}{% url 'core-about' as about_url %}{% translate "Главная" as home_label %}{% translate "О проекте" as about_label %}{% breadcrumbs_jsonld home_label home_url about_label about_url author.name request.path %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page author">
-    {% if is_preview %}<p class="preview-note">Автор выключен: страницу видит только редакция.</p>{% endif %}
+    {% if is_preview %}<p class="preview-note">{% translate "Автор выключен: страницу видит только редакция." %}</p>{% endif %}
     <header class="author__head">
       {% if author.photo %}<img class="author__photo" src="{{ author.photo.url }}" alt="{{ author.name }}" width="120" height="120" loading="lazy">{% endif %}
       <div>
         <h1 class="story__title">{{ author.name }}</h1>
-        {% if author.role %}<p class="author__role">{{ author.role }}, {{ site_name }}</p>{% endif %}
+        {% if author.tr.role %}<p class="author__role">{{ author.tr.role }}, {{ site_name }}</p>{% endif %}
       </div>
     </header>
-    {% if author.bio %}<div class="story__body">{{ author.bio|linebreaks }}</div>{% endif %}
+    {% if author.tr.bio %}<div class="story__body">{{ author.tr.bio|linebreaks }}</div>{% endif %}
     {% if author.email or author.link_list %}
     <ul class="author__contacts">
       {% if author.email %}<li><a href="mailto:{{ author.email }}">{{ author.email }}</a></li>{% endif %}
@@ -25,11 +26,11 @@
     {% endif %}
     {% if articles %}
     <section class="author__articles" aria-labelledby="author-articles-h">
-      <h2 class="about-team__h" id="author-articles-h">Материалы</h2>
-      <ul class="about-team__list">{% for a in articles %}<li><a href="{{ a.get_absolute_url }}"><b>{{ a.title }}</b><span>{{ a.published_at|date:"j E Y" }}</span></a></li>{% endfor %}</ul>
+      <h2 class="about-team__h" id="author-articles-h">{% translate "Материалы" %}</h2>
+      <ul class="about-team__list">{% for a in articles %}<li><a href="{{ a.get_absolute_url }}"><b>{{ a.tr.title }}</b><span>{{ a.published_at|date:"j E Y" }}</span></a></li>{% endfor %}</ul>
     </section>
     {% endif %}
-    <p class="more-guide"><a href="{% url 'core-about' %}">О проекте и о том, как мы работаем</a></p>
+    <p class="more-guide"><a href="{% url 'core-about' %}">{% translate "О проекте и о том, как мы работаем" %}</a></p>
   </article>
 </div>
 {% endblock %}

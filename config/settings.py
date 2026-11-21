@@ -88,6 +88,7 @@ MIDDLEWARE = [
     "core.middleware.CanonicalHostMiddleware",  # *.onrender.com → 301 на florida-ru.com
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # /uk/… — украинская версия, без префикса — русская
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -108,6 +109,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.site",
+                "core.context_processors.languages",
             ],
         },
     },
@@ -130,6 +132,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "ru"
+# Русский — основной язык (адреса без префикса), украинский — /uk/… Строки интерфейса пишутся
+# по-русски, перевод — в locale/uk/LC_MESSAGES/django.po; контент — поля *_uk (см. core/i18n.py).
+LANGUAGES = [("ru", "Русский"), ("uk", "Українська")]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = "America/New_York"
 USE_I18N = True
 USE_TZ = True
@@ -200,6 +206,10 @@ AI_DEDUP_MODEL = os.environ.get("AI_DEDUP_MODEL") or (
 )
 AI_WRITER_MODEL = os.environ.get("AI_WRITER_MODEL") or _DEFAULT_MODELS["writer"]
 AI_VERIFIER_MODEL = os.environ.get("AI_VERIFIER_MODEL") or AI_CLASSIFIER_MODEL
+# Перевод контента на украинский (core/translation.py). Пусто — модель отбора: перевод ru→uk ей по силам.
+AI_TRANSLATOR_MODEL = os.environ.get("AI_TRANSLATOR_MODEL") or AI_CLASSIFIER_MODEL
+# Сколько долларов в день можно потратить на перевод (кроме срочного перевода свежих заметок).
+AI_TRANSLATE_BUDGET_PER_DAY = os.environ.get("AI_TRANSLATE_BUDGET_PER_DAY", "1.00")
 # Проверка картинок из форм (афиши, фото бизнесов): нужна модель со зрением — Claude через ключ Anthropic.
 # Без ключа картинки из форм не публикуются, текст проверяется как обычно.
 AI_VISION_MODEL = os.environ.get("AI_VISION_MODEL") or ("claude-haiku-5-5" if ANTHROPIC_API_KEY else "")

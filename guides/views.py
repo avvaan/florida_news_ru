@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
+from django.utils.translation import gettext as _
 
 from core.models import SiteSettings
 
@@ -8,6 +9,9 @@ from .models import Guide
 
 def guide_list(request):
     sections = Guide.objects.by_section()
+    for section in sections:
+        if section["slug"] == "other":  # раздел без названия в Guide.Section — подпись из GuideQuerySet.by_section
+            section["name"] = _("Другие гайды")
     all_guides = [g for section in sections for g in section["guides"]]
     return render(request, "guides/list.html", {"sections": sections, "all_guides": all_guides})
 

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from core.i18n import uk_fieldset
 from pipeline.runner import AlreadyRunning, start_covers
 from pipeline.services import publish_article, reject_article
 from pipeline.telegram import build_post, post_article
@@ -93,6 +94,7 @@ class BaseArticleAdmin(admin.ModelAdmin):
         ("Проверка ИИ", {"fields": ("verification_box", "story_link")}),
         ("Telegram", {"fields": ("telegram_preview", "telegram_posted_at"), "classes": ("collapse",)}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        uk_fieldset(Article),
     )
 
     def save_model(self, request, obj, form, change):
