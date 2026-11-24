@@ -1,4 +1,4 @@
-# Florida RU — новости Флориды по-русски
+# TutFlorida — новости Флориды
 
 Сайт и Telegram-канал с новостями Флориды на русском для русско- и украиноязычных
 жителей Майами, Орландо, Тампы и Джексонвилла. Дважды в день, утром и вечером, система сама собирает новости
@@ -321,7 +321,7 @@ luckyladybloom) в Docker Compose за Cloudflare Tunnel. Проект compose �
     Проверка здоровья — `deploy/healthcheck.py` (`/healthz` с хостом сайта и `X-Forwarded-Proto: https`);
   - `db` — PostgreSQL 18 (та же версия, что была на Render), данные в томе `florida_pgdata`;
   - `cloudflared` — туннель `florida-ru`: соединяется с Cloudflare изнутри, порт на роутере не открыт.
-    DNS `florida-ru.com` и `www` — CNAME на `<id туннеля>.cfargotunnel.com` (proxied).
+    DNS `tutflorida.com` и `www` — CNAME на `<id туннеля>.cfargotunnel.com` (proxied).
 - Все настройки и секреты — `deploy/.env.prod` (в git не попадает, список имён — `deploy/env.prod.example`,
   создаётся `bash deploy/init-env.sh`). Картинки рекламы и фото авторов — в томе `florida_media`,
   отдаются самим Django (`SERVE_MEDIA=1`).
@@ -612,7 +612,7 @@ localStorage. Большинство роботов, сборщиков прев
 `188.114.97.7` — это Cloudflare) и пустой адрес — «прямой заход»; свой домен — переход внутри сайта, не вход.
 `l.facebook.com`/`lm.facebook.com`/`m.facebook.com` → Facebook, `l.threads.com` → Threads, `t.co` → X,
 `android-app://org.telegram.messenger` → Telegram. Метьте свои ссылки:
-`https://florida-ru.com/guides/kak-najti-vracha/?utm_source=telegram&utm_medium=group`.
+`https://tutflorida.com/guides/kak-najti-vracha/?utm_source=telegram&utm_medium=group`.
 
 **Приватность.** IP не сохраняется (в кэше лимита — только хэш на минуту). Код из localStorage на сервер
 не пишется: из него и даты считается HMAC, который меняется каждые сутки, поэтому «посетители за период» —
@@ -674,7 +674,7 @@ python manage.py translate_content --model guide --budget 3
 - **Schema.org (JSON-LD).** `NewsArticle` для заметок; `Article` для гайдов (раздел, темы, все иллюстрации,
   объём, официальные источники) плюс `FAQPage` из раздела «Вопросы и ответы» (345 вопросов в 43 гайдах);
   `BreadcrumbList` на всех страницах; `CollectionPage` + `ItemList` для гайдов, регионов и рубрик;
-  `WebSite` и `NewsMediaOrganization` (Florida RU, издатель CITRUSTACK LLC) на главной и `/about/`; `Person` для авторов.
+  `WebSite` и `NewsMediaOrganization` (TutFlorida, издатель CITRUSTACK LLC) на главной и `/about/`; `Person` для авторов.
 - **Индексация.** `sitemap.xml` с картинками (`image:image`) и датами обновления: заметки, гайды, разделы, страницы,
   авторы. Отдельный Google News sitemap `/news-sitemap.xml` (48 часов), `robots.txt` со ссылками на оба, RSS `/rss/`.
   `noindex` — у 404, черновиков, предпросмотра, тегов, где меньше трёх заметок, и у **коротких заметок**
@@ -718,5 +718,5 @@ Google Search Console: задайте `GOOGLE_SITE_VERIFICATION` — значе�
   У автора — фото, должность, о себе, e-mail и профили (`sameAs`); на `/author/<slug>/` — его материалы,
   на `/about/` — люди редакции и почта. «Настройки» → «редактор по умолчанию» (миграция ставит заглушку
   `redaktor`): новые заметки подписываются его именем, а в `NewsArticle` он — `author` (`Person`); в гайдах — `editor`.
-  Пока редактор выключен, подпись — «Редакция Florida RU». Включайте только настоящего человека, который
+  Пока редактор выключен, подпись — «Редакция TutFlorida». Включайте только настоящего человека, который
   действительно проверяет заметки.

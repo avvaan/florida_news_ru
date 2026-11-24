@@ -113,8 +113,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .logo { display: inline-flex; align-items: center; gap: 14px; color: var(--ink); text-decoration: none; }
 .logo__mark { width: 56px; height: 56px; }
 .logo__word {
-  font: 800 1.6rem/1 var(--display); letter-spacing: -.02em; text-transform: uppercase;
+  font: 800 1.75rem/1 var(--display); letter-spacing: -.03em;
 }
+.logo__tut { color: var(--gulf); }
 .masthead__tagline { max-width: 28ch; color: var(--ink-2); font-size: 1rem; line-height: 1.4; text-align: right; }
 
 /* Регионы — как зелёные указатели флоридских хайвеев */
@@ -543,6 +544,7 @@ article.split { margin-top: 0; }
 .footer__grid { display: grid; gap: 32px; }
 .logo--footer { color: #fff; }
 .logo--footer .logo__word { font-size: 1.3rem; }
+.logo--footer .logo__tut { color: var(--shallow); }
 .logo--footer .logo__mark { width: 44px; height: 44px; }
 .footer__note { margin-top: 16px; max-width: 42ch; font-size: 1rem; line-height: 1.5; }
 .footer__mail { margin-top: 12px; font-size: 1rem; }

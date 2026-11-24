@@ -1,4 +1,4 @@
-"""Настройки проекта «Florida RU».
+"""Настройки проекта «TutFlorida».
 
 Все секреты и всё, что отличается между локальной машиной и продом,
 читается из переменных окружения (см. .env.example).
@@ -42,14 +42,16 @@ CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 # Публичный адрес сайта — нужен для ссылок в Telegram, sitemap и canonical.
 # Канонический адрес сайта: canonical, og:url, JSON-LD, sitemap, RSS, robots.txt, ссылки в Telegram.
-SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000" if DEBUG else "https://florida-ru.com").rstrip("/")
+SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000" if DEBUG else "https://tutflorida.com").rstrip("/")
 if ".onrender.com" in SITE_URL:  # служебный адрес Render никогда не бывает каноническим
-    SITE_URL = "https://florida-ru.com"
+    SITE_URL = "https://tutflorida.com"
 CANONICAL_HOST = SITE_URL.split("://", 1)[-1].split("/", 1)[0]
-# Запросы на эти хосты получают 301 на SITE_URL с тем же путём (кроме проверки здоровья).
-REDIRECT_TO_CANONICAL_SUFFIXES = (".onrender.com",)
+# Запросы на эти хосты получают 301 на SITE_URL с тем же путём (кроме проверки здоровья):
+# служебный адрес Render, www-вариант и прежний домен florida-ru.com (оставлен на год после переезда на
+# tutflorida.com в ноябре 2026, чтобы старые ссылки и рейтинг перешли на новый адрес).
+REDIRECT_TO_CANONICAL_SUFFIXES = (".onrender.com", "florida-ru.com", f"www.{CANONICAL_HOST}")
 HEALTHCHECK_PATH = "/healthz"
-SITE_NAME = "Florida RU"
+SITE_NAME = "TutFlorida"
 # Мета-тег подтверждения сайта в Google Search Console (только значение content="…").
 GOOGLE_SITE_VERIFICATION = os.environ.get("GOOGLE_SITE_VERIFICATION", "").strip()
 
@@ -85,10 +87,11 @@ DIRECTORY_MODERATION_SYNC = env_bool("DIRECTORY_MODERATION_SYNC")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "core.middleware.CanonicalHostMiddleware",  # *.onrender.com → 301 на florida-ru.com
+    "core.middleware.CanonicalHostMiddleware",  # florida-ru.com, www, *.onrender.com → 301 на tutflorida.com
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",  # /uk/… — украинская версия, без префикса — русская
+    "core.middleware.PreferredLanguageMiddleware",  # украинский браузер → та же страница на /uk/
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -177,7 +180,7 @@ LOGGING = {
 
 FETCH_USER_AGENT = os.environ.get(
     "FETCH_USER_AGENT",
-    f"FloridaRUBot/1.0 (+{SITE_URL}/about/)",
+    f"TutFloridaBot/1.0 (+{SITE_URL}/about/)",
 )
 FETCH_TIMEOUT = int(os.environ.get("FETCH_TIMEOUT", "20"))
 # После скольких ошибок подряд источник помечается как сломанный.
@@ -291,7 +294,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"user": "600/hour"},
 }
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Florida RU — API управления",
+    "TITLE": "TutFlorida — API управления",
     "DESCRIPTION": "Заметки, источники, реклама, настройки, страницы, запуск конвейера и статистика. "
                    "Авторизация: заголовок `Authorization: Token <ключ>` (ключ сотрудника).",
     "VERSION": "1.0.0",

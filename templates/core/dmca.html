@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load news_extras i18n %}
 {% block title %}{% translate "Авторские права и DMCA" %} — {{ site_name }}{% endblock %}
-{% block description %}{% translate "Как сообщить о нарушении авторских прав на сайте Florida RU: уполномоченный агент по DMCA, уведомление о нарушении и встречное уведомление." %}{% endblock %}
-{% block og %}{% translate "Авторские права и DMCA" as og_title %}{% translate "Как сообщить о нарушении авторских прав на сайте Florida RU: агент по DMCA, уведомление и встречное уведомление." as og_description %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=og_description url=request.path %}{% endblock %}
+{% block description %}{% translate "Как сообщить о нарушении авторских прав на сайте TutFlorida: уполномоченный агент по DMCA, уведомление о нарушении и встречное уведомление." %}{% endblock %}
+{% block og %}{% translate "Авторские права и DMCA" as og_title %}{% translate "Как сообщить о нарушении авторских прав на сайте TutFlorida: агент по DMCA, уведомление и встречное уведомление." as og_description %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=og_description url=request.path %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_label %}{% translate "Авторские права и DMCA" as dmca_label %}{% breadcrumbs_jsonld home_label home_url dmca_label request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
@@ -10,7 +10,7 @@
     <h1 class="story__title">{% translate "Авторские права и DMCA" %}</h1>
     <div class="story__body">
       <h2>{% translate "Кто мы" %}</h2>
-      <p>{% translate "Сайт Florida RU (florida-ru.com) принадлежит компании CITRUSTACK LLC, Флорида." %}</p>
+      <p>{% translate "Сайт TutFlorida (tutflorida.com) принадлежит компании CITRUSTACK LLC, Флорида." %}</p>
 
       <h2>{% translate "Наш принцип" %}</h2>
       <p>{% blocktranslate trimmed %}Мы пересказываем новости своими словами и всегда ставим ссылку на первоисточник.

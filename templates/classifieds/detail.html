@@ -74,7 +74,7 @@
           {% if ad.whatsapp_url %}<li><a class="btn btn--ghost" href="{{ ad.whatsapp_url }}" target="_blank" rel="noopener nofollow">{% translate "Написать в WhatsApp" %}</a></li>{% endif %}
           {% if ad.telegram_url %}<li><a class="btn btn--ghost" href="{{ ad.telegram_url }}" target="_blank" rel="noopener nofollow">Telegram @{{ ad.telegram }}</a></li>{% endif %}
         </ul>
-        <p class="dir-form__help">{% translate "Скажите, что нашли объявление на Florida RU." %}</p>
+        <p class="dir-form__help">{% translate "Скажите, что нашли объявление на TutFlorida." %}</p>
         {% elif contacts_limited %}
         <p class="dir-form__error" role="alert">{% translate "Слишком много просмотров контактов с вашего адреса. Попробуйте через час." %}</p>
         {% else %}

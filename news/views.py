@@ -201,7 +201,7 @@ def article_view(request, slug):
 
 
 class LatestFeed(Feed):
-    title = gettext_lazy("Florida RU — новости штата по-русски")
+    title = gettext_lazy("TutFlorida — новости штата")
     description = gettext_lazy("Короткие новости Флориды на русском со ссылками на первоисточники")
 
     # Ссылки только на канонический домен (SITE_URL), а не на хост, с которого пришёл запрос.

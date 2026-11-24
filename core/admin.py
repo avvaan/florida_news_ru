@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 
 from .models import Author, Page, SiteSettings
 
-admin.site.site_header = "Florida RU — редакция"
-admin.site.site_title = "Florida RU"
+admin.site.site_header = "TutFlorida — редакция"
+admin.site.site_title = "TutFlorida"
 admin.site.index_title = "Управление сайтом"
 
 
