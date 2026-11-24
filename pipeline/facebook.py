@@ -20,7 +20,7 @@ from .telegram import article_url
 
 log = logging.getLogger(__name__)
 
-GRAPH_URL = "https://graph.facebook.com/v21.0"
+GRAPH_URL = "https://graph.facebook.com/v27.0"  # версия по умолчанию у приложения «TutFlorida Autopost»
 
 
 def facebook_ready() -> bool:
