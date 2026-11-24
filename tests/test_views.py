@@ -104,19 +104,19 @@ def test_ads_respect_dates_and_region(client, article):
     assert "Просроченная реклама" not in client.get("/").content.decode()
 
 
-def test_top_banner_markup_survives_ad_blockers_and_sits_under_masthead(client, article):
-    """Широкий блок: без классов и адресов из списков блокировщиков; на главной выведен и под шапкой
-    (для телефона), и после главного (для широкого экрана)."""
+def test_top_banner_markup_survives_ad_blockers_and_sits_after_lead(client, article):
+    """Блок слота top: без классов и адресов из списков блокировщиков; на главной выведен и сразу после
+    главной новости (для узкого экрана), и после «Главного» (для широкого), но не под шапкой."""
     banner = AdBanner.objects.create(advertiser="Церковь", slot="top", headline="Ярмарка", url="https://example.com")
     assert banner._meta.get_field("image").upload_to == "promo/"
     html = client.get("/").content.decode()
     assert html.count("Ярмарка") == 2
-    assert 'promo-top--head' in html and 'promo-top--inline' in html
-    assert html.index('promo-top--head') < html.index('id="main"') < html.index('promo-top--inline')
+    assert html.index('id="main"') < html.index('class="lead') < html.index('promo-top--lead')
+    assert html.index('promo-top--lead') < html.index('class="digest"') < html.index('promo-top--inline')
     for blocked in ('class="ad-top', 'ad-top"', "ad__label", "/media/ads/"):
         assert blocked not in html
     other = client.get(article.get_absolute_url()).content.decode()  # на прочих страницах блок один, под шапкой
-    assert other.count("Ярмарка") == 1 and "promo-top--head" not in other
+    assert other.count("Ярмарка") == 1 and "promo-top--lead" not in other
 
 
 def test_admin_review_queue_publish_button(client, article):

@@ -175,14 +175,19 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
    и прямое объявление местной организации пропадало у всех, у кого стоит блокировщик. */
 .promo-top { padding-top: 20px; }
 .main .promo-top { padding-top: 36px; }
-/* На главной и в разделах широкий блок на телефоне стоит сразу под шапкой (внутри страницы он
-   оказывался на третьем экране), на широком экране — после главного. В шаблоне он выведен дважды. */
+/* На главной и в разделах блок на узком экране стоит сразу после главной новости (после всего
+   «Главного» он оказывался на третьем экране телефона), на широком — после «Главного».
+   В шаблоне он выведен дважды, лишний скрыт. */
 .promo-top--inline { display: none; }
-@media (min-width: 760px) {
-  .promo-top--head { display: none; }
+.front .promo-top { padding-top: 0; }
+@media (min-width: 960px) {
+  .promo-top--lead { display: none; }
   .promo-top--inline { display: block; }
 }
 .promo { display: grid; gap: 6px; }
+/* Блок слота «под шапкой» — небольшой и по центру, не во всю ширину страницы. */
+.promo--wide { max-width: 560px; margin-inline: auto; }
+@media (max-width: 599px) { .promo--wide { max-width: 82%; } }
 .promo__label { font-size: .875rem; color: var(--muted); letter-spacing: .02em; }
 .promo__link { display: block; border-radius: var(--radius); overflow: hidden; background: var(--mist); text-decoration: none; }
 .promo__link img { width: 100%; }

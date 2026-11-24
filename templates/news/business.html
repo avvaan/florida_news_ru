@@ -7,7 +7,7 @@
 {% block og %}{% blocktranslate trimmed asvar t with site=site_name %}Деньги и бизнес во Флориде — {{ site }}{% endblocktranslate %}{% include "includes/og.html" with title=t description=topic.tr.description url=request.path image=topic.cover %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% url 'news:business' as biz_url %}{% translate "Главная" as home_name %}{% translate "Деньги и бизнес" as biz_name %}{% if kind %}{% breadcrumbs_jsonld home_name home_url biz_name biz_url kind_name request.path %}{% else %}{% breadcrumbs_jsonld home_name home_url biz_name biz_url %}{% endif %}{% if feed %}{% collection_jsonld topic.tr.name topic.tr.description request.path feed %}{% endif %}{% endblock %}
 
-{% block top_ad %}{% if ads.top %}<div class="wrap promo-top promo-top--head">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}{% endblock %}
+{% block top_ad %}{% endblock %}
 
 {% block content %}
 <div class="wrap">
@@ -45,7 +45,7 @@
   </div>
   {% endif %}
 
-  {% if ads.top %}<div class="promo-top promo-top--inline">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
+  {% if ads.top %}<div class="promo-top">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
 
   <div class="columns">
     <section class="feed" aria-label="{% translate "Лента бизнес-новостей" %}">
