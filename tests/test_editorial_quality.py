@@ -95,14 +95,14 @@ def test_admin_shows_index_state(admin_client):
 # --- Структура текста ------------------------------------------------------------------------
 
 def test_subheadings_render_as_h2(client):
-    a = article(body="Суть новости.\n\n## Что это значит для русскоязычных во Флориде\n\nОбъяснение.")
+    a = article(body="Суть новости.\n\n## Что это значит для вас\n\nОбъяснение.")
     html = client.get(a.get_absolute_url()).content.decode()
-    assert "<h2>Что это значит для русскоязычных во Флориде</h2>" in html and "## " not in html
+    assert "<h2>Что это значит для вас</h2>" in html and "## " not in html
 
 
 def test_writer_prompt_asks_for_400_600_words_and_reader_section():
     assert "400–600 слов" in prompts.WRITE_SYSTEM
-    assert "Что это значит для русскоязычных во Флориде" in prompts.WRITE_SYSTEM
+    assert "## Что это значит для вас" in prompts.WRITE_SYSTEM and "для русскоязычных" not in prompts.WRITE_SYSTEM
     assert "80–150" not in prompts.WRITE_SYSTEM
 
 

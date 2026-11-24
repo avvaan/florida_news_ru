@@ -179,3 +179,24 @@ def test_translation_stops_at_budget(monkeypatch, article):
     monkeypatch.setattr("pipeline.ai.ask", fake)
     assert tr.translate_pending(lambda *a: None, models_=["article"], budget=Decimal("0")) == 0
     assert fake.calls == 0
+
+
+@pytest.mark.translation
+def test_manual_publish_translates_in_background(monkeypatch, admin_client, article):
+    """Опубликованное руками (админка, API) переводится сразу, а не к следующему проходу конвейера."""
+    import sys
+    from unittest import mock
+
+    with mock.patch("core.translation.subprocess.Popen") as popen:
+        assert tr.spawn_translation(limit=5)
+    cmd = popen.call_args.args[0]
+    assert cmd[:3] == [sys.executable, "manage.py", "translate_content"]
+    assert cmd[3:] == ["--limit", "5", "--model", "article"]
+
+    calls = []
+    monkeypatch.setattr("core.translation.spawn_translation", lambda **kw: calls.append(kw) or True)
+    article.status = Article.Status.REVIEW
+    article.save()
+    admin_client.post("/admin/news/article/", {"action": "action_publish", "_selected_action": [article.pk]})
+    article.refresh_from_db()
+    assert article.status == Article.Status.PUBLISHED and calls == [{"limit": 20}]

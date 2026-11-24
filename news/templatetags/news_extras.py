@@ -232,7 +232,7 @@ def website_jsonld() -> str:
         "@type": "WebSite",
         "@id": f"{settings.SITE_URL}/#website",
         "name": settings.SITE_NAME,
-        "alternateName": "Флорида по-русски",
+        "alternateName": "Тут Флорида",
         "url": f"{settings.SITE_URL}/",
         "inLanguage": lang(),
         "publisher": {"@id": f"{settings.SITE_URL}/#organization"},

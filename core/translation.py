@@ -13,6 +13,8 @@
 from __future__ import annotations
 
 import logging
+import subprocess
+import sys
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Callable
@@ -243,3 +245,27 @@ def translate_pending(say=print, *, models_: list[str] | None = None, limit: int
                 log.warning("Сбой перевода %s: %s", _label(target.model), exc)
     say(f"Перевод на украинский: переведено записей {total}, потрачено сегодня ${spent_today()}")
     return total
+
+
+def spawn_translation(*, models_: tuple[str, ...] = ("article",), limit: int = 20) -> bool:
+    """Перевести только что опубликованное в фоне, отдельным процессом `manage.py translate_content`.
+
+    Конвейер переводит в конце своего прохода, а заметку, опубликованную руками из админки или API,
+    читатели /uk/ увидели бы по-русски до следующего прохода. Перевод идёт от новых к старым, так что
+    свежая заметка попадает в первые `limit`. Сбой запуска не мешает публикации — подхватит конвейер.
+    """
+    cmd = [sys.executable, "manage.py", "translate_content", "--limit", str(limit)]
+    for name in models_:
+        cmd += ["--model", name]
+    try:
+        proc = subprocess.Popen(  # noqa: S603 — команда целиком наша
+            cmd, cwd=settings.BASE_DIR, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL, start_new_session=True,
+        )
+    except OSError as exc:
+        log.warning("Не удалось запустить фоновый перевод: %s", exc)
+        return False
+    import threading
+
+    threading.Thread(target=proc.wait, daemon=True).start()  # не копим зомби-процессы
+    return True

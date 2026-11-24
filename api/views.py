@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ads.models import AdBanner
+from core import translation
 from core.models import Page, SiteSettings
 from news.covers import cover_pools, describe
 from news.models import Article, Region, Topic
@@ -60,6 +61,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def publish(self, request, pk=None):
         """Опубликовать на сайте (и отправить в Telegram, если он включён)."""
         article = publish_article(self.get_object())
+        translation.spawn_translation()  # украинская версия — сразу, а не к следующему проходу
         return Response(self.get_serializer(article).data)
 
     @extend_schema(request=None, responses=s.ArticleSerializer)
