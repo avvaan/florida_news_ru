@@ -45,10 +45,13 @@ class Command(BaseCommand):
         parser.add_argument("--stock-id", type=int, help="номер фото на стоке")
         parser.add_argument("--title", default="", help="название фото на стоке")
         parser.add_argument("--source-url", default="", help="страница фото (для фото не со стока: NPS, NASA …)")
+        parser.add_argument("--illustration", action="store_true",
+                            help="своя иллюстрация (Recraft в стиле сайта): подпись «Иллюстрация Florida RU»")
         parser.add_argument("--focus-x", type=float, default=0.5)
         parser.add_argument("--focus-y", type=float, default=0.5)
 
-    def handle(self, slug, number, source, credit, stock_id, title, source_url, focus_x, focus_y, **options):
+    def handle(self, slug, number, source, credit, stock_id, title, source_url, illustration, focus_x, focus_y,
+               **options):
         if number < 1:
             raise CommandError("номер картинки — с 1")
         if source.startswith("https://"):
@@ -84,6 +87,8 @@ class Command(BaseCommand):
         photos[str(number)] = {"credit": credit, "stock_id": stock_id, "title": title}
         if source_url:
             photos[str(number)]["source_url"] = source_url
+        if illustration:
+            photos[str(number)] = {"credit": "Florida RU", "kind": "illustration", "title": title}
         photos = dict(sorted(photos.items(), key=lambda kv: int(kv[0])))
         photos_file.write_text(json.dumps(photos, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         sizes = ", ".join(f"{p.name} {p.stat().st_size // 1024} КБ" for p in files)

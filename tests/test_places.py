@@ -61,6 +61,7 @@ def write_pair(content_dir, slug="test-park", **kwargs):
     photos = {str(n): {"credit": "Freepik", "stock_id": n, "title": "x"} for n in range(1, 9)}
     photos["9"] = {"credit": "NPS", "stock_id": None, "title": "Anhinga Trail",
                    "source_url": "https://www.nps.gov/media/photo/view.htm?id=1"}
+    photos["8"] = {"credit": "Florida RU", "kind": "illustration", "title": "pool"}
     (content_dir / "photos" / f"{slug}.json").write_text(json.dumps(photos), encoding="utf-8")
 
 
@@ -110,7 +111,7 @@ def test_import_publishes_pair_and_is_idempotent(content_dir):
     assert "без изменений: 2" in run("--no-images")
     ru = Destination.objects.get(slug="test-park", lang="ru")
     assert ru.is_published and ru.translation.lang == "uk" and len(ru.places) == 3
-    assert ru.credit(3) == {"credit": "Freepik", "url": ""} and ru.cover == "places/test-park-1"
+    assert ru.credit(3) == {"credit": "Freepik", "url": "", "kind": "photo"} and ru.cover == "places/test-park-1"
     assert ru.credit(9)["url"].startswith("https://www.nps.gov/")
     assert ru.image_files[0] == "places/test-park-1.jpg" and ru.image_files[1] == "places/test-park-2.webp"
 
@@ -128,6 +129,7 @@ def test_pages_in_both_languages(content_dir, client):
     assert ru_html.count('class="place"') == 3 and "nps.gov/place0" in ru_html
     assert 'href="tel:+13052427700"' in ru_html and "Фото: Freepik" in ru_html and "Фото: Freepik" in uk_html
     assert 'Фото: <a href="https://www.nps.gov/media/photo/view.htm?id=1"' in ru_html
+    assert "Подпись 8 · Иллюстрация Florida RU" in ru_html and "Подпись 8 · Ілюстрація Florida RU" in uk_html
     assert "Цены и часы работы проверены по официальным сайтам: 24 ноября 2026" in ru_html
     assert "24 листопада 2026" in uk_html
     ld = [json.loads(b) for b in re.findall(r'<script type="application/ld\+json">(.*?)</script>', uk_html, re.S)]

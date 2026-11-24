@@ -85,8 +85,9 @@ def load_photos(slug: str) -> dict:
 
 
 def photo_credits(slug: str) -> dict[str, dict]:
-    """{номер: {"credit": «Freepik», "url": страница фото или ""}} — для подписи «Фото: …»."""
-    return {str(n): {"credit": str(meta.get("credit", "")), "url": str(meta.get("source_url") or "")}
+    """{номер: {"credit": «Freepik», "url": страница фото или "", "kind": photo|illustration}} — для подписи."""
+    return {str(n): {"credit": str(meta.get("credit", "")), "url": str(meta.get("source_url") or ""),
+                     "kind": str(meta.get("kind") or "photo")}
             for n, meta in load_photos(slug).items()}
 
 
@@ -177,7 +178,8 @@ def validate(item: DestinationFile, check_images: bool = True) -> list[str]:
         meta = photos.get(str(n))
         if not meta or not meta.get("credit"):
             errors.append(f"photos/{item.slug}.json: нет записи об авторстве картинки {n}")
-        elif not meta.get("stock_id") and not str(meta.get("source_url", "")).startswith("https://"):
+        elif (meta.get("kind") != "illustration" and not meta.get("stock_id")
+              and not str(meta.get("source_url", "")).startswith("https://")):
             errors.append(f"photos/{item.slug}.json: у картинки {n} нет ни stock_id, ни source_url")
     if check_images:
         static = Path(settings.BASE_DIR) / "static" / "places"
