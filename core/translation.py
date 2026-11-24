@@ -30,6 +30,9 @@ log = logging.getLogger(__name__)
 BATCH_SIZE = 20
 BATCH_CHARS = 8_000        # пачка коротких записей — не больше стольких знаков оригинала
 SINGLE_MAX_TOKENS = 16_000
+# Обычно перевод — около 0,6 токена на знак, но DeepSeek иногда пишет кириллицу в JSON как \uXXXX — тогда
+# в 3–4 раза больше. Лимит — с запасом на этот случай: платим только за то, что модель реально выдала.
+TOKENS_PER_CHAR = 4
 CHUNK_CHARS = 3_000       # поле длиннее — переводится кусками по абзацам
 # На длинных кусках модель иногда зацикливается и упирается в max_tokens; такой кусок делим пополам.
 SPLIT_DEPTH = 3
@@ -163,7 +166,7 @@ def _ask(model: type[Translatable], payload, note: str, out_chars: int, *, field
     schema = _schema(model, batch=many) if fields is None else create_model(
         f"{model.__name__}UkPart", id=(int, ...), **{n: (str, Field(default="")) for n in fields})
     return ask(purpose=AICall.Purpose.TRANSLATE, model=settings.AI_TRANSLATOR_MODEL, system=SYSTEM, user=user,
-               output=schema, max_tokens=min(SINGLE_MAX_TOKENS, max(1500, int(out_chars * 1.2))))
+               output=schema, max_tokens=min(SINGLE_MAX_TOKENS, max(1500, int(out_chars * TOKENS_PER_CHAR))))
 
 
 def _chunks(text: str, size: int = CHUNK_CHARS) -> list[str]:
