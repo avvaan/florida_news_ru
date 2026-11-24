@@ -6,13 +6,15 @@ teaser: Чим відрізняються Universal Studios, Islands of Adventur
 region: central
 order: 2
 checked: 2026-11-24
-status: draft
+status: published
 cover_caption: Глобус Universal і вхідна арка парку Universal Studios Florida
-source: Universal Orlando Resort | https://www.universalorlando.com/web/en/us/faqs/tickets-and-packages | Tickets and Packages FAQ
 source: Universal Orlando Resort | https://www.universalorlando.com/web/en/us/tickets-packages/park-tickets/flr | Florida Resident Tickets
-source: Universal Orlando Resort | https://www.universalorlando.com/web/en/us/tickets-packages/park-tickets/fl-resident-blockout/index.html | Florida Resident Ticket Blockout Dates
-source: Universal Orlando Resort | https://www.universalorlando.com/webdata/k2/en/us/files/Documents/seasonal-ticket-calendar.pdf | 1-Day Ticket Seasonal Pricing Dates
+source: Universal Orlando Resort | https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information/directions-and-parking | Directions and Parking
 source: Universal Parks & Resorts Media | https://media.universalparksusa.com/press-releases/universal-orlando-resort-launches-new-multi-day-tickets-for-visits-in-2026-that-give-guests-the-option-to-access-every-theme-park-including-universal-epic-universe/ | Universal Orlando Resort Launches New Multi-Day Tickets For Visits In 2026
+source: Universal Parks & Resorts Media | https://media.universalparksusa.com/press-releases/universal-orlando-resort-introduces-new-passes-with-access-to-universal-epic-universe-as-annual-pass-program-enters-exciting-new-chapter-111926/ | Universal Orlando Resort Introduces New Passes With Access To Universal Epic Universe
+source: Universal Parks & Resorts Media | https://media.universalparksusa.com/press-releases/universal-orlando-resort-honors-u-s-military-members-with-special-offers-including-exclusive-military-freedom-pass-vacation-packages-and-more/ | Universal Orlando Resort Honors U.S. Military Members with Special Offers
+source: Universal Parks & Resorts Media | https://media.universalparksusa.com/press-releases/universal-orlando-resort-kicks-off-its-destination-wide-holidaycelebration-111126/ | Universal Orlando Resort Kicks Off Its Destination-Wide Holiday Celebration
+source: Universal Parks & Resorts Media | https://media.universalparksusa.com/press-releases/universal-celestial-goodnight/ | Universal Celestial Goodnight Makes Its Official Debut at Universal Epic Universe
 ---
 
 Universal Orlando Resort — це не один парк, а ціле містечко на південному заході Орландо: три тематичні парки, аквапарк, розважальна вулиця CityWalk і понад десяток готелів. Юніверсал Студіос Флорида (Universal Studios Florida) побудований навколо кіно та мультфільмів. Айлендс оф Едвенчер (Universal Islands of Adventure) — навколо коміксів, динозаврів і найрізкіших американських гірок курорту. Епік Юніверс (Universal Epic Universe), відкритий у травні 2025 року, — найновіший парк Флориди: тут світ Super Nintendo, острів драконів із «Як приборкати дракона» та Міністерство магії із всесвіту Гаррі Поттера. Поруч — аквапарк Вулкано Бей (Universal Volcano Bay) з рукотворним вулканом і вулиця Сітіуок (Universal CityWalk), куди пускають без квитка.
