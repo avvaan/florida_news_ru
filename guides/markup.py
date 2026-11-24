@@ -54,9 +54,11 @@ class Block:
 
     @property
     def place_domain(self) -> str:
-        """«www.nps.gov/ever/» → «nps.gov/ever» — подпись к ссылке на сайт места."""
-        url = self.place.get("url", "")
-        return re.sub(r"^https?://(www\.)?", "", url).rstrip("/")
+        """Подпись к ссылке на сайт места: «nps.gov/ever», а длинный путь отбрасываем — «floridastateparks.org»."""
+        url = re.sub(r"^https?://(www\.)?", "", self.place.get("url", "")).split("?")[0].rstrip("/")
+        host, _, path = url.partition("/")
+        first = path.split("/")[0]
+        return f"{host}/{first}" if first and len(first) <= 12 and "." not in first else host
 
     @property
     def map_url(self) -> str:

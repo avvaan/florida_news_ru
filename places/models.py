@@ -49,7 +49,7 @@ class Destination(models.Model):
                              help_text="Путь внутри static/ без расширения: places/<slug>-1")
     cover_caption = models.CharField("подпись к обложке", max_length=300, blank=True)
     photo_credits = models.JSONField("авторство фото", default=dict, blank=True,
-                                     help_text="{номер картинки: «Freepik»} — из places/content/photos/<slug>.json")
+                                     help_text="{номер картинки: {credit, url}} — из places/content/photos/<slug>.json")
     status = models.CharField("статус", max_length=20, choices=Status.choices, default=Status.DRAFT, db_index=True)
     checked_on = models.DateField("цены и часы проверены", null=True, blank=True)
     content_hash = models.CharField("хеш файла", max_length=64, blank=True, editable=False)
@@ -105,8 +105,10 @@ class Destination(models.Model):
             return self.cover
         return f"places/{self.slug}-{number}" if self.cover else ""
 
-    def credit(self, number: int) -> str:
-        return self.photo_credits.get(str(number), "")
+    def credit(self, number: int) -> dict:
+        """{"credit": «Freepik», "url": ""} или {} — подпись «Фото: …» под картинкой."""
+        value = self.photo_credits.get(str(number)) or {}
+        return {"credit": value, "url": ""} if isinstance(value, str) else value
 
     @property
     def image_paths(self) -> list[str]:

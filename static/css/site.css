@@ -808,7 +808,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .place__facts dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
 .place__facts a { color: var(--gulf-deep); font-weight: 600; }
 .place__map { white-space: nowrap; font-size: .92rem; }
-.place__map::before { content: "· "; color: var(--muted); font-weight: 400; }
+.place__map::before { content: "·"; display: inline-block; margin-right: .35em; color: var(--muted); font-weight: 400; }
 .place__note dd { color: var(--ink-2); }
 .places__empty { margin-top: 24px; }
 @media (min-width: 600px) {

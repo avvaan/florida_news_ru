@@ -42,7 +42,7 @@
       {% if item.cover %}
       <figure class="story__figure">
         {% with big=item.cover|add:".webp" small=item.cover|add:"-640.webp" %}<img src="{% static big %}" srcset="{% static small %} 640w, {% static big %} 1200w" sizes="(min-width: 760px) 760px, 100vw" alt="{{ item.cover_caption|default:item.title }}" width="1200" height="675" fetchpriority="high">{% endwith %}
-        <figcaption>{{ item.cover_caption }}{% with credit=item|place_credit:1 %}{% if credit %} · {{ t.photo }}: {{ credit }}{% endif %}{% endwith %}</figcaption>
+        <figcaption>{{ item.cover_caption }}{% with c=item|place_credit:1 %}{% include "places/_credit.html" %}{% endwith %}</figcaption>
       </figure>
       {% endif %}
 
@@ -77,10 +77,10 @@
               </dl>
             </section>
           {% endwith %}
-          {% elif b.kind == "img" %}{% with base=item|place_image:b.number credit=item|place_credit:b.number %}{% if base %}
+          {% elif b.kind == "img" %}{% with base=item|place_image:b.number c=item|place_credit:b.number %}{% if base %}
             <figure class="guide__figure">
               {% with big=base|add:".webp" small=base|add:"-640.webp" %}<img src="{% static big %}" srcset="{% static small %} 640w, {% static big %} 1200w" sizes="(min-width: 760px) 680px, 100vw" alt="{{ b.caption }}" width="1200" height="675" loading="lazy" decoding="async">{% endwith %}
-              <figcaption>{{ b.caption }}{% if credit %} · {{ t.photo }}: {{ credit }}{% endif %}</figcaption>
+              <figcaption>{{ b.caption }}{% include "places/_credit.html" %}</figcaption>
             </figure>
           {% endif %}{% endwith %}
           {% else %}<p>{{ b.text }}</p>{% endif %}

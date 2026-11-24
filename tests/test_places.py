@@ -58,7 +58,9 @@ def content_dir(tmp_path, monkeypatch):
 def write_pair(content_dir, slug="test-park", **kwargs):
     for lang in ("ru", "uk"):
         (content_dir / lang / f"{slug}.md").write_text(article(lang, slug, **kwargs), encoding="utf-8")
-    photos = {str(n): {"credit": "Freepik", "stock_id": n, "title": "x"} for n in range(1, 10)}
+    photos = {str(n): {"credit": "Freepik", "stock_id": n, "title": "x"} for n in range(1, 9)}
+    photos["9"] = {"credit": "NPS", "stock_id": None, "title": "Anhinga Trail",
+                   "source_url": "https://www.nps.gov/media/photo/view.htm?id=1"}
     (content_dir / "photos" / f"{slug}.json").write_text(json.dumps(photos), encoding="utf-8")
 
 
@@ -76,6 +78,9 @@ def test_place_card_markup():
     assert card.place["name"] == "Парк <b>" and card.place["hours"] == "9:00–17:00"
     assert str(card.place_html["price"]) == "<strong>$35</strong>"
     assert card.place_domain == "nps.gov/ever" and "google.com/maps" in card.map_url
+    long = markup.parse(CARD.format(name="X", url="https://www.floridastateparks.org/parks-and-trails/wekiwa/",
+                                    price="1", hours="2"))[0]
+    assert long.place_domain == "floridastateparks.org"
     bad = markup.parse("[[place|Без полей]]\nurl: http://x.com\nцена: 5")[0]
     assert any("price" in p for p in bad.problems) and any("https" in p for p in bad.problems)
     assert any("ключ: значение" in p for p in bad.problems)
@@ -105,7 +110,8 @@ def test_import_publishes_pair_and_is_idempotent(content_dir):
     assert "без изменений: 2" in run("--no-images")
     ru = Destination.objects.get(slug="test-park", lang="ru")
     assert ru.is_published and ru.translation.lang == "uk" and len(ru.places) == 3
-    assert ru.photo_credits["3"] == "Freepik" and ru.cover == "places/test-park-1"
+    assert ru.credit(3) == {"credit": "Freepik", "url": ""} and ru.cover == "places/test-park-1"
+    assert ru.credit(9)["url"].startswith("https://www.nps.gov/")
     assert ru.image_files[0] == "places/test-park-1.jpg" and ru.image_files[1] == "places/test-park-2.webp"
 
 
@@ -121,6 +127,7 @@ def test_pages_in_both_languages(content_dir, client):
     assert "Часы работы" in ru_html and "Години роботи" in uk_html and "Українською" in ru_html
     assert ru_html.count('class="place"') == 3 and "nps.gov/place0" in ru_html
     assert 'href="tel:+13052427700"' in ru_html and "Фото: Freepik" in ru_html and "Фото: Freepik" in uk_html
+    assert 'Фото: <a href="https://www.nps.gov/media/photo/view.htm?id=1"' in ru_html
     assert "Цены и часы работы проверены по официальным сайтам: 24 ноября 2026" in ru_html
     assert "24 листопада 2026" in uk_html
     ld = [json.loads(b) for b in re.findall(r'<script type="application/ld\+json">(.*?)</script>', uk_html, re.S)]
