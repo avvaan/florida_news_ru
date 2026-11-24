@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "pipeline",
     "social",
     "guides",
+    "places",
     "ads",
     "stats",
     "directory",

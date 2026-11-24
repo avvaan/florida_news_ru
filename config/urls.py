@@ -32,6 +32,7 @@ urlpatterns = [
     path("about/", core_views.about, name="core-about"),
     path("author/<slug:slug>/", core_views.author, name="core-author"),
     path("guides/", include("guides.urls")),
+    path("", include("places.urls")),
     path("links/", include("directory.urls")),
     path("afisha/", include("events.urls")),
     path("obyavleniya/", include("classifieds.urls")),

@@ -1,5 +1,5 @@
 {% load static news_extras %}<!doctype html>
-<html lang="ru">
+<html lang="{% block html_lang %}ru{% endblock %}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,12 +7,12 @@
   <meta name="description" content="{% block description %}Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник.{% endblock %}">
   <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endblock %}">
   <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% endblock %}">
-  <link rel="alternate" hreflang="ru" href="{{ request.path|absolute }}">
-  <link rel="alternate" hreflang="x-default" href="{{ request.path|absolute }}">
+  {% block hreflang %}<link rel="alternate" hreflang="ru" href="{{ request.path|absolute }}">
+  <link rel="alternate" hreflang="x-default" href="{{ request.path|absolute }}">{% endblock %}
   <meta name="theme-color" content="#0f2433">
   {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
-  <meta property="og:locale" content="ru_RU">
+  <meta property="og:locale" content="{% block og_locale %}ru_RU{% endblock %}">
   {% block og %}{% include "includes/og.html" with title=site_name|add:" — новости Флориды по-русски" description="Погода и ураганы, законы, деньги и события Флориды — коротко и по-русски." url=request.path %}{% endblock %}
   <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }}" href="{% url 'news:rss' %}">
@@ -68,6 +68,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <li><a class="topics__link{% if topic and topic.pk == t.pk %} is-current{% endif %}" href="{{ t.get_absolute_url }}"{% if topic and topic.pk == t.pk %} aria-current="page"{% endif %}>{{ t.short_name }}</a></li>
       {% endfor %}
       <li><a class="topics__link topics__link--section" href="{% url 'guides:list' %}">Гайды</a></li>
+      <li><a class="topics__link topics__link--section{% if places_section %} is-current{% endif %}" href="{% url 'places:list' %}"{% if places_section %} aria-current="page"{% endif %}>Что посетить</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'events:list' %}">Афиша</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'classifieds:index' %}">Объявления</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'directory:index' %}">Справочник</a></li>
@@ -126,6 +127,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <nav aria-label="Правовая информация">
       <ul class="footer__links">
         <li><a href="{% url 'guides:list' %}">Гайды</a></li>
+        <li><a href="{% url 'places:list' %}">Что посетить во Флориде</a></li>
+        <li><a href="{% url 'places:list-uk' %}" hreflang="uk" lang="uk">Що відвідати у Флориді</a></li>
         <li><a href="{% url 'directory:index' %}">Полезные ссылки и бизнесы</a></li>
         <li><a href="{% url 'core-about' %}">О проекте</a></li>
         <li><a href="{% url 'core-page' 'advertising' %}">Реклама</a></li>
