@@ -40,7 +40,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ["id", "slug", "status", "title", "description", "starts_on", "starts_at", "ends_on", "venue",
-                  "address", "city", "region", "price", "url", "organizer",
+                  "address", "city", "region", "price", "url", "organizer", "language",
                   "image", "image_url", "image_file", "image_caption", "image_credit", "image_remove",
                   "image_status", "contact_name", "contact_email", "violation", "reason", "public_reason",
                   "created_at", "moderated_at", "page_url"]
@@ -49,6 +49,8 @@ class EventSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "status": {"required": False, "help_text": "approved — сразу на сайте (по умолчанию), pending — "
                                                        "на проверку ИИ, rejected — снято"},
+            "language": {"help_text": "пусто — обе версии сайта; ru или uk — только эта версия, текст пишите "
+                                      "на её языке (без ИИ-перевода)"},
             "address": {"required": False, "allow_blank": True},
             "organizer": {"required": False, "allow_blank": True},
             "contact_name": {"required": False, "allow_blank": True},

@@ -167,9 +167,10 @@ class AdBannerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdBanner
-        fields = ["id", "advertiser", "slot", "image", "headline", "url", "region", "starts_at",
+        fields = ["id", "advertiser", "slot", "image", "headline", "url", "region", "language", "starts_at",
                   "ends_at", "is_active", "priority", "created_at"]
         read_only_fields = ["created_at"]
+        extra_kwargs = {"language": {"help_text": "пусто — обе версии сайта, ru — только русская, uk — только /uk/"}}
 
 
 class PageSerializer(serializers.ModelSerializer):

@@ -28,6 +28,8 @@ class SiteRootSitemap(Sitemap):
     x_default = True
 
     def get_languages_for_item(self, item):
+        if isinstance(item, Event) and item.language:  # событие только для одной версии сайта
+            return [item.language]
         if isinstance(item, Translatable) and not item.has_uk:
             return [settings.LANGUAGE_CODE]
         if isinstance(item, Ad):

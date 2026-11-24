@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 
+from django.conf import settings
 from django.db import models
 from django.utils import translation
 
@@ -27,6 +28,40 @@ UK = "uk"
 
 def is_uk() -> bool:
     return (translation.get_language() or "").startswith(UK)
+
+
+def current_language() -> str:
+    """Язык страницы: ru или uk."""
+    return UK if is_uk() else settings.LANGUAGE_CODE
+
+
+class Language(models.TextChoices):
+    """Для какой версии сайта запись (поле language у рекламы и афиши)."""
+
+    ALL = "", "обе версии"
+    RU = "ru", "только русская"
+    UK = "uk", "только украинская"
+
+
+def language_field(help_text: str = "") -> models.CharField:
+    # db_default: старый код (откат деплоя, cron в старом контейнере) вставляет строки без этого столбца.
+    return models.CharField(
+        "версия сайта", max_length=2, choices=Language.choices, blank=True, default=Language.ALL,
+        db_default=Language.ALL,
+        help_text=f"Пусто — показывать на обеих версиях сайта. {help_text}".strip(),
+    )
+
+
+def for_language(code: str | None = None) -> models.Q:
+    """Фильтр «видно на версии code» (по умолчанию — на языке текущей страницы)."""
+    return models.Q(language=Language.ALL) | models.Q(language=code or current_language())
+
+
+def only_language(request, code: str, fallback: str) -> None:
+    """Страница есть только на языке code: переключатель на другом языке ведёт на fallback (имя URL),
+    hreflang на другой язык не объявляем (core.context_processors.languages)."""
+    if code:
+        request.only_language = (code, fallback)
 
 
 class Localized:
