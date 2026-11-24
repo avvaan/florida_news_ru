@@ -13,6 +13,7 @@ from classifieds.models import Ad
 from classifieds.models import Category as AdCategory
 from events.models import Event
 from guides.models import Guide
+from places.models import Destination
 
 from .models import HIDDEN_IN_NAV, Article, Region, Topic
 
@@ -132,6 +133,28 @@ class GuideSitemap(SiteRootSitemap):
         return [{"loc": static_url(f"{path}.jpg"), "title": item.title} for path in item.image_paths]
 
 
+class DestinationSitemap(SiteRootSitemap):
+    """«Что посетить»: список и статьи; украинские адреса (/uk/chto-posetit/…) добавляет i18n сайтмапа."""
+
+    changefreq = "weekly"
+    priority = 0.7
+
+    def items(self):
+        # Русская версия каждой статьи — одна запись; у каждой статьи есть украинская пара (проверяет import_places).
+        return ["places:list", *Destination.objects.published().filter(lang="ru").order_by("region", "order")]
+
+    def location(self, item):
+        return reverse(item) if isinstance(item, str) else reverse("places:detail", args=[item.slug])
+
+    def lastmod(self, item):
+        return None if isinstance(item, str) else item.revised_at or item.published_at
+
+    def images(self, item):
+        if isinstance(item, str):
+            return []
+        return [{"loc": static_url(path), "title": item.title} for path in item.image_files]
+
+
 class DirectorySitemap(SiteRootSitemap):
     changefreq = "weekly"
     priority = 0.5
@@ -206,6 +229,7 @@ def google_news_items():
 
 
 SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,
+            "places": DestinationSitemap,
             "authors": AuthorSitemap, "legal": LegalSitemap,
             "directory": DirectorySitemap, "events": EventSitemap,
             "classifieds": ClassifiedSitemap}

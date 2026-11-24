@@ -65,6 +65,7 @@
       <li><a class="topics__link{% if topic and topic.pk == t.pk %} is-current{% endif %}" href="{{ t.get_absolute_url }}"{% if topic and topic.pk == t.pk %} aria-current="page"{% endif %}>{{ t.tr.short_name }}</a></li>
       {% endfor %}
       <li><a class="topics__link topics__link--section" href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>
+      <li><a class="topics__link topics__link--section{% if places_section %} is-current{% endif %}" href="{% url 'places:list' %}"{% if places_section %} aria-current="page"{% endif %}>{% translate "Что посетить" %}</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'events:list' %}">{% translate "Афиша" %}</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'classifieds:index' %}">{% translate "Объявления" %}</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'directory:index' %}">{% translate "Справочник" %}</a></li>
@@ -123,6 +124,7 @@
     <nav aria-label="{% translate "Правовая информация" %}">
       <ul class="footer__links">
         <li><a href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>
+        <li><a href="{% url 'places:list' %}">{% translate "Что посетить во Флориде" %}</a></li>
         <li><a href="{% url 'directory:index' %}">{% translate "Полезные ссылки и бизнесы" %}</a></li>
         <li><a href="{% url 'core-about' %}">{% translate "О проекте" %}</a></li>
         <li><a href="{% url 'core-page' 'advertising' %}">{% translate "Реклама" %}</a></li>
@@ -132,7 +134,7 @@
         <li><a href="{% url 'core-page' 'contacts' %}">{% translate "Контакты" %}</a></li>
       </ul>
     </nav>
-    <p>{% translate "Иллюстрации — собственные, фото — лицензионный сток Freepik. Фотографии из чужих статей мы не используем." %}</p>
+    <p>{% translate "Иллюстрации — собственные, фото — лицензионный сток Freepik и снимки в общественном достоянии (Библиотека Конгресса, NASA, NPS) с указанием автора. Фотографии из чужих статей мы не используем." %}</p>
   </div>
 </footer>
 </body>

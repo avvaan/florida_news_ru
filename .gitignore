@@ -10,3 +10,4 @@ media/
 .claude/
 deploy/.env.prod
 docker-compose.override.yml
+.playwright-mcp/
