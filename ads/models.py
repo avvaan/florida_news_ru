@@ -28,7 +28,8 @@ class AdBanner(models.Model):
 
     advertiser = models.CharField("рекламодатель", max_length=120)
     slot = models.CharField("место", max_length=20, choices=Slot.choices)
-    image = models.ImageField("картинка", upload_to="ads/", blank=True)
+    # Папка promo/, не ads/: блокировщики режут картинки по адресу /media/ads/ (правило EasyList).
+    image = models.ImageField("картинка", upload_to="promo/", blank=True)
     headline = models.CharField(
         "текст", max_length=140, blank=True, help_text="Показывается, если нет картинки, и как alt"
     )

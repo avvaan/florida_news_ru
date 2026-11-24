@@ -8,7 +8,7 @@
 {% block og %}{% translate "Новости Флориды на русском языке: коротко и со ссылкой на первоисточник." as og_default %}{% if region %}{% blocktranslate trimmed asvar t with name=region.tr.name_locative site=site_name %}Новости {{ name }} на русском — {{ site }}{% endblocktranslate %}{% include "includes/og.html" with title=t description=region.tr.description|default:og_default url=request.path %}{% elif topic %}{% blocktranslate trimmed asvar t with name=topic.tr.name site=site_name %}{{ name }} во Флориде — новости на русском — {{ site }}{% endblocktranslate %}{% include "includes/og.html" with title=t description=topic.tr.description|default:og_default url=request.path image=topic.cover %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_name %}{% if is_home %}{% organization_jsonld %}{% website_jsonld %}{% elif region %}{% breadcrumbs_jsonld home_name home_url region.tr.name region.get_absolute_url %}{% elif topic %}{% breadcrumbs_jsonld home_name home_url topic.tr.name topic.get_absolute_url %}{% endif %}{% if region or topic %}{% if feed %}{% translate "Новости Флориды на русском" as ld_default %}{% if region %}{% blocktranslate trimmed asvar ld_name with name=region.tr.name_locative %}Новости {{ name }}{% endblocktranslate %}{% collection_jsonld ld_name region.tr.description|default:ld_default request.path feed %}{% else %}{% collection_jsonld topic.tr.name topic.tr.description|default:ld_default request.path feed %}{% endif %}{% endif %}{% endif %}{% endblock %}
 
-{% block top_ad %}{% endblock %}
+{% block top_ad %}{% if ads.top %}<div class="wrap promo-top promo-top--head">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}{% endblock %}
 
 {% block content %}
 <div class="wrap">
@@ -69,7 +69,7 @@
   {% endif %}
   {% endif %}
 
-  {% if ads.top %}<div class="ad-top">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
+  {% if ads.top %}<div class="promo-top promo-top--inline">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
 
   <div class="columns">
     <section class="feed" aria-labelledby="feed-h">
