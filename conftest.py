@@ -19,6 +19,7 @@ def _no_translation_in_pipeline(request, monkeypatch):
     """Перевод на украинский в конвейере ходит в ИИ — в чужих тестах выключен (свои — tests/test_i18n.py)."""
     if "translation" not in request.keywords:
         monkeypatch.setattr("core.translation.translate_pending", lambda say=print, **kw: 0)
+        monkeypatch.setattr("core.translation.spawn_translation", lambda **kw: True)
 
 
 @pytest.fixture(autouse=True)

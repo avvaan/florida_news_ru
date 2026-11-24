@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from core import translation
 from core.i18n import uk_fieldset
 from pipeline.runner import AlreadyRunning, start_covers
 from pipeline.services import publish_article, reject_article
@@ -38,6 +39,8 @@ def action_publish(modeladmin, request, queryset):
     for article in queryset.exclude(status=Article.Status.PUBLISHED):
         publish_article(article)
         n += 1
+    if n:
+        translation.spawn_translation(limit=max(20, n))  # украинская версия — сразу, а не к следующему проходу
     modeladmin.message_user(request, f"Опубликовано: {n}", messages.SUCCESS)
 
 
