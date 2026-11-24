@@ -3,7 +3,7 @@
 {% block title %}{% if category.kind == "business" %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде — по-русски{% endblocktranslate %}{% else %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде{% endblocktranslate %}{% endif %} — {{ site_name }}{% endblock %}
 {% block description %}{{ category.tr.description|default:category.tr.name }}{% endblock %}
 {% block og %}{% include "includes/og.html" with title=category.tr.name|add:" — "|add:site_name description=category.tr.description|default:category.tr.name url=request.path %}{% endblock %}
-{% block robots %}{% if not listings or current_region or near %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block robots %}{% if not listings or current_region or current_spec or near %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% translate "Главная" as home_label %}{% translate "Ссылки и бизнесы" as dir_label %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url category.tr.name category.get_absolute_url %}{% if listings %}{% directory_jsonld category listings %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
@@ -20,6 +20,13 @@
       {% for r in regions %}<a class="chip{% if current_region == r.slug %} is-current{% endif %}" href="{% querystring region=r.slug %}" rel="nofollow">{{ r.tr.name }}</a>{% endfor %}
       {% if has_other %}<a class="chip{% if current_region == 'other' %} is-current{% endif %}" href="{% querystring region='other' %}" rel="nofollow">{% translate "Другие города" %}</a>{% endif %}
     </nav>
+    {% endif %}
+    {% if specialties %}
+    <nav class="guides__nav dir__specs" aria-label="{% translate "Направление" %}">
+      <a class="chip{% if not current_spec %} is-current{% endif %}" href="{% querystring spec=None %}">{% translate "Все направления" %}</a>
+      {% for s in specialties %}<a class="chip{% if current_spec == s.value %} is-current{% endif %}" href="{% querystring spec=s.value %}" rel="nofollow"{% if current_spec == s.value %} aria-current="true"{% endif %}>{{ s.label }} <span class="ads__n">{{ s.count }}</span></a>{% endfor %}
+    </nav>
+    {% if current_spec %}<script>(function(){var n=document.querySelector(".dir__specs"),c=n&&n.querySelector("[aria-current]");if(c&&n.scrollWidth>n.clientWidth)n.scrollLeft=c.offsetLeft-n.offsetLeft-16;})();</script>{% endif %}
     {% endif %}
     {% include "includes/near_chips.html" %}
 

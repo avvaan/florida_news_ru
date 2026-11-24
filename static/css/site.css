@@ -721,6 +721,18 @@ article.split { margin-top: 0; }
 /* Объявления */
 .ads__n { color: var(--muted); font-weight: 600; font-size: .85em; }
 .chip .ads__n { margin-left: 2px; }
+.chip.is-current .ads__n { color: inherit; }
+/* Справочник: направления врачей — второй ряд под регионами */
+.dir__specs { margin-top: 10px; }
+@media (max-width: 599px) {
+  /* На телефоне — одна строка с прокруткой вбок, иначе кнопки занимают полтора экрана */
+  .dir__specs {
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
+    margin-inline: calc(-1 * var(--gutter)); padding-inline: var(--gutter); scroll-padding-inline: var(--gutter);
+  }
+  .dir__specs::-webkit-scrollbar { display: none; }
+  .dir__specs .chip { flex: none; }
+}
 .ads__h { margin-top: 32px; }
 .ads-filter { display: grid; gap: 10px; margin-top: 22px; max-width: 820px; }
 .ads-filter__q { display: flex; gap: 8px; }

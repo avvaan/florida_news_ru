@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+from collections import Counter
 
 from django.conf import settings
 from django.db.models import Avg, Count
@@ -14,6 +15,7 @@ from guides.models import Guide
 from . import moderation
 from .forms import SubmissionForm
 from .models import Category, Listing, Submission
+from .specialties import Specialty
 
 
 def guides_by_slug(listings) -> dict:
@@ -59,6 +61,18 @@ def sort_by_distance(listings, hub: str):
     return sorted(listings, key=lambda item: geo.miles(item.point, origin) if item.point else float("inf"))
 
 
+def specialty_filter(listings, current: str):
+    """Кнопки «Терапевты · 31», «Детские врачи · 8»… — по уже выбранному региону, без пустых.
+
+    Показываются, если направлений хотя бы два (у врачей); у остальных категорий направлений нет.
+    """
+    counts = Counter(item.specialty for item in listings if item.specialty)
+    current = current if current in Specialty.values else ""
+    buttons = [{"value": value, "label": label, "count": counts[value]}
+               for value, label in Specialty.choices if counts[value] or value == current]
+    return (buttons if len(buttons) > 1 or current else []), current
+
+
 def directory_category(request, slug):
     category = get_object_or_404(Category, slug=slug)
     all_listings = list(Listing.objects.active().filter(category=category).select_related("region"))
@@ -71,6 +85,9 @@ def directory_category(request, slug):
         listings = [item for item in all_listings if item.region and item.region.slug == current]
     else:
         listings = all_listings
+    specialties, current_spec = specialty_filter(listings, request.GET.get("spec", ""))
+    if current_spec:
+        listings = [item for item in listings if item.specialty == current_spec]
     near = request.GET.get("near", "")
     if near in geo.HUBS and category.kind == Category.Kind.BUSINESS:
         listings = sort_by_distance(listings, near)
@@ -82,6 +99,7 @@ def directory_category(request, slug):
     return render(request, "directory/category.html", {
         "category": category, "listings": listings, "others": others, "total": len(all_listings),
         "regions": regions if len(regions) + has_other > 1 else [], "has_other": has_other, "current_region": current,
+        "specialties": specialties, "current_spec": current_spec,
         "near": near,
         "near_links": geo.near_links(request, "near") if category.kind == Category.Kind.BUSINESS and len(all_listings) > 1
         else [],
