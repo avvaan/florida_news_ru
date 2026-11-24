@@ -86,6 +86,10 @@ class Listing(Translatable):
     region = models.ForeignKey(
         "news.Region", verbose_name="регион", null=True, blank=True, on_delete=models.SET_NULL,
     )
+    photo = models.ForeignKey(
+        "gallery.MediaItem", verbose_name="фото", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+", limit_choices_to={"kind": "photo"}, help_text="Фото или логотип на странице бизнеса",
+    )
     languages = models.CharField("языки", max_length=120, blank=True, help_text="Например: русский, украинский, английский")
     specialty = models.CharField(
         "направление", max_length=12, choices=Specialty.choices, blank=True,

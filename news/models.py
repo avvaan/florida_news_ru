@@ -156,7 +156,7 @@ class Story(models.Model):
 
 class ArticleQuerySet(models.QuerySet):
     def published(self):
-        return self.filter(status=Article.Status.PUBLISHED, published_at__lte=timezone.now())
+        return self.filter(status=Article.Status.PUBLISHED, published_at__lte=timezone.now()).select_related("photo")
 
     def for_region(self, region: Region):
         """Новости региона плюс общештатные — они касаются всех."""
@@ -209,6 +209,19 @@ class Article(Translatable):
     cover_image = models.CharField(
         "обложка", max_length=100, blank=True,
         help_text="Выбирает ИИ по смыслу заметки. Пусто — обложка из набора рубрики по очереди",
+    )
+    photo = models.ForeignKey(
+        "gallery.MediaItem", verbose_name="фото", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+", limit_choices_to={"kind": "photo"},
+        help_text="Своё фото из медиатеки вместо обложки-иллюстрации: на странице, в ленте и в соцсетях",
+    )
+    video = models.ForeignKey(
+        "gallery.MediaItem", verbose_name="видео", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+", limit_choices_to={"kind": "video"}, help_text="Показывается под текстом заметки",
+    )
+    gallery = models.ManyToManyField(
+        "gallery.MediaItem", verbose_name="галерея", blank=True, related_name="gallery_articles",
+        help_text="Дополнительные фото под текстом",
     )
     cover_manual = models.BooleanField(
         "обложка выбрана вручную", default=False, db_default=False,

@@ -48,6 +48,8 @@
 | `news/` | регионы, темы, сюжеты, заметки, страницы сайта, sitemap, JSON-LD |
 | `pipeline/` | ИИ (`ai.py`, `prompts.py`, `schemas.py`), склейка, лимиты, решения, Telegram, конвейер |
 | `ads/` | рекламные блоки |
+| `gallery/` | медиатека: фото и видео для заметок, афиши, справочника, объявлений |
+| `api/` | REST API для управления сайтом (описание — `docs/API.md`) |
 | `templates/`, `static/` | шаблоны, CSS, шрифты, иллюстрации рубрик |
 | `tests/` | pytest, фикстуры фидов, всё без сети |
 
@@ -149,26 +151,39 @@ pytest          # 52 теста: фиды, склейка, решения, Teleg
 
 ## API для удалённого управления
 
-REST API на Django REST Framework. Всё, что есть в админке, доступно удалённо: из скрипта, Postman,
-мобильного приложения или ИИ-агента.
+REST API на Django REST Framework. Всё, что есть на сайте и в админке, доступно удалённо: из скрипта,
+Postman, мобильного приложения или ИИ-агента. **Полная инструкция для агента — [docs/API.md](docs/API.md)**
+(можно отдать агенту целиком).
 
 - **Документация и «песочница»:** `https://ваш-домен/api/docs/` (Swagger, открывается после входа
   в админку или с токеном), схема OpenAPI — `/api/schema/`.
-- **Доступ:** только сотрудники (`is_staff`). Создать ключ — в Shell на Render:
-  ```bash
-  python manage.py drf_create_token <логин>      # выведет ключ из 40 символов
-  ```
-  или в админке: «Токены» → «Добавить». Ключ передаётся в заголовке `Authorization: Token <ключ>`.
-  Отозвать — удалить токен в админке. Лимит — 600 запросов в час.
+- **Ключ для агента (рекомендуется):** впишите в `deploy/.env.prod` на mimi строку `AGENT_API_TOKEN=<ключ>` —
+  40 символов 0-9a-f (`python3 -c "import secrets; print(secrets.token_hex(20))"`) — и перезапустите сайт:
+  `docker compose up -d web`. При старте `deploy/entrypoint.sh` создаст пользователя `agent` (сотрудник без
+  пароля, в админку войти нельзя) с этим ключом. Сменить ключ — поменять строку и перезапустить.
+  Или вручную: `docker compose exec web python manage.py setup_agent` (выведет ключ), `--rotate` — новый.
+  На Render то же делает `build.sh` по переменной `AGENT_API_TOKEN`.
+- **Ключ сотрудника:** `python manage.py drf_create_token <логин>` или в админке «Токены» → «Добавить».
+- Ключ передаётся в заголовке `Authorization: Token <ключ>`. Доступ — только сотрудники (`is_staff`).
+  Лимит — 3000 запросов в час (`API_RATE_LIMIT`). API отвечает на любом домене сайта, в том числе
+  на служебном `*.onrender.com` (без 301 на основной домен).
 
 | Что | Запрос |
 |---|---|
-| Сводка: заметки, расходы на ИИ, лимиты, источники, последний запуск | `GET /api/v1/stats/` |
+| Сводка: заметки, афиша, справочник, объявления, комментарии, расходы на ИИ, последний запуск | `GET /api/v1/stats/` |
+| **Фото и видео** (файлом, ссылкой, YouTube/Vimeo/Rutube/VK) | `/api/v1/media/` |
 | Заметки (фильтры `status`, `region`, `topic`, `urgent`, `q`) | `GET /api/v1/articles/` |
 | Создать / изменить / удалить заметку | `POST /api/v1/articles/`, `PATCH`/`DELETE /api/v1/articles/{id}/` |
+| Фото, видео и галерея заметки | поля `photo`/`photo_url`/`photo_file`, `video`/`video_url`, `gallery`/`gallery_urls` |
 | Опубликовать / снять / отправить в Telegram | `POST /api/v1/articles/{id}/publish/`, `…/reject/`, `…/telegram/` |
 | Сменить обложку вручную (`""` — по очереди из рубрики) | `PATCH /api/v1/articles/{id}/` с `{"cover_image": "covers/weather-2"}` |
 | ИИ подбирает обложку одной заметке / пачке в фоне | `POST /api/v1/articles/{id}/pick-cover/`, `POST /api/v1/articles/pick-covers/` |
+| **Афиша**: события с картинкой, публикация, снятие | `/api/v1/events/`, `POST …/{id}/approve/`, `…/reject/` |
+| **Справочник**: разделы, бизнесы и ссылки (с фото), заявки владельцев | `/api/v1/directory/categories/`, `/api/v1/directory/listings/`, `/api/v1/directory/submissions/` |
+| **Гайды**: создание, правка, публикация | `/api/v1/guides/`, `POST …/{slug}/publish/`, `…/unpublish/` |
+| **Объявления**: рубрики и объявления с фото | `/api/v1/classifieds/categories/`, `/api/v1/classifieds/ads/` |
+| **Комментарии и отзывы**: модерация и ответы редакции | `/api/v1/comments/`, `POST …/{id}/publish/`, `…/hide/` |
+| Теги, авторы, соцсигналы, подсказки | `/api/v1/tags/`, `/api/v1/authors/`, `/api/v1/signal-sources/`, `/api/v1/hints/` |
 | Источники, проверка фида, сбор, сброс ошибок | `/api/v1/sources/`, `POST …/{id}/check/?activate=1`, `…/fetch/`, `…/reset/` |
 | Настройки (пороги, лимиты, Telegram, автопубликация) | `GET`/`PATCH /api/v1/settings/` |
 | Запустить конвейер сейчас (в фоне) и следить за ним | `POST /api/v1/pipeline/run/`, `GET /api/v1/pipeline/{id}/` |
@@ -176,6 +191,12 @@ REST API на Django REST Framework. Всё, что есть в админке, 
 | Страницы «О проекте», «Контакты», политика… | `/api/v1/pages/{slug}/` |
 | Погодные предупреждения (скрыть — `is_hidden`) | `/api/v1/alerts/` |
 | Обложки с описаниями, регионы, темы | `GET /api/v1/covers/`, `/api/v1/regions/`, `/api/v1/topics/` |
+
+**Где хранятся фото и видео.** С ключами ImageKit (`IMAGEKIT_PRIVATE_KEY`) — в ImageKit (папка
+`media/`), картинки отдаются нужной ширины автоматически. Без них — на диске сайта (`MEDIA_ROOT`,
+на mimi это том `florida_media`, `SERVE_MEDIA=1` уже включён; на Render нужен постоянный диск). Видео
+с YouTube и других площадок не хранятся у нас — встраивается их плеер. Своё фото у заметки
+заменяет обложку-иллюстрацию на странице, в ленте, в разметке Google и в превью соцсетей.
 
 Примеры:
 
@@ -192,6 +213,21 @@ curl -X POST -H "Authorization: Token $TOKEN" $SITE/api/v1/articles/42/publish/
 # снизить дневной бюджет на ИИ
 curl -X PATCH -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
      -d '{"ai_budget_per_day_usd": "1.00"}' $SITE/api/v1/settings/
+# новость с фото (по ссылке) и видео с YouTube — сразу на сайт
+curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
+     -d '{"title": "…", "teaser": "…", "body": "…", "region": "miami", "status": "published",
+          "photo_url": "https://…/photo.jpg", "photo_credit": "Фото: …",
+          "video_url": "https://www.youtube.com/watch?v=…"}' $SITE/api/v1/articles/
+# загрузить фото файлом в медиатеку
+curl -X POST -H "Authorization: Token $TOKEN" -F file=@photo.jpg -F "caption=Майами-Бич" $SITE/api/v1/media/
+# событие в афишу с картинкой
+curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
+     -d '{"title": "…", "description": "…", "starts_on": "2026-12-20", "starts_at": "19:00",
+          "venue": "…", "city": "Orlando", "region": "orlando", "price": "от $40",
+          "image_url": "https://…/poster.jpg"}' $SITE/api/v1/events/
+# новый раздел справочника и бизнес в нём
+curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
+     -d '{"name": "Ветеринары", "kind": "business"}' $SITE/api/v1/directory/categories/
 # запустить конвейер без ожидания cron
 curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json" \
      -d '{"fetch": true, "write": true}' $SITE/api/v1/pipeline/run/

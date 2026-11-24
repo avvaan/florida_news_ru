@@ -25,6 +25,9 @@ envVarGroups:
         sync: false
       - key: GOOGLE_SITE_VERIFICATION
         sync: false
+      # Ключ API для агента (40 символов 0-9a-f). build.sh создаст пользователя agent с этим ключом.
+      - key: AGENT_API_TOKEN
+        sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false
       # Сигналы из соцсетей (включаются галочками в админке)

@@ -17,6 +17,7 @@
     <h1 class="story__title">{{ item.name }}</h1>
     {% with rating=item.comments.rating %}{% if rating.count %}<p class="cmt-rating"><a href="#comments"><span class="cmt-rating__stars" aria-hidden="true">{{ rating.avg|stars }}</span> <b>{{ rating.avg|floatformat:1 }}</b> · {{ rating.count }} {{ rating.count|plural_ru:_("отзыв,отзыва,отзывов") }}</a></p>{% endif %}{% endwith %}
     {% if item.city %}<p class="dir__city"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ item.city }}{% if item.region and item.region.name != item.city %} · {{ item.region.tr.name }}{% endif %}</p>{% endif %}
+    {% if item.photo %}<figure class="biz-page__photo"><img src="{{ item.photo|media_sized:1000 }}" alt="{{ item.photo.alt|default:item.name }}"{% if item.photo.width %} width="{{ item.photo.width }}" height="{{ item.photo.height }}"{% endif %}>{% if item.photo.figcaption %}<figcaption>{{ item.photo.figcaption }}</figcaption>{% endif %}</figure>{% endif %}
     {% if item.description %}<p class="story__lede">{{ item.tr.description }}</p>{% endif %}
     <dl class="dir__facts">
       {% if item.address %}<div><dt>{% translate "Адрес" %}</dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query={{ item.address|urlencode }}" target="_blank" rel="noopener">{{ item.address }}</a></dd></div>{% endif %}

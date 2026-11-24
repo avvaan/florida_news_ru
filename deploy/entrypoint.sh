@@ -9,5 +9,9 @@ if [ "${MIGRATE_ON_START:-0}" = "1" ]; then
     python manage.py migrate --noinput
     python manage.py import_guides
 fi
+# Ключ API для агента: AGENT_API_TOKEN в deploy/.env.prod — пользователь agent с этим ключом.
+if [ -n "${AGENT_API_TOKEN:-}" ]; then
+    python manage.py setup_agent --quiet
+fi
 
 exec "$@"

@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "events",
     "classifieds",
     "comments",
+    "gallery",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
@@ -297,12 +298,15 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 50,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.UserRateThrottle"],
-    "DEFAULT_THROTTLE_RATES": {"user": "600/hour"},
+    "DEFAULT_THROTTLE_RATES": {"user": os.environ.get("API_RATE_LIMIT", "3000/hour")},
 }
 SPECTACULAR_SETTINGS = {
     "TITLE": "TutFlorida — API управления",
-    "DESCRIPTION": "Заметки, источники, реклама, настройки, страницы, запуск конвейера и статистика. "
-                   "Авторизация: заголовок `Authorization: Token <ключ>` (ключ сотрудника).",
-    "VERSION": "1.0.0",
+    "DESCRIPTION": "Всё управление сайтом: заметки, фото и видео (медиатека), афиша, справочник, гайды, "
+                   "объявления, комментарии, реклама, страницы, источники, настройки, запуск конвейера и статистика. "
+                   "Авторизация: заголовок `Authorization: Token <ключ>` (ключ сотрудника). "
+                   "Подробное описание для агента: docs/API.md в репозитории.",
+    "VERSION": "2.0.0",
+    "COMPONENT_SPLIT_REQUEST": True,
     "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
 }

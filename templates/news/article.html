@@ -55,13 +55,25 @@
       </header>
 
       <figure class="story__figure">
+        {% if article.photo %}
+        <img src="{% cover article %}" alt="{{ article.photo.alt|default:article.tr.title }}" width="1200" height="675" fetchpriority="high">
+        {% if article.photo.figcaption %}<figcaption>{{ article.photo.figcaption }}</figcaption>{% endif %}
+        {% else %}
         <img src="{% cover article %}" alt="{{ article.tr.title }}" width="1200" height="675" fetchpriority="high">
         <figcaption>{% if article.cover_info.is_photo %}{% translate "Фото: Freepik (иллюстративное)" %}{# = Cover.credit #}{% elif article.topic %}{% blocktranslate trimmed with site=site_name topic=article.topic.tr.name %}Иллюстрация «{{ site }}» к рубрике «{{ topic }}»{% endblocktranslate %}{% else %}{% blocktranslate trimmed with site=site_name %}Иллюстрация «{{ site }}»{% endblocktranslate %}{% endif %}</figcaption>
+        {% endif %}
       </figure>
 
       <div class="story__body">
         {% for kind, text in article.blocks %}{% if kind == "h" %}<h2>{{ text }}</h2>{% else %}<p>{{ text }}</p>{% endif %}{% endfor %}
       </div>
+
+      {% if article.video %}{% include "includes/video.html" with item=article.video %}{% endif %}
+      {% with photos=article.gallery.all %}{% if photos %}
+      <section class="story__gallery" aria-label="Фото">
+        {% for ph in photos %}<figure><a href="{{ ph.url }}" target="_blank" rel="noopener"><img src="{{ ph|media_sized:800 }}" alt="{{ ph.alt|default:ph.caption }}" loading="lazy" decoding="async"{% if ph.width %} width="{{ ph.width }}" height="{{ ph.height }}"{% endif %}></a>{% if ph.figcaption %}<figcaption>{{ ph.figcaption }}</figcaption>{% endif %}</figure>{% endfor %}
+      </section>
+      {% endif %}{% endwith %}
 
       {% with points=article.for_you_points %}{% if points %}
       <section class="for-you" aria-labelledby="for-you-h">
