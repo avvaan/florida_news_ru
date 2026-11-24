@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
@@ -28,11 +29,15 @@ urlpatterns = [
     path("robots.txt", core_views.robots_txt),
     path("healthz", core_views.healthz),
     path("stats/hit/", stats_views.hit, name="stats-hit"),
+]
+
+# Страницы для читателей: по-русски без префикса, по-украински — под /uk/.
+urlpatterns += i18n_patterns(
     path("p/<slug:slug>/", core_views.page, name="core-page"),
     path("about/", core_views.about, name="core-about"),
     path("author/<slug:slug>/", core_views.author, name="core-author"),
     path("guides/", include("guides.urls")),
-    path("", include("places.urls")),
+    path("chto-posetit/", include("places.urls")),
     path("links/", include("directory.urls")),
     path("afisha/", include("events.urls")),
     path("obyavleniya/", include("classifieds.urls")),
@@ -40,7 +45,8 @@ urlpatterns = [
     path("dmca/", core_views.dmca, name="core-dmca"),
     path("corrections/", core_views.corrections, name="core-corrections"),
     path("", include("news.urls")),
-]
+    prefix_default_language=False,
+)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

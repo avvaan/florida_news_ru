@@ -23,7 +23,11 @@ def author(request, slug):
     obj = get_object_or_404(Author, slug=slug)
     if not obj.is_active and not request.user.is_staff:
         raise Http404
-    return render(request, "core/author.html", {"author": obj, "is_preview": not obj.is_active})
+    from news.models import Article
+
+    articles = Article.objects.published().filter(author=obj).order_by("-published_at")[:10]
+    return render(request, "core/author.html", {"author": obj, "is_preview": not obj.is_active,
+                                                "articles": articles})
 
 
 def dmca(request):

@@ -2,6 +2,7 @@ from django.contrib import admin, messages
 from django.utils.html import format_html
 
 from core import images
+from core.i18n import uk_fieldset
 
 from . import moderation
 from .models import Event
@@ -34,8 +35,9 @@ def action_drop_image(modeladmin, request, queryset):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("starts_on", "title", "city", "status", "violation", "image_status", "preview", "contact_email")
-    list_filter = ("status", "violation", "image_status", "region")
+    list_display = ("starts_on", "title", "city", "language", "status", "violation", "image_status", "preview",
+                    "contact_email")
+    list_filter = ("status", "language", "violation", "image_status", "region")
     search_fields = ("title", "description", "venue", "organizer", "contact_email", "contact_name", "url")
     date_hierarchy = "starts_on"
     actions = [action_remoderate, action_reject, action_drop_image]
@@ -44,13 +46,14 @@ class EventAdmin(admin.ModelAdmin):
                        "image_file_id", "image_note", "contact_name", "contact_email", "ip_hash", "attempts",
                        "created_at", "moderated_at")
     fieldsets = (
-        (None, {"fields": ("title", "description", "starts_on", "starts_at", "ends_on", "slug")}),
+        (None, {"fields": ("title", "description", "starts_on", "starts_at", "ends_on", "slug", "language")}),
         ("Где", {"fields": ("venue", "address", "city", "region", "price", "url", "organizer")}),
         ("Модерация", {"fields": ("status", "violation", "reason", "public_reason", "attempts", "created_at",
                                   "moderated_at"),
                        "description": "Событие одобряет или отклоняет ИИ. Снять с публикации — действие в списке."}),
         ("Картинка", {"fields": ("image_status", "image_url", "image_file_id", "image_note")}),
         ("Заявитель (не публикуется)", {"fields": ("contact_name", "contact_email", "ip_hash", "token")}),
+        uk_fieldset(Event),
     )
 
     @admin.display(description="картинка")

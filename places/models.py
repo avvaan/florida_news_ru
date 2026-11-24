@@ -8,6 +8,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import override as language
 
 from guides import markup
 
@@ -71,7 +72,9 @@ class Destination(models.Model):
         return f"{self.title} [{self.lang}]"
 
     def get_absolute_url(self):
-        return reverse("places:detail" if self.lang == "ru" else "places:detail-uk", args=[self.slug])
+        """/chto-posetit/<slug>/ или /uk/chto-posetit/<slug>/ — по языку статьи, а не страницы."""
+        with language(self.lang):
+            return reverse("places:detail", args=[self.slug])
 
     @property
     def is_published(self) -> bool:

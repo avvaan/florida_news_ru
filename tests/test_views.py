@@ -17,6 +17,7 @@ def article():
         title="Налоговые каникулы на товары к урагану", teaser="Что входит в список",
         body="Первый абзац.\n\nВторой абзац.", region=Region.objects.get(slug="miami"),
         topic=Topic.objects.get(slug="money"), status=Article.Status.PUBLISHED, published_at=timezone.now(),
+        keep_indexed=True,
     )
     ArticleSource.objects.create(article=a, name="Florida Phoenix", url="https://floridaphoenix.com/x")
     return a
@@ -38,6 +39,17 @@ def test_telegram_button_hidden_without_channel_url(client, article):
     for url in ("/", article.get_absolute_url()):
         html = client.get(url).content.decode()
         assert "t.me/" not in html and "Подписаться" not in html, url
+
+
+def test_digest_not_repeated_in_feed(client):
+    now = timezone.now()
+    for i in range(14):
+        Article.objects.create(title=f"Заметка номер {i}", teaser="t", body="b", topic=Topic.objects.get(slug="laws"),
+                               score=i, status=Article.Status.PUBLISHED, published_at=now - timezone.timedelta(minutes=i))
+    ctx = client.get("/").context
+    digest = {a.pk for a in ctx["most_important"]}
+    assert len(digest) == 5 and not digest & {a.pk for a in ctx["feed"]}
+    assert len(ctx["feed"]) == 14 - 1 - 3 - 5  # главная тема, три плитки и дайджест — каждая заметка один раз
 
 
 def test_region_filter_includes_statewide(client, article):
@@ -90,6 +102,21 @@ def test_ads_respect_dates_and_region(client, article):
     assert "Врач в Майами" in client.get("/region/miami/").content.decode()
     assert "Врач в Майами" not in client.get("/region/tampa/").content.decode()
     assert "Просроченная реклама" not in client.get("/").content.decode()
+
+
+def test_top_banner_markup_survives_ad_blockers_and_sits_after_lead(client, article):
+    """Блок слота top: без классов и адресов из списков блокировщиков; на главной выведен и сразу после
+    главной новости (для узкого экрана), и после «Главного» (для широкого), но не под шапкой."""
+    banner = AdBanner.objects.create(advertiser="Церковь", slot="top", headline="Ярмарка", url="https://example.com")
+    assert banner._meta.get_field("image").upload_to == "promo/"
+    html = client.get("/").content.decode()
+    assert html.count("Ярмарка") == 2
+    assert html.index('id="main"') < html.index('class="lead') < html.index('promo-top--lead')
+    assert html.index('promo-top--lead') < html.index('class="digest"') < html.index('promo-top--inline')
+    for blocked in ('class="ad-top', 'ad-top"', "ad__label", "/media/ads/"):
+        assert blocked not in html
+    other = client.get(article.get_absolute_url()).content.decode()  # на прочих страницах блок один, под шапкой
+    assert other.count("Ярмарка") == 1 and "promo-top--lead" not in other
 
 
 def test_admin_review_queue_publish_button(client, article):

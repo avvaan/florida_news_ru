@@ -168,7 +168,7 @@ class DailyStatAdmin(admin.ModelAdmin):
         except ValueError:
             days = 30
         days = days if days in PERIODS else 30
-        raw = request.GET.get("bots") == "1"
+        raw = request.GET.get("bots") != "0"  # по умолчанию считаем всех, с ботами; ?bots=0 — только люди
         if "days" in request.GET or "bots" in request.GET:  # не фильтры модели — иначе админка ответит ошибкой
             query = request.GET.copy()
             query.pop("days", None)

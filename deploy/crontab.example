@@ -1,0 +1,17 @@
+# Задачи cron на домашнем сервере (mimi). Ставятся пользователю `deploy`
+# (в группе docker): crontab -e → добавить рядом с ethnicfestivals и luckyladybloom.
+# Checkout — /home/deploy/florida. Часовой пояс mimi — UTC.
+
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# Каждые 3 минуты (со сдвигом на 2 от ethnicfestivals): новый коммит в main
+# выходит на сайт. Журнал: ~/florida-deploy.log.
+# Пауза: touch ~/florida-deploy.paused   Снять: rm ~/florida-deploy.paused
+2-59/3 * * * * bash /home/deploy/florida/deploy/autodeploy.sh >> "$HOME/florida-deploy.log" 2>&1
+
+# Каждую ночь в 04:00: бэкап базы, последние 14 — в ~/backups/florida.
+0 4 * * * cd /home/deploy/florida && RCLONE_REMOTE= bash deploy/backup.sh >> "$HOME/florida-backup.log" 2>&1
+
+# Дважды в день, 11:07 и 22:07 UTC (7:07 и 18:07 во Флориде летом): конвейер
+# новостей — то, что на Render было cron-задачей florida-pipeline.
+7 11,22 * * * cd /home/deploy/florida && docker compose exec -T web python manage.py run_pipeline >> "$HOME/florida-pipeline.log" 2>&1

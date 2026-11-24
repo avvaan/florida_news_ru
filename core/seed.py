@@ -63,7 +63,7 @@ ABOUT_V2 = f"""\
 
 PAGES = [
     ("about", "О проекте", 1, f"""\
-«Florida RU» (florida-ru.com) — новости штата Флорида на русском языке для русско- и украиноязычных \
+«TutFlorida» (tutflorida.com) — новости штата Флорида на русском языке для русско- и украиноязычных \
 жителей Майами, Санни-Айлс-Бич, Авентуры, Орландо, Тампы и Джексонвилла.
 
 Издатель сайта — компания CITRUSTACK LLC, Флорида. Связаться с редакцией можно через страницу «Контакты».
@@ -101,7 +101,7 @@ PAGES = [
 
 Если вы заметили неточность в заметке, пришлите ссылку на неё — мы проверим и исправим."""),
     ("privacy", "Политика конфиденциальности", 4, """\
-Сайт «Florida RU» принадлежит компании CITRUSTACK LLC и управляется ею (далее — «мы»). \
+Сайт «TutFlorida» принадлежит компании CITRUSTACK LLC и управляется ею (далее — «мы»). \
 Эта политика объясняет, какие данные мы получаем и как их используем.
 
 Мы не требуем регистрации и не собираем персональные данные читателей.
@@ -365,14 +365,14 @@ def update_about_schedule(apps, schema_editor):
 
 
 def update_about_and_brand(apps, schema_editor):
-    """Новая «О проекте» (если её не правили) и название «Florida RU» на всех страницах."""
+    """Новая «О проекте» (если её не правили) и название «TutFlorida» на всех страницах."""
     Page = apps.get_model("core", "Page")
     about = Page.objects.filter(slug="about").first()
     if about and " ".join(about.body.split()) == " ".join(ABOUT_V2.split()):
         about.body = next(body for slug, _, _, body in PAGES if slug == "about")
         about.save(update_fields=["body"])
     for page in Page.objects.filter(body__contains="«Флорида Сегодня»"):
-        page.body = page.body.replace("«Флорида Сегодня»", "«Florida RU»")
+        page.body = page.body.replace("«Флорида Сегодня»", "«TutFlorida»")
         page.save(update_fields=["body"])
 
 

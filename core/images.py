@@ -14,6 +14,7 @@ from typing import Literal
 
 import requests
 from django.conf import settings
+from django.utils.translation import gettext
 from PIL import Image, ImageOps, UnidentifiedImageError
 from pydantic import BaseModel, Field
 
@@ -70,16 +71,16 @@ ok=true: обычная афиша концерта, спектакля, фес�
 def prepare(upload) -> bytes:
     """Файл из формы → JPEG до 1600 px. ImageError, если это не картинка или она слишком большая."""
     if upload.size > MAX_UPLOAD_BYTES:
-        raise ImageError("Картинка больше 8 МБ — уменьшите её, пожалуйста.")
+        raise ImageError(gettext("Картинка больше 8 МБ — уменьшите её, пожалуйста."))
     try:
         upload.seek(0)
         img = Image.open(upload)
         if img.width * img.height > MAX_PIXELS:
-            raise ImageError("Слишком большое разрешение картинки.")
+            raise ImageError(gettext("Слишком большое разрешение картинки."))
         img = ImageOps.exif_transpose(img)
         img.load()
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as exc:
-        raise ImageError("Не получилось открыть картинку. Подойдёт JPG, PNG или WebP.") from exc
+        raise ImageError(gettext("Не получилось открыть картинку. Подойдёт JPG, PNG или WebP.")) from exc
     return to_jpeg(img, STORE_SIDE)
 
 

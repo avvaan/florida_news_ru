@@ -1,22 +1,14 @@
 {% extends "base.html" %}
 {% load static news_extras places_extras %}
-{% block html_lang %}{{ lang }}{% endblock %}
-{% block og_locale %}{% if lang == "uk" %}uk_UA{% else %}ru_RU{% endif %}{% endblock %}
 {% block title %}{{ t.section_title }} — {{ site_name }}{% endblock %}
 {% block description %}{{ t.section_description }}{% endblock %}
 {% block canonical %}{{ list_url|absolute }}{% endblock %}
-{% block hreflang %}<link rel="alternate" hreflang="{{ lang }}" href="{{ list_url|absolute }}">
-  <link rel="alternate" hreflang="{{ other_lang }}" href="{{ other_url|absolute }}">
-  {% url 'places:list' as ru_url %}<link rel="alternate" hreflang="x-default" href="{{ ru_url|absolute }}">{% endblock %}
 {% block og %}{% with first=items|first %}{% include "includes/og.html" with title=t.section_title description=t.section_description url=list_url image=first.cover %}{% endwith %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld t.home home_url t.section list_url %}{% destinations_collection_jsonld t.section_title t.section_description list_url items lang %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <section class="story guides places">
-    <div class="place-top">
-      <nav class="crumbs" aria-label="{{ t.breadcrumbs }}"><a href="{% url 'news:home' %}">{{ t.home }}</a><span aria-hidden="true">/</span><span>{{ t.section }}</span></nav>
-      <a class="lang-switch" href="{{ other_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t.other_lang }}</a>
-    </div>
+    <nav class="crumbs" aria-label="{{ t.breadcrumbs }}"><a href="{% url 'news:home' %}">{{ t.home }}</a><span aria-hidden="true">/</span><span>{{ t.section }}</span></nav>
     <h1 class="story__title">{{ t.section_title }}</h1>
     <p class="story__lede">{{ t.section_lede }}</p>
     {% if regions %}

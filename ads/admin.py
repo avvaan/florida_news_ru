@@ -7,8 +7,9 @@ from .models import AdBanner
 
 @admin.register(AdBanner)
 class AdBannerAdmin(admin.ModelAdmin):
-    list_display = ("advertiser", "slot", "region", "preview", "starts_at", "ends_at", "is_active", "running")
-    list_filter = ("slot", "is_active", "region")
+    list_display = ("advertiser", "slot", "region", "language", "preview", "starts_at", "ends_at", "is_active",
+                    "running")
+    list_filter = ("slot", "is_active", "region", "language")
     list_editable = ("is_active",)
     search_fields = ("advertiser", "headline")
 

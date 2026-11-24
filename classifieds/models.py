@@ -8,10 +8,13 @@ import re
 import uuid
 from datetime import timedelta
 
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy
 
+from core.i18n import Translatable, uk_field
 from core import geo
 from core.text import make_slug
 
@@ -20,8 +23,14 @@ RENEW_WINDOW = timedelta(days=5)  # продлить можно за 5 дней 
 RENEW_GRACE = timedelta(days=60)  # …но не позже, чем через 60 дней после окончания
 MAX_PHOTOS = 5
 
+# Иллюстрации рубрик (Higgsfield, 28.10.2026) для объявлений без фото: {slug}.webp 960×720,
+# {slug}-480.webp для карточек и {slug}.jpg 1200×675 для соцсетей. Список — по файлам, чтобы новая рубрика
+# без картинки просто показывала букву, как раньше.
+ILLUSTRATIONS = "classifieds/rubrics"
+_ILLUSTRATED = {p.stem for p in (settings.BASE_DIR / "static" / ILLUSTRATIONS).glob("*.jpg")}
 
-class Category(models.Model):
+
+class Category(Translatable):
     """Двухуровневый рубрикатор: раздел («Недвижимость») → рубрика («Сдам квартиру»).
 
     Объявление всегда лежит в рубрике; раздел показывает объявления всех своих рубрик.
@@ -35,6 +44,12 @@ class Category(models.Model):
     price_label = models.CharField("подпись цены", max_length=20, default="Цена",
                                    help_text="«Цена», «Зарплата», «Аренда»")
     order = models.PositiveSmallIntegerField("порядок", default=0)
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name", "description", "price_label")
+    name_uk = uk_field(name)
+    description_uk = uk_field(description)
+    price_label_uk = uk_field(price_label)
 
     class Meta:
         ordering = ["order", "name"]
@@ -50,6 +65,11 @@ class Category(models.Model):
     @property
     def is_section(self) -> bool:
         return self.parent_id is None
+
+    @property
+    def illustration(self) -> str:
+        """Путь в static без расширения или пусто, если картинки у рубрики нет."""
+        return f"{ILLUSTRATIONS}/{self.slug}" if self.slug in _ILLUSTRATED else ""
 
 
 class AdQuerySet(models.QuerySet):
@@ -72,11 +92,11 @@ class Ad(models.Model):
         CLOSED = "closed", "снято автором"
 
     class PriceUnit(models.TextChoices):
-        TOTAL = "", "за всё"
-        MONTH = "month", "в месяц"
-        WEEK = "week", "в неделю"
-        DAY = "day", "в сутки"
-        HOUR = "hour", "в час"
+        TOTAL = "", gettext_lazy("за всё")
+        MONTH = "month", gettext_lazy("в месяц")
+        WEEK = "week", gettext_lazy("в неделю")
+        DAY = "day", gettext_lazy("в сутки")
+        HOUR = "hour", gettext_lazy("в час")
 
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     slug = models.SlugField("адрес", max_length=90, blank=True)
@@ -253,12 +273,12 @@ class Report(models.Model):
     """Жалоба посетителя. После нескольких жалоб с разных адресов объявление скрывается до решения редакции."""
 
     class Reason(models.TextChoices):
-        SCAM = "scam", "Похоже на мошенничество"
-        PROHIBITED = "prohibited", "Запрещённый товар или услуга"
-        WRONG = "wrong", "Не та рубрика или неверные данные"
-        SOLD = "sold", "Уже продано, неактуально"
-        OFFENSIVE = "offensive", "Оскорбительное содержание"
-        OTHER = "other", "Другое"
+        SCAM = "scam", gettext_lazy("Похоже на мошенничество")
+        PROHIBITED = "prohibited", gettext_lazy("Запрещённый товар или услуга")
+        WRONG = "wrong", gettext_lazy("Не та рубрика или неверные данные")
+        SOLD = "sold", gettext_lazy("Уже продано, неактуально")
+        OFFENSIVE = "offensive", gettext_lazy("Оскорбительное содержание")
+        OTHER = "other", gettext_lazy("Другое")
 
     ad = models.ForeignKey(Ad, verbose_name="объявление", on_delete=models.CASCADE, related_name="reports")
     reason = models.CharField("причина", max_length=12, choices=Reason.choices)

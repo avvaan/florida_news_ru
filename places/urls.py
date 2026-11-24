@@ -4,9 +4,8 @@ from . import views
 
 app_name = "places"
 
+# Внутри i18n_patterns: /chto-posetit/… — русская версия, /uk/chto-posetit/… — украинская.
 urlpatterns = [
-    path("chto-posetit/", views.destination_list, {"lang": "ru"}, name="list"),
-    path("chto-posetit/<slug:slug>/", views.destination_detail, {"lang": "ru"}, name="detail"),
-    path("uk/shcho-vidvidaty/", views.destination_list, {"lang": "uk"}, name="list-uk"),
-    path("uk/shcho-vidvidaty/<slug:slug>/", views.destination_detail, {"lang": "uk"}, name="detail-uk"),
+    path("", views.destination_list, name="list"),
+    path("<slug:slug>/", views.destination_detail, name="detail"),
 ]

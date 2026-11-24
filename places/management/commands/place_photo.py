@@ -46,7 +46,7 @@ class Command(BaseCommand):
         parser.add_argument("--title", default="", help="название фото на стоке")
         parser.add_argument("--source-url", default="", help="страница фото (для фото не со стока: NPS, NASA …)")
         parser.add_argument("--illustration", action="store_true",
-                            help="своя иллюстрация (Recraft в стиле сайта): подпись «Иллюстрация Florida RU»")
+                            help="своя иллюстрация (Recraft в стиле сайта): подпись «Иллюстрация <название сайта>»")
         parser.add_argument("--focus-x", type=float, default=0.5)
         parser.add_argument("--focus-y", type=float, default=0.5)
 
@@ -88,7 +88,7 @@ class Command(BaseCommand):
         if source_url:
             photos[str(number)]["source_url"] = source_url
         if illustration:
-            photos[str(number)] = {"credit": "Florida RU", "kind": "illustration", "title": title}
+            photos[str(number)] = {"credit": settings.SITE_NAME, "kind": "illustration", "title": title}
         photos = dict(sorted(photos.items(), key=lambda kv: int(kv[0])))
         photos_file.write_text(json.dumps(photos, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         sizes = ", ".join(f"{p.name} {p.stat().st_size // 1024} КБ" for p in files)

@@ -6,6 +6,7 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils import timezone
 
+from core.i18n import Translatable
 from core.models import Author, Page
 from directory.models import Category, Listing
 from classifieds.models import Ad
@@ -21,6 +22,20 @@ class SiteRootSitemap(Sitemap):
     """Sitemap без django.contrib.sites: домен берём из SITE_URL."""
 
     protocol = "https"
+    # Украинская версия (/uk/…) — отдельными адресами со ссылками hreflang друг на друга.
+    # Материалы без перевода и чужой текст (объявления) — только русский адрес.
+    i18n = True
+    alternates = True
+    x_default = True
+
+    def get_languages_for_item(self, item):
+        if isinstance(item, Event) and item.language:  # событие только для одной версии сайта
+            return [item.language]
+        if isinstance(item, Translatable) and not item.has_uk:
+            return [settings.LANGUAGE_CODE]
+        if isinstance(item, Ad):
+            return [settings.LANGUAGE_CODE]
+        return super().get_languages_for_item(item)
 
     def get_domain(self, site=None):
         return settings.SITE_URL.split("://", 1)[-1]
@@ -35,7 +50,8 @@ class SiteRootSitemap(Sitemap):
     def get_urls(self, page=1, site=None, protocol=None):
         urls = super().get_urls(page=page, site=site, protocol=protocol)
         for url in urls:
-            url["images"] = self.images(url["item"])
+            item = url["item"]
+            url["images"] = self.images(item[0] if isinstance(item, tuple) else item)
         return urls
 
 
@@ -49,7 +65,9 @@ class ArticleSitemap(SiteRootSitemap):
     limit = 5000
 
     def items(self):
-        return Article.objects.published().order_by("-published_at")
+        # короткие заметки закрыты noindex — в sitemap только полноценные материалы
+        articles = Article.objects.published().select_related("topic").order_by("-published_at")
+        return [a for a in articles if a.is_indexable]
 
     def lastmod(self, obj):
         return obj.revised_at or obj.published_at
@@ -116,16 +134,17 @@ class GuideSitemap(SiteRootSitemap):
 
 
 class DestinationSitemap(SiteRootSitemap):
-    """«Что посетить»: списки и статьи на русском и украинском."""
+    """«Что посетить»: список и статьи; украинские адреса (/uk/chto-posetit/…) добавляет i18n сайтмапа."""
 
     changefreq = "weekly"
     priority = 0.7
 
     def items(self):
-        return ["places:list", "places:list-uk", *Destination.objects.published().order_by("lang", "region", "order")]
+        # Русская версия каждой статьи — одна запись; у каждой статьи есть украинская пара (проверяет import_places).
+        return ["places:list", *Destination.objects.published().filter(lang="ru").order_by("region", "order")]
 
     def location(self, item):
-        return reverse(item) if isinstance(item, str) else item.get_absolute_url()
+        return reverse(item) if isinstance(item, str) else reverse("places:detail", args=[item.slug])
 
     def lastmod(self, item):
         return None if isinstance(item, str) else item.revised_at or item.published_at
@@ -205,7 +224,8 @@ class AuthorSitemap(SiteRootSitemap):
 def google_news_items():
     """Google News sitemap: только заметки за последние 48 часов."""
     since = timezone.now() - timedelta(hours=48)
-    return Article.objects.published().filter(published_at__gte=since).order_by("-published_at")[:1000]
+    articles = Article.objects.published().filter(published_at__gte=since).order_by("-published_at")[:1000]
+    return [a for a in articles if a.is_indexable]
 
 
 SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,

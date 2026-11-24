@@ -1,0 +1,4 @@
+{% load news_extras %}{# hreflang: русская и украинская версии страницы. obj — материал с переводом; без перевода украинскую версию не объявляем. Страница только на одном языке (core.i18n.only_language) — другой язык не объявляем #}
+  {% if lang_urls.ru %}<link rel="alternate" hreflang="ru" href="{{ lang_urls.ru|absolute }}">{% endif %}
+  {% if lang_urls.uk %}{% if not obj or obj.has_uk %}<link rel="alternate" hreflang="uk" href="{{ lang_urls.uk|absolute }}">{% endif %}{% endif %}
+  {% if lang_urls.ru %}<link rel="alternate" hreflang="x-default" href="{{ lang_urls.ru|absolute }}">{% endif %}

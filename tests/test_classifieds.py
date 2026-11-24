@@ -1,6 +1,8 @@
 """Объявления: форма с фото, ИИ-модерация текста и фото, управление по ссылке, жалобы, фильтры, страницы."""
 
+import importlib
 import io
+import re
 from datetime import timedelta
 from unittest import mock
 
@@ -33,6 +35,12 @@ def sync_moderation():
     with override_settings(DIRECTORY_MODERATION_SYNC=True):
         yield
     cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def without_seeded_ads():
+    """Тесты считают объявления с нуля, а миграция 0005 заливает объявления редакции."""
+    Ad.objects.all().delete()
 
 
 def png(color="orange", name="photo.png") -> SimpleUploadedFile:
@@ -91,6 +99,34 @@ def test_rubricator_is_seeded():
     assert {"nedvizhimost", "rabota", "uslugi", "transport", "veshchi", "zhivotnye"} <= set(
         sections.values_list("slug", flat=True))
     assert Category.objects.get(slug="vakansii").price_label == "Зарплата"
+
+
+def test_editorial_ads_from_orlando_groups(client):
+    from django.apps import apps
+
+    seed = importlib.import_module("classifieds.migrations.0005_orlando_ads_2026_10")
+    seed.add_ads(apps, None)
+    seed.add_ads(apps, None)  # повторный прогон ничего не дублирует
+    assert Ad.objects.filter(status=Ad.Status.APPROVED).count() == len(seed.ADS) == 6
+    ad = Ad.objects.get(phone="+14076771101")
+    assert ad.category.slug == "vakansii" and ad.region.slug == "orlando" and ad.point
+    assert ad.slug and "лакомка" in ad.search
+    assert "добавила редакция" in client.get(ad.get_absolute_url()).content.decode()
+    truck = Ad.objects.get(category__slug="pereezdy")
+    assert truck.expires_at.date().isoformat() == "2026-11-08"
+
+
+def test_ad_without_photos_shows_rubric_illustration(client):
+    from classifieds.data import SECTIONS
+
+    assert all(Category.objects.get(slug=slug).illustration for _, _, _, rubrics in SECTIONS for slug, _, _ in rubrics)
+    ad = make_ad()  # «Мебель», без фото
+    listing = client.get("/obyavleniya/").content.decode()
+    assert "classifieds/rubrics/mebel-480.webp" in listing and "ad-card__img--none" not in listing
+    html = client.get(ad.get_absolute_url()).content.decode()
+    assert "classifieds/rubrics/mebel.webp" in html and "Иллюстрация рубрики «Мебель»" in html
+    assert re.search(r'og:image" content="[^"]+/static/classifieds/rubrics/mebel\.jpg"', html)
+    assert Category(slug="novaya-rubrika").illustration == ""  # рубрика без картинки — буква, как раньше
 
 
 def test_pages_and_nav(client):

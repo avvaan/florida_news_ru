@@ -1,0 +1,66 @@
+# Домашний сервер (mimi): сайт, его Postgres и Cloudflare Tunnel.
+# Как устроено и как обновлять — README.md → «Домашний сервер mimi».
+#
+# Все настройки и секреты — в deploy/.env.prod (в git не попадает; список имён —
+# deploy/env.prod.example). На хосте ничего не опубликовано: туннель ходит
+# к web:8000 внутри сети compose.
+name: florida
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: deploy/.env.prod
+    environment:
+      MIGRATE_ON_START: "1"
+    volumes:
+      - media:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "deploy/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    # Чтобы открыть сайт с самого mimi, раскомментируйте (8020 и 8030 заняты
+    # ethnicfestivals и luckyladybloom):
+    # ports:
+    #   - "127.0.0.1:8040:8000"
+    logging: *logging
+
+  db:
+    # Та же major-версия, что была на Render (18): дамп оттуда ложится как есть.
+    image: postgres:18
+    restart: unless-stopped
+    env_file: deploy/.env.prod
+    volumes:
+      # postgres:18 хранит данные в /var/lib/postgresql/18/docker — том на уровень выше.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging: *logging
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://web:8000 run
+    env_file: deploy/.env.prod
+    depends_on:
+      web:
+        condition: service_healthy
+    logging: *logging
+
+volumes:
+  pgdata:
+  media:

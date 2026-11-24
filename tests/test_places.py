@@ -61,7 +61,7 @@ def write_pair(content_dir, slug="test-park", **kwargs):
     photos = {str(n): {"credit": "Freepik", "stock_id": n, "title": "x"} for n in range(1, 9)}
     photos["9"] = {"credit": "NPS", "stock_id": None, "title": "Anhinga Trail",
                    "source_url": "https://www.nps.gov/media/photo/view.htm?id=1"}
-    photos["8"] = {"credit": "Florida RU", "kind": "illustration", "title": "pool"}
+    photos["8"] = {"credit": "TutFlorida", "kind": "illustration", "title": "pool"}
     (content_dir / "photos" / f"{slug}.json").write_text(json.dumps(photos), encoding="utf-8")
 
 
@@ -120,16 +120,18 @@ def test_pages_in_both_languages(content_dir, client):
     write_pair(content_dir)
     run("--no-images")
     ru_html = client.get("/chto-posetit/test-park/").content.decode()
-    uk_html = client.get("/uk/shcho-vidvidaty/test-park/").content.decode()
+    uk_html = client.get("/uk/chto-posetit/test-park/").content.decode()
     assert '<html lang="ru">' in ru_html and '<html lang="uk">' in uk_html
-    assert 'hreflang="uk" href="http' in ru_html and "/uk/shcho-vidvidaty/test-park/" in ru_html
+    assert 'hreflang="uk" href="http' in ru_html and '/uk/chto-posetit/test-park/">' in ru_html
     assert 'hreflang="ru" href="http' in uk_html and 'hreflang="x-default"' in uk_html
     assert 'content="uk_UA"' in uk_html
-    assert "Часы работы" in ru_html and "Години роботи" in uk_html and "Українською" in ru_html
+    assert "Часы работы" in ru_html and "Години роботи" in uk_html
     assert ru_html.count('class="place"') == 3 and "nps.gov/place0" in ru_html
     assert 'href="tel:+13052427700"' in ru_html and "Фото: Freepik" in ru_html and "Фото: Freepik" in uk_html
     assert 'Фото: <a href="https://www.nps.gov/media/photo/view.htm?id=1"' in ru_html
-    assert "Подпись 8 · Иллюстрация Florida RU" in ru_html and "Подпись 8 · Ілюстрація Florida RU" in uk_html
+    from django.conf import settings
+    assert f"Подпись 8 · Иллюстрация {settings.SITE_NAME}" in ru_html
+    assert f"Подпись 8 · Ілюстрація {settings.SITE_NAME}" in uk_html
     assert "Цены и часы работы проверены по официальным сайтам: 24 ноября 2026" in ru_html
     assert "24 листопада 2026" in uk_html
     ld = [json.loads(b) for b in re.findall(r'<script type="application/ld\+json">(.*?)</script>', uk_html, re.S)]
@@ -139,10 +141,11 @@ def test_pages_in_both_languages(content_dir, client):
     assert [i["name"] for i in crumbs["itemListElement"]] == ["Головна", "Що відвідати", "Тестовий парк"]
 
     listing = client.get("/chto-posetit/").content.decode()
-    assert "Тестовый парк" in listing and "Майами и юго-восток" in listing and 'href="/uk/shcho-vidvidaty/"' in listing
-    assert "Тестовий парк" in client.get("/uk/shcho-vidvidaty/").content.decode()
+    assert "Тестовый парк" in listing and "Майами и юго-восток" in listing and '/uk/chto-posetit/"' in listing
+    assert "Тестовий парк" in client.get("/uk/chto-posetit/").content.decode()
     home = client.get("/").content.decode()
     assert 'href="/chto-posetit/">Что посетить</a>' in home
+    assert 'href="/uk/chto-posetit/">Що відвідати</a>' in client.get("/uk/").content.decode()
 
 
 def test_draft_is_hidden_and_404(content_dir, client):
@@ -161,8 +164,8 @@ def test_sitemap_lists_both_languages_with_images(content_dir, client):
     write_pair(content_dir)
     run("--no-images")
     sitemap = client.get("/sitemap.xml").content.decode()
-    assert "/chto-posetit/test-park/</loc>" in sitemap and "/uk/shcho-vidvidaty/test-park/</loc>" in sitemap
-    assert "/uk/shcho-vidvidaty/</loc>" in sitemap and "/static/places/test-park-9.webp</image:loc>" in sitemap
+    assert "/chto-posetit/test-park/</loc>" in sitemap and "/uk/chto-posetit/test-park/</loc>" in sitemap
+    assert "/uk/chto-posetit/</loc>" in sitemap and "/static/places/test-park-9.webp</image:loc>" in sitemap
 
 
 def test_real_place_files_are_valid():
