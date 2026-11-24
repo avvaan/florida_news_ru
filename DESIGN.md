@@ -1,5 +1,5 @@
 ---
-name: Florida RU
+name: TutFlorida
 description: Русскоязычная первая полоса Флориды, где иерархию задаёт срочность, а таблички регионов выглядят как указатели флоридских хайвеев.
 colors:
   ink: "#0f2433"
@@ -123,7 +123,7 @@ components:
     padding: "24px"
 ---
 
-# Design System: Florida RU
+# Design System: TutFlorida
 
 ## Overview
 
@@ -182,7 +182,7 @@ components:
 **Character:** Широкий геометричный Unbounded — голос вывески: логотип, метка «Срочно» и цифры. Golos Text — плотная современная гротескная кириллица для всего, что читают.
 
 ### Hierarchy
-- **Display** (Unbounded 800, 1.6rem / 1.2rem на телефоне, uppercase): только словесный знак «Florida RU».
+- **Display** (Unbounded 800, 1.6rem / 1.2rem на телефоне, uppercase): только словесный знак «TutFlorida».
 - **Headline** (Golos 800, clamp(1.75rem, 4.2vw, 2.75rem), 1.08, −0.028em): заголовок главной темы; `story__title` — clamp(1.85rem, 4.6vw, 2.9rem), max 22ch; `section-head__h` — clamp(1.8rem, 4vw, 2.6rem).
 - **Title** (Golos 700, 1.15rem, 1.25–1.28): заголовки плиток и строк ленты. Golos 800 1.3rem — заголовки Telegram-карточки, карточек событий и пустых состояний.
 - **Lede** (Golos 400, clamp(1.05rem…1.3rem), 1.45–1.5, `ink-2`, 60–62ch): тизер главной и лид статьи.

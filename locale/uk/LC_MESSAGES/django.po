@@ -1,11 +1,11 @@
-# Florida RU — украинская версия интерфейса.
+# TutFlorida — украинская версия интерфейса.
 # Обновление: makemessages -l uk --no-obsolete → перевести пустые msgstr → compilemessages -l uk (см. README).
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: florida-ru\n"
+"Project-Id-Version: tutflorida\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-21 13:28-0500\n"
+"POT-Creation-Date: 2026-11-23 22:42-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Ukrainian\n"
@@ -40,7 +40,7 @@ msgstr "Перевірте номер: наприклад, (305) 555-1234 або
 msgid "Укажите имя пользователя Telegram, например @ivan_miami."
 msgstr "Вкажіть ім’я користувача Telegram, наприклад @ivan_miami."
 
-#: classifieds/forms.py:66 templates/classifieds/detail.html:25
+#: classifieds/forms.py:66 templates/classifieds/detail.html:27
 #: templates/classifieds/submit.html:45
 msgid "Фото"
 msgstr "Фото"
@@ -698,12 +698,12 @@ msgid "Сделки"
 msgstr "Угоди"
 
 #: news/views.py:204
-msgid "Florida RU — новости штата по-русски"
-msgstr "Florida RU — новини штату українською"
+msgid "TutFlorida — новости штата"
+msgstr "TutFlorida — новини штату"
 
 #: news/views.py:205
 msgid "Короткие новости Флориды на русском со ссылками на первоисточники"
-msgstr "Короткі новини Флориди українською з посиланнями на першоджерела"
+msgstr "Короткі новини Флориди з посиланнями на першоджерела"
 
 #: sources/weather.py:10
 msgid "Предупреждение об урагане"
@@ -884,8 +884,8 @@ msgid "На главную"
 msgstr "На головну"
 
 #: templates/base.html:6 templates/base.html:15
-msgid "новости Флориды по-русски"
-msgstr "новини Флориди українською"
+msgid "новости Флориды"
+msgstr "новини Флориди"
 
 #: templates/base.html:7
 msgid ""
@@ -893,153 +893,148 @@ msgid ""
 "события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на "
 "первоисточник."
 msgstr ""
-"Головні новини Флориди українською: погода й урагани, закони, гроші, події в "
-"Маямі, Орландо, Тампі та Джексонвіллі. Коротко й з посиланням на "
-"першоджерело."
+"Головні новини Флориди: погода й урагани, закони, гроші, події в Маямі, "
+"Орландо, Тампі та Джексонвіллі. Коротко й з посиланням на першоджерело."
 
 #: templates/base.html:15
-msgid ""
-"Погода и ураганы, законы, деньги и события Флориды — коротко и по-русски."
-msgstr ""
-"Погода й урагани, закони, гроші та події Флориди — коротко й українською."
+msgid "Погода и ураганы, законы, деньги и события Флориды — коротко и по делу."
+msgstr "Погода й урагани, закони, гроші та події Флориди — коротко й по суті."
 
-#: templates/base.html:38
+#: templates/base.html:39
 msgid "К содержанию"
 msgstr "До змісту"
 
-#: templates/base.html:40
+#: templates/base.html:41
 msgid "Демо-данные: заметки на этой копии сайта выдуманы для проверки дизайна"
 msgstr "Демо-дані: новини на цій копії сайту вигадані для перевірки дизайну"
 
-#: templates/base.html:47
+#: templates/base.html:48
 msgid "Наш Telegram"
 msgstr "Наш Telegram"
 
-#: templates/base.html:49
+#: templates/base.html:50
 msgid "Язык сайта"
 msgstr "Мова сайту"
 
-#: templates/base.html:55
+#: templates/base.html:56
 msgid "на главную"
 msgstr "на головну"
 
-#: templates/base.html:59
+#: templates/base.html:60
 msgid ""
-"Новости штата по-русски: коротко, по делу и&nbsp;со&nbsp;ссылкой "
-"на&nbsp;первоисточник"
+"Новости штата: коротко, по делу и&nbsp;со&nbsp;ссылкой на&nbsp;первоисточник"
 msgstr ""
-"Новини штату українською: коротко, по суті й&nbsp;з&nbsp;посиланням "
-"на&nbsp;першоджерело"
+"Новини штату: коротко, по суті й&nbsp;з&nbsp;посиланням на&nbsp;першоджерело"
 
-#: templates/base.html:61 templates/base.html:110
+#: templates/base.html:62 templates/base.html:111
 msgid "Регионы"
 msgstr "Регіони"
 
-#: templates/base.html:63 templates/news/front.html:36
+#: templates/base.html:64 templates/news/front.html:36
 msgid "Главное"
 msgstr "Головне"
 
-#: templates/base.html:69 templates/base.html:114
+#: templates/base.html:70 templates/base.html:115
 #: templates/news/business.html:72 templates/news/front.html:22
 #: templates/news/front.html:115
 msgid "Темы"
 msgstr "Теми"
 
-#: templates/base.html:74 templates/base.html:132
+#: templates/base.html:75 templates/base.html:133
 #: templates/guides/detail.html:15 templates/guides/detail.html:20
 #: templates/guides/list.html:6 templates/guides/list.html:10
 msgid "Гайды"
 msgstr "Гайди"
 
-#: templates/base.html:75 templates/events/detail.html:8
+#: templates/base.html:76 templates/events/detail.html:8
 #: templates/events/detail.html:12 templates/events/list.html:7
 #: templates/events/list.html:11 templates/events/submit.html:9
 #: templates/events/submit_done.html:9
 msgid "Афиша"
 msgstr "Афіша"
 
-#: templates/base.html:76 templates/classifieds/detail.html:8
-#: templates/classifieds/detail.html:12 templates/classifieds/list.html:7
+#: templates/base.html:77 templates/classifieds/detail.html:10
+#: templates/classifieds/detail.html:14 templates/classifieds/list.html:7
 #: templates/classifieds/list.html:12 templates/classifieds/list.html:17
 #: templates/classifieds/list.html:72 templates/classifieds/manage.html:9
 #: templates/classifieds/submit.html:9
 msgid "Объявления"
 msgstr "Оголошення"
 
-#: templates/base.html:77 templates/directory/listing.html:9
+#: templates/base.html:78 templates/directory/listing.html:9
 #: templates/directory/listing.html:13
 msgid "Справочник"
 msgstr "Довідник"
 
-#: templates/base.html:83 templates/base.html:85 templates/includes/row.html:6
+#: templates/base.html:84 templates/base.html:86 templates/includes/row.html:6
 #: templates/includes/tile.html:5 templates/news/article.html:42
 #: templates/news/front.html:42 templates/news/front.html:54
 msgid "Срочно"
 msgstr "Терміново"
 
-#: templates/base.html:107 templates/core/page.html:15
+#: templates/base.html:108 templates/core/page.html:15
 msgid "Почта редакции:"
 msgstr "Пошта редакції:"
 
-#: templates/base.html:109
+#: templates/base.html:110
 msgid "Разделы"
 msgstr "Розділи"
 
-#: templates/base.html:113
+#: templates/base.html:114
 msgid "Темы сайта"
 msgstr "Теми сайту"
 
-#: templates/base.html:117
+#: templates/base.html:118
 msgid "О сайте"
 msgstr "Про сайт"
 
-#: templates/base.html:118 templates/core/about.html:16
+#: templates/base.html:119 templates/core/about.html:16
 msgid "Редакция"
 msgstr "Редакція"
 
-#: templates/base.html:124 templates/news/front.html:86
+#: templates/base.html:125 templates/news/front.html:86
 msgid "Подписаться в Telegram"
 msgstr "Підписатися в Telegram"
 
-#: templates/base.html:130
+#: templates/base.html:131
 msgid "Правовая информация"
 msgstr "Правова інформація"
 
-#: templates/base.html:133 templates/directory/index.html:5
+#: templates/base.html:134 templates/directory/index.html:5
 #: templates/directory/index.html:6 templates/directory/index.html:13
 msgid "Полезные ссылки и бизнесы"
 msgstr "Корисні посилання та бізнеси"
 
-#: templates/base.html:134 templates/core/about.html:3
+#: templates/base.html:135 templates/core/about.html:3
 #: templates/core/about.html:5 templates/core/about.html:8
 #: templates/core/about.html:12 templates/core/author.html:8
 msgid "О проекте"
 msgstr "Про проєкт"
 
-#: templates/base.html:135 templates/includes/ad.html:1
+#: templates/base.html:136 templates/includes/ad.html:1
 #: templates/includes/ad.html:2
 msgid "Реклама"
 msgstr "Реклама"
 
-#: templates/base.html:136 templates/core/about.html:37
+#: templates/base.html:137 templates/core/about.html:37
 #: templates/core/corrections.html:3 templates/core/corrections.html:5
 #: templates/core/corrections.html:6 templates/core/corrections.html:10
 msgid "Исправления"
 msgstr "Виправлення"
 
-#: templates/base.html:137 templates/core/about.html:38
+#: templates/base.html:138 templates/core/about.html:38
 msgid "Авторские права (DMCA)"
 msgstr "Авторські права (DMCA)"
 
-#: templates/base.html:138 templates/core/about.html:40
+#: templates/base.html:139 templates/core/about.html:40
 msgid "Политика конфиденциальности"
 msgstr "Політика конфіденційності"
 
-#: templates/base.html:139 templates/core/about.html:39
+#: templates/base.html:140 templates/core/about.html:39
 msgid "Контакты"
 msgstr "Контакти"
 
-#: templates/base.html:142
+#: templates/base.html:143
 msgid ""
 "Иллюстрации — собственные, фото — лицензионный сток Freepik. Фотографии из "
 "чужих статей мы не используем."
@@ -1048,12 +1043,12 @@ msgstr ""
 "статей ми не використовуємо."
 
 #: templates/classifieds/_card.html:6 templates/classifieds/detail.html:3
-#: templates/classifieds/detail.html:19
+#: templates/classifieds/detail.html:21
 msgid "Договорная"
 msgstr "Договірна"
 
 #: templates/classifieds/_card.html:6 templates/classifieds/detail.html:3
-#: templates/classifieds/detail.html:19
+#: templates/classifieds/detail.html:21
 msgid "Бесплатно"
 msgstr "Безкоштовно"
 
@@ -1062,7 +1057,7 @@ msgstr "Безкоштовно"
 msgid "объявления %(site_name)s"
 msgstr "оголошення %(site_name)s"
 
-#: templates/classifieds/detail.html:8 templates/classifieds/detail.html:12
+#: templates/classifieds/detail.html:10 templates/classifieds/detail.html:14
 #: templates/classifieds/list.html:7 templates/classifieds/list.html:11
 #: templates/classifieds/manage.html:9 templates/classifieds/submit.html:9
 #: templates/comments/form_page.html:8 templates/core/about.html:8
@@ -1082,7 +1077,7 @@ msgstr "оголошення %(site_name)s"
 msgid "Главная"
 msgstr "Головна"
 
-#: templates/classifieds/detail.html:11 templates/classifieds/list.html:10
+#: templates/classifieds/detail.html:13 templates/classifieds/list.html:10
 #: templates/classifieds/manage.html:8 templates/classifieds/submit.html:8
 #: templates/comments/form_page.html:7 templates/directory/category.html:10
 #: templates/directory/index.html:9 templates/directory/listing.html:12
@@ -1093,65 +1088,65 @@ msgstr "Головна"
 msgid "Навигация"
 msgstr "Навігація"
 
-#: templates/classifieds/detail.html:17
+#: templates/classifieds/detail.html:19
 msgid "Автор снял объявление"
 msgstr "Автор зняв оголошення"
 
-#: templates/classifieds/detail.html:17 templates/classifieds/manage.html:19
+#: templates/classifieds/detail.html:19 templates/classifieds/manage.html:19
 msgid "Срок объявления истёк"
 msgstr "Термін оголошення минув"
 
-#: templates/classifieds/detail.html:20 templates/classifieds/manage.html:44
+#: templates/classifieds/detail.html:22 templates/classifieds/manage.html:44
 msgid "опубликовано"
 msgstr "опубліковано"
 
-#: templates/classifieds/detail.html:20
+#: templates/classifieds/detail.html:22
 #, python-format
 msgid "%(n)s просмотров"
 msgstr "%(n)s переглядів"
 
-#: templates/classifieds/detail.html:26
+#: templates/classifieds/detail.html:28
 #, python-format
 msgid "Фото %(n)s: %(title)s"
 msgstr "Фото %(n)s: %(title)s"
 
-#: templates/classifieds/detail.html:28
+#: templates/classifieds/detail.html:30
 #, python-format
 msgid "%(n)s фото — листайте вбок. Нажмите на фото, чтобы открыть крупно."
 msgstr ""
 "%(n)s фото — гортайте вбік. Натисніть на фото, щоб відкрити його великим."
 
-#: templates/classifieds/detail.html:33
+#: templates/classifieds/detail.html:35
 #, python-format
 msgid "Иллюстрация рубрики «%(name)s»: автор не приложил фото."
 msgstr "Ілюстрація рубрики «%(name)s»: автор не додав фото."
 
-#: templates/classifieds/detail.html:40 templates/classifieds/submit.html:37
+#: templates/classifieds/detail.html:42 templates/classifieds/submit.html:37
 #: templates/events/detail.html:29
 msgid "Где"
 msgstr "Де"
 
-#: templates/classifieds/detail.html:41
+#: templates/classifieds/detail.html:43
 msgid "Точный адрес уточняйте у автора."
 msgstr "Точну адресу уточнюйте в автора."
 
-#: templates/classifieds/detail.html:42
+#: templates/classifieds/detail.html:44
 #, python-format
 msgid "Карта: %(place)s"
 msgstr "Карта: %(place)s"
 
-#: templates/classifieds/detail.html:46
+#: templates/classifieds/detail.html:48
 msgid ""
 "Объявление подал частный пользователь, его проверила автоматическая "
 "модерация."
 msgstr ""
 "Оголошення подав приватний користувач, його перевірила автоматична модерація."
 
-#: templates/classifieds/detail.html:46
+#: templates/classifieds/detail.html:48
 msgid "Объявление добавила редакция по публикации автора в соцсетях."
 msgstr "Оголошення додала редакція за публікацією автора в соцмережах."
 
-#: templates/classifieds/detail.html:46
+#: templates/classifieds/detail.html:48
 #, python-format
 msgid ""
 "Редакция не участвует в сделках и не отвечает за товары и услуги. Объявление "
@@ -1160,11 +1155,11 @@ msgstr ""
 "Редакція не бере участі в угодах і не відповідає за товари та послуги. "
 "Оголошення № %(n)s."
 
-#: templates/classifieds/detail.html:49
+#: templates/classifieds/detail.html:51
 msgid "Пожаловаться на объявление"
 msgstr "Поскаржитися на оголошення"
 
-#: templates/classifieds/detail.html:51
+#: templates/classifieds/detail.html:53
 msgid ""
 "Спасибо, жалоба принята. Если жалоб несколько, объявление скрывается до "
 "проверки редакцией."
@@ -1172,36 +1167,36 @@ msgstr ""
 "Дякуємо, скаргу прийнято. Якщо скарг кілька, оголошення приховується до "
 "перевірки редакцією."
 
-#: templates/classifieds/detail.html:57
+#: templates/classifieds/detail.html:59
 msgid "Выберите причину."
 msgstr "Виберіть причину."
 
-#: templates/classifieds/detail.html:60
+#: templates/classifieds/detail.html:62
 msgid "Отправить жалобу"
 msgstr "Надіслати скаргу"
 
-#: templates/classifieds/detail.html:72
+#: templates/classifieds/detail.html:74
 msgid "Написать в WhatsApp"
 msgstr "Написати у WhatsApp"
 
-#: templates/classifieds/detail.html:75
-msgid "Скажите, что нашли объявление на Florida RU."
-msgstr "Скажіть, що знайшли оголошення на Florida RU."
-
 #: templates/classifieds/detail.html:77
+msgid "Скажите, что нашли объявление на TutFlorida."
+msgstr "Скажіть, що знайшли оголошення на TutFlorida."
+
+#: templates/classifieds/detail.html:79
 msgid ""
 "Слишком много просмотров контактов с вашего адреса. Попробуйте через час."
 msgstr "Забагато переглядів контактів із вашої адреси. Спробуйте за годину."
 
-#: templates/classifieds/detail.html:79
+#: templates/classifieds/detail.html:81
 msgid "Показать контакты"
 msgstr "Показати контакти"
 
-#: templates/classifieds/detail.html:82
+#: templates/classifieds/detail.html:84
 msgid "Осторожно, мошенники"
 msgstr "Обережно, шахраї"
 
-#: templates/classifieds/detail.html:83
+#: templates/classifieds/detail.html:85
 msgid ""
 "Не переводите предоплату за осмотр, бронь или доставку, не платите "
 "подарочными картами и криптой, не отправляйте фото документов и коды из SMS. "
@@ -1211,11 +1206,11 @@ msgstr ""
 "подарунковими картками й криптовалютою, не надсилайте фото документів і коди "
 "з SMS. Оглядайте товар і житло особисто."
 
-#: templates/classifieds/detail.html:86
+#: templates/classifieds/detail.html:88
 msgid "Объявление больше не актуально, контакты скрыты."
 msgstr "Оголошення вже неактуальне, контакти приховано."
 
-#: templates/classifieds/detail.html:93
+#: templates/classifieds/detail.html:95
 msgid "Похожие объявления"
 msgstr "Схожі оголошення"
 
@@ -1479,9 +1474,9 @@ msgstr "Оголошення знято"
 #: templates/classifieds/manage.html:30
 #, python-format
 msgid ""
-"«%(title)s» больше не показывается. Спасибо, что пользуетесь Florida RU!"
+"«%(title)s» больше не показывается. Спасибо, что пользуетесь TutFlorida!"
 msgstr ""
-"«%(title)s» більше не показується. Дякуємо, що користуєтеся Florida RU!"
+"«%(title)s» більше не показується. Дякуємо, що користуєтеся TutFlorida!"
 
 #: templates/classifieds/manage.html:35
 msgid "Сохраните эту страницу в закладки"
@@ -1825,16 +1820,16 @@ msgid ""
 "%(site_name)s — новости Флориды на русском. Издатель — %(site_owner)s, "
 "Флорида. Как мы работаем, как используем ИИ и как исправляем ошибки."
 msgstr ""
-"%(site_name)s — новини Флориди українською. Видавець — %(site_owner)s, "
-"Флорида. Як ми працюємо, як використовуємо ШІ та як виправляємо помилки."
+"%(site_name)s — новини Флориди. Видавець — %(site_owner)s, Флорида. Як ми "
+"працюємо, як використовуємо ШІ та як виправляємо помилки."
 
 #: templates/core/about.html:5
 msgid ""
 "новости Флориды на русском: кто издаёт, как мы работаем, как используем ИИ и "
 "исправляем ошибки."
 msgstr ""
-"новини Флориди українською: хто видає, як ми працюємо, як використовуємо ШІ "
-"та виправляємо помилки."
+"новини Флориди: хто видає, як ми працюємо, як використовуємо ШІ та "
+"виправляємо помилки."
 
 #: templates/core/about.html:31
 #, python-format
@@ -1937,19 +1932,19 @@ msgstr "Авторські права і DMCA"
 
 #: templates/core/dmca.html:4
 msgid ""
-"Как сообщить о нарушении авторских прав на сайте Florida RU: уполномоченный "
+"Как сообщить о нарушении авторских прав на сайте TutFlorida: уполномоченный "
 "агент по DMCA, уведомление о нарушении и встречное уведомление."
 msgstr ""
-"Як повідомити про порушення авторських прав на сайті Florida RU: "
+"Як повідомити про порушення авторських прав на сайті TutFlorida: "
 "уповноважений агент за DMCA, повідомлення про порушення та зустрічне "
 "повідомлення."
 
 #: templates/core/dmca.html:5
 msgid ""
-"Как сообщить о нарушении авторских прав на сайте Florida RU: агент по DMCA, "
+"Как сообщить о нарушении авторских прав на сайте TutFlorida: агент по DMCA, "
 "уведомление и встречное уведомление."
 msgstr ""
-"Як повідомити про порушення авторських прав на сайті Florida RU: агент за "
+"Як повідомити про порушення авторських прав на сайті TutFlorida: агент за "
 "DMCA, повідомлення та зустрічне повідомлення."
 
 #: templates/core/dmca.html:12
@@ -1958,10 +1953,10 @@ msgstr "Хто ми"
 
 #: templates/core/dmca.html:13
 msgid ""
-"Сайт Florida RU (florida-ru.com) принадлежит компании CITRUSTACK LLC, "
+"Сайт TutFlorida (tutflorida.com) принадлежит компании CITRUSTACK LLC, "
 "Флорида."
 msgstr ""
-"Сайт Florida RU (florida-ru.com) належить компанії CITRUSTACK LLC, Флорида."
+"Сайт TutFlorida (tutflorida.com) належить компанії CITRUSTACK LLC, Флорида."
 
 #: templates/core/dmca.html:15
 msgid "Наш принцип"
@@ -2300,11 +2295,11 @@ msgstr "Додати бізнес до довідника"
 
 #: templates/directory/submit.html:4
 msgid ""
-"Бесплатно добавьте русскоязычный бизнес во Флориде в справочник Florida RU: "
+"Бесплатно добавьте русскоязычный бизнес во Флориде в справочник TutFlorida: "
 "заявка проверяется автоматически за пару минут."
 msgstr ""
 "Безкоштовно додайте україно- чи російськомовний бізнес у Флориді до "
-"довідника Florida RU: заявку перевіряють автоматично за кілька хвилин."
+"довідника TutFlorida: заявку перевіряють автоматично за кілька хвилин."
 
 #: templates/directory/submit.html:12 templates/directory/suggest.html:5
 msgid "Добавить бизнес"
@@ -2583,10 +2578,10 @@ msgstr "Додати подію до афіші"
 #: templates/events/submit.html:4
 msgid ""
 "Бесплатно добавьте концерт, спектакль, фестиваль или праздник во Флориде в "
-"афишу Florida RU: заявка проверяется автоматически за пару минут."
+"афишу TutFlorida: заявка проверяется автоматически за пару минут."
 msgstr ""
 "Безкоштовно додайте концерт, виставу, фестиваль чи свято у Флориді до афіші "
-"Florida RU: заявку перевіряють автоматично за кілька хвилин."
+"TutFlorida: заявку перевіряють автоматично за кілька хвилин."
 
 #: templates/events/submit.html:13
 msgid ""
@@ -3063,8 +3058,7 @@ msgid ""
 "%(name)s: новости Флориды на русском языке, коротко и со ссылкой на "
 "первоисточник."
 msgstr ""
-"%(name)s: новини Флориди українською мовою, коротко й з посиланням на "
-"першоджерело."
+"%(name)s: новини Флориди мовою, коротко й з посиланням на першоджерело."
 
 #: templates/news/front.html:8
 msgid ""
@@ -3097,7 +3091,7 @@ msgstr ""
 #: templates/news/front.html:28 templates/news/tag.html:3
 #: templates/news/tag.html:5
 msgid "новости Флориды на русском"
-msgstr "новини Флориди українською"
+msgstr "новини Флориди"
 
 #: templates/news/front.html:49
 msgid "Самое важное за сутки"
@@ -3143,7 +3137,7 @@ msgstr "Усі бізнес-новини →"
 #: templates/news/tag.html:4 templates/news/tag.html:5
 #, python-format
 msgid "Все заметки с тегом «%(tag)s»: новости Флориды на русском языке."
-msgstr "Усі матеріали з тегом «%(tag)s»: новини Флориди українською мовою."
+msgstr "Усі матеріали з тегом «%(tag)s»: новини Флориди мовою."
 
 #: templates/news/tag.html:12
 msgid "Заметки"

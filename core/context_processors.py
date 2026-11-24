@@ -51,7 +51,8 @@ def languages(request):
     current = translation.get_language()
     path = request.get_full_path()
     switch = []
-    for code, name in settings.LANGUAGES:
+    # «UA | RU»: украинский первым.
+    for code, name in sorted(settings.LANGUAGES, key=lambda lang: lang[0] != "uk"):
         url = translate_url(path, code) if code != current else path
         if url == path and code != current:  # адрес не разобрался (404 и т. п.) — на главную языка
             with translation.override(code):

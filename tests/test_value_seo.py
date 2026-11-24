@@ -236,9 +236,9 @@ def test_article_byline_dates_sources_and_jsonld(client):
     article = published(revised_at=timezone.now())
     ArticleSource.objects.create(article=article, name="NHC", url="https://nhc.test/a")
     html = client.get(article.get_absolute_url()).content.decode()
-    assert "Редакция Florida RU" in html and "Обновлено" in html and "https://nhc.test/a" in html
+    assert "Редакция TutFlorida" in html and "Обновлено" in html and "https://nhc.test/a" in html
     ld = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S).group(1))
-    assert ld["@type"] == "NewsArticle" and ld["author"]["name"] == "Редакция Florida RU"
+    assert ld["@type"] == "NewsArticle" and ld["author"]["name"] == "Редакция TutFlorida"
     assert ld["publisher"]["parentOrganization"]["name"] == "CITRUSTACK LLC"
     assert ld["dateModified"] != ld["datePublished"]
 
@@ -279,7 +279,7 @@ def test_sitemaps_are_valid_and_complete(client):
     urls = news.findall(f"{SM}url")
     assert [u.find(f"{SM}loc").text.endswith(fresh.get_absolute_url()) for u in urls] == [True]
     pub = urls[0].find(f"{NEWS}news/{NEWS}publication")
-    assert pub.find(f"{NEWS}name").text == "Florida RU" and pub.find(f"{NEWS}language").text == "ru"
+    assert pub.find(f"{NEWS}name").text == "TutFlorida" and pub.find(f"{NEWS}language").text == "ru"
     assert urls[0].find(f"{NEWS}news/{NEWS}publication_date").text
     cache.clear()
 
@@ -313,7 +313,7 @@ def test_brand_and_about_migration():
     page.refresh_from_db()
     privacy.refresh_from_db()
     assert "Издатель сайта — компания CITRUSTACK LLC" in page.body
-    assert privacy.body == "Сайт «Florida RU» принадлежит компании CITRUSTACK LLC."
+    assert privacy.body == "Сайт «TutFlorida» принадлежит компании CITRUSTACK LLC."
 
 
 def test_article_links_only_tags_open_for_indexing(client):

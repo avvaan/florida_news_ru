@@ -28,9 +28,35 @@ def test_russian_stays_at_root_and_ukrainian_under_prefix(client):
     ru = client.get("/").content.decode()
     uk = client.get("/uk/").content.decode()
     assert '<html lang="ru">' in ru and '<html lang="uk">' in uk
-    # браузер с украинским Accept-Language на корне всё равно получает русскую версию — без редиректа
+
+
+def test_ukrainian_browser_lands_on_uk_version(client):
+    """Язык браузера решает, какая версия откроется; выбор в переключателе (cookie lang) важнее браузера."""
+    to_uk = client.get("/guides/?page=2", HTTP_ACCEPT_LANGUAGE="uk-UA,uk;q=0.9,en;q=0.8")
+    assert to_uk.status_code == 302 and to_uk["Location"] == "/uk/guides/?page=2"
+    assert "Accept-Language" in to_uk["Vary"]
+    for header in ("ru-RU,ru;q=0.9,uk;q=0.8", "en-US,en;q=0.9", ""):
+        assert client.get("/guides/", HTTP_ACCEPT_LANGUAGE=header).status_code == 200
+    assert client.get("/", HTTP_ACCEPT_LANGUAGE="en-US,uk;q=0.5").status_code == 302  # из ru/uk выше украинский
+    client.cookies["lang"] = "ru"
     assert client.get("/", HTTP_ACCEPT_LANGUAGE="uk").status_code == 200
-    assert '<html lang="ru">' in client.get("/", HTTP_ACCEPT_LANGUAGE="uk").content.decode()
+    client.cookies["lang"] = "uk"
+    assert client.get("/", HTTP_ACCEPT_LANGUAGE="ru").status_code == 302
+
+
+def test_bots_and_non_pages_are_not_redirected(client):
+    assert client.get("/", HTTP_ACCEPT_LANGUAGE="uk", HTTP_USER_AGENT="Googlebot/2.1").status_code == 200
+    for path in ("/sitemap.xml", "/robots.txt", "/healthz"):
+        assert client.get(path, HTTP_ACCEPT_LANGUAGE="uk").status_code == 200, path
+    assert client.get("/uk/", HTTP_ACCEPT_LANGUAGE="uk").status_code == 200
+
+
+def test_old_domain_redirects_to_tutflorida(client, settings):
+    settings.ALLOWED_HOSTS = ["*"]
+    for host in ("florida-ru.com", "www.florida-ru.com"):
+        resp = client.get("/guides/?page=2", HTTP_HOST=host)
+        assert resp.status_code == 301 and resp["Location"] == f"{settings.SITE_URL}/guides/?page=2"
+    assert client.get("/healthz", HTTP_HOST="florida-ru.com").status_code == 200
 
 
 def test_switcher_points_to_same_page_in_other_language(client):

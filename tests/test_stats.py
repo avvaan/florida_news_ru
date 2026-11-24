@@ -83,15 +83,15 @@ def test_webdriver_is_a_bot_even_with_a_normal_browser():
 
 # --- Правила: откуда пришли ---------------------------------------------------------------
 
-HOSTS = {"florida-ru.com", "testserver"}
+HOSTS = {"tutflorida.com", "testserver"}
 
 
 @pytest.mark.parametrize("referrer, utm, expected", [
     ("", "", "прямой заход"),
     ("http://188.114.97.7/", "", "прямой заход"),  # IP Cloudflare — не сайт
     ("https://[2606:4700::6812:1]/", "", "прямой заход"),
-    ("https://florida-ru.com/guides/", "", ""),  # переход внутри сайта — не вход
-    ("https://www.florida-ru.com/", "", ""),
+    ("https://tutflorida.com/guides/", "", ""),  # переход внутри сайта — не вход
+    ("https://www.tutflorida.com/", "", ""),
     ("https://l.facebook.com/l.php?u=x", "", "facebook"),
     ("https://lm.facebook.com/", "", "facebook"),
     ("https://m.facebook.com/", "", "facebook"),
@@ -104,7 +104,7 @@ HOSTS = {"florida-ru.com", "testserver"}
     ("https://example.org/page", "", "example.org"),
     ("https://www.google.com/", "Telegram", "telegram"),  # метка utm важнее адреса
     ("", "whatsapp", "whatsapp"),
-    ("https://florida-ru.com/", "tg", "telegram"),
+    ("https://tutflorida.com/", "tg", "telegram"),
 ])
 def test_referrer_normalisation(referrer, utm, expected):
     assert normalize_source(referrer, utm, HOSTS) == expected

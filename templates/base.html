@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{{ site_name }} — {% translate "новости Флориды по-русски" %}{% endblock %}</title>
+  <title>{% block title %}{{ site_name }} — {% translate "новости Флориды" %}{% endblock %}</title>
   <meta name="description" content="{% block description %}{% translate "Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник." %}{% endblock %}">
   <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endblock %}">
   <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% endblock %}">
@@ -12,10 +12,10 @@
   {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:locale" content="{% if is_uk %}uk_UA{% else %}ru_RU{% endif %}">
-  {% block og %}{% translate "новости Флориды по-русски" as og_tagline %}{% translate "Погода и ураганы, законы, деньги и события Флориды — коротко и по-русски." as og_description %}{% include "includes/og.html" with title=site_name|add:" — "|add:og_tagline description=og_description url=request.path %}{% endblock %}
+  {% block og %}{% translate "новости Флориды" as og_tagline %}{% translate "Погода и ураганы, законы, деньги и события Флориды — коротко и по делу." as og_description %}{% include "includes/og.html" with title=site_name|add:" — "|add:og_tagline description=og_description url=request.path %}{% endblock %}
   <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }}" href="{% url 'news:rss' %}">
-  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="apple-touch-icon" href="{% static 'img/logo-512.png' %}">
   <link rel="preload" href="{% static 'fonts/golos-text-cyrillic-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/golos-text-cyrillic-800-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
@@ -24,6 +24,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site_conf.adsense_client }}" crossorigin="anonymous"></script>
   {% endif %}
   {% block head %}{% endblock %}
+  <script defer src="{% static 'js/lang.js' %}"></script>
   {% block stats %}<script defer src="{% static 'js/hit.js' %}"></script>{% endblock %}{# счётчик: сигнал из браузера, см. stats/tracking.py #}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -53,10 +54,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   </div>
   <div class="masthead__brand wrap">
     <a class="logo" href="{% url 'news:home' %}" aria-label="{{ site_name }} — {% translate "на главную" %}">
-      <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
-      <span class="logo__word">Florida<br>RU</span>
+      <picture><source srcset="{% static 'img/logo-mark.webp' %}" type="image/webp"><img class="logo__mark" src="{% static 'img/logo-mark.png' %}" alt="" width="56" height="56"></picture>
+      <span class="logo__word"><span class="logo__tut">Tut</span>Florida</span>
     </a>
-    <p class="masthead__tagline">{% translate "Новости штата по-русски: коротко, по делу и&nbsp;со&nbsp;ссылкой на&nbsp;первоисточник" %}</p>
+    <p class="masthead__tagline">{% translate "Новости штата: коротко, по делу и&nbsp;со&nbsp;ссылкой на&nbsp;первоисточник" %}</p>
   </div>
   <nav class="signs" aria-label="{% translate "Регионы" %}">
     <ul class="signs__row wrap">
@@ -100,8 +101,8 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <div class="wrap footer__grid">
     <div class="footer__brand">
       <a class="logo logo--footer" href="{% url 'news:home' %}">
-        <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
-        <span class="logo__word">Florida<br>RU</span>
+        <picture><source srcset="{% static 'img/logo-mark.webp' %}" type="image/webp"><img class="logo__mark" src="{% static 'img/logo-mark.png' %}" alt="" width="56" height="56"></picture>
+        <span class="logo__word"><span class="logo__tut">Tut</span>Florida</span>
       </a>
       <p class="footer__note">{{ disclaimer }}</p>
       {% if site_conf.contact_email %}<p class="footer__mail">{% translate "Почта редакции:" %} <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>{% endif %}
@@ -126,7 +127,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     </nav>
   </div>
   <div class="wrap footer__legal">
-    <p>© {{ now.year }} {{ site_owner }}. Florida RU — florida-ru.com</p>
+    <p>© {{ now.year }} {{ site_owner }}. TutFlorida — tutflorida.com</p>
     <nav aria-label="{% translate "Правовая информация" %}">
       <ul class="footer__links">
         <li><a href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>

@@ -175,7 +175,7 @@ def test_fetch_article_text_failure_is_empty():
 # --- Живой автор --------------------------------------------------------------------------------
 
 def test_article_byline_and_newsarticle_author_is_the_editor(client):
-    editor = activate_editor(links="https://www.linkedin.com/in/anna\nне ссылка", email="anna@florida-ru.com")
+    editor = activate_editor(links="https://www.linkedin.com/in/anna\nне ссылка", email="anna@tutflorida.com")
     a = article(author=editor)
     html = client.get(a.get_absolute_url()).content.decode()
     assert f'href="{editor.get_absolute_url()}">Анна Петрова</a>' in html
@@ -188,16 +188,16 @@ def test_article_byline_and_newsarticle_author_is_the_editor(client):
 def test_inactive_author_falls_back_to_editorial_byline(client):
     a = article(author=Author.objects.get(slug="redaktor"))  # заготовка выключена
     html = client.get(a.get_absolute_url()).content.decode()
-    assert "Редакция Florida RU" in html and ld_of(html, "NewsArticle")["author"]["@type"] == "Organization"
+    assert "Редакция TutFlorida" in html and ld_of(html, "NewsArticle")["author"]["@type"] == "Organization"
 
 
 def test_author_and_about_pages_show_people_and_contacts(client):
-    editor = activate_editor(email="anna@florida-ru.com", links="https://t.me/anna", bio="15 лет в журналистике.")
+    editor = activate_editor(email="anna@tutflorida.com", links="https://t.me/anna", bio="15 лет в журналистике.")
     a = article("Заметка Анны", author=editor)
     page = client.get(editor.get_absolute_url()).content.decode()
-    assert "mailto:anna@florida-ru.com" in page and 'href="https://t.me/anna"' in page and a.title in page
+    assert "mailto:anna@tutflorida.com" in page and 'href="https://t.me/anna"' in page and a.title in page
     person = ld_of(page, "Person")
-    assert person["email"] == "anna@florida-ru.com" and person["sameAs"] == ["https://t.me/anna"]
+    assert person["email"] == "anna@tutflorida.com" and person["sameAs"] == ["https://t.me/anna"]
     about = client.get("/about/").content.decode()
     assert "Анна Петрова" in about and "15 лет в журналистике." in about and "mailto:info@florida-ru.com" in about
 
