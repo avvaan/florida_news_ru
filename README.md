@@ -309,7 +309,45 @@ curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json
 
 ---
 
-## Деплой на Render (основной вариант)
+## Домашний сервер mimi (основной вариант)
+
+С ноября 2026 сайт и база живут на домашнем Linux-мини-ПК **mimi** (там же ethnicfestivals и
+luckyladybloom) в Docker Compose за Cloudflare Tunnel. Проект compose — `florida`, checkout —
+`/home/deploy/florida`, пользователь `deploy`.
+
+- `docker-compose.yml` — три сервиса, все с `restart: unless-stopped` (поднимаются и после перезагрузки):
+  - `web` — сайт из `Dockerfile` (Python 3.12, gunicorn 2×4, статика собрана в образ). При каждом старте
+    `deploy/entrypoint.sh` делает то же, что `build.sh` на Render: `migrate` и `import_guides`.
+    Проверка здоровья — `deploy/healthcheck.py` (`/healthz` с хостом сайта и `X-Forwarded-Proto: https`);
+  - `db` — PostgreSQL 18 (та же версия, что была на Render), данные в томе `florida_pgdata`;
+  - `cloudflared` — туннель `florida-ru`: соединяется с Cloudflare изнутри, порт на роутере не открыт.
+    DNS `florida-ru.com` и `www` — CNAME на `<id туннеля>.cfargotunnel.com` (proxied).
+- Все настройки и секреты — `deploy/.env.prod` (в git не попадает, список имён — `deploy/env.prod.example`,
+  создаётся `bash deploy/init-env.sh`). Картинки рекламы и фото авторов — в томе `florida_media`,
+  отдаются самим Django (`SERVE_MEDIA=1`).
+- cron (`deploy/crontab.example`, mimi в UTC):
+  - каждые 3 минуты `deploy/autodeploy.sh` — новый коммит в `main` выходит на сайт, как на Render;
+    при неудаче откатывается к последнему рабочему коммиту. Журнал `~/florida-deploy.log`,
+    вывод сборки `~/florida-deploy-build.log`, пауза — `touch ~/florida-deploy.paused`;
+  - `7 11,22 * * *` — `run_pipeline` внутри контейнера (бывшая cron-задача `florida-pipeline`),
+    журнал `~/florida-pipeline.log`;
+  - 04:00 — бэкап базы `deploy/backup.sh` в `~/backups/florida` (последние 14),
+    восстановление — `bash deploy/restore.sh <файл.dump>`.
+
+Частые команды (на mimi, в `/home/deploy/florida`):
+
+```bash
+docker compose ps                                   # web и db «healthy», cloudflared «running»
+docker compose logs -f web                          # логи сайта
+docker compose exec web python manage.py shell      # вместо Shell на Render
+docker compose exec web python manage.py run_pipeline --no-write
+tail ~/florida-deploy.log ~/florida-pipeline.log
+```
+
+Данные перенесены с Render одним дампом (`pg_dump --format=custom` → `pg_restore --no-owner --no-acl`).
+Сервисы на Render приостановлены, `render.yaml` и `build.sh` оставлены на случай возврата.
+
+## Деплой на Render (прежний вариант)
 
 В репозитории есть `render.yaml` (Blueprint): веб-сервис, PostgreSQL и cron-задача.
 
