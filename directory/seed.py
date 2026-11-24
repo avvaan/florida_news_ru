@@ -288,3 +288,10 @@ def import_batch7(apps, schema_editor):
 def import_batch8(apps, schema_editor):
     """Украинские бизнесы Флориды из таблицы владельца (группа Facebook): 11 с контактами, остальные скрыты."""
     import_businesses(apps, schema_editor, "businesses_2026_10_batch8.json")
+
+
+def import_batch9_doctors(apps, schema_editor):
+    """226 русскоязычных врачей по всей Флориде (ноябрь 2026): язык и адрес по профилям больничных сетей,
+    сайтам практик и справочникам, лицензия — по реестру Минздрава штата. 13 врачей, у которых русский
+    под сомнением (источники противоречат), скрыты до звонка — «Проверка: нужен звонок» в заметке редакции."""
+    apply_business_updates(apps, schema_editor, "businesses_2026_11_vrachi.json")

@@ -79,11 +79,13 @@ def test_businesses_from_editor_table():
 
 
 def test_category_region_filter(client):
+    doctors = Listing.objects.active().filter(category__slug="vrachi")
     html = client.get("/links/vrachi/").content.decode()
-    assert "Все (10)" in html and "Другие города" in html  # +хиропрактик и подиатр из таблицы
+    assert f"Все ({doctors.count()})" in html and "Другие города" in html
     assert html.index("Джексонвилл") < html.index("Палметто")  # регионы раньше «других городов»
     tampa = client.get("/links/vrachi/?region=tampa").content.decode()
-    assert tampa.count('class="dir__card"') == 1 and 'content="noindex, follow"' in tampa
+    assert tampa.count('class="dir__card"') == doctors.filter(region__slug="tampa").count() > 1
+    assert 'content="noindex, follow"' in tampa
     produkty = client.get("/links/produkty/").content.decode()
     assert "Romashka" not in produkty and "Kalinka" in produkty  # Ромашка ждёт проверки, Калинку проверили
 
@@ -153,3 +155,20 @@ def test_batch8_ukrainian_businesses(client):
     assert all(item.phone or item.url or item.address for item in batch.filter(is_active=True))
     assert "Pierogi Bar St. Pete" in client.get("/links/restorany/").content.decode()
     assert "Mudslide Coffee" not in client.get("/links/restorany/").content.decode()
+
+
+@pytest.mark.django_db
+def test_batch9_russian_speaking_doctors(client):
+    """Врачи по всей Флориде: проверенные и «вероятно» видны, с противоречивыми источниками — скрыты до звонка."""
+    batch = Listing.objects.filter(category__slug="vrachi", editor_note__contains="Сверено в ноябре 2026")
+    assert batch.count() == 226 and batch.filter(is_active=False).count() == 13
+    assert not batch.filter(is_active=False).exclude(editor_note__startswith="Проверка: нужен звонок").exists()
+    assert all(item.languages.startswith("русский") for item in batch)
+    assert all(item.url and item.address for item in batch)
+    gaukhman = batch.get(name__startswith="Alexander David Gaukhman")  # был в двух регионах — одна запись
+    assert gaukhman.region.slug == "miami"
+    assert batch.get(name__startswith="Alla Fine").pk != batch.get(name__startswith="Alexander S. Fine").pk
+    assert batch.filter(region=None, city="Пенсакола").count() == 3  # дальние места — без региона
+    html = client.get("/links/vrachi/").content.decode()
+    assert "Kandinov" in html and "Mighell" not in html  # скрытые не показываются
+    assert "уточните при записи" in html
