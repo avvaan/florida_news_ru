@@ -8,3 +8,4 @@ media/
 .pytest_cache/
 .DS_Store
 .claude/
+.playwright-mcp/
