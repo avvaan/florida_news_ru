@@ -242,6 +242,8 @@ class Article(Translatable):
 
     telegram_message_id = models.BigIntegerField("id сообщения в Telegram", null=True, blank=True)
     telegram_posted_at = models.DateTimeField("отправлено в Telegram", null=True, blank=True)
+    facebook_post_id = models.CharField("id поста в Facebook", max_length=64, blank=True)
+    facebook_posted_at = models.DateTimeField("отправлено в Facebook", null=True, blank=True)
 
     objects = ArticleQuerySet.as_manager()
 

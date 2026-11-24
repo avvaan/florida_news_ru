@@ -273,6 +273,12 @@ TELEGRAM_CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID", "")
 # Ссылка на канал для кнопок «Подписаться». Пусто — кнопки не показываются.
 TELEGRAM_CHANNEL_URL = os.environ.get("TELEGRAM_CHANNEL_URL", "").strip()
 
+# --- Facebook ----------------------------------------------------------------
+
+# Страница Facebook для автопостинга заметок (pipeline/facebook.py). Пусто — только лог.
+FACEBOOK_PAGE_ID = os.environ.get("FACEBOOK_PAGE_ID", "").strip()
+FACEBOOK_PAGE_TOKEN = os.environ.get("FACEBOOK_PAGE_TOKEN", "").strip()
+
 # Демо-режим: показывает плашку «демо-данные» (для локального просмотра с seed_demo).
 DEMO_MODE = env_bool("DEMO_MODE", False)
 FORMS_URLFIELD_ASSUME_HTTPS = True
