@@ -1,33 +1,43 @@
 {% extends "base.html" %}
-{% load news_extras %}
-{% block title %}О проекте — {{ site_name }}{% endblock %}
-{% block description %}{{ site_name }} — новости Флориды на русском. Издатель — {{ site_owner }}, Флорида. Как мы работаем, как используем ИИ и как исправляем ошибки.{% endblock %}
-{% block og %}{% include "includes/og.html" with title="О проекте — "|add:site_name description=site_name|add:" — новости Флориды на русском: кто издаёт, как мы работаем, как используем ИИ и исправляем ошибки." url=request.path %}{% endblock %}
-{% block head %}{% organization_jsonld %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld "Главная" home_url "О проекте" request.path %}{% endblock %}
+{% load news_extras i18n %}
+{% block title %}{% translate "О проекте" %} — {{ site_name }}{% endblock %}
+{% block description %}{% blocktranslate trimmed %}{{ site_name }} — новости Флориды на русском. Издатель — {{ site_owner }}, Флорида. Как мы работаем, как используем ИИ и как исправляем ошибки.{% endblocktranslate %}{% endblock %}
+{% block og %}{% translate "О проекте" as og_title %}{% translate "новости Флориды на русском: кто издаёт, как мы работаем, как используем ИИ и исправляем ошибки." as og_tail %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=site_name|add:" — "|add:og_tail url=request.path %}{% endblock %}
+{% block robots %}{% if page and not page.shown_translated %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block alternates %}{% include "includes/alternates.html" with obj=page %}{% endblock %}
+{% block head %}{% organization_jsonld %}{% url 'news:home' as home_url %}{% translate "Главная" as home_label %}{% translate "О проекте" as about_label %}{% breadcrumbs_jsonld home_label home_url about_label request.path %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <article class="story story--page">
-    <h1 class="story__title">О проекте</h1>
-    <div class="story__body">{% if page %}{{ page.body|linebreaks }}{% endif %}</div>
+    <h1 class="story__title">{% translate "О проекте" %}</h1>
+    <div class="story__body">{% if page %}{{ page.tr.body|linebreaks }}{% endif %}</div>
 
     <section class="about-team" aria-labelledby="team-h">
-      <h2 class="about-team__h" id="team-h">Редакция</h2>
+      <h2 class="about-team__h" id="team-h">{% translate "Редакция" %}</h2>
       {% if authors %}
       <ul class="about-team__list">
         {% for a in authors %}
-        <li><a href="{{ a.get_absolute_url }}"><b>{{ a.name }}</b>{% if a.role %}<span>{{ a.role }}</span>{% endif %}</a></li>
+        <li class="about-team__person">
+          {% if a.photo %}<img class="about-team__photo" src="{{ a.photo.url }}" alt="{{ a.name }}" width="72" height="72" loading="lazy">{% endif %}
+          <div>
+            <a href="{{ a.get_absolute_url }}"><b>{{ a.name }}</b>{% if a.tr.role %}<span>{{ a.tr.role }}</span>{% endif %}</a>
+            {% if a.tr.bio %}<p>{{ a.tr.bio|truncatewords:40 }}</p>{% endif %}
+            {% if a.email %}<p><a href="mailto:{{ a.email }}">{{ a.email }}</a></p>{% endif %}
+          </div>
+        </li>
         {% endfor %}
       </ul>
       {% else %}
-      <p>Заметки готовит редакция {{ site_name }}.</p>
+      <p>{% blocktranslate trimmed %}Заметки готовит редакция {{ site_name }}.{% endblocktranslate %}</p>
       {% endif %}
+      {% if site_conf.contact_email %}<p class="about-team__mail">{% translate "Написать редакции:" %} <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>{% endif %}
     </section>
 
     <ul class="about-links">
-      <li><a href="{% url 'core-corrections' %}">Исправления</a></li>
-      <li><a href="{% url 'core-dmca' %}">Авторские права (DMCA)</a></li>
-      <li><a href="{% url 'core-page' 'contacts' %}">Контакты</a></li>
-      <li><a href="{% url 'core-page' 'privacy' %}">Политика конфиденциальности</a></li>
+      <li><a href="{% url 'core-corrections' %}">{% translate "Исправления" %}</a></li>
+      <li><a href="{% url 'core-dmca' %}">{% translate "Авторские права (DMCA)" %}</a></li>
+      <li><a href="{% url 'core-page' 'contacts' %}">{% translate "Контакты" %}</a></li>
+      <li><a href="{% url 'core-page' 'privacy' %}">{% translate "Политика конфиденциальности" %}</a></li>
     </ul>
   </article>
 </div>

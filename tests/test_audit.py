@@ -9,6 +9,7 @@ from django.core.cache import cache
 from django.test import override_settings
 from django.utils import timezone
 
+from core.models import SiteSettings
 from news.models import Article, ArticleSource, Region, Story
 from pipeline import ai, toponyms
 from pipeline.decisions import decide
@@ -19,12 +20,12 @@ from .test_pipeline import FakeAI, run_with, stories  # noqa: F401 — фикс�
 
 pytestmark = pytest.mark.django_db
 
-CANON = {"SITE_URL": "https://florida-ru.com", "CANONICAL_HOST": "florida-ru.com"}
+CANON = {"SITE_URL": "https://tutflorida.com", "CANONICAL_HOST": "tutflorida.com"}
 
 
 def published(title="Аллигатор напал на рыбака", **kw):
     a = Article.objects.create(title=title, teaser="t", body="Первый абзац.", region=Region.objects.get(slug="tampa"),
-                               status=Article.Status.PUBLISHED, published_at=timezone.now(), **kw)
+                               status=Article.Status.PUBLISHED, published_at=timezone.now(), keep_indexed=True, **kw)
     ArticleSource.objects.create(article=a, name="WFLA", url="https://wfla.com/a")
     return a
 
@@ -36,33 +37,34 @@ def hosts_in(text: str) -> set[str]:
 
 # 1. Канонический домен
 
-@override_settings(**CANON, ALLOWED_HOSTS=["florida-ru.com", "florida-news-ru.onrender.com", "testserver"])
+@override_settings(**CANON, ALLOWED_HOSTS=["tutflorida.com", "florida-news-ru.onrender.com", "testserver"])
 def test_canonical_sitemaps_rss_robots_use_only_site_url(client):
     article = published()
     cache.clear()
-    page = client.get(article.get_absolute_url(), HTTP_HOST="florida-ru.com").content.decode()
+    page = client.get(article.get_absolute_url(), HTTP_HOST="tutflorida.com").content.decode()
     canonical = re.search(r'<link rel="canonical" href="([^"]+)"', page).group(1)
     og_url = re.search(r'property="og:url" content="([^"]+)"', page).group(1)
-    assert canonical == og_url == f"https://florida-ru.com{article.get_absolute_url()}"
+    assert canonical == og_url == f"https://tutflorida.com{article.get_absolute_url()}"
     for url in ("/sitemap.xml", "/news-sitemap.xml", "/robots.txt", "/rss/"):
-        body = client.get(url, HTTP_HOST="florida-ru.com").content.decode()
-        assert hosts_in(body) == {"florida-ru.com"}, (url, hosts_in(body))
+        body = client.get(url, HTTP_HOST="tutflorida.com").content.decode()
+        assert hosts_in(body) == {"tutflorida.com"}, (url, hosts_in(body))
     for script in re.findall(r'<script type="application/ld\+json">(.*?)</script>', page, re.S):
-        assert hosts_in(script) <= {"florida-ru.com"}
+        assert hosts_in(script) <= {"tutflorida.com"}
 
 
-@override_settings(**CANON, ALLOWED_HOSTS=["florida-ru.com", "florida-news-ru.onrender.com", "testserver"])
+@override_settings(**CANON, ALLOWED_HOSTS=["tutflorida.com", "florida-news-ru.onrender.com", "testserver"])
 def test_onrender_host_redirects_301_keeping_path(client):
     resp = client.get("/region/tampa/?page=2", HTTP_HOST="florida-news-ru.onrender.com")
-    assert resp.status_code == 301 and resp["Location"] == "https://florida-ru.com/region/tampa/?page=2"
+    assert resp.status_code == 301 and resp["Location"] == "https://tutflorida.com/region/tampa/?page=2"
     assert client.get("/healthz", HTTP_HOST="florida-news-ru.onrender.com").status_code == 200  # проверка Render
-    assert client.get("/region/tampa/", HTTP_HOST="florida-ru.com").status_code == 200
+    assert client.get("/region/tampa/", HTTP_HOST="tutflorida.com").status_code == 200
 
 
 # 2. Дубли
 
 @override_settings(AI_PROVIDER="deepseek", AI_DEDUP_PROVIDER="deepseek", AI_DEDUP_MODEL="deepseek-flash")
 def test_same_story_updates_existing_instead_of_new_article(stories):  # noqa: F811
+    SiteSettings.objects.update(max_articles_per_day=8)  # оба сюжета дня доходят до проверки дублей
     existing = published("В Орландо кипятите воду")
     fake = FakeAI(duplicate=DuplicateCheck(same_story=True, article_id=existing.pk, reason="Тот же сюжет",
                                            new_facts=["Предписание продлено до пятницы."]))

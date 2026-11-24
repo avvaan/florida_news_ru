@@ -6,12 +6,14 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join
 
+from core import translation
+from core.i18n import uk_fieldset
 from pipeline.runner import AlreadyRunning, start_covers
 from pipeline.services import publish_article, reject_article
 from pipeline.telegram import build_post, post_article
 
 from .covers import all_covers, describe
-from .models import Article, ArticleSource, Region, Story, Tag, Topic
+from .models import MIN_INDEX_WORDS, Article, ArticleSource, Region, Story, Tag, Topic
 
 
 # Правка этих полей после публикации ставит «Обновлено» на сайте.
@@ -37,6 +39,8 @@ def action_publish(modeladmin, request, queryset):
     for article in queryset.exclude(status=Article.Status.PUBLISHED):
         publish_article(article)
         n += 1
+    if n:
+        translation.spawn_translation(limit=max(20, n))  # украинская версия — сразу, а не к следующему проходу
     modeladmin.message_user(request, f"Опубликовано: {n}", messages.SUCCESS)
 
 
@@ -76,22 +80,25 @@ def action_pick_cover(modeladmin, request, queryset):
 
 class BaseArticleAdmin(admin.ModelAdmin):
     change_form_template = "admin/news/article_change_form.html"
-    list_display = ("title", "status_badge", "region", "topic", "score", "is_urgent", "is_sensitive", "created_at")
-    list_filter = ("status", "is_urgent", "is_sensitive", "region", "topic")
+    list_display = ("title", "status_badge", "region", "topic", "score", "words", "in_google", "created_at")
+    list_filter = ("status", "keep_indexed", "is_urgent", "is_sensitive", "region", "topic", "author")
     search_fields = ("title", "teaser", "body")
     autocomplete_fields = ("tags",)
     inlines = [ArticleSourceInline]
     readonly_fields = ("verification_box", "telegram_preview", "story_link", "created_at", "updated_at",
-                       "telegram_posted_at", "word_count", "cover_preview")
+                       "telegram_posted_at", "facebook_posted_at", "word_count", "cover_preview", "index_state")
     actions = [action_publish, action_reject, action_telegram, action_pick_cover]
     fieldsets = (
-        (None, {"fields": ("title", "teaser", "body", "for_you", "guide", "word_count")}),
+        (None, {"fields": ("title", "teaser", "body", "for_you", "guide", "word_count", "author")}),
+        ("Поисковики", {"fields": ("keep_indexed", "index_state")}),
         ("Разметка", {"fields": ("region", "topic", "tags", "is_urgent", "is_sensitive", "score")}),
         ("Обложка", {"fields": ("cover_image", "cover_manual", "cover_preview")}),
         ("Публикация", {"fields": ("status", "review_reason", "slug", "published_at", "revised_at")}),
         ("Проверка ИИ", {"fields": ("verification_box", "story_link")}),
-        ("Telegram", {"fields": ("telegram_preview", "telegram_posted_at"), "classes": ("collapse",)}),
+        ("Telegram и Facebook", {"fields": ("telegram_preview", "telegram_posted_at", "facebook_posted_at"),
+                                 "classes": ("collapse",)}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        uk_fieldset(Article),
     )
 
     def save_model(self, request, obj, form, change):
@@ -127,6 +134,24 @@ class BaseArticleAdmin(admin.ModelAdmin):
     @admin.display(description="слов")
     def word_count(self, obj):
         return obj.word_count if obj.pk else "—"
+
+    @admin.display(description="слов")
+    def words(self, obj):
+        return obj.word_count
+
+    @admin.display(description="в Google", boolean=True)
+    def in_google(self, obj):
+        return obj.is_indexable
+
+    @admin.display(description="видна поисковикам")
+    def index_state(self, obj):
+        if not obj.pk:
+            return "—"
+        if obj.is_indexable:
+            return "да: в sitemap, без noindex"
+        if obj.status != Article.Status.PUBLISHED:
+            return "нет: не опубликована"
+        return f"нет: {obj.word_count} слов при минимуме {MIN_INDEX_WORDS} — noindex, не в sitemap"
 
     @admin.display(description="результат проверки")
     def verification_box(self, obj):

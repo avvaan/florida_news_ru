@@ -39,11 +39,11 @@ def test_church_page_has_local_business_markup(client):
 
 
 def test_empty_category_is_noindex_and_partner_is_labelled_first(client):
-    assert 'content="noindex, follow"' in client.get("/links/remont/").content.decode()
-    avto = Category.objects.get(slug="remont")
+    assert 'content="noindex, follow"' in client.get("/links/strahovanie/").content.decode()  # только скрытые
+    avto = Category.objects.get(slug="strahovanie")
     Listing.objects.create(category=avto, name="Клиника А", url="https://a.example/")
     Listing.objects.create(category=avto, name="Клиника Б", url="https://b.example/", is_partner=True)
-    html = client.get("/links/remont/").content.decode()
+    html = client.get("/links/strahovanie/").content.decode()
     assert html.index("Клиника Б") < html.index("Клиника А") and "Партнёр" in html
     assert 'content="index, follow' in html
 
@@ -61,7 +61,7 @@ def test_sitemap_includes_only_filled_categories(client):
     cache.clear()  # sitemap кэшируется на 10 минут
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/links/</loc>" in sitemap and "/links/cerkvi/</loc>" in sitemap
-    assert "/links/vrachi/</loc>" in sitemap and "/links/remont/</loc>" not in sitemap
+    assert "/links/vrachi/</loc>" in sitemap and "/links/strahovanie/</loc>" not in sitemap
     assert "/links/produkty/</loc>" in sitemap  # «Лакомка» и Green Hills включены
 
 
@@ -79,11 +79,13 @@ def test_businesses_from_editor_table():
 
 
 def test_category_region_filter(client):
+    doctors = Listing.objects.active().filter(category__slug="vrachi")
     html = client.get("/links/vrachi/").content.decode()
-    assert "Все (10)" in html and "Другие города" in html  # +хиропрактик и подиатр из таблицы
+    assert f"Все ({doctors.count()})" in html and "Другие города" in html
     assert html.index("Джексонвилл") < html.index("Палметто")  # регионы раньше «других городов»
     tampa = client.get("/links/vrachi/?region=tampa").content.decode()
-    assert tampa.count('class="dir__card"') == 1 and 'content="noindex, follow"' in tampa
+    assert tampa.count('class="dir__card"') == doctors.filter(region__slug="tampa").count() > 1
+    assert 'content="noindex, follow"' in tampa
     produkty = client.get("/links/produkty/").content.decode()
     assert "Romashka" not in produkty and "Kalinka" in produkty  # Ромашка ждёт проверки, Калинку проверили
 
@@ -141,3 +143,61 @@ def test_orthodox_parishes_batch(client):
     assert not churches.get(name__contains="Григория Богослова").is_active  # без адреса — скрыт
     html = client.get("/links/cerkvi/").content.decode()
     assert "Почаевской" in html and "Все (11)" in html and "stnicholasftl.org" in html
+
+
+@pytest.mark.django_db
+def test_batch8_ukrainian_businesses(client):
+    """Таблица украинских бизнесов: с контактами — на сайте, без контактов — скрыты до проверки."""
+    batch = Listing.objects.filter(editor_note__contains="Ukrainian Business in Florida")
+    assert batch.count() == 62 and batch.filter(is_active=True).count() == 11
+    pierogi = batch.get(name="Pierogi Bar St. Pete")
+    assert pierogi.region.slug == "tampa" and pierogi.url == "https://pierogi.bar/"
+    assert all(item.phone or item.url or item.address for item in batch.filter(is_active=True))
+    assert "Pierogi Bar St. Pete" in client.get("/links/restorany/").content.decode()
+    assert "Mudslide Coffee" not in client.get("/links/restorany/").content.decode()
+
+
+@pytest.mark.django_db
+def test_batch9_russian_speaking_doctors(client):
+    """Врачи по всей Флориде: проверенные и «вероятно» видны, с противоречивыми источниками — скрыты до звонка."""
+    batch = Listing.objects.filter(category__slug="vrachi", editor_note__contains="Сверено в ноябре 2026")
+    assert batch.count() == 226 and batch.filter(is_active=False).count() == 13
+    assert not batch.filter(is_active=False).exclude(editor_note__startswith="Проверка: нужен звонок").exists()
+    assert all(item.languages.startswith("русский") for item in batch)
+    assert all(item.url and item.address for item in batch)
+    gaukhman = batch.get(name__startswith="Alexander David Gaukhman")  # был в двух регионах — одна запись
+    assert gaukhman.region.slug == "miami"
+    assert batch.get(name__startswith="Alla Fine").pk != batch.get(name__startswith="Alexander S. Fine").pk
+    assert batch.filter(region=None, city="Пенсакола").count() == 3  # дальние места — без региона
+    html = client.get("/links/vrachi/").content.decode()
+    assert "Kandinov" in html and "Mighell" not in html  # скрытые не показываются
+    assert "уточните при записи" in html
+
+
+def test_doctor_specialty_guess():
+    from directory.specialties import guess
+
+    assert guess("Elena Ivanova, MD — педиатр, детский кардиолог (Pediatric Associates)") == "kids"
+    assert guess("Ivan Petrov, MD — хирург-ортопед (позвоночник)") == "ortho"
+    assert guess("Ivan Petrov, MD — терапевт, гастроэнтеролог") == "therapy"
+    assert guess("Ivan Petrov, MD — эндокринолог (Family Medicine Group)") == "other"  # английское название не мешает
+    assert guess("Health Comfort") == ""  # без специальности не угадываем
+
+
+@pytest.mark.django_db
+def test_doctors_filter_by_specialty(client):
+    """На странице врачей — кнопки направлений с числом врачей; фильтр работает вместе с регионом."""
+    doctors = Listing.objects.active().filter(category__slug="vrachi")
+    assert not doctors.filter(specialty="").exists()  # всем врачам из таблиц направление угадано
+    kids = doctors.filter(specialty="kids")
+    html = client.get("/links/vrachi/?spec=kids").content.decode()
+    assert html.count('class="dir__card"') == kids.count() > 5
+    assert 'content="noindex, follow"' in html
+    assert f'Детские врачи <span class="ads__n">{kids.count()}</span>' in html
+    both = client.get("/links/vrachi/?spec=kids&region=miami").content.decode()
+    assert both.count('class="dir__card"') == kids.filter(region__slug="miami").count() > 0
+    assert "Все направления" in client.get("/links/vrachi/").content.decode()
+    assert "Все направления" not in client.get("/links/produkty/").content.decode()  # у бизнесов направлений нет
+    assert client.get("/links/vrachi/?spec=xxx").content.decode().count('class="dir__card"') == doctors.count()
+    uk = client.get("/uk/links/vrachi/").content.decode()
+    assert "Дитячі лікарі" in uk and "Усі напрями" in uk

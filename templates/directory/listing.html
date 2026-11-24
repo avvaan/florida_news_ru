@@ -1,45 +1,46 @@
 {% extends "base.html" %}
-{% load static news_extras comments_tags %}
-{% block title %}{{ item.name }}{% if item.city %} — {{ item.city }}{% endif %}: отзывы — {{ site_name }}{% endblock %}
-{% block description %}{% if item.description %}{{ item.description|truncatechars:150 }}{% else %}{{ item.name }} — {{ category.name|lower }} во Флориде.{% endif %} Отзывы русскоязычных клиентов.{% endblock %}
-{% block og %}{% include "includes/og.html" with title=item.name|add:" — "|add:site_name description=item.description|default:category.name url=item.get_absolute_url %}{% endblock %}
+{% load static news_extras comments_tags i18n %}
+{% block title %}{{ item.name }}{% if item.city %} — {{ item.city }}{% endif %}: {% translate "отзывы" %} — {{ site_name }}{% endblock %}
+{% block description %}{% if item.description %}{{ item.tr.description|truncatechars:150 }}{% else %}{% blocktranslate trimmed with name=item.name category_name=category.tr.name|lower %}{{ name }} — {{ category_name }} во Флориде.{% endblocktranslate %}{% endif %} {% translate "Отзывы русскоязычных клиентов." %}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=item.name|add:" — "|add:site_name description=item.tr.description|default:category.tr.name url=item.get_absolute_url %}{% endblock %}
 {% block canonical %}{{ item.get_absolute_url|absolute }}{% endblock %}
-{% block robots %}{% if request.GET %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% breadcrumbs_jsonld "Главная" home_url "Справочник" dir_url category.name category.get_absolute_url item.name item.get_absolute_url %}{% listing_jsonld item %}{% endblock %}
+{% block alternates %}{% include "includes/alternates.html" with obj=item %}{% endblock %}
+{% block robots %}{% if not item.shown_translated %}noindex, follow{% else %}{% if request.GET %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% translate "Главная" as home_label %}{% translate "Справочник" as dir_label %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url category.tr.name category.get_absolute_url item.name item.get_absolute_url %}{% listing_jsonld item %}{% endblock %}
 {% block content %}
 <div class="wrap">
-  <nav class="crumbs" aria-label="Навигация">
-    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">Справочник</a><span aria-hidden="true">/</span><a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">{% translate "Справочник" %}</a><span aria-hidden="true">/</span><a href="{{ category.get_absolute_url }}">{{ category.tr.name }}</a>
   </nav>
   <article class="story story--page dir biz-page">
-    {% if item.is_partner or item.is_recommended or item.from_owner %}<p class="dir__badges">{% if item.is_partner %}<span class="dir__badge dir__badge--partner">Партнёр</span>{% endif %}{% if item.is_recommended %}<span class="dir__badge">Рекомендуем</span>{% endif %}{% if item.from_owner %}<span class="dir__badge dir__badge--owner" title="Бизнес добавил себя сам; данные проверены автоматически">Данные от владельца</span>{% endif %}</p>{% endif %}
+    {% if item.is_partner or item.is_recommended or item.from_owner %}<p class="dir__badges">{% if item.is_partner %}<span class="dir__badge dir__badge--partner">{% translate "Партнёр" %}</span>{% endif %}{% if item.is_recommended %}<span class="dir__badge">{% translate "Рекомендуем" %}</span>{% endif %}{% if item.from_owner %}<span class="dir__badge dir__badge--owner" title="{% translate "Бизнес добавил себя сам; данные проверены автоматически" %}">{% translate "Данные от владельца" %}</span>{% endif %}</p>{% endif %}
     <h1 class="story__title">{{ item.name }}</h1>
-    {% with rating=item.comments.rating %}{% if rating.count %}<p class="cmt-rating"><a href="#comments"><span class="cmt-rating__stars" aria-hidden="true">{{ rating.avg|stars }}</span> <b>{{ rating.avg|floatformat:1 }}</b> · {{ rating.count }} {{ rating.count|plural_ru:"отзыв,отзыва,отзывов" }}</a></p>{% endif %}{% endwith %}
-    {% if item.city %}<p class="dir__city"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ item.city }}{% if item.region and item.region.name != item.city %} · {{ item.region.name }}{% endif %}</p>{% endif %}
+    {% with rating=item.comments.rating %}{% if rating.count %}<p class="cmt-rating"><a href="#comments"><span class="cmt-rating__stars" aria-hidden="true">{{ rating.avg|stars }}</span> <b>{{ rating.avg|floatformat:1 }}</b> · {{ rating.count }} {{ rating.count|plural_ru:_("отзыв,отзыва,отзывов") }}</a></p>{% endif %}{% endwith %}
+    {% if item.city %}<p class="dir__city"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ item.city }}{% if item.region and item.region.name != item.city %} · {{ item.region.tr.name }}{% endif %}</p>{% endif %}
     {% if item.photo %}<figure class="biz-page__photo"><img src="{{ item.photo|media_sized:1000 }}" alt="{{ item.photo.alt|default:item.name }}"{% if item.photo.width %} width="{{ item.photo.width }}" height="{{ item.photo.height }}"{% endif %}>{% if item.photo.figcaption %}<figcaption>{{ item.photo.figcaption }}</figcaption>{% endif %}</figure>{% endif %}
-    {% if item.description %}<p class="story__lede">{{ item.description }}</p>{% endif %}
+    {% if item.description %}<p class="story__lede">{{ item.tr.description }}</p>{% endif %}
     <dl class="dir__facts">
-      {% if item.address %}<div><dt>Адрес</dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query={{ item.address|urlencode }}" target="_blank" rel="noopener">{{ item.address }}</a></dd></div>{% endif %}
-      {% if item.hours %}<div><dt>Когда</dt><dd>{{ item.hours }}</dd></div>{% endif %}
-      {% if item.languages %}<div><dt>Языки</dt><dd>{{ item.languages }}</dd></div>{% endif %}
-      {% if item.phone %}<div><dt>Телефон</dt><dd><a href="{{ item.phone_href }}">{{ item.phone }}</a></dd></div>{% endif %}
+      {% if item.address %}<div><dt>{% translate "Адрес" %}</dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query={{ item.address|urlencode }}" target="_blank" rel="noopener">{{ item.address }}</a></dd></div>{% endif %}
+      {% if item.hours %}<div><dt>{% translate "Когда" %}</dt><dd>{{ item.tr.hours }}</dd></div>{% endif %}
+      {% if item.languages %}<div><dt>{% translate "Языки" %}</dt><dd>{{ item.tr.languages }}</dd></div>{% endif %}
+      {% if item.phone %}<div><dt>{% translate "Телефон" %}</dt><dd><a href="{{ item.phone_href }}">{{ item.phone }}</a></dd></div>{% endif %}
     </dl>
     <p class="dir__card-actions">
-      {% if item.url %}<a class="btn" href="{{ item.url }}" target="_blank" rel="noopener">Сайт: {{ item.domain }}</a>{% endif %}
-      {% if item.guide %}<a class="btn btn--ghost" href="{{ item.guide.get_absolute_url }}">Подробнее в гайде</a>{% endif %}
+      {% if item.url %}<a class="btn" href="{{ item.url }}" target="_blank" rel="noopener">{% blocktranslate trimmed with domain=item.domain %}Сайт: {{ domain }}{% endblocktranslate %}</a>{% endif %}
+      {% if item.guide %}<a class="btn btn--ghost" href="{{ item.guide.get_absolute_url }}">{% translate "Подробнее в гайде" %}</a>{% endif %}
     </p>
 
     {% comments_block item %}
 
-    <p class="story__disclaimer">Отзывы пишут читатели, их проверяет автоматическая модерация. Редакция не отвечает за услуги бизнеса. Вы владелец и нашли ошибку? Напишите через <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a>.</p>
+    <p class="story__disclaimer">{% url 'core-page' 'contacts' as contacts_url %}{% blocktranslate trimmed %}Отзывы пишут читатели, их проверяет автоматическая модерация. Редакция не отвечает за услуги бизнеса. Вы владелец и нашли ошибку? Напишите через <a href="{{ contacts_url }}">«Контакты»</a>.{% endblocktranslate %}</p>
 
     {% if nearby %}
     <section class="dir__others" aria-labelledby="nearby-h">
-      <h2 class="sidebar__h" id="nearby-h">Ещё в категории «{{ category.name }}»</h2>
+      <h2 class="sidebar__h" id="nearby-h">{% blocktranslate trimmed with name=category.tr.name %}Ещё в категории «{{ name }}»{% endblocktranslate %}</h2>
       <ul class="chips">{% for other in nearby %}<li><a class="chip" href="{{ other.get_absolute_url }}">{{ other.name }}{% if other.city %} · {{ other.city|truncatechars:24 }}{% endif %}</a></li>{% endfor %}</ul>
     </section>
     {% endif %}
-    <p><a href="{{ category.get_absolute_url }}">← {{ category.name }}</a></p>
+    <p><a href="{{ category.get_absolute_url }}">← {{ category.tr.name }}</a></p>
   </article>
 </div>
 {% endblock %}

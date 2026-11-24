@@ -1,62 +1,74 @@
 {% extends "base.html" %}
-{% load static news_extras comments_tags %}
-{% block title %}{{ category.name }} во Флориде{% if category.kind == "business" %} — по-русски{% endif %} — {{ site_name }}{% endblock %}
-{% block description %}{{ category.description|default:category.name }}{% endblock %}
-{% block og %}{% include "includes/og.html" with title=category.name|add:" — "|add:site_name description=category.description|default:category.name url=request.path %}{% endblock %}
-{% block robots %}{% if not listings or current_region or near %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% breadcrumbs_jsonld "Главная" home_url "Ссылки и бизнесы" dir_url category.name category.get_absolute_url %}{% if listings %}{% directory_jsonld category listings %}{% endif %}{% endblock %}
+{% load static news_extras comments_tags i18n %}
+{% block title %}{% if category.kind == "business" %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде — по-русски{% endblocktranslate %}{% else %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде{% endblocktranslate %}{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}{{ category.tr.description|default:category.tr.name }}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=category.tr.name|add:" — "|add:site_name description=category.tr.description|default:category.tr.name url=request.path %}{% endblock %}
+{% block robots %}{% if not listings or current_region or current_spec or near %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% translate "Главная" as home_label %}{% translate "Ссылки и бизнесы" as dir_label %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url category.tr.name category.get_absolute_url %}{% if listings %}{% directory_jsonld category listings %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
-  <nav class="crumbs" aria-label="Навигация">
-    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">Ссылки и бизнесы</a>
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">{% translate "Ссылки и бизнесы" %}</a>
   </nav>
   <section class="story dir">
-    <div class="dir__head">{% if category.icon %}<span class="dir__icon dir__icon--lg"><img src="{% static category.icon %}" alt="" width="72" height="72"></span>{% endif %}<h1 class="story__title">{{ category.name }}</h1></div>
-    {% if category.description %}<p class="story__lede">{{ category.description }}</p>{% endif %}
+    <div class="dir__head">{% if category.icon %}<span class="dir__icon dir__icon--lg"><img src="{% static category.icon %}" alt="" width="72" height="72"></span>{% endif %}<h1 class="story__title">{{ category.tr.name }}</h1></div>
+    {% if category.description %}<p class="story__lede">{{ category.tr.description }}</p>{% endif %}
 
     {% if regions %}
-    <nav class="guides__nav" aria-label="Регион">
-      <a class="chip{% if not current_region %} is-current{% endif %}" href="{% querystring region=None %}">Все ({{ total }})</a>
-      {% for r in regions %}<a class="chip{% if current_region == r.slug %} is-current{% endif %}" href="{% querystring region=r.slug %}" rel="nofollow">{{ r.name }}</a>{% endfor %}
-      {% if has_other %}<a class="chip{% if current_region == 'other' %} is-current{% endif %}" href="{% querystring region='other' %}" rel="nofollow">Другие города</a>{% endif %}
+    <nav class="guides__nav" aria-label="{% translate "Регион" %}">
+      <a class="chip{% if not current_region %} is-current{% endif %}" href="{% querystring region=None %}">{% blocktranslate trimmed %}Все ({{ total }}){% endblocktranslate %}</a>
+      {% for r in regions %}<a class="chip{% if current_region == r.slug %} is-current{% endif %}" href="{% querystring region=r.slug %}" rel="nofollow">{{ r.tr.name }}</a>{% endfor %}
+      {% if has_other %}<a class="chip{% if current_region == 'other' %} is-current{% endif %}" href="{% querystring region='other' %}" rel="nofollow">{% translate "Другие города" %}</a>{% endif %}
     </nav>
+    {% endif %}
+    {% if specialties %}
+    <nav class="guides__nav dir__specs" aria-label="{% translate "Направление" %}">
+      <a class="chip{% if not current_spec %} is-current{% endif %}" href="{% querystring spec=None %}">{% translate "Все направления" %}</a>
+      {% for s in specialties %}<a class="chip{% if current_spec == s.value %} is-current{% endif %}" href="{% querystring spec=s.value %}" rel="nofollow"{% if current_spec == s.value %} aria-current="true"{% endif %}>{{ s.label }} <span class="ads__n">{{ s.count }}</span></a>{% endfor %}
+    </nav>
+    {% if current_spec %}<script>(function(){var n=document.querySelector(".dir__specs"),c=n&&n.querySelector("[aria-current]");if(c&&n.scrollWidth>n.clientWidth)n.scrollLeft=c.offsetLeft-n.offsetLeft-16;})();</script>{% endif %}
     {% endif %}
     {% include "includes/near_chips.html" %}
 
-    {% if listings %}
-    <ul class="dir__cards">
-      {% for item in listings %}
-      <li class="dir__card">
-        {% if item.is_partner or item.is_recommended or item.from_owner %}<p class="dir__badges">{% if item.is_partner %}<span class="dir__badge dir__badge--partner">Партнёр</span>{% endif %}{% if item.is_recommended %}<span class="dir__badge">Рекомендуем</span>{% endif %}{% if item.from_owner %}<span class="dir__badge dir__badge--owner" title="Бизнес добавил себя сам; данные проверены автоматически">Данные от владельца</span>{% endif %}</p>{% endif %}
-        {% if item.city %}<p class="dir__city"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ item.city }}{% if item.region and item.region.name != item.city %} · {{ item.region.name }}{% endif %}{% if item.distance %} · <b class="dir__dist">{{ item.distance }}</b>{% endif %}</p>{% endif %}
-        <h2 class="dir__card-h">{% if category.kind == "business" %}<a href="{{ item.get_absolute_url }}">{{ item.name }}</a>{% elif item.url %}<a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h2>
-        {% if category.kind == "business" %}<p class="dir__reviews"><a href="{{ item.get_absolute_url }}#comments">{% if item.rating_count %}<span class="cmt-rating__stars" aria-hidden="true">{{ item.rating_avg|stars }}</span> <b>{{ item.rating_avg|floatformat:1 }}</b> · {{ item.rating_count }} {{ item.rating_count|plural_ru:"отзыв,отзыва,отзывов" }}{% else %}Оставить отзыв{% endif %}</a></p>{% endif %}
-        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
-        <dl class="dir__facts">
-          {% if item.address %}<div><dt>Адрес</dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query={{ item.address|urlencode }}" target="_blank" rel="noopener">{{ item.address }}</a></dd></div>{% endif %}
-          {% if item.hours %}<div><dt>Когда</dt><dd>{{ item.hours }}</dd></div>{% endif %}
-          {% if item.languages %}<div><dt>Языки</dt><dd>{{ item.languages }}</dd></div>{% endif %}
-          {% if item.phone %}<div><dt>Телефон</dt><dd><a href="{{ item.phone_href }}">{{ item.phone }}</a></dd></div>{% endif %}
-        </dl>
-        <p class="dir__card-actions">
-          {% if item.url %}<a class="btn" href="{{ item.url }}" target="_blank" rel="noopener">Сайт: {{ item.domain }}</a>{% endif %}
-          {% if item.guide %}<a class="btn btn--ghost" href="{{ item.guide.get_absolute_url }}">Подробнее в гайде</a>{% endif %}
-        </p>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="dir__empty">В этой категории пока никого нет. Мы добавляем места только после проверки — помогите нам: расскажите о хорошем месте.</p>
-    {% endif %}
+    <div class="split dir__split">
+      <div class="split__main">
+        {% if listings %}
+        <ul class="dir__cards">
+          {% for item in listings %}
+          <li class="dir__card">
+            {% if item.is_partner or item.is_recommended or item.from_owner %}<p class="dir__badges">{% if item.is_partner %}<span class="dir__badge dir__badge--partner">{% translate "Партнёр" %}</span>{% endif %}{% if item.is_recommended %}<span class="dir__badge">{% translate "Рекомендуем" %}</span>{% endif %}{% if item.from_owner %}<span class="dir__badge dir__badge--owner" title="{% translate "Бизнес добавил себя сам; данные проверены автоматически" %}">{% translate "Данные от владельца" %}</span>{% endif %}</p>{% endif %}
+            {% if item.city %}<p class="dir__city"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ item.city }}{% if item.region and item.region.name != item.city %} · {{ item.region.tr.name }}{% endif %}{% if item.distance %} · <b class="dir__dist">{{ item.distance }}</b>{% endif %}</p>{% endif %}
+            <h2 class="dir__card-h">{% if category.kind == "business" %}<a href="{{ item.get_absolute_url }}">{{ item.name }}</a>{% elif item.url %}<a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h2>
+            {% if category.kind == "business" %}<p class="dir__reviews"><a href="{{ item.get_absolute_url }}#comments">{% if item.rating_count %}<span class="cmt-rating__stars" aria-hidden="true">{{ item.rating_avg|stars }}</span> <b>{{ item.rating_avg|floatformat:1 }}</b> · {{ item.rating_count }} {{ item.rating_count|plural_ru:_("отзыв,отзыва,отзывов") }}{% else %}{% translate "Оставить отзыв" %}{% endif %}</a></p>{% endif %}
+            {% if item.description %}<p>{{ item.tr.description }}</p>{% endif %}
+            <dl class="dir__facts">
+              {% if item.address %}<div><dt>{% translate "Адрес" %}</dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query={{ item.address|urlencode }}" target="_blank" rel="noopener">{{ item.address }}</a></dd></div>{% endif %}
+              {% if item.hours %}<div><dt>{% translate "Когда" %}</dt><dd>{{ item.tr.hours }}</dd></div>{% endif %}
+              {% if item.languages %}<div><dt>{% translate "Языки" %}</dt><dd>{{ item.tr.languages }}</dd></div>{% endif %}
+              {% if item.phone %}<div><dt>{% translate "Телефон" %}</dt><dd><a href="{{ item.phone_href }}">{{ item.phone }}</a></dd></div>{% endif %}
+            </dl>
+            <p class="dir__card-actions">
+              {% if item.url %}<a class="btn" href="{{ item.url }}" target="_blank" rel="noopener">{% blocktranslate trimmed with domain=item.domain %}Сайт: {{ domain }}{% endblocktranslate %}</a>{% endif %}
+              {% if item.guide %}<a class="btn btn--ghost" href="{{ item.guide.get_absolute_url }}">{% translate "Подробнее в гайде" %}</a>{% endif %}
+            </p>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="dir__empty">{% translate "В этой категории пока никого нет. Мы добавляем места только после проверки — помогите нам: расскажите о хорошем месте." %}</p>
+        {% endif %}
+      </div>
 
-    {% if category.kind == "business" %}{% include "directory/suggest.html" %}{% endif %}
-
-    {% if others %}
-    <nav class="dir__others" aria-labelledby="others-h">
-      <h2 class="sidebar__h" id="others-h">Другие категории</h2>
-      <ul class="chips">{% for c in others %}<li><a class="chip" href="{{ c.get_absolute_url }}">{{ c.name }}</a></li>{% endfor %}</ul>
-    </nav>
-    {% endif %}
+      <div class="split__aside dir__aside">
+        {% if category.kind == "business" %}{% include "directory/suggest.html" %}{% endif %}
+        {% if others %}
+        <nav class="dir__others" aria-labelledby="others-h">
+          <h2 class="sidebar__h" id="others-h">{% translate "Другие категории" %}</h2>
+          <ul class="chips">{% for c in others %}<li><a class="chip" href="{{ c.get_absolute_url }}">{{ c.tr.name }}</a></li>{% endfor %}</ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
   </section>
 </div>
 {% endblock %}

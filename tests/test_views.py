@@ -17,6 +17,7 @@ def article():
         title="Налоговые каникулы на товары к урагану", teaser="Что входит в список",
         body="Первый абзац.\n\nВторой абзац.", region=Region.objects.get(slug="miami"),
         topic=Topic.objects.get(slug="money"), status=Article.Status.PUBLISHED, published_at=timezone.now(),
+        keep_indexed=True,
     )
     ArticleSource.objects.create(article=a, name="Florida Phoenix", url="https://floridaphoenix.com/x")
     return a
@@ -38,6 +39,17 @@ def test_telegram_button_hidden_without_channel_url(client, article):
     for url in ("/", article.get_absolute_url()):
         html = client.get(url).content.decode()
         assert "t.me/" not in html and "Подписаться" not in html, url
+
+
+def test_digest_not_repeated_in_feed(client):
+    now = timezone.now()
+    for i in range(14):
+        Article.objects.create(title=f"Заметка номер {i}", teaser="t", body="b", topic=Topic.objects.get(slug="laws"),
+                               score=i, status=Article.Status.PUBLISHED, published_at=now - timezone.timedelta(minutes=i))
+    ctx = client.get("/").context
+    digest = {a.pk for a in ctx["most_important"]}
+    assert len(digest) == 5 and not digest & {a.pk for a in ctx["feed"]}
+    assert len(ctx["feed"]) == 14 - 1 - 3 - 5  # главная тема, три плитки и дайджест — каждая заметка один раз
 
 
 def test_region_filter_includes_statewide(client, article):

@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
 from directory.views import ip_hash
@@ -45,7 +46,7 @@ def submit(request):
             return render(request, "events/submit_done.html", {"event": None})
         key = ip_hash(request)
         if Event.objects.since(24).filter(ip_hash=key).count() >= moderation.MAX_PER_IP_PER_DAY:
-            form.add_error(None, "С этого адреса уже отправлено несколько заявок за сутки. Попробуйте завтра.")
+            form.add_error(None, _("С этого адреса уже отправлено несколько заявок за сутки. Попробуйте завтра."))
         else:
             event = form.save(commit=False)
             event.ip_hash = key

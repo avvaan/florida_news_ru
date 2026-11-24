@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from ads.models import AdBanner
-from core.models import Page, SiteSettings
+from core.models import Author, Page, SiteSettings
 from guides.models import Guide
 from news.covers import all_covers
 from news.models import Article, ArticleSource, Region, Tag, Topic
@@ -44,6 +44,8 @@ class ArticleSerializer(serializers.ModelSerializer):
     cover_url = serializers.SerializerMethodField()
     guide = serializers.SlugRelatedField(slug_field="slug", queryset=Guide.objects.all(), required=False,
                                          allow_null=True)
+    author = serializers.SlugRelatedField(slug_field="slug", queryset=Author.objects.all(), required=False,
+                                          allow_null=True)
     locals().update(media_fields("photo", "photo", "Своё фото вместо обложки-иллюстрации"))
     locals().update(media_fields("video", "video", "Видео под текстом"))
     locals().update(media_list_fields("gallery", "Галерея под текстом"))
@@ -55,7 +57,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = [
             "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "business_kind",
-            "tags", "sources",
+            "tags", "sources", "author", "keep_indexed",
             "is_urgent", "is_sensitive", "score", "cover_image", "cover_manual", "cover_url",
             "photo", "photo_url", "photo_file", "photo_caption", "photo_credit", "photo_info",
             "video", "video_url", "video_file", "video_caption", "video_credit", "video_info",

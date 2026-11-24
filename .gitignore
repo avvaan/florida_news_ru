@@ -8,3 +8,5 @@ media/
 .pytest_cache/
 .DS_Store
 .claude/
+deploy/.env.prod
+docker-compose.override.yml

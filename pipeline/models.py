@@ -34,6 +34,7 @@ class AICall(models.Model):
         MODERATE_AD = "moderate_ad", "проверка объявлений"
         MODERATE_COMMENT = "moderate_comment", "проверка комментариев"
         DEDUP = "dedup", "проверка дублей"
+        TRANSLATE = "translate", "перевод на украинский"
 
     created_at = models.DateTimeField("время", default=timezone.now, db_index=True)
     purpose = models.CharField("задача", max_length=20, choices=Purpose.choices)

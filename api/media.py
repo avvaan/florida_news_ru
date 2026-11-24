@@ -8,7 +8,7 @@ from gallery.models import MediaItem
 
 class MediaItemSerializer(serializers.ModelSerializer):
     file = serializers.FileField(write_only=True, required=False,
-                                 help_text="Файл фото (JPG/PNG/WebP/GIF до 20 МБ) или видео (mp4/webm/mov до 200 МБ), "
+                                 help_text="Файл фото (JPG/PNG/WebP/GIF до 20 МБ) или видео (mp4/webm/mov до 100 МБ), "
                                            "multipart/form-data")
     source = serializers.CharField(write_only=True, required=False, max_length=1000,
                                    help_text="Ссылка вместо файла: картинка или видеофайл (скачаем и сохраним у себя) "

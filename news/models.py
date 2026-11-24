@@ -2,12 +2,13 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from core.i18n import Translatable, uk_field
 from core.text import make_slug
 
 from .covers import all_covers, pick_cover, primary_pool
 
 
-class Region(models.Model):
+class Region(Translatable):
     slug = models.SlugField("код", unique=True)
     name = models.CharField("название", max_length=60)
     name_locative = models.CharField(
@@ -18,6 +19,12 @@ class Region(models.Model):
     is_statewide = models.BooleanField(
         "весь штат", default=False, help_text="Новости этого региона показываются во всех фильтрах"
     )
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name", "name_locative", "description")
+    name_uk = uk_field(name)
+    name_locative_uk = uk_field(name_locative)
+    description_uk = uk_field(description)
 
     class Meta:
         ordering = ["order"]
@@ -31,6 +38,11 @@ class Region(models.Model):
         return reverse("news:region", args=[self.slug])
 
 
+# Заметки короче этого закрыты noindex и не попадают в sitemap: пересказы в пару абзацев
+# Google считает слабыми страницами, и они тянут вниз весь сайт. У Google News требования к длине нет,
+# а новость на 150–300 слов — нормальная заметка; при 350 в индексе оставалась 1 заметка из 711.
+MIN_INDEX_WORDS = 150
+
 # Бизнес — отдельный раздел /business/: свой дневной лимит и в общую ленту не попадает.
 BUSINESS = "business"
 EVENTS = "events"
@@ -42,7 +54,7 @@ MERGED_INTO = {"incidents": "safety", "money": BUSINESS}
 HIDDEN_IN_NAV = {*MERGED_INTO, EVENTS}
 
 
-class Topic(models.Model):
+class Topic(Translatable):
     slug = models.SlugField("код", unique=True)
     name = models.CharField("название", max_length=60)
     short_name = models.CharField("короткое название", max_length=30)
@@ -56,6 +68,12 @@ class Topic(models.Model):
         "(нужны файлы .webp, -640.webp и .jpg)",
     )
     order = models.PositiveSmallIntegerField("порядок", default=0)
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name", "short_name", "description")
+    name_uk = uk_field(name)
+    short_name_uk = uk_field(short_name)
+    description_uk = uk_field(description)
 
     class Meta:
         ordering = ["order"]
@@ -79,9 +97,13 @@ class Topic(models.Model):
         return [self.slug, *(s for s, target in MERGED_INTO.items() if target == self.slug)]
 
 
-class Tag(models.Model):
+class Tag(Translatable):
     name = models.CharField("тег", max_length=60, unique=True)
     slug = models.SlugField(max_length=80, unique=True)
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name",)
+    name_uk = uk_field(name)
 
     class Meta:
         ordering = ["name"]
@@ -141,7 +163,7 @@ class ArticleQuerySet(models.QuerySet):
         return self.filter(models.Q(region=region) | models.Q(region__is_statewide=True))
 
 
-class Article(models.Model):
+class Article(Translatable):
     """Наша заметка на русском."""
 
     class Status(models.TextChoices):
@@ -161,6 +183,17 @@ class Article(models.Model):
     for_you = models.TextField(
         "что это значит для вас", blank=True,
         help_text="2–4 пункта, по одному на строку: что новость меняет для читателя. Пусто — блок не показывается",
+    )
+    author = models.ForeignKey(
+        "core.Author", verbose_name="автор / редактор", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="articles",
+        help_text="Человек, который отвечает за заметку: его имя в подписи и в разметке NewsArticle. "
+                  "Новым заметкам ставится «редактор по умолчанию» из настроек",
+    )
+    keep_indexed = models.BooleanField(
+        "оставить в индексе", default=False, db_default=False,
+        help_text=f"Короткие заметки (меньше {MIN_INDEX_WORDS} слов) закрыты от поисковиков (noindex) и не попадают "
+                  "в sitemap. Отметьте, если короткая заметка сильная и должна остаться в Google",
     )
     guide = models.ForeignKey(
         "guides.Guide", verbose_name="гайд «Подробнее»", null=True, blank=True, on_delete=models.SET_NULL,
@@ -222,8 +255,17 @@ class Article(models.Model):
 
     telegram_message_id = models.BigIntegerField("id сообщения в Telegram", null=True, blank=True)
     telegram_posted_at = models.DateTimeField("отправлено в Telegram", null=True, blank=True)
+    facebook_post_id = models.CharField("id поста в Facebook", max_length=64, blank=True)
+    facebook_posted_at = models.DateTimeField("отправлено в Facebook", null=True, blank=True)
 
     objects = ArticleQuerySet.as_manager()
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("title", "teaser", "body", "for_you")
+    title_uk = uk_field(title)
+    teaser_uk = uk_field(teaser)
+    body_uk = uk_field(body)
+    for_you_uk = uk_field(for_you)
 
     class Meta:
         ordering = ["-published_at", "-created_at"]
@@ -243,15 +285,30 @@ class Article(models.Model):
 
     @property
     def paragraphs(self) -> list[str]:
-        return [p.strip() for p in self.body.replace("\r\n", "\n").split("\n\n") if p.strip()]
+        return [p.strip() for p in self.loc("body").replace("\r\n", "\n").split("\n\n") if p.strip()]
+
+    @property
+    def blocks(self) -> list[tuple[str, str]]:
+        """Абзацы для показа: ("h", текст) — подзаголовок (абзац с «## »), ("p", текст) — обычный абзац."""
+        return [("h", p[3:].strip()) if p.startswith("## ") else ("p", p) for p in self.paragraphs]
 
     @property
     def for_you_points(self) -> list[str]:
-        return [line.strip(" -•\t") for line in self.for_you.splitlines() if line.strip(" -•\t")]
+        return [line.strip(" -•\t") for line in self.loc("for_you").splitlines() if line.strip(" -•\t")]
 
     @property
     def word_count(self) -> int:
         return len(self.body.split())
+
+    @property
+    def is_indexable(self) -> bool:
+        """Показывать ли заметку поисковикам: опубликована и достаточно длинная (или редактор оставил вручную)."""
+        return self.status == self.Status.PUBLISHED and (self.keep_indexed or self.word_count >= MIN_INDEX_WORDS)
+
+    @property
+    def byline_author(self):
+        """Автор для подписи и разметки — только если он включён на сайте."""
+        return self.author if self.author_id and self.author.is_active else None
 
     @property
     def cover_info(self):

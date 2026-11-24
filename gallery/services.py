@@ -30,7 +30,7 @@ from .models import MediaItem
 log = logging.getLogger(__name__)
 
 MAX_PHOTO_BYTES = 20 * 1024 * 1024
-MAX_VIDEO_BYTES = 200 * 1024 * 1024
+MAX_VIDEO_BYTES = 100 * 1024 * 1024  # Cloudflare (бесплатный тариф) не пропускает запрос больше 100 МБ
 PHOTO_SIDE = 2000  # так храним: хватает и для обложки 1200 px, и для ретины
 VIDEO_TYPES = {"video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov", "video/ogg": "ogv"}
 VIDEO_EXT = {"mp4", "m4v", "webm", "mov", "ogv"}
@@ -185,7 +185,7 @@ def add_photo_bytes(data: bytes, meta: dict | None = None, source_url: str = "")
 def add_video_bytes(data: bytes, mime: str, meta: dict | None = None, filename: str = "") -> MediaItem:
     meta = meta or {}
     if len(data) > MAX_VIDEO_BYTES:
-        raise MediaError("Видео больше 200 МБ — загрузите его на YouTube и пришлите ссылку")
+        raise MediaError("Видео больше 100 МБ — загрузите его на YouTube и пришлите ссылку")
     ext = VIDEO_TYPES.get(mime) or (filename.rsplit(".", 1)[-1].lower() if "." in filename else "")
     if ext not in VIDEO_EXT:
         raise MediaError("Видео принимается в mp4, webm или mov")

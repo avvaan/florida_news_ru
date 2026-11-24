@@ -1,0 +1,4 @@
+{% load news_extras %}{# hreflang: русская и украинская версии страницы. obj — материал с переводом; без перевода украинскую версию не объявляем #}
+  <link rel="alternate" hreflang="ru" href="{{ lang_urls.ru|absolute }}">
+  {% if not obj or obj.has_uk %}<link rel="alternate" hreflang="uk" href="{{ lang_urls.uk|absolute }}">{% endif %}
+  <link rel="alternate" hreflang="x-default" href="{{ lang_urls.ru|absolute }}">
