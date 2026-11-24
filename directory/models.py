@@ -14,6 +14,8 @@ from django.urls import reverse
 from core.i18n import Translatable, uk_field
 from core.text import make_slug
 
+from .specialties import Specialty
+
 
 @lru_cache(maxsize=256)
 def category_icon(slug: str) -> str:
@@ -85,6 +87,10 @@ class Listing(Translatable):
         "news.Region", verbose_name="регион", null=True, blank=True, on_delete=models.SET_NULL,
     )
     languages = models.CharField("языки", max_length=120, blank=True, help_text="Например: русский, украинский, английский")
+    specialty = models.CharField(
+        "направление", max_length=12, choices=Specialty.choices, blank=True,
+        help_text="Только для врачей: по нему фильтр «Терапевты, Детские врачи…» на странице категории",
+    )
     hours = models.CharField("часы работы / расписание", max_length=200, blank=True)
     guide_slug = models.SlugField(
         "гайд по теме (slug)", max_length=120, blank=True,

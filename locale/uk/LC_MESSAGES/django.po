@@ -3146,3 +3146,55 @@ msgstr "Новини"
 #: templates/news/tag.html:13
 msgid "Заметок с этим тегом пока нет."
 msgstr "Новин із цим тегом поки немає."
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Терапевты и семейные врачи"
+msgstr "Терапевти та сімейні лікарі"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Детские врачи"
+msgstr "Дитячі лікарі"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Гинекологи"
+msgstr "Гінекологи"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Кардиологи"
+msgstr "Кардіологи"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Неврологи и нейрохирурги"
+msgstr "Неврологи та нейрохірурги"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Ортопеды и реабилитация"
+msgstr "Ортопеди та реабілітація"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Подиатры (стопа)"
+msgstr "Подіатри (стопа)"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Психиатры"
+msgstr "Психіатри"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Онкологи и гематологи"
+msgstr "Онкологи та гематологи"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Хирурги"
+msgstr "Хірурги"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Другие специалисты"
+msgstr "Інші спеціалісти"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Направление"
+msgstr "Напрям"
+
+#: directory/specialties.py templates/directory/category.html
+msgid "Все направления"
+msgstr "Усі напрями"

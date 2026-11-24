@@ -172,3 +172,32 @@ def test_batch9_russian_speaking_doctors(client):
     html = client.get("/links/vrachi/").content.decode()
     assert "Kandinov" in html and "Mighell" not in html  # скрытые не показываются
     assert "уточните при записи" in html
+
+
+def test_doctor_specialty_guess():
+    from directory.specialties import guess
+
+    assert guess("Elena Ivanova, MD — педиатр, детский кардиолог (Pediatric Associates)") == "kids"
+    assert guess("Ivan Petrov, MD — хирург-ортопед (позвоночник)") == "ortho"
+    assert guess("Ivan Petrov, MD — терапевт, гастроэнтеролог") == "therapy"
+    assert guess("Ivan Petrov, MD — эндокринолог (Family Medicine Group)") == "other"  # английское название не мешает
+    assert guess("Health Comfort") == ""  # без специальности не угадываем
+
+
+@pytest.mark.django_db
+def test_doctors_filter_by_specialty(client):
+    """На странице врачей — кнопки направлений с числом врачей; фильтр работает вместе с регионом."""
+    doctors = Listing.objects.active().filter(category__slug="vrachi")
+    assert not doctors.filter(specialty="").exists()  # всем врачам из таблиц направление угадано
+    kids = doctors.filter(specialty="kids")
+    html = client.get("/links/vrachi/?spec=kids").content.decode()
+    assert html.count('class="dir__card"') == kids.count() > 5
+    assert 'content="noindex, follow"' in html
+    assert f'Детские врачи <span class="ads__n">{kids.count()}</span>' in html
+    both = client.get("/links/vrachi/?spec=kids&region=miami").content.decode()
+    assert both.count('class="dir__card"') == kids.filter(region__slug="miami").count() > 0
+    assert "Все направления" in client.get("/links/vrachi/").content.decode()
+    assert "Все направления" not in client.get("/links/produkty/").content.decode()  # у бизнесов направлений нет
+    assert client.get("/links/vrachi/?spec=xxx").content.decode().count('class="dir__card"') == doctors.count()
+    uk = client.get("/uk/links/vrachi/").content.decode()
+    assert "Дитячі лікарі" in uk and "Усі напрями" in uk

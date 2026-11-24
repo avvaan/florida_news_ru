@@ -228,7 +228,8 @@ def apply_business_updates(apps, schema_editor, filename):
     rows = json.loads((Path(__file__).parent / "data" / filename).read_text(encoding="utf-8"))
     fields = {"name": "name", "description": "description", "languages": "languages", "address": "address",
               "phone": "phone", "url": "url", "hours": "hours", "city": "city", "active": "is_active",
-              "recommended": "is_recommended", "note": "editor_note", "guide": "guide_slug"}
+              "recommended": "is_recommended", "note": "editor_note", "guide": "guide_slug",
+              "specialty": "specialty"}
     for row in rows:
         names = [n for n in (row.get("match"), row.get("name")) if n]
         item = Listing.objects.filter(name__in=names).first()
@@ -295,3 +296,14 @@ def import_batch9_doctors(apps, schema_editor):
     сайтам практик и справочникам, лицензия — по реестру Минздрава штата. 13 врачей, у которых русский
     под сомнением (источники противоречат), скрыты до звонка — «Проверка: нужен звонок» в заметке редакции."""
     apply_business_updates(apps, schema_editor, "businesses_2026_11_vrachi.json")
+
+
+def guess_doctor_specialties(apps, schema_editor):
+    """Направление врачам из таблиц редакции — по специальности в названии (directory/specialties.py)."""
+    from directory.specialties import guess
+
+    Listing = apps.get_model("directory", "Listing")
+    for item in Listing.objects.filter(category__slug="vrachi", specialty=""):
+        item.specialty = guess(item.name)
+        if item.specialty:
+            item.save(update_fields=["specialty"])
