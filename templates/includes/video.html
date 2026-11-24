@@ -1,0 +1,9 @@
+{# Видео из медиатеки: плеер площадки (YouTube, Vimeo, Rutube, VK) или файл mp4/webm. #}
+<figure class="story__video">
+  {% if item.embed_url %}
+  <div class="story__video-frame"><iframe src="{{ item.embed_url }}" title="{{ item.title|default:item.caption|default:'Видео' }}" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+  {% else %}
+  <video src="{{ item.url }}" controls preload="metadata" playsinline{% if item.thumbnail_url %} poster="{{ item.thumbnail_url }}"{% endif %}{% if item.width %} width="{{ item.width }}" height="{{ item.height }}"{% endif %}></video>
+  {% endif %}
+  {% if item.figcaption %}<figcaption>{{ item.figcaption }}</figcaption>{% endif %}
+</figure>

@@ -21,7 +21,13 @@ def absolute(path: str) -> str:
 
 @register.simple_tag
 def cover(article, size: str = "") -> str:
-    """URL обложки: size="" — 1200px webp, "640" — 640px webp, "jpg" — 1200px jpeg."""
+    """URL обложки: size="" — 1200px webp, "640" — 640px webp, "jpg" — 1200px jpeg.
+
+    Если у заметки есть своё фото из медиатеки — его адрес нужной ширины.
+    """
+    photo = getattr(article, "photo", None)
+    if photo is not None:
+        return photo.sized(640 if size == "640" else 1200)
     base = article.cover if hasattr(article, "cover") else str(article)
     if size == "640":
         return static(f"{base}-640.webp")
@@ -115,7 +121,7 @@ def article_jsonld(article) -> str:
         "mainEntityOfPage": {"@type": "WebPage", "@id": url},
         "headline": article.title[:110],
         "description": article.teaser,
-        "image": [f"{settings.SITE_URL}{static(article.cover + '.jpg')}"],
+        "image": [absolute(cover(article, "jpg"))],
         "datePublished": published.isoformat(),
         "dateModified": (article.revised_at or published).isoformat(),
         "inLanguage": "ru",
@@ -332,3 +338,9 @@ def event_jsonld(event) -> str:
         if event.is_free:
             data["offers"].update({"price": "0", "priceCurrency": "USD"})
     return _jsonld(data)
+
+
+@register.filter
+def media_sized(item, width) -> str:
+    """Фото из медиатеки нужной ширины: {{ photo|media_sized:800 }}"""
+    return item.sized(int(width)) if item else ""

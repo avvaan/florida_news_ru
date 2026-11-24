@@ -12,6 +12,8 @@ from news.models import Article, ArticleSource, Region, Tag, Topic
 from pipeline.models import PipelineRun
 from sources.models import Source, WeatherAlert
 
+from .media import (MediaBriefSerializer, media_fields, media_list_fields, resolve_media, resolve_media_list)
+
 
 class RegionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,24 +44,43 @@ class ArticleSerializer(serializers.ModelSerializer):
     cover_url = serializers.SerializerMethodField()
     guide = serializers.SlugRelatedField(slug_field="slug", queryset=Guide.objects.all(), required=False,
                                          allow_null=True)
+    locals().update(media_fields("photo", "photo", "Своё фото вместо обложки-иллюстрации"))
+    locals().update(media_fields("video", "video", "Видео под текстом"))
+    locals().update(media_list_fields("gallery", "Галерея под текстом"))
+    photo_info = MediaBriefSerializer(source="photo", read_only=True)
+    video_info = MediaBriefSerializer(source="video", read_only=True)
+    gallery_info = MediaBriefSerializer(source="gallery", many=True, read_only=True)
 
     class Meta:
         model = Article
         fields = [
             "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "business_kind",
             "tags", "sources",
-            "is_urgent", "is_sensitive", "score", "cover_image", "cover_manual", "cover_url", "review_reason",
+            "is_urgent", "is_sensitive", "score", "cover_image", "cover_manual", "cover_url",
+            "photo", "photo_url", "photo_file", "photo_caption", "photo_credit", "photo_info",
+            "video", "video_url", "video_file", "video_caption", "video_credit", "video_info",
+            "gallery", "gallery_urls", "gallery_info", "review_reason",
             "verification", "published_at", "revised_at", "created_at", "updated_at", "telegram_posted_at", "url",
         ]
         read_only_fields = ["slug", "review_reason", "verification", "revised_at", "created_at", "updated_at",
                             "telegram_posted_at", "cover_manual"]
-        extra_kwargs = {"status": {"required": False}}
+        extra_kwargs = {"status": {"required": False},
+                        "gallery": {"required": False, "help_text": "Список id фото из медиатеки (заменяет галерею)"}}
 
     def get_url(self, obj) -> str:
         return f"{settings.SITE_URL}{obj.get_absolute_url()}"
 
     def get_cover_url(self, obj) -> str:
+        if obj.photo_id:
+            return obj.photo.sized(1200)
         return f"{settings.SITE_URL}{static(obj.cover + '.webp')}"
+
+    def validate(self, attrs):
+        title = attrs.get("title") or getattr(self.instance, "title", "")
+        resolve_media(attrs, "photo", "photo", title)
+        resolve_media(attrs, "video", "video", title)
+        resolve_media_list(attrs, "gallery", self.instance.gallery.all() if self.instance else [], title)
+        return attrs
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -75,18 +96,22 @@ class ArticleSerializer(serializers.ModelSerializer):
     def create(self, validated):
         tags = validated.pop("tags", [])
         sources = validated.pop("sources", [])
+        gallery = validated.pop("gallery", None)
         validated.setdefault("status", Article.Status.DRAFT)
         if validated["status"] == Article.Status.PUBLISHED and not validated.get("published_at"):
             validated["published_at"] = timezone.now()
         validated["cover_manual"] = bool(validated.get("cover_image"))
         article = Article.objects.create(**validated)
         self._save_relations(article, tags, sources)
+        if gallery is not None:
+            article.gallery.set(gallery)
         return article
 
     @transaction.atomic
     def update(self, article, validated):
         tags = validated.pop("tags", None)
         sources = validated.pop("sources", None)
+        gallery = validated.pop("gallery", None)
         if article.published_at and any(
                 key in validated and validated[key] != getattr(article, key) for key in ("title", "teaser", "body", "for_you")):
             article.revised_at = timezone.now()
@@ -98,6 +123,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             article.published_at = timezone.now()
         article.save()
         self._save_relations(article, tags, sources)
+        if gallery is not None:
+            article.gallery.set(gallery)
         return article
 
     @staticmethod
