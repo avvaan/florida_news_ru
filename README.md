@@ -635,8 +635,10 @@ Google Search Console: задайте `GOOGLE_SITE_VERIFICATION` — значе�
   достопримечательностях Флориды (от 20 тыс. знаков, от 8 фото в тексте плюс обложка), каждая на русском и украинском
   с общим slug, переключателем языка и `hreflang`. Внутри — карточки мест `[[place|…]]` с адресом, сайтом, ценой,
   часами работы и ссылкой «на карте» (разметка в `guides/markup.py`, JSON-LD `TouristAttraction`). Тексты —
-  `places/content/<ru|uk>/<slug>.md` (формат — `places/content/README.md`), фото — лицензионный сток Freepik/Magnific,
-  `static/places/<slug>-<N>`, авторство — `places/content/photos/<slug>.json` и подпись «Фото: Freepik».
+  `places/content/<ru|uk>/<slug>.md` (формат — `places/content/README.md`), картинки — `static/places/<slug>-<N>`:
+  лицензионный сток Freepik/Magnific, фото в общественном достоянии (Library of Congress / архив Кэрол Хайсмит, NASA,
+  NPS, USFWS) со ссылкой на источник и, где фото нет, свои иллюстрации Recraft в стиле сайта; авторство —
+  `places/content/photos/<slug>.json` и подпись «Фото: …» или «Иллюстрация Florida RU».
   `import_places` при деплое проверяет пары ru/uk и публикует; снять статью — админка → «Что посетить».
   На украинских страницах по-украински всё, что относится к статье; шапка и подвал сайта остаются русскими.
 - **Кто стоит за сайтом.** `/about/` — издатель CITRUSTACK LLC, как мы работаем, что тексты готовятся с
