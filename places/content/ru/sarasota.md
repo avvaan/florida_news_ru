@@ -6,7 +6,7 @@ teaser: Что посмотреть в Сарасоте: музей и особ�
 region: gulf
 order: 4
 checked: 2026-11-24
-cover_caption: Музей искусств Ринглингов в Сарасоте
+cover_caption: Внутренний двор Музея искусств Ринглингов в Сарасоте со статуей «Давида»
 source: The Ringling | https://my.ringling.org/ | Events | The John & Mable Ringling Museum of Art
 source: Marie Selby Botanical Gardens | https://selby.org/visit/ | Visit Selby Gardens
 source: Marie Selby Botanical Gardens | https://selby.org/dsc/visit-downtown-sarasota-campus/ | Visit the Downtown Sarasota Campus
