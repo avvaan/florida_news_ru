@@ -19,7 +19,7 @@ from sources.article_text import full_texts
 from sources.fetch import fetch_all
 from sources.models import Source, WeatherAlert
 
-from . import ai, prompts, toponyms
+from . import ai, facebook, prompts, toponyms
 from .budget import counted_articles_today, current_budget
 from .clustering import cluster_items
 from .decisions import decide
@@ -562,6 +562,10 @@ def publish_article(article: Article, *, say=log.info) -> Article:
         say(f"Telegram: {result}")
     except Exception as exc:  # noqa: BLE001 — сбой Telegram не отменяет публикацию на сайте
         say(f"Telegram: ошибка — {exc}")
+    try:
+        say(f"Facebook: {facebook.post_article(article)}")
+    except Exception as exc:  # noqa: BLE001 — сбой Facebook тоже не отменяет публикацию
+        say(f"Facebook: ошибка — {exc}")
     return article
 
 

@@ -307,6 +307,25 @@ curl -X POST -H "Authorization: Token $TOKEN" -H "Content-Type: application/json
 
 Формат поста: 🚨 (для срочного) + **заголовок**, анонс, 📍 город, ссылка «Читать на сайте →».
 
+На проде: канал «Тут Флорида», бот **@tutflorida_bot** (администратор с правом публикации).
+
+## Facebook: страница
+
+Каждая опубликованная заметка уходит постом на страницу Facebook (`pipeline/facebook.py`): заголовок,
+анонс, 📍 город и ссылка — карточку с обложкой Facebook строит сам по og-разметке. Сбой Facebook не мешает
+публикации на сайте; повторно заметка не отправляется (`facebook_posted_at` в карточке заметки).
+
+Пока не заданы `FACEBOOK_PAGE_ID` и `FACEBOOK_PAGE_TOKEN`, посты только пишутся в лог (dry-run). Токен:
+
+1. [developers.facebook.com](https://developers.facebook.com/apps) → Create app → тип «Business»
+   (или «Other → Business»); отдельные продукты добавлять не нужно — хватает Graph API.
+2. [Graph API Explorer](https://developers.facebook.com/tools/explorer/): выберите приложение, «User Token»,
+   права `pages_show_list`, `pages_read_engagement`, `pages_manage_posts` → Generate Access Token.
+3. Сделайте токен долгим: Access Token Debugger → «Extend Access Token».
+4. С долгим токеном пользователя запросите `GET /me/accounts` — у нужной страницы возьмите `id` и `access_token`:
+   токен страницы, полученный из долгого токена пользователя, не истекает.
+5. Пропишите `FACEBOOK_PAGE_ID` и `FACEBOOK_PAGE_TOKEN` в `deploy/.env.prod` и перезапустите `web`.
+
 ---
 
 ## Домашний сервер mimi (основной вариант)

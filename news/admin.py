@@ -86,7 +86,7 @@ class BaseArticleAdmin(admin.ModelAdmin):
     autocomplete_fields = ("tags",)
     inlines = [ArticleSourceInline]
     readonly_fields = ("verification_box", "telegram_preview", "story_link", "created_at", "updated_at",
-                       "telegram_posted_at", "word_count", "cover_preview", "index_state")
+                       "telegram_posted_at", "facebook_posted_at", "word_count", "cover_preview", "index_state")
     actions = [action_publish, action_reject, action_telegram, action_pick_cover]
     fieldsets = (
         (None, {"fields": ("title", "teaser", "body", "for_you", "guide", "word_count", "author")}),
@@ -95,7 +95,8 @@ class BaseArticleAdmin(admin.ModelAdmin):
         ("Обложка", {"fields": ("cover_image", "cover_manual", "cover_preview")}),
         ("Публикация", {"fields": ("status", "review_reason", "slug", "published_at", "revised_at")}),
         ("Проверка ИИ", {"fields": ("verification_box", "story_link")}),
-        ("Telegram", {"fields": ("telegram_preview", "telegram_posted_at"), "classes": ("collapse",)}),
+        ("Telegram и Facebook", {"fields": ("telegram_preview", "telegram_posted_at", "facebook_posted_at"),
+                                 "classes": ("collapse",)}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
         uk_fieldset(Article),
     )
