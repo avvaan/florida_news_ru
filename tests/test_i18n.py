@@ -174,6 +174,30 @@ def test_long_guide_is_translated_in_chunks(monkeypatch):
 
 
 @pytest.mark.translation
+def test_truncated_piece_is_split_and_retried(monkeypatch):
+    """Модель зациклилась на куске и упёрлась в max_tokens — кусок делится пополам, гайд всё равно переводится."""
+    import json
+
+    from pipeline.ai import AIError
+
+    fake = FakeTranslator()
+
+    def flaky(**kw):
+        payload = json.loads(kw["user"].rsplit("\n\n", 1)[1])
+        if len(payload.get("body", "")) > 1500:
+            raise AIError("Ответ обрезан по max_tokens")
+        return fake(**kw)
+
+    monkeypatch.setattr("pipeline.ai.ask", flaky)
+    body = "\n\n".join(f"## Раздел {i}\n\n" + "Текст гайда. " * 200 for i in range(2))
+    guide = Guide.objects.create(title="Гайд", slug="test-guide-split", teaser="Анонс", body=body,
+                                 status=Guide.Status.PUBLISHED, published_at=timezone.now(), human_reviewed=True)
+    assert tr.translate_objects(tr.Target(Guide, Guide.objects.all), [guide]) == 1
+    guide.refresh_from_db()
+    assert not guide.uk_outdated and guide.body_uk.count("## Раздел") == 2 and "UK:" in guide.body_uk
+
+
+@pytest.mark.translation
 def test_translation_stops_at_budget(monkeypatch, article):
     fake = FakeTranslator()
     monkeypatch.setattr("pipeline.ai.ask", fake)

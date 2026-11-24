@@ -30,7 +30,9 @@ log = logging.getLogger(__name__)
 BATCH_SIZE = 20
 BATCH_CHARS = 8_000        # пачка коротких записей — не больше стольких знаков оригинала
 SINGLE_MAX_TOKENS = 16_000
-CHUNK_CHARS = 6_000       # поле длиннее — переводится кусками по абзацам
+CHUNK_CHARS = 3_000       # поле длиннее — переводится кусками по абзацам
+# На длинных кусках модель иногда зацикливается и упирается в max_tokens; такой кусок делим пополам.
+SPLIT_DEPTH = 3
 
 SYSTEM = """Ты — редактор-переводчик русскоязычного новостного сайта TutFlorida о жизни во Флориде (США).
 Переводишь материалы сайта с русского на украинский для украиноязычной версии сайта.
@@ -189,12 +191,42 @@ def _translate_long(target: Target, obj: Translatable) -> dict:
     for name in obj.TRANSLATED:
         if name in short:
             continue
-        pieces = []
-        for piece in _chunks(getattr(obj, name)):
-            result = _ask(target.model, {"id": obj.pk, name: piece}, target.note, len(piece), fields=[name])
-            pieces.append(getattr(result, name).strip())
+        pieces = [_translate_piece(target, obj, name, piece) for piece in _chunks(getattr(obj, name))]
         data[name] = "\n\n".join(pieces)
     return data
+
+
+def _translate_piece(target: Target, obj: Translatable, name: str, piece: str, depth: int = 0) -> str:
+    """Один кусок длинного поля. Ответ обрезан (модель зациклилась) — делим кусок по абзацам пополам."""
+    from pipeline.ai import AIError
+
+    try:
+        result = _ask(target.model, {"id": obj.pk, name: piece}, target.note, len(piece), fields=[name])
+        return getattr(result, name).strip()
+    except AIError as exc:
+        split = _halves(piece)
+        if "обрезан" not in str(exc) or depth >= SPLIT_DEPTH or split is None:
+            raise
+        (first, second), sep = split
+        log.info("Перевод %s #%s: кусок %s знаков обрезан, делю пополам", _label(target.model), obj.pk, len(piece))
+        return sep.join(_translate_piece(target, obj, name, half, depth + 1) for half in (first, second))
+
+
+def _halves(text: str) -> tuple[tuple[str, str], str] | None:
+    """Делит текст примерно пополам: по абзацам, иначе по строкам, иначе по предложениям."""
+    import re
+
+    for parts, sep in ((text.split("\n\n"), "\n\n"), (text.split("\n"), "\n"),
+                       (re.split(r"(?<=[.!?…])\s+", text), " ")):
+        if len(parts) < 2:
+            continue
+        acc = 0
+        for i, part in enumerate(parts[:-1]):
+            acc += len(part) + len(sep)
+            if acc >= len(text) / 2:
+                break
+        return (sep.join(parts[: i + 1]), sep.join(parts[i + 1:])), sep
+    return None
 
 
 def translate_objects(target: Target, objs: list[Translatable]) -> int:
