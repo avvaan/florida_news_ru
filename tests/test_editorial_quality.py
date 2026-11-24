@@ -212,3 +212,10 @@ def test_guide_names_the_editor(client):
     assert "Анна Петрова" in html and ld_of(html, "Article")["editor"]["name"] == "Анна Петрова"
     Author.objects.filter(pk=editor.pk).update(is_active=False)  # редактор выключен — гайд как раньше
     assert "editor" not in ld_of(client.get(guide.get_absolute_url()).content.decode(), "Article")
+
+
+def test_ordinary_news_length_is_indexable():
+    """Новость на 150–300 слов — нормальная заметка и идёт в индекс; отсекаются только пересказы в пару абзацев."""
+    words = lambda n: " ".join(["слово"] * n)  # noqa: E731
+    assert article("Обычная новость", body=words(MIN_INDEX_WORDS)).is_indexable
+    assert not article("Пересказ", body=words(MIN_INDEX_WORDS - 1)).is_indexable
