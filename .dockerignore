@@ -1,0 +1,15 @@
+.git
+.venv
+venv
+.env
+deploy/.env.prod
+docker-compose.override.yml
+db.sqlite3
+media
+staticfiles
+__pycache__
+*.pyc
+.pytest_cache
+.claude
+.impeccable
+.taste-skill
