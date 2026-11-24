@@ -170,15 +170,24 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .flag { font-size: max(.55em, .6875rem); }
 .flag--lg { font-size: .38em; }
 
-/* ---------- Реклама ---------- */
-.ad-top { padding-top: 20px; }
-.main .ad-top { padding-top: 36px; }
-.ad { display: grid; gap: 6px; }
-.ad__label { font-size: .875rem; color: var(--muted); letter-spacing: .02em; }
-.ad__link { display: block; border-radius: var(--radius); overflow: hidden; background: var(--mist); text-decoration: none; }
-.ad__link img { width: 100%; }
-.ad__text { display: block; padding: 18px; font-weight: 600; color: var(--gulf-deep); }
-.feed .ad { padding-block: 20px; border-bottom: 1px solid var(--line); }
+/* ---------- Реклама ----------
+   Классы — promo, не ad: списки блокировщиков (EasyList, AdGuard) скрывают .ad-top и .ad__label,
+   и прямое объявление местной организации пропадало у всех, у кого стоит блокировщик. */
+.promo-top { padding-top: 20px; }
+.main .promo-top { padding-top: 36px; }
+/* На главной и в разделах широкий блок на телефоне стоит сразу под шапкой (внутри страницы он
+   оказывался на третьем экране), на широком экране — после главного. В шаблоне он выведен дважды. */
+.promo-top--inline { display: none; }
+@media (min-width: 760px) {
+  .promo-top--head { display: none; }
+  .promo-top--inline { display: block; }
+}
+.promo { display: grid; gap: 6px; }
+.promo__label { font-size: .875rem; color: var(--muted); letter-spacing: .02em; }
+.promo__link { display: block; border-radius: var(--radius); overflow: hidden; background: var(--mist); text-decoration: none; }
+.promo__link img { width: 100%; }
+.promo__text { display: block; padding: 18px; font-weight: 600; color: var(--gulf-deep); }
+.feed .promo { padding-block: 20px; border-bottom: 1px solid var(--line); }
 
 /* ---------- Главная ---------- */
 .main { padding-block: 24px 64px; }
@@ -334,7 +343,7 @@ span.chip:hover { background: var(--mist); color: var(--gulf-deep); }
 .story__disclaimer { margin-top: 20px; max-width: 68ch; font-size: .875rem; color: var(--muted); }
 .story .chips { margin-top: 20px; }
 .story .tg-cta { margin-top: 36px; max-width: 68ch; }
-.story .ad { margin-top: 32px; max-width: 68ch; }
+.story .promo { margin-top: 32px; max-width: 68ch; }
 .story--page { max-width: 760px; }
 .story--page .story__body { margin-top: 24px; }
 .story--page .story__body h2 { margin-top: 1.6em; font-size: 1.3rem; line-height: 1.3; }
@@ -636,7 +645,7 @@ article.split { margin-top: 0; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 @media print {
-  .masthead__top, .signs, .topics, .urgent, .sidebar, .footer, .ad, .tg-cta, .chips, .guides__nav { display: none !important; }
+  .masthead__top, .signs, .topics, .urgent, .sidebar, .footer, .promo, .tg-cta, .chips, .guides__nav { display: none !important; }
   .toc { break-inside: avoid; }
   body { font-size: 12pt; }
 }
