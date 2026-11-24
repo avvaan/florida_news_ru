@@ -18,7 +18,8 @@ from .services import rechoose_covers, run_pipeline
 log = logging.getLogger(__name__)
 
 # Незавершённый запуск старше этого срока считаем зависшим и не мешающим новому.
-STALE_AFTER = timedelta(minutes=30)
+# Обычный проход идёт 5–20 минут, но с большим хвостом переводов бывает и 1,5–2 часа.
+STALE_AFTER = timedelta(hours=2)
 
 
 class AlreadyRunning(Exception):
