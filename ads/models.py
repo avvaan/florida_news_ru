@@ -2,11 +2,14 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from core.i18n import for_language, language_field
+
 
 class AdBannerQuerySet(models.QuerySet):
     def running(self, slot: str, region=None):
+        """Что показывать сейчас на странице: место, даты, город и язык текущей страницы."""
         now = timezone.now()
-        qs = self.filter(slot=slot, is_active=True).filter(
+        qs = self.filter(for_language(), slot=slot, is_active=True).filter(
             Q(starts_at__isnull=True) | Q(starts_at__lte=now),
             Q(ends_at__isnull=True) | Q(ends_at__gte=now),
         )
@@ -34,6 +37,7 @@ class AdBanner(models.Model):
         "news.Region", verbose_name="город", null=True, blank=True, on_delete=models.SET_NULL,
         help_text="Пусто — показывать везде",
     )
+    language = language_field("«Только украинская» — только на страницах /uk/…, «только русская» — без них.")
     starts_at = models.DateTimeField("показывать с", null=True, blank=True)
     ends_at = models.DateTimeField("показывать до", null=True, blank=True)
     is_active = models.BooleanField("включено", default=True)

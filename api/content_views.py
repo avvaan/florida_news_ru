@@ -79,6 +79,7 @@ class MediaViewSet(viewsets.ModelViewSet):
     OpenApiParameter("status", str, description="pending / approved / rejected"),
     OpenApiParameter("upcoming", bool, description="только предстоящие опубликованные"),
     OpenApiParameter("region", str, description="slug региона"),
+    OpenApiParameter("language", str, description="ru / uk — события только для этой версии; all — для обеих"),
     OpenApiParameter("date_from", str, description="ГГГГ-ММ-ДД: начинаются не раньше"),
     OpenApiParameter("date_to", str, description="ГГГГ-ММ-ДД: начинаются не позже"),
     OpenApiParameter("q", str, description="поиск по названию, описанию, месту, организатору"),
@@ -97,6 +98,8 @@ class EventViewSet(viewsets.ModelViewSet):
             qs = qs.filter(status=value)
         if value := params.get("region"):
             qs = qs.filter(region__slug=value)
+        if value := params.get("language"):
+            qs = qs.filter(language="" if value == "all" else value)
         if value := params.get("date_from"):
             qs = qs.filter(starts_on__gte=value)
         if value := params.get("date_to"):

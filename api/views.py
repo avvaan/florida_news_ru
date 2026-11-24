@@ -172,12 +172,21 @@ class WeatherAlertViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewse
     http_method_names = ["get", "patch"]
 
 
+@extend_schema(parameters=[
+    OpenApiParameter("language", str, description="ru / uk — блоки только для этой версии; all — для обеих"),
+])
 class AdBannerViewSet(viewsets.ModelViewSet):
     """Рекламные блоки. Картинку загружайте как multipart/form-data, поле image."""
 
     queryset = AdBanner.objects.select_related("region")
     serializer_class = s.AdBannerSerializer
     parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if value := self.request.query_params.get("language"):
+            qs = qs.filter(language="" if value == "all" else value)
+        return qs
 
 
 class PageViewSet(viewsets.ModelViewSet):

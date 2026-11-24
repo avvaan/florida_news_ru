@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
-from django.urls import translate_url
+from django.urls import Resolver404, resolve, translate_url
 from django.utils import translation
 from django.utils.cache import patch_vary_headers
 from django.utils.translation.trans_real import parse_accept_lang_header
@@ -53,7 +53,7 @@ class PreferredLanguageMiddleware:
         if request.method in ("GET", "HEAD") and translation.get_language() == settings.LANGUAGE_CODE:
             path = request.get_full_path()
             uk_url = translate_url(path, "uk")
-            if uk_url != path:  # у страницы есть украинская версия
+            if uk_url != path and self._has_uk_version(request):  # у страницы есть украинская версия
                 if self._wants_uk(request):
                     response = HttpResponseRedirect(uk_url)
                 else:
@@ -61,6 +61,19 @@ class PreferredLanguageMiddleware:
                 patch_vary_headers(response, ("Accept-Language", "Cookie"))
                 return response
         return self.get_response(request)
+
+    @staticmethod
+    def _has_uk_version(request) -> bool:
+        """Страница только для русской версии (событие афиши с language=ru) — на /uk/ её нет.
+
+        Вью сообщает язык такой страницы атрибутом page_language(**kwargs) → "", "ru" или "uk".
+        """
+        try:
+            match = resolve(request.path_info)
+        except Resolver404:
+            return True
+        page_language = getattr(match.func, "page_language", None)
+        return page_language is None or page_language(**match.kwargs) != settings.LANGUAGE_CODE
 
     @staticmethod
     def _wants_uk(request) -> bool:

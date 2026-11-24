@@ -81,7 +81,9 @@ def _targets() -> list[Target]:
         Target(Article, lambda: Article.objects.published().order_by("-published_at"),
                "новостные заметки: title — заголовок (до 120 знаков), teaser — анонс, body — текст, "
                "for_you — пункты «что это значит для вас», по одному на строку"),
-        Target(Event, lambda: Event.objects.upcoming(), "афиша событий: title, description, price — цена («Бесплатно», «$20»)"),
+        # События только для одной версии сайта уже написаны на её языке — их не переводим.
+        Target(Event, lambda: Event.objects.upcoming().filter(language=""),
+               "афиша событий: title, description, price — цена («Бесплатно», «$20»)"),
         Target(Guide, lambda: Guide.objects.published(),
                "гайды для приезжих во Флориду в облегчённом Markdown: title, teaser — анонс, body — текст"),
         Target(Listing, lambda: Listing.objects.active(),

@@ -7,7 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from core.i18n import Translatable, uk_field
+from core.i18n import UK, Translatable, for_language, language_field, uk_field
 from core.text import make_slug
 
 
@@ -20,6 +20,10 @@ class EventQuerySet(models.QuerySet):
         return (self.published()
                 .filter(models.Q(ends_on__gte=today) | models.Q(ends_on=None, starts_on__gte=today))
                 .order_by("starts_on", models.F("starts_at").asc(nulls_first=True), "title"))
+
+    def for_language(self, code: str | None = None):
+        """Видимые на версии сайта code (по умолчанию — на языке текущей страницы)."""
+        return self.filter(for_language(code))
 
     def since(self, hours: int = 24):
         return self.filter(created_at__gte=timezone.now() - timedelta(hours=hours))
@@ -54,6 +58,8 @@ class Event(Translatable):
     price = models.CharField("цена", max_length=80, blank=True)
     url = models.URLField("билеты или подробности", max_length=500, blank=True)
     organizer = models.CharField("организатор", max_length=160)
+    language = language_field("Событие для одной версии пишите сразу на её языке: ИИ его не переводит, "
+                              "на другой версии сайта страницы нет (404).")
 
     image_data = models.BinaryField("картинка до проверки", null=True, blank=True, editable=False)
     image_status = models.CharField(
@@ -81,6 +87,14 @@ class Event(Translatable):
     title_uk = uk_field(title)
     description_uk = uk_field(description)
     price_uk = uk_field(price)
+
+    # Событие только для одной версии сайта написано на её языке: основные поля и есть текст страницы.
+    def loc(self, name: str):
+        return getattr(self, name) if self.language else super().loc(name)
+
+    @property
+    def has_uk(self) -> bool:
+        return self.language == UK if self.language else super().has_uk
 
     class Meta:
         ordering = ["-created_at"]

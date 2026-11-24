@@ -79,7 +79,7 @@ POST /api/v1/articles/
 
 | Действие | Запрос |
 |---|---|
-| Список | `GET /events/?upcoming=1&region=orlando&date_from=2026-12-01&date_to=2026-12-31&q=концерт` |
+| Список | `GET /events/?upcoming=1&region=orlando&date_from=2026-12-01&date_to=2026-12-31&q=концерт&language=uk` |
 | Добавить (сразу на сайте) | `POST /events/` |
 | Изменить | `PATCH /events/{id}/` |
 | Опубликовать | `POST /events/{id}/approve/` |
@@ -92,6 +92,18 @@ POST /api/v1/articles/
 «бесплатно»), `url` (билеты), `organizer`. Картинка: `image_url` (ссылка — скачаем), `image_file`
 (файл), `image` (id из медиатеки), `image_remove: true` — убрать. `status`: `approved` по умолчанию,
 `pending` — отдать на проверку ИИ. Адрес страницы события — `page_url` в ответе.
+
+`language` — для какой версии сайта событие: `""` (по умолчанию) — обе, `"ru"` — только русская,
+`"uk"` — только украинская (`/uk/…`). На другой версии события нет ни в афише, ни в sitemap, его
+страница отдаёт 404. Событие для одной версии пишите сразу на её языке в обычные поля `title`,
+`description`, `price` — ИИ его не переводит. Публикуйте сразу (`approved`): проверка ИИ (`pending`)
+переписывает описание по-русски. Фильтр списка: `?language=uk` / `ru` / `all` (для обеих версий).
+
+```json
+{"title": "Різдвяний ярмарок", "description": "Громада запрошує на різдвяний ярмарок…",
+ "starts_on": "2026-12-13", "starts_at": "11:00", "venue": "Парафіяльна зала", "city": "Орландо",
+ "region": "orlando", "price": "Вхід вільний", "language": "uk"}
+```
 
 ## Справочник
 
@@ -149,7 +161,7 @@ POST /api/v1/articles/
 | Теги | `GET/POST /tags/`, `PATCH/DELETE /tags/{slug}/` |
 | Страницы «О проекте», «Контакты», … | `GET/POST /pages/`, `PATCH /pages/{slug}/` |
 | Авторы и редакторы | `GET/POST /authors/`, `PATCH/DELETE /authors/{slug}/` (фото — multipart `photo`) |
-| Реклама (баннеры) | `GET/POST /ads/`, `PATCH/DELETE /ads/{id}/` (картинка — multipart `image`) |
+| Реклама (баннеры) | `GET/POST /ads/`, `PATCH/DELETE /ads/{id}/` (картинка — multipart `image`, в multipart передавайте и `is_active=true`); `language`: `""` — обе версии, `ru` / `uk` — только одна; фильтр `?language=uk` |
 | Источники новостей | `/sources/`, `POST /sources/{id}/check/?activate=1`, `…/fetch/`, `…/reset/` |
 | Источники соцсигналов | `/signal-sources/`, `POST /signal-sources/{id}/reset/` |
 | Подсказки из соцсетей | `GET /hints/?status=open`, `PATCH /hints/{id}/` `{"status": "dismissed"}` |

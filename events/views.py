@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
+from core.i18n import only_language
 from directory.views import ip_hash
 from news import featured
 from news.models import EVENTS, Article
@@ -12,7 +13,7 @@ from .models import Event
 
 
 def event_list(request):
-    upcoming = list(Event.objects.upcoming().select_related("region"))
+    upcoming = list(Event.objects.upcoming().for_language().select_related("region"))
     regions = sorted({e.region for e in upcoming if e.region}, key=lambda r: r.order)
     has_other = any(e.region is None for e in upcoming)
     current = request.GET.get("region", "")
@@ -32,10 +33,19 @@ def event_list(request):
 
 
 def event_detail(request, slug):
-    event = get_object_or_404(Event.objects.published().select_related("region"), slug=slug)
-    others = list(Event.objects.upcoming().exclude(pk=event.pk).select_related("region")[:20])
+    event = get_object_or_404(Event.objects.published().for_language().select_related("region"), slug=slug)
+    only_language(request, event.language, "events:list")  # другой версии нет — переключатель ведёт в афишу
+    others = list(Event.objects.upcoming().for_language().exclude(pk=event.pk).select_related("region")[:20])
     more = sorted(others, key=lambda e: e.region_id != event.region_id)[:4]  # сначала из того же региона
     return render(request, "events/detail.html", {"event": event, "more": more})
+
+
+def _detail_language(slug) -> str:
+    return Event.objects.filter(slug=slug).values_list("language", flat=True).first() or ""
+
+
+# Для core.middleware.PreferredLanguageMiddleware: не уводить на /uk/… событие только для русской версии.
+event_detail.page_language = _detail_language
 
 
 @never_cache

@@ -50,18 +50,21 @@ def languages(request):
     """Переключатель языка и hreflang: адрес текущей страницы на каждом языке сайта."""
     current = translation.get_language()
     path = request.get_full_path()
+    # Страница только на одном языке (core.i18n.only_language): на другом — раздел fallback, без hreflang.
+    only, fallback = getattr(request, "only_language", ("", ""))
     switch = []
     # «UA | RU»: украинский первым.
     for code, name in sorted(settings.LANGUAGES, key=lambda lang: lang[0] != "uk"):
         url = translate_url(path, code) if code != current else path
-        if url == path and code != current:  # адрес не разобрался (404 и т. п.) — на главную языка
+        missing = only and code != only
+        if missing or (url == path and code != current):  # адрес не разобрался (404 и т. п.) — на главную языка
             with translation.override(code):
-                url = reverse("news:home")
+                url = reverse(fallback if missing else "news:home")
         switch.append({"code": code, "name": name, "label": SWITCH_LABELS.get(code, code.upper()),
-                       "url": url, "current": code == current})
+                       "url": url, "current": code == current, "missing": missing})
     return {
         "LANGUAGE_CODE": current,
         "is_uk": current == "uk",
         "lang_switch": switch,
-        "lang_urls": {item["code"]: item["url"].split("?", 1)[0] for item in switch},
+        "lang_urls": {item["code"]: item["url"].split("?", 1)[0] for item in switch if not item["missing"]},
     }
