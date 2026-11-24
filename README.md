@@ -68,7 +68,7 @@
 | `python manage.py telegram_login` | один раз войти в Telegram-аккаунт для чтения каналов и получить `TG_SESSION` |
 | `python manage.py draft_guide "<slug или тема>"` | черновик гайда по официальным источникам (публикуете вручную) |
 | `python manage.py import_guides` (`--check`) | гайды из `guides/content/*.md` в базу: новые и изменённые файлы (`--check` — только проверка); запускается в `build.sh` |
-| `python manage.py import_places` (`--check`) | «Что посетить» из `places/content/{ru,uk}/*.md` в базу: проверяет объём, картинки, карточки мест и пары ru/uk, импортирует новые и изменённые; запускается в `build.sh` |
+| `python manage.py import_places` (`--check`) | «Что посетить» из `places/content/{ru,uk}/*.md` в базу: проверяет объём, картинки, карточки мест и пары ru/uk, импортирует новые и изменённые; запускается при старте контейнера (`deploy/entrypoint.sh`) и в `build.sh` |
 | `python manage.py place_photo <slug> <N> <файл>` | картинка для «Что посетить»: кадр 16:9, WebP 1200 и 640 (у обложки ещё JPEG), авторство в `places/content/photos/<slug>.json` |
 | `python manage.py check_ai` (`--ping`) | проверить ключ DeepSeek и названия моделей (с `--ping` — тестовый запрос) |
 | `python manage.py check_sources --activate` | проверить все фиды, включить рабочие, выключить нерабочие |
@@ -374,7 +374,7 @@ luckyladybloom) в Docker Compose за Cloudflare Tunnel. Проект compose �
 
 - `docker-compose.yml` — три сервиса, все с `restart: unless-stopped` (поднимаются и после перезагрузки):
   - `web` — сайт из `Dockerfile` (Python 3.12, gunicorn 2×4, статика собрана в образ). При каждом старте
-    `deploy/entrypoint.sh` делает то же, что `build.sh` на Render: `migrate` и `import_guides`.
+    `deploy/entrypoint.sh` делает то же, что `build.sh` на Render: `migrate`, `import_guides` и `import_places`.
     Проверка здоровья — `deploy/healthcheck.py` (`/healthz` с хостом сайта и `X-Forwarded-Proto: https`);
   - `db` — PostgreSQL 18 (та же версия, что была на Render), данные в томе `florida_pgdata`;
   - `cloudflared` — туннель `florida-ru`: соединяется с Cloudflare изнутри, порт на роутере не открыт.
