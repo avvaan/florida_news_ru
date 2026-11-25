@@ -143,10 +143,12 @@ def test_orthodox_parishes_batch(client):
     from directory.models import Listing
 
     churches = Listing.objects.filter(category__slug="cerkvi")
-    assert churches.filter(is_active=True).count() == 11  # Святая Нина + 10 приходов
+    first = churches.exclude(editor_note__contains="Ресёрч 25.11.2026")  # первые приходы (ноябрь-2026 пакеты — отдельно)
+    assert first.filter(is_active=True).count() == 11  # Святая Нина + 10 приходов
     assert not churches.get(name__contains="Григория Богослова").is_active  # без адреса — скрыт
     html = client.get("/links/cerkvi/").content.decode()
-    assert "Почаевской" in html and "Все (11)" in html and "stnicholasftl.org" in html
+    assert "Почаевской" in html and f"Все ({churches.filter(is_active=True).count()})" in html
+    assert "stnicholasftl.org" in html
 
 
 @pytest.mark.django_db
