@@ -283,3 +283,8 @@ def import_batch6(apps, schema_editor):
 
 def import_batch7(apps, schema_editor):
     apply_business_updates(apps, schema_editor, "businesses_2026_10_batch7.json")
+
+
+def import_batch8(apps, schema_editor):
+    """Ресёрч рубрики «Красота и здоровье» по всей Флориде (ноябрь 2026)."""
+    apply_business_updates(apps, schema_editor, "businesses_2026_11_krasota.json")
