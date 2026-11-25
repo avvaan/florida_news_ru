@@ -366,20 +366,6 @@
  {
   "category": "podarki",
   "region": "miami",
-  "city": "Халландейл-Бич",
-  "active": true,
-  "name": "Miami Sugar Mama — домашняя пекарня, торты на заказ",
-  "description": "Домашняя пекарня: свадебные и праздничные торты, кенди-бары, макаронс, десерты. Работает по Майами-Дейд, Броварду и Палм-Бич; заявка через GigSalad. Instagram: @miami_sugar_mama.",
-  "languages": "русский, английский, французский, немецкий, итальянский",
-  "address": "",
-  "phone": "",
-  "url": "https://www.gigsalad.com/miami_sugar_mama_hallandale_beach",
-  "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — в профиле GigSalad указаны English, French, German, Italian, Russian; владелица упоминает вдохновение русской бабушкой. Источники: https://www.gigsalad.com/miami_sugar_mama_hallandale_beach, https://gigsalad.com/Event-Services/Cakes-for-Parties/FL/Hallandale+Beach"
- },
- {
-  "category": "podarki",
-  "region": "miami",
   "city": "Санни-Айлс-Бич",
   "active": false,
   "name": "Nut Cracker — пекарня-кафе (Yuri Kutsevol), медовик",
@@ -1150,20 +1136,6 @@
  {
   "category": "restorany",
   "region": "miami",
-  "city": "Санни-Айлс-Бич",
-  "active": true,
-  "name": "Kalinka Euro Deli — русско-европейское кафе-деликатесы",
-  "description": "Деликатесная лавка с русско-европейской кухней (борщ и др.) в торговом центре RK на Collins Ave. Time Out пишет, что заведение обслуживает крупную русскоязычную общину Санни-Айлс.",
-  "languages": "английский; русский уточните при посещении",
-  "address": "18090 Collins Ave, T-24, Sunny Isles Beach, FL 33160",
-  "phone": "(305) 705-9333",
-  "url": "https://www.atly.com/location/KalinkaEuroDeli",
-  "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — ориентация на русскоязычную общину по описанию Time Out и репортажу NBC Miami; язык персонала не проверен. Источники: https://www.timeout.com/miami/restaurants/kalinka-euro-deli, https://www.restaurantji.com/fl/sunny-isles-beach/kalinka-euro-deli-, https://www.nbcmiami.com/multimedia/kalinka-deli-offers-taste-of-home-for-russian-community-in-sunny-isles-beach_miami/85079/"
- },
- {
-  "category": "restorany",
-  "region": "miami",
   "city": "Форт-Лодердейл",
   "active": true,
   "name": "Askaneli — грузинская, украинская и русская кухня",
@@ -1174,20 +1146,6 @@
   "url": "https://www.opentable.com/r/askaneli-premium-georgian-and-seafood-restaurant-of-fort-lauderdale",
   "hours": "",
   "note": "Ресёрч 25.11.2026. Русский язык — на OpenTable кухня заявлена как русская и украинская; язык персонала не проверен. Частные мероприятия: (754) 283-3783 по OpenTable. Источники: https://www.aaa.com/tripcanvas/restaurant/askaneli-restaurant-%26-steakhouse-AA36918, https://www.opentable.com/r/askaneli-premium-georgian-and-seafood-restaurant-of-fort-lauderdale, https://flamingomag.com/2025/02/12/florida-eastern-european-markets-and-restaurants/"
- },
- {
-  "category": "restorany",
-  "region": "miami",
-  "city": "Халландейл-Бич",
-  "active": true,
-  "name": "Siberian Food — русская кухня, доставка",
-  "description": "Заведение русской кухни в Халландейл-Бич с доставкой через Uber Eats; рейтинг 4,4 по более чем 500 оценкам.",
-  "languages": "английский; русский уточните при посещении",
-  "address": "716 N Federal Hwy, Hallandale Beach, FL 33009",
-  "phone": "",
-  "url": "https://www.ubereats.com/store/siberian-food/LL7i033aW9OWDUsAmGCUsA",
-  "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — позиционируется как русская кухня (подборка Uber Eats «Russian»), язык персонала не проверен; телефон не найден. Источники: https://www.ubereats.com/store/siberian-food/LL7i033aW9OWDUsAmGCUsA, https://www.ubereats.com/category/hallandale-fl/russian"
  },
  {
   "category": "restorany",
@@ -1272,20 +1230,6 @@
   "url": "",
   "hours": "",
   "note": "Ресёрч 25.11.2026. Адрес и телефон не найдены, статус не подтверждён. Источники: https://www.browardpalmbeach.com/?p=40614153, https://www.bizbash.com/production-strategy/programming-entertainment/article/13223563/listing/782568 СКРЫТО: нет ни телефона, ни сайта."
- },
- {
-  "category": "restorany",
-  "region": "miami",
-  "city": "Халландейл-Бич",
-  "active": false,
-  "name": "Tsarsky Deli and Cafe — кафе-деликатесы",
-  "description": "Назван в статье Broward Palm Beach среди двух заведений Халландейл-Бич восточноевропейской направленности; меню в источниках не описано.",
-  "languages": "английский; русский уточните при посещении",
-  "address": "1700 E Hallandale Beach Blvd, Hallandale Beach, FL",
-  "phone": "",
-  "url": "",
-  "hours": "",
-  "note": "Ресёрч 25.11.2026. Статус и язык не подтверждены, телефон не найден. Источники: https://www.browardpalmbeach.com/?p=40613816 СКРЫТО: нет ни телефона, ни сайта."
  },
  {
   "category": "restorany",
