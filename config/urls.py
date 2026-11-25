@@ -44,6 +44,7 @@ urlpatterns += i18n_patterns(
     path("comments/", include("comments.urls")),
     path("dmca/", core_views.dmca, name="core-dmca"),
     path("corrections/", core_views.corrections, name="core-corrections"),
+    path("poisk/", core_views.search, name="core-search"),
     path("", include("news.urls")),
     prefix_default_language=False,
 )

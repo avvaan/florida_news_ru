@@ -242,6 +242,11 @@ def website_jsonld() -> str:
         "url": f"{settings.SITE_URL}/",
         "inLanguage": lang(),
         "publisher": {"@id": f"{settings.SITE_URL}/#organization"},
+        "potentialAction": {  # поле поиска Google по сайту
+            "@type": "SearchAction",
+            "target": {"@type": "EntryPoint", "urlTemplate": f"{settings.SITE_URL}/poisk/?q={{search_term_string}}"},
+            "query-input": "required name=search_term_string",
+        },
     })
 
 

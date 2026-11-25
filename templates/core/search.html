@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load news_extras i18n %}
+{% block title %}{% if query %}{% blocktranslate trimmed %}«{{ query }}» — поиск{% endblocktranslate %}{% else %}{% translate "Поиск по сайту" %}{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Поиск по справочнику русскоязычных врачей, юристов, мастеров и магазинов Флориды, гайдам, афише и новостям." %}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story search-page">
+    <h1 class="story__title">{% translate "Поиск по сайту" %}</h1>
+    <form class="ads-filter" method="get" action="{% url 'core-search' %}" role="search">
+      <div class="ads-filter__q">
+        <label class="visually-hidden" for="site-q">{% translate "Что ищем" %}</label>
+        <input id="site-q" type="search" name="q" value="{{ query }}" maxlength="80" placeholder="{% translate "Стоматолог Майами, грин-карта, русский магазин…" %}"{% if not query %} autofocus{% endif %}>
+        <button class="btn" type="submit">{% translate "Найти" %}</button>
+      </div>
+    </form>
+
+    {% if query %}
+    {% if found.total %}
+    <p class="search-page__count">{% blocktranslate trimmed count n=found.total %}Найден {{ n }} результат{% plural %}Найдено результатов: {{ n }}{% endblocktranslate %}</p>
+
+    {% if found.listings %}
+    <section class="search-group" aria-labelledby="s-dir">
+      <h2 class="sidebar__h" id="s-dir">{% translate "Справочник" %}</h2>
+      <ul class="search-list">
+        {% for item in found.listings %}
+        <li><a href="{{ item.get_absolute_url }}">{{ item.name }}</a>
+          <span class="search-list__meta">{{ item.category.tr.name }}{% if item.city %} · {{ item.city }}{% endif %}</span>
+          {% if item.description %}<span class="search-list__text">{{ item.tr.description|truncatechars:160 }}</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if found.guides %}
+    <section class="search-group" aria-labelledby="s-guides">
+      <h2 class="sidebar__h" id="s-guides">{% translate "Гайды" %}</h2>
+      <ul class="search-list">
+        {% for g in found.guides %}<li><a href="{{ g.get_absolute_url }}">{{ g.tr.title }}</a>{% if g.teaser %}<span class="search-list__text">{{ g.tr.teaser|truncatechars:160 }}</span>{% endif %}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if found.places %}
+    <section class="search-group" aria-labelledby="s-places">
+      <h2 class="sidebar__h" id="s-places">{% translate "Что посетить" %}</h2>
+      <ul class="search-list">
+        {% for d in found.places %}<li><a href="{% url 'places:detail' d.slug %}">{{ d.title }}</a>{% if d.teaser %}<span class="search-list__text">{{ d.teaser|truncatechars:160 }}</span>{% endif %}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if found.events %}
+    <section class="search-group" aria-labelledby="s-events">
+      <h2 class="sidebar__h" id="s-events">{% translate "Афиша" %}</h2>
+      <ul class="search-list">
+        {% for e in found.events %}<li><a href="{{ e.get_absolute_url }}">{{ e.tr.title }}</a><span class="search-list__meta">{{ e.starts_on|date:"j E" }} · {{ e.city }}</span></li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if found.articles %}
+    <section class="search-group" aria-labelledby="s-news">
+      <h2 class="sidebar__h" id="s-news">{% translate "Новости" %}</h2>
+      <ul class="search-list">
+        {% for a in found.articles %}<li><a href="{{ a.get_absolute_url }}">{{ a.tr.title }}</a><span class="search-list__meta">{{ a.published_at|date:"j E Y" }}</span></li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% else %}
+    <p class="search-page__count">{% blocktranslate trimmed %}По запросу «{{ query }}» ничего не нашлось. Попробуйте другое слово или посмотрите разделы:{% endblocktranslate %}</p>
+    <ul class="chips">
+      <li><a class="chip" href="{% url 'directory:index' %}">{% translate "Справочник" %}</a></li>
+      <li><a class="chip" href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>
+      <li><a class="chip" href="{% url 'events:list' %}">{% translate "Афиша" %}</a></li>
+      <li><a class="chip" href="{% url 'classifieds:index' %}">{% translate "Объявления" %}</a></li>
+    </ul>
+    {% endif %}
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
