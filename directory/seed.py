@@ -313,3 +313,8 @@ def import_batch10_krasota(apps, schema_editor):
     """Ресёрч рубрики «Красота и здоровье» по всей Флориде (ноябрь 2026): 53 записи на сайте, остальные скрыты
     до проверки — причина в заметке редакции."""
     apply_business_updates(apps, schema_editor, "businesses_2026_11_krasota.json")
+
+
+def import_batch11_krasota_open(apps, schema_editor):
+    """Скрытые записи «Красота и здоровье» открыты по решению владельца сайта (кроме закрывшегося бизнеса)."""
+    apply_business_updates(apps, schema_editor, "businesses_2026_11_krasota_open.json")

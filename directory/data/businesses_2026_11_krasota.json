@@ -437,7 +437,7 @@
   "category": "krasota",
   "region": "miami",
   "city": "Авентура",
-  "active": false,
+  "active": true,
   "name": "VK Coach (Vlad Koshel) — муай-тай и кикбоксинг",
   "description": "Тренер по муай-тай и кикбоксингу, работает в Авентуре и Холливуде. На Thumbtack ориентировочная цена $100 за занятие.",
   "languages": "английский",
@@ -445,13 +445,13 @@
   "phone": "",
   "url": "https://www.thumbtack.com/fl/aventura/personal-trainers/vk-coach/service/543641882724778000",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское имя. Источники: https://www.thumbtack.com/fl/aventura/personal-trainers/vk-coach/service/543641882724778000"
+  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское имя. Источники: https://www.thumbtack.com/fl/aventura/personal-trainers/vk-coach/service/543641882724778000 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Бока-Ратон",
-  "active": false,
+  "active": true,
   "name": "Amira's Hair Studio — парикмахерская",
   "description": "Парикмахерская: женские стрижки, укладки, кератин, наращивание волос. Рейтинг 4,9 на Birdeye (более 100 отзывов).",
   "languages": "английский; русский уточните при записи",
@@ -459,13 +459,13 @@
   "phone": "(561) 900-6950",
   "url": "https://apnt.app/amiras_hair_studio",
   "hours": "Вт–Чт 11:00–19:00, Пт 10:00–18:00",
-  "note": "Ресёрч 25.11.2026. active=false: русский язык подтверждён только косвенно — на странице онлайн-записи есть русская версия интерфейса; русскоязычный персонал не подтверждён. Часы — по одному из справочников, уточнять. Источники: https://apnt.app/amiras_hair_studio, https://reviews.birdeye.com/amiras-hair-studio-171613199420578"
+  "note": "Ресёрч 25.11.2026. active=false: русский язык подтверждён только косвенно — на странице онлайн-записи есть русская версия интерфейса; русскоязычный персонал не подтверждён. Часы — по одному из справочников, уточнять. Источники: https://apnt.app/amiras_hair_studio, https://reviews.birdeye.com/amiras-hair-studio-171613199420578 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Бока-Ратон",
-  "active": false,
+  "active": true,
   "name": "Nails by Alla Moroz — русский маникюр",
   "description": "Мастер маникюра: русский маникюр, педикюр, гель-покрытие, мужской маникюр (по данным Fresha).",
   "languages": "английский; русский уточните при записи",
@@ -473,13 +473,13 @@
   "phone": "(786) 498-1318",
   "url": "https://www.fresha.com/lvp/nails-by-alla-moroz-north-federal-highway-boca-raton-vwlvnJ",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. active=false: русскоязычность не подтверждена — только имя мастера и услуга «русский маникюр» (это техника). Источники: https://www.fresha.com/lvp/nails-by-alla-moroz-north-federal-highway-boca-raton-vwlvnJ, https://www.atly.com/location/NailsByAllaMoroz"
+  "note": "Ресёрч 25.11.2026. active=false: русскоязычность не подтверждена — только имя мастера и услуга «русский маникюр» (это техника). Источники: https://www.fresha.com/lvp/nails-by-alla-moroz-north-federal-highway-boca-raton-vwlvnJ, https://www.atly.com/location/NailsByAllaMoroz Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Бока-Ратон",
-  "active": false,
+  "active": true,
   "name": "Volha Roi — частные занятия йогой",
   "description": "Частный инструктор йоги в Бока-Ратоне, занятия под каждого ученика с акцентом на силу и осознанность. Цена — по запросу.",
   "languages": "английский",
@@ -487,13 +487,13 @@
   "phone": "",
   "url": "https://thumbtack.com/fl/boca-raton/yoga/volha-roi/service/535300253955891213",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское (белорусское) имя. Источники: https://thumbtack.com/fl/boca-raton/yoga/volha-roi/service/535300253955891213"
+  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское (белорусское) имя. Источники: https://thumbtack.com/fl/boca-raton/yoga/volha-roi/service/535300253955891213 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Дорал",
-  "active": false,
+  "active": true,
   "name": "Dance Town Miami — танцевальная студия (Иван Мулявка, латина и бальные)",
   "description": "Танцевальная студия в Дорале с занятиями для детей и взрослых: латиноамериканские и бальные танцы, балет, хип-хоп, контемпорари. Преподаёт Иван Мулявка, танцор латины, получивший подготовку в России.",
   "languages": "английский; русский уточните при записи",
@@ -501,13 +501,13 @@
   "phone": "",
   "url": "https://caplinnews.fiu.edu/doral-latin-ballroom-dancers-russia-ivan-mulyavk-dance-town-miami/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — косвенно: статья Caplin News (FIU) о том, что преподаватель Ivan Mulyavka начинал в России; язык занятий не указан. Дата статьи не проверена, актуальность уточнять. Источники: https://caplinnews.fiu.edu/doral-latin-ballroom-dancers-russia-ivan-mulyavk-dance-town-miami/ ; https://lessons.com/fl/hialeah/dance-classes/ballroom-dance-champions-miami СКРЫТО при сводке: вместо сайта — статья в СМИ, контактов нет."
+  "note": "Ресёрч 25.11.2026. Русский язык — косвенно: статья Caplin News (FIU) о том, что преподаватель Ivan Mulyavka начинал в России; язык занятий не указан. Дата статьи не проверена, актуальность уточнять. Источники: https://caplinnews.fiu.edu/doral-latin-ballroom-dancers-russia-ivan-mulyavk-dance-town-miami/ ; https://lessons.com/fl/hialeah/dance-classes/ballroom-dance-champions-miami Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки; проверить: вместо сайта — статья в СМИ, контактов нет."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Майами",
-  "active": false,
+  "active": true,
   "name": "Atletika Pro — персональные тренировки",
   "description": "Персональные тренировки в Майами; в профиле Thumbtack упомянута возможность занятий на испанском, английском и русском.",
   "languages": "русский, английский, испанский",
@@ -515,13 +515,13 @@
   "phone": "",
   "url": "https://www.thumbtack.com/fl/miami/personal-trainers/atletika-pro/service/410898546310086669",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — заявлен в профиле Thumbtack. active=false: кроме фрагмента профиля, данных (тренер, адрес, отзывы, актуальность) найти не удалось. Источники: https://www.thumbtack.com/fl/miami/personal-trainers/atletika-pro/service/410898546310086669"
+  "note": "Ресёрч 25.11.2026. Русский язык — заявлен в профиле Thumbtack. active=false: кроме фрагмента профиля, данных (тренер, адрес, отзывы, актуальность) найти не удалось. Источники: https://www.thumbtack.com/fl/miami/personal-trainers/atletika-pro/service/410898546310086669 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Майами",
-  "active": false,
+  "active": true,
   "name": "SibearianFit — персональный тренинг",
   "description": "Фитнес-коучинг для мужчин и женщин: снижение веса, набор мышечной массы, трансформация тела. Рейтинг 5.0 в Google (18 отзывов).",
   "languages": "английский; русский уточните при записи",
@@ -529,13 +529,13 @@
   "phone": "",
   "url": "https://business.google.com/v/llc-sibearianfit/01981295705650592723/23c8/_",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Вероятная русскоязычная ориентация: на странице отзывов профиля Google встречается отзыв о тренере Викторе «He speaks Russian and English», но поисковый фрагмент не позволил однозначно привязать отзыв к этому бизнесу; адрес и телефон не найдены. Источники: https://business.google.com/v/llc-sibearianfit/01981295705650592723/23c8/_, https://business.google.com/v/llc-sibearianfit/01981295705650592723/23c8/_/rev/"
+  "note": "Ресёрч 25.11.2026. Вероятная русскоязычная ориентация: на странице отзывов профиля Google встречается отзыв о тренере Викторе «He speaks Russian and English», но поисковый фрагмент не позволил однозначно привязать отзыв к этому бизнесу; адрес и телефон не найдены. Источники: https://business.google.com/v/llc-sibearianfit/01981295705650592723/23c8/_, https://business.google.com/v/llc-sibearianfit/01981295705650592723/23c8/_/rev/ Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Майами",
-  "active": false,
+  "active": true,
   "name": "Slawanka Russian Nail Salon — русский маникюр (Брикелл)",
   "description": "Ногтевой салон в офисном здании на Brickell Ave: русский маникюр, мужской маникюр и педикюр.",
   "languages": "английский; русский уточните при записи",
@@ -543,13 +543,13 @@
   "phone": "(786) 209-1029",
   "url": "",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Название указывает на славянскую ориентацию, но русскоязычный персонал не подтверждён; «русский маникюр» — техника. На Atly по тому же адресу значится Status Russian Nail Salon — возможно, тот же салон под другим названием. Источники: https://www.fresha.com/lp/fi/bt/nail-salon/us-miami/miami-river, https://www.fresha.com/lp/en/tt/russian-manicures/in/us-miami/little-havana, https://www.atly.com/location/StatusRussianNailSalon"
+  "note": "Ресёрч 25.11.2026. Название указывает на славянскую ориентацию, но русскоязычный персонал не подтверждён; «русский маникюр» — техника. На Atly по тому же адресу значится Status Russian Nail Salon — возможно, тот же салон под другим названием. Источники: https://www.fresha.com/lp/fi/bt/nail-salon/us-miami/miami-river, https://www.fresha.com/lp/en/tt/russian-manicures/in/us-miami/little-havana, https://www.atly.com/location/StatusRussianNailSalon Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Майами",
-  "active": false,
+  "active": true,
   "name": "Sofia (@sofyko_aum) — йога в Брикелле",
   "description": "Преподаватель йоги родом из Москвы, живёт в Майами; ведёт виньяса, хатха, пауэр и слоу-флоу йогу в группах и индивидуально. Проводила занятия на набережной Riverwalk в Брикелле по пятницам в 8:00.",
   "languages": "английский; русский уточните при записи",
@@ -557,13 +557,13 @@
   "phone": "",
   "url": "https://www.eventbrite.com/e/yoga-in-brickell-with-sofia-sofyko-aum-tickets-861110614027",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — косвенно (родилась в Москве). Найдено только старое объявление Eventbrite, текущая активность не подтверждена — поэтому active=false. Источники: https://www.eventbrite.com/e/yoga-in-brickell-with-sofia-sofyko-aum-tickets-861110614027"
+  "note": "Ресёрч 25.11.2026. Русский язык — косвенно (родилась в Москве). Найдено только старое объявление Eventbrite, текущая активность не подтверждена — поэтому active=false. Источники: https://www.eventbrite.com/e/yoga-in-brickell-with-sofia-sofyko-aum-tickets-861110614027 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Майами",
-  "active": false,
+  "active": true,
   "name": "Тренер по теннису PlayYourCourt (профиль 721534) — бывший игрок ATP",
   "description": "Тренер с наивысшим рейтингом №119 ATP в карьере и более чем 15-летним тренерским стажем. Занятия на кортах Майами и Майами-Шорс; запись через сервис PlayYourCourt.",
   "languages": "русский, английский",
@@ -571,13 +571,13 @@
   "phone": "",
   "url": "https://www.playyourcourt.com/tennis-pros/miami-fl/721534/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — в профиле PlayYourCourt указаны языки English и Russian. Имя тренера в найденном тексте не отображалось — уточнить на странице профиля. Источники: https://www.playyourcourt.com/tennis-pros/miami-fl/721534/ СКРЫТО при сводке: имя тренера не видно — только номер профиля."
+  "note": "Ресёрч 25.11.2026. Русский язык — в профиле PlayYourCourt указаны языки English и Russian. Имя тренера в найденном тексте не отображалось — уточнить на странице профиля. Источники: https://www.playyourcourt.com/tennis-pros/miami-fl/721534/ Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки; проверить: имя тренера не видно — только номер профиля."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Майами",
-  "active": false,
+  "active": true,
   "name": "Тренер по теннису PlayYourCourt (профиль 74444) — бывший игрок топ-20 России",
   "description": "Бывший профессиональный теннисист (топ-20 России, участвовал в профессиональных турнирах), 15 лет тренерского опыта. Занятия на кортах Майами, в том числе в Margaret Pace Park; запись через сервис PlayYourCourt.",
   "languages": "русский, английский",
@@ -585,13 +585,13 @@
   "phone": "",
   "url": "https://www.playyourcourt.com/tennis-pros/miami-fl/74444/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — в профиле PlayYourCourt указаны языки English и Russian. Имя тренера в найденном тексте не отображалось — уточнить на странице профиля. Источники: https://www.playyourcourt.com/tennis-pros/miami-fl/74444/ СКРЫТО при сводке: имя тренера не видно — только номер профиля."
+  "note": "Ресёрч 25.11.2026. Русский язык — в профиле PlayYourCourt указаны языки English и Russian. Имя тренера в найденном тексте не отображалось — уточнить на странице профиля. Источники: https://www.playyourcourt.com/tennis-pros/miami-fl/74444/ Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки; проверить: имя тренера не видно — только номер профиля."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Майами-Бич",
-  "active": false,
+  "active": true,
   "name": "Atenaa Beauty Concept — маникюр, брови, ресницы",
   "description": "Бутик-салон у Lincoln Road: русский (аппаратный) маникюр и педикюр, гель, наращивание и дизайн ногтей, а также брови, наращивание и ламинирование ресниц, восковая депиляция, массаж лица.",
   "languages": "английский; русский уточните при записи",
@@ -599,13 +599,13 @@
   "phone": "(786) 944-3838",
   "url": "https://atenaa-beauty-concept.zoca.ai/",
   "hours": "Пн–Вс 10:00–20:00",
-  "note": "Ресёрч 25.11.2026. Салон работает (сайт на zoca.ai, страница Fresha, отзывы). Русский маникюр — это техника; русскоязычный персонал источниками не подтверждён, поэтому active=false. Часы в источниках расходятся (Fresha: будни 9:00–20:00). Источники: https://atenaa-beauty-concept.zoca.ai/, https://www.fresha.com/lvp/atenaa-beauty-concept-lenox-avenue-miami-beach-zXBb0n, https://www.atly.com/location/AtenaaBeautyConcept"
+  "note": "Ресёрч 25.11.2026. Салон работает (сайт на zoca.ai, страница Fresha, отзывы). Русский маникюр — это техника; русскоязычный персонал источниками не подтверждён, поэтому active=false. Часы в источниках расходятся (Fresha: будни 9:00–20:00). Источники: https://atenaa-beauty-concept.zoca.ai/, https://www.fresha.com/lvp/atenaa-beauty-concept-lenox-avenue-miami-beach-zXBb0n, https://www.atly.com/location/AtenaaBeautyConcept Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Санни-Айлс-Бич",
-  "active": false,
+  "active": true,
   "name": "Anastasiia Kharcheva (Анастасия Харчева) — художественная гимнастика, растяжка",
   "description": "Тренер по художественной гимнастике (растяжка, шпагаты, баланс); тренировалась и работала тренером в России. Индивидуальные занятия в Санни-Айлс, около $75 за 60 минут.",
   "languages": "английский; русский уточните при записи",
@@ -613,13 +613,13 @@
   "phone": "",
   "url": "https://www.coachup.com/coaches/anastasiiak",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык прямо не указан, но тренер тренировалась и работала в России (по профилю CoachUp). Место занятий в профиле — 19200 Collins Ave, Sunny Isles Beach (не публикуется). Актуальность не подтверждена. Источники: https://www.coachup.com/coaches/anastasiiak"
+  "note": "Ресёрч 25.11.2026. Русский язык прямо не указан, но тренер тренировалась и работала в России (по профилю CoachUp). Место занятий в профиле — 19200 Collins Ave, Sunny Isles Beach (не публикуется). Актуальность не подтверждена. Источники: https://www.coachup.com/coaches/anastasiiak Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Санни-Айлс-Бич",
-  "active": false,
+  "active": true,
   "name": "Elen Beauty Studio — уход за лицом",
   "description": "Студия ухода за кожей: экспресс- и глубокая чистка лица, HydraFacial, химические пилинги, микродермабразия, микронидлинг. Онлайн-запись.",
   "languages": "русский, английский",
@@ -627,13 +627,13 @@
   "phone": "(718) 844-2243",
   "url": "https://practicefinder.newpatientsinc.com/medspa/elen-beauty-studio-facial-miami-sunny-isles-beach-fl/",
   "hours": "Пн–Сб 9:00–19:00",
-  "note": "Ресёрч 25.11.2026. Русский язык — в справочниках New Patients/Yobi указано «English, Russian». active=false: на Fresha студия значится по адресу 1250 E Hallandale Beach Blvd (Холландейл, Broward) — возможно, переехала; телефон с кодом Нью-Йорка. Нужна проверка. Источники: https://practicefinder.newpatientsinc.com/medspa/elen-beauty-studio-facial-miami-sunny-isles-beach-fl/, https://local.yobi.com/medspa/elen-beauty-studio-facial-miami-sunny-isles-beach-fl, https://www.atly.com/location/Elen-Beauty-Studio---Facial-Miami"
+  "note": "Ресёрч 25.11.2026. Русский язык — в справочниках New Patients/Yobi указано «English, Russian». active=false: на Fresha студия значится по адресу 1250 E Hallandale Beach Blvd (Холландейл, Broward) — возможно, переехала; телефон с кодом Нью-Йорка. Нужна проверка. Источники: https://practicefinder.newpatientsinc.com/medspa/elen-beauty-studio-facial-miami-sunny-isles-beach-fl/, https://local.yobi.com/medspa/elen-beauty-studio-facial-miami-sunny-isles-beach-fl, https://www.atly.com/location/Elen-Beauty-Studio---Facial-Miami Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Санни-Айлс-Бич",
-  "active": false,
+  "active": true,
   "name": "Russian Manicure (Sunny Isles) — маникюр и педикюр",
   "description": "Ногтевая студия в Санни-Айлс: русский маникюр и педикюр, запись через Fresha; рейтинг 5.0 на Fresha.",
   "languages": "английский; русский уточните при записи",
@@ -641,13 +641,13 @@
   "phone": "(954) 997-5004",
   "url": "https://www.fresha.com/lvp/russian-manicure-178th-drive-sunny-isles-beach-BKnXYk",
   "hours": "Пн–Вс 9:00–21:00",
-  "note": "Ресёрч 25.11.2026. Карточка Fresha без официального названия салона; русский маникюр — техника, русскоязычный персонал не подтверждён. Источники: https://www.fresha.com/lvp/russian-manicure-178th-drive-sunny-isles-beach-BKnXYk, https://www.atly.com/location/RussianManicure2"
+  "note": "Ресёрч 25.11.2026. Карточка Fresha без официального названия салона; русский маникюр — техника, русскоязычный персонал не подтверждён. Источники: https://www.fresha.com/lvp/russian-manicure-178th-drive-sunny-isles-beach-BKnXYk, https://www.atly.com/location/RussianManicure2 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Санни-Айлс-Бич",
-  "active": false,
+  "active": true,
   "name": "Studio By Vasila — парикмахерский салон",
   "description": "Салон красоты: стрижки, укладки, окрашивание волос. Рекомендуется предварительная запись, особенно на выходные.",
   "languages": "русский, английский",
@@ -655,13 +655,13 @@
   "phone": "",
   "url": "https://www.atly.com/location/StudioByVasila",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — в справочнике Atly указано, что персонал говорит по-английски и по-русски. active=false: найден только агрегатор Atly, собственного сайта, телефона и свежих отзывов не найдено — актуальность не подтверждена. Источники: https://www.atly.com/location/StudioByVasila"
+  "note": "Ресёрч 25.11.2026. Русский язык — в справочнике Atly указано, что персонал говорит по-английски и по-русски. active=false: найден только агрегатор Atly, собственного сайта, телефона и свежих отзывов не найдено — актуальность не подтверждена. Источники: https://www.atly.com/location/StudioByVasila Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Форт-Лодердейл",
-  "active": false,
+  "active": true,
   "name": "FitPower LLC (Veronika Chernysheva) — персональный тренер",
   "description": "Сертифицированный персональный тренер: индивидуальные и мини-групповые занятия очно, онлайн и на дому. Специализации — снижение веса, силовая подготовка, корректирующие упражнения, питание.",
   "languages": "английский",
@@ -669,7 +669,7 @@
   "phone": "",
   "url": "https://www.thumbtack.com/fl/fort-lauderdale/personal-trainers/fitpower-llc-veronika-chernysheva/service/560625263931326476",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское имя; профиль активен (отзыв февраля 2026). Источники: https://www.thumbtack.com/fl/fort-lauderdale/personal-trainers/fitpower-llc-veronika-chernysheva/service/560625263931326476"
+  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское имя; профиль активен (отзыв февраля 2026). Источники: https://www.thumbtack.com/fl/fort-lauderdale/personal-trainers/fitpower-llc-veronika-chernysheva/service/560625263931326476 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
@@ -689,7 +689,7 @@
   "category": "krasota",
   "region": "miami",
   "city": "Форт-Лодердейл",
-  "active": false,
+  "active": true,
   "name": "Natalya Celi, APRN — инъекционная косметология",
   "description": "Медсестра-практик (APRN) и инъектор: ботокс, филлеры, микронидлинг, PRP. По пресс-релизу августа 2025 года перешла в Parkland Medspa & Wellness Center (Las Olas Medspa) на Las Olas Blvd в Форт-Лодердейле; ранее работала в BeautyFi Medical Spa в Халландейл-Бич.",
   "languages": "русский, английский",
@@ -697,13 +697,13 @@
   "phone": "",
   "url": "https://www.evolus.com/specialists/natalya-celi",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — в профиле Evolus указано, что она свободно говорит по-русски и по-английски. active=false: текущее место работы не подтверждено (последний источник — пресс-релиз PR Newswire от 28.08.2025; в профиле Evolus всё ещё BeautyFi, 701 W Hallandale Beach Blvd Ste 104). Уточнить перед публикацией. Источники: https://www.evolus.com/specialists/natalya-celi, https://www.prnewswire.com/news-releases/wellness-expert-and-master-injector-natalya-celi-joins-staff-at-parkland-medspa--wellness-center-302540705.html"
+  "note": "Ресёрч 25.11.2026. Русский язык — в профиле Evolus указано, что она свободно говорит по-русски и по-английски. active=false: текущее место работы не подтверждено (последний источник — пресс-релиз PR Newswire от 28.08.2025; в профиле Evolus всё ещё BeautyFi, 701 W Hallandale Beach Blvd Ste 104). Уточнить перед публикацией. Источники: https://www.evolus.com/specialists/natalya-celi, https://www.prnewswire.com/news-releases/wellness-expert-and-master-injector-natalya-celi-joins-staff-at-parkland-medspa--wellness-center-302540705.html Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Халландейл-Бич",
-  "active": false,
+  "active": true,
   "name": "Alla — перманентный макияж",
   "description": "Мастер перманентного макияжа; объявление на русскоязычном портале с адресом на E Hallandale Beach Blvd. По этому же адресу (unit 407) в справочнике Atly значится студия Look at me PMU — связь не подтверждена.",
   "languages": "русский, английский",
@@ -711,13 +711,13 @@
   "phone": "",
   "url": "",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — объявление на to4ka.us. active=false: полное имя, телефон и актуальность не найдены; совпадение с Look at me PMU (2100 E Hallandale Beach Blvd unit 407) не подтверждено. Источники: https://to4ka.us/en/catalog/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504, https://www.atly.com/location/LookAtMePMU"
+  "note": "Ресёрч 25.11.2026. Русский язык — объявление на to4ka.us. active=false: полное имя, телефон и актуальность не найдены; совпадение с Look at me PMU (2100 E Hallandale Beach Blvd unit 407) не подтверждено. Источники: https://to4ka.us/en/catalog/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504/permanentnyi-makiiazkosmetologiia-narashhivanie-resnic-uslugi-dlia-brovei-v-maiami_93cb606d-99f5-4a70-9c32-c61a76182504, https://www.atly.com/location/LookAtMePMU Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Халландейл-Бич",
-  "active": false,
+  "active": true,
   "name": "Iris Nail Care — русский маникюр и педикюр",
   "description": "Студия маникюра: русский маникюр, педикюр, мужской маникюр.",
   "languages": "английский; русский уточните при записи",
@@ -725,13 +725,13 @@
   "phone": "(954) 686-8959",
   "url": "https://www.fresha.com/lvp/iris-nail-care-russian-pedicure-manicure-east-hallandale-beach-boulevard-LkMQxQ",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. active=false: русскоязычный персонал не подтверждён («русский маникюр» — техника); в листингах Fresha расходятся адреса (также 613 W Hallandale Beach Blvd Unit 8, тел. (786) 708-0281). Источники: https://www.fresha.com/lvp/iris-nail-care-russian-pedicure-manicure-east-hallandale-beach-boulevard-LkMQxQ, https://www.atly.com/location/Iris-Nail-Care---Russian-pedicure-manicure"
+  "note": "Ресёрч 25.11.2026. active=false: русскоязычный персонал не подтверждён («русский маникюр» — техника); в листингах Fresha расходятся адреса (также 613 W Hallandale Beach Blvd Unit 8, тел. (786) 708-0281). Источники: https://www.fresha.com/lvp/iris-nail-care-russian-pedicure-manicure-east-hallandale-beach-boulevard-LkMQxQ, https://www.atly.com/location/Iris-Nail-Care---Russian-pedicure-manicure Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Халландейл-Бич",
-  "active": false,
+  "active": true,
   "name": "RUSSIAN SPA Florida — спа, инфракрасная сауна, обёртывания",
   "description": "Спа на E Hallandale Beach Blvd: инфракрасная сауна, скрабирование тела, обёртывания (по данным Fresha).",
   "languages": "английский; русский уточните при записи",
@@ -739,13 +739,13 @@
   "phone": "(754) 802-7214",
   "url": "",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. active=false: найдено только в листингах Fresha; русскоязычный персонал не подтверждён (только название), текущая работа не проверена. По тому же адресу на Fresha значится 4Ever Young Anti Aging Solutions. Сайт не найден; страницы Fresha открыть не удалось. Источники: https://www.fresha.com/lp/sv/tt/spabehandlingar/us-miami/hallandale-beach, https://www.fresha.com/lp/pl/tt/zabiegi-spa/us-miami/halndle-bch"
+  "note": "Ресёрч 25.11.2026. active=false: найдено только в листингах Fresha; русскоязычный персонал не подтверждён (только название), текущая работа не проверена. По тому же адресу на Fresha значится 4Ever Young Anti Aging Solutions. Сайт не найден; страницы Fresha открыть не удалось. Источники: https://www.fresha.com/lp/sv/tt/spabehandlingar/us-miami/hallandale-beach, https://www.fresha.com/lp/pl/tt/zabiegi-spa/us-miami/halndle-bch Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Холливуд",
-  "active": false,
+  "active": true,
   "name": "Oksana Chalkova — персональный тренер",
   "description": "Персональный тренер в Холливуде: силовые, кардио и боксёрские тренировки под цели клиента, подходит начинающим. Цена — по запросу.",
   "languages": "английский",
@@ -753,13 +753,13 @@
   "phone": "",
   "url": "https://www.thumbtack.com/fl/hollywood/personal-trainers/oksana-personal-trainer/service/516082385130569728",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское имя. Источники: https://www.thumbtack.com/fl/hollywood/personal-trainers/oksana-personal-trainer/service/516082385130569728"
+  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только славянское имя. Источники: https://www.thumbtack.com/fl/hollywood/personal-trainers/oksana-personal-trainer/service/516082385130569728 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "miami",
   "city": "Холливуд",
-  "active": false,
+  "active": true,
   "name": "Victoria Smith — маникюр и педикюр",
   "description": "Мастер маникюра и педикюра; в объявлении указывает сертификат из Санкт-Петербурга и опыт более 5 лет. Адрес объявления — Hollywood Blvd, где находится Trendz Beauty Salon.",
   "languages": "русский, английский",
@@ -767,7 +767,7 @@
   "phone": "",
   "url": "https://to4ka.us/en/catalog/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — объявление на русскоязычном портале to4ka.us. active=false: дата объявления и актуальность не проверены (страницу открыть не удалось); по адресу 2209 Hollywood Blvd работает Trendz Beauty Salon, тел. (754) 263-3695 — связь мастера с салоном не подтверждена. Источники: https://to4ka.us/en/catalog/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343"
+  "note": "Ресёрч 25.11.2026. Русский язык — объявление на русскоязычном портале to4ka.us. active=false: дата объявления и актуальность не проверены (страницу открыть не удалось); по адресу 2209 Hollywood Blvd работает Trendz Beauty Salon, тел. (754) 263-3695 — связь мастера с салоном не подтверждена. Источники: https://to4ka.us/en/catalog/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343/victoria-smith-manikiurpedikiur-manikiurnyi-salon-v-maiami_95bae977-9d48-4643-a3d7-c65c434ed343 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
@@ -857,7 +857,7 @@
   "category": "krasota",
   "region": "orlando",
   "city": "Винтер-Парк",
-  "active": false,
+  "active": true,
   "name": "Ирина — мастер маникюра (Winter Park), объявление на Bazar.club",
   "description": "Частный мастер маникюра из Винтер-Парка, размещает русскоязычное объявление в каталоге Bazar.club (Орландо); по описанию — стерильный инструмент, запись через Instagram.",
   "languages": "русский",
@@ -865,13 +865,13 @@
   "phone": "",
   "url": "https://www.bazar.club/orlando/business/manicure-pedicure",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — русскоязычное объявление («Я Ирина, профессиональный мастер маникюра из Winter Park») в каталоге Bazar.club, видно по поисковой выдаче. active=false: страницу открыть не удалось (домен заблокирован в сессии), контакты и дата объявления не получены. Источники: https://www.bazar.club/orlando/business/manicure-pedicure"
+  "note": "Ресёрч 25.11.2026. Русский язык — русскоязычное объявление («Я Ирина, профессиональный мастер маникюра из Winter Park») в каталоге Bazar.club, видно по поисковой выдаче. active=false: страницу открыть не удалось (домен заблокирован в сессии), контакты и дата объявления не получены. Источники: https://www.bazar.club/orlando/business/manicure-pedicure Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "orlando",
   "city": "Винтер-Парк",
-  "active": false,
+  "active": true,
   "name": "Лицензированный массажист на Fairbanks Ave — объявление rusrek",
   "description": "Лицензированный и сертифицированный во Флориде массажист (более 6 лет практики) на Fairbanks Ave в Винтер-Парке: шведский массаж, глубокий массаж тканей.",
   "languages": "русский",
@@ -879,13 +879,13 @@
   "phone": "",
   "url": "https://rusrek.com/mall/rasslablyayushchiy_i_glubokiy_massazh_tkaney_8173681/orlando/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — объявление на русскоязычной доске rusrek.com. active=false: объявлению ~1050 дней (≈2023), имя и контакты в выдаче не видны, текущая работа не подтверждена. Источники: https://rusrek.com/mall/rasslablyayushchiy_i_glubokiy_massazh_tkaney_8173681/orlando/"
+  "note": "Ресёрч 25.11.2026. Русский язык — объявление на русскоязычной доске rusrek.com. active=false: объявлению ~1050 дней (≈2023), имя и контакты в выдаче не видны, текущая работа не подтверждена. Источники: https://rusrek.com/mall/rasslablyayushchiy_i_glubokiy_massazh_tkaney_8173681/orlando/ Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "orlando",
   "city": "Доктор-Филлипс",
-  "active": false,
+  "active": true,
   "name": "Luxy Nails & Beauty — студия русского маникюра (Dr. Phillips и Winter Park)",
   "description": "Ногтевая студия, специализирующаяся на русском (аппаратном) маникюре и медицинском педикюре, работает строго по записи. Две точки: Dr. Phillips (5787 Vineland Rd #107) и 977 W Fairbanks Ave (район Winter Park); в отзывах упоминаются мастера Оксана и Ирина.",
   "languages": "английский; русский уточните при записи",
@@ -893,13 +893,13 @@
   "phone": "(407) 797-1334",
   "url": "https://www.instagram.com/luxy.nails.and.beauty/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён: Instagram называется «Russian Manicure Orlando Top Salon» (техника, а не язык), в отзывах мастера с именами Oksana и Iryna — косвенно. active=false до подтверждения. Источники: https://www.instagram.com/luxy.nails.and.beauty/, https://www.poyst.com/business/luxy-nails-beauty-winter-park-fl, https://www.fresha.com/lp/en/tt/russian-manicures/in/us-orlando"
+  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён: Instagram называется «Russian Manicure Orlando Top Salon» (техника, а не язык), в отзывах мастера с именами Oksana и Iryna — косвенно. active=false до подтверждения. Источники: https://www.instagram.com/luxy.nails.and.beauty/, https://www.poyst.com/business/luxy-nails-beauty-winter-park-fl, https://www.fresha.com/lp/en/tt/russian-manicures/in/us-orlando Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "orlando",
   "city": "Киссимми",
-  "active": false,
+  "active": true,
   "name": "Soho Nails — ногтевая студия в Киссимми (Bazar.club)",
   "description": "Ногтевая студия в Киссимми, указана в русскоязычном каталоге Bazar.club в разделе маникюра Орландо.",
   "languages": "русский уточните",
@@ -907,13 +907,13 @@
   "phone": "",
   "url": "https://www.bazar.club/orlando/business/manicure-pedicure",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Упоминание в русскоязычном каталоге Bazar.club (по поисковой выдаче). active=false: адрес, телефон и язык персонала не подтверждены, отдельной страницы не найдено. Источники: https://www.bazar.club/orlando/business/manicure-pedicure"
+  "note": "Ресёрч 25.11.2026. Упоминание в русскоязычном каталоге Bazar.club (по поисковой выдаче). active=false: адрес, телефон и язык персонала не подтверждены, отдельной страницы не найдено. Источники: https://www.bazar.club/orlando/business/manicure-pedicure Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "orlando",
   "city": "Лейк-Мэри",
-  "active": false,
+  "active": true,
   "name": "Iryna Kozakova — массажист LMT (в т.ч. русский спортивный массаж)",
   "description": "Массажист в Лейк-Мэри с профилем на MassageBook; среди техник указан русский спортивный массаж.",
   "languages": "английский",
@@ -921,13 +921,13 @@
   "phone": "",
   "url": "https://www.massagebook.com/Lake_Mary~Massage~iryna_kozakova",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский/украинский язык НЕ подтверждён — только славянское имя и техника «Russian Sports Massage»; языки в профиле не указаны. Источники: https://www.massagebook.com/Lake_Mary~Massage~iryna_kozakova"
+  "note": "Ресёрч 25.11.2026. Русский/украинский язык НЕ подтверждён — только славянское имя и техника «Russian Sports Massage»; языки в профиле не указаны. Источники: https://www.massagebook.com/Lake_Mary~Massage~iryna_kozakova Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "orlando",
   "city": "Орландо",
-  "active": false,
+  "active": true,
   "name": "Laki Nails Studio (Елена) — маникюр, объявление на Bazar.club",
   "description": "Студия маникюра мастера Елены в районе Орландо; в русскоязычном объявлении указан комбинированный маникюр с покрытием гель-лаком.",
   "languages": "русский",
@@ -935,13 +935,13 @@
   "phone": "",
   "url": "https://www.bazar.club/orlando/business/manicure-pedicure",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — русскоязычное объявление в каталоге Bazar.club (Орландо), видно по поисковой выдаче. active=false: отдельной страницы студии, адреса, телефона и подтверждения работы сейчас не найдено. Источники: https://www.bazar.club/orlando/business/manicure-pedicure"
+  "note": "Ресёрч 25.11.2026. Русский язык — русскоязычное объявление в каталоге Bazar.club (Орландо), видно по поисковой выдаче. active=false: отдельной страницы студии, адреса, телефона и подтверждения работы сейчас не найдено. Источники: https://www.bazar.club/orlando/business/manicure-pedicure Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "orlando",
   "city": "Орландо",
-  "active": false,
+  "active": true,
   "name": "Russian Manicure by Kate — русский маникюр (Airbnb Services)",
   "description": "Частный мастер русского маникюра в Орландо, предлагает услуги через Airbnb Services.",
   "languages": "английский; русский уточните при записи",
@@ -949,7 +949,7 @@
   "phone": "",
   "url": "https://www.airbnb.com/services/6757651",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён — «русский маникюр» это техника; язык мастера в выдаче не указан. active=false. Источники: https://www.airbnb.com/services/6757651"
+  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён — «русский маникюр» это техника; язык мастера в выдаче не указан. active=false. Источники: https://www.airbnb.com/services/6757651 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
@@ -1095,7 +1095,7 @@
   "category": "krasota",
   "region": "tampa",
   "city": "Клируотер",
-  "active": false,
+  "active": true,
   "name": "Zolotova Lash Studio — наращивание ресниц и брови",
   "description": "Лэш-студия в Клируотере с записью через Booksy: наращивание ресниц (в т.ч. Mega Volume), частичное наращивание, брови.",
   "languages": "английский; русский не подтверждён",
@@ -1103,13 +1103,13 @@
   "phone": "",
   "url": "https://booksy.com/en-us/1427804_zolotovalashstudio_brows-lashes_15980_clearwater",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Неактивно до проверки: славянская фамилия в названии — единственный признак; язык и адрес не подтверждены (страница Booksy недоступна из сессии). Источник: https://booksy.com/en-us/1427804_zolotovalashstudio_brows-lashes_15980_clearwater"
+  "note": "Ресёрч 25.11.2026. Неактивно до проверки: славянская фамилия в названии — единственный признак; язык и адрес не подтверждены (страница Booksy недоступна из сессии). Источник: https://booksy.com/en-us/1427804_zolotovalashstudio_brows-lashes_15980_clearwater Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Клируотер",
-  "active": false,
+  "active": true,
   "name": "beautyBOX by Tatiana — дэй-спа, наращивание ресниц",
   "description": "Дэй-спа в Клируотере с записью через Booksy; среди услуг — объёмное наращивание ресниц (Russian Volume) от $65.",
   "languages": "английский; русский не подтверждён",
@@ -1117,13 +1117,13 @@
   "phone": "",
   "url": "https://booksy.com/en-us/245648_beautybox-by-tatiana_day-spa_15980_clearwater",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Неактивно до проверки: Russian Volume — техника, а имя Tatiana — лишь косвенный признак; язык не подтверждён. Адрес из поисковой выдачи по листингу Booksy (страницу открыть не удалось). Источник: https://booksy.com/en-us/245648_beautybox-by-tatiana_day-spa_15980_clearwater"
+  "note": "Ресёрч 25.11.2026. Неактивно до проверки: Russian Volume — техника, а имя Tatiana — лишь косвенный признак; язык не подтверждён. Адрес из поисковой выдачи по листингу Booksy (страницу открыть не удалось). Источник: https://booksy.com/en-us/245648_beautybox-by-tatiana_day-spa_15980_clearwater Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Ларго",
-  "active": false,
+  "active": true,
   "name": "Marina Carroll, RN — инъекционная косметология (ботокс, филлеры, PRP)",
   "description": "Медсестра-инъектор в Ларго (офис на Bryan Dairy Road). В профиле указаны ботокс, филлеры, PRP и коррекция рубцов.",
   "languages": "английский; русский уточните при записи",
@@ -1131,13 +1131,13 @@
   "phone": "",
   "url": "https://www.zocdoc.com/doctor/marina-carroll-rn-543570",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — косвенно: в профиле Zocdoc указано, что она получила магистерскую степень в Пятигорском государственном лингвистическом университете (Россия); в списке языков — только английский. Источники: https://www.zocdoc.com/doctor/marina-carroll-rn-543570 СКРЫТО при сводке: источники противоречат друг другу по языку / в профиле только английский."
+  "note": "Ресёрч 25.11.2026. Русский язык — косвенно: в профиле Zocdoc указано, что она получила магистерскую степень в Пятигорском государственном лингвистическом университете (Россия); в списке языков — только английский. Источники: https://www.zocdoc.com/doctor/marina-carroll-rn-543570 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки; проверить: источники противоречат друг другу по языку / в профиле только английский."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Латц",
-  "active": false,
+  "active": true,
   "name": "Irina Titovets — наращивание ресниц",
   "description": "Лицензированный лэш-мастер Ирина Титовец в Латце (рядом с Уэсли-Чепел): классическое, гибридное и объёмное наращивание ресниц. Запись через Fresha.",
   "languages": "английский",
@@ -1145,13 +1145,13 @@
   "phone": "",
   "url": "https://www.fresha.com/a/irina-titovets-eyelash-extensions-lutz-23540-sr-54-l39s5xk8",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский/украинский язык НЕ подтверждён — только славянское имя; требуется проверка. Источник: https://www.fresha.com/a/irina-titovets-eyelash-extensions-lutz-23540-sr-54-l39s5xk8"
+  "note": "Ресёрч 25.11.2026. Русский/украинский язык НЕ подтверждён — только славянское имя; требуется проверка. Источник: https://www.fresha.com/a/irina-titovets-eyelash-extensions-lutz-23540-sr-54-l39s5xk8 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Олдсмар",
-  "active": false,
+  "active": true,
   "name": "Sasha Hair Studio — парикмахерская студия Александры Марченко",
   "description": "Парикмахерская студия в Олдсмаре (между Тампой и Клируотером): стрижки, окрашивание. Основательница Александра Марченко до переезда во Флориду руководила салоном красоты в Киеве.",
   "languages": "английский; украинский/русский уточните при записи",
@@ -1159,13 +1159,13 @@
   "phone": "",
   "url": "https://voyagetampa.com/?p=110344",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Язык прямо не подтверждён: по интервью VoyageTampa основательница из Украины (вела салон в Киеве). Адрес и телефон не найдены. Источник: https://voyagetampa.com/?p=110344 СКРЫТО при сводке: вместо сайта — статья в СМИ, контактов нет."
+  "note": "Ресёрч 25.11.2026. Язык прямо не подтверждён: по интервью VoyageTampa основательница из Украины (вела салон в Киеве). Адрес и телефон не найдены. Источник: https://voyagetampa.com/?p=110344 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки; проверить: вместо сайта — статья в СМИ, контактов нет."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Сарасота",
-  "active": false,
+  "active": true,
   "name": "NailHaus SRQ — студия русского маникюра",
   "description": "Нейл-студия премиум-класса в Сарасоте рядом с Fruitville Road, открыта в 2025 году. Мастер Regina Vardanian специализируется на маникюре в русской технике.",
   "languages": "английский; русский не подтверждён",
@@ -1173,13 +1173,13 @@
   "phone": "",
   "url": "https://www.srqmagazine.com/srq-daily/2026-06-22/29651_NailHaus-SRQ-Brings-High-End-Manicures-to-Sarasota",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Неактивно до проверки: русская техника маникюра не доказывает русскоязычный персонал; язык мастера в статье SRQ Magazine (22.06.2026) не указан. Точный адрес не найден. Источник: https://www.srqmagazine.com/srq-daily/2026-06-22/29651_NailHaus-SRQ-Brings-High-End-Manicures-to-Sarasota"
+  "note": "Ресёрч 25.11.2026. Неактивно до проверки: русская техника маникюра не доказывает русскоязычный персонал; язык мастера в статье SRQ Magazine (22.06.2026) не указан. Точный адрес не найден. Источник: https://www.srqmagazine.com/srq-daily/2026-06-22/29651_NailHaus-SRQ-Brings-High-End-Manicures-to-Sarasota Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Сент-Питерсберг",
-  "active": false,
+  "active": true,
   "name": "St. Petersburg Central Ballroom Dance Studio — бальные танцы",
   "description": "Студия бальных танцев в Сент-Питерсберге, руководители — чемпионы Rising Star Maria Sidnjova и Sergey Barsukov. Индивидуальные уроки, групповые занятия и танцевальные вечеринки.",
   "languages": "английский",
@@ -1187,13 +1187,13 @@
   "phone": "",
   "url": "https://stpeteartsalliance.org/arts-culture-directory/details?itemid=78",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только имена руководителей; перед публикацией проверить. Источники: https://stpeteartsalliance.org/arts-culture-directory/details?itemid=78"
+  "note": "Ресёрч 25.11.2026. Русский язык — НЕ подтверждён, только имена руководителей; перед публикацией проверить. Источники: https://stpeteartsalliance.org/arts-culture-directory/details?itemid=78 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Сент-Питерсберг",
-  "active": false,
+  "active": true,
   "name": "Svetlana's Day Spa (Svetlana Peisch) — дэй-спа, эстетист",
   "description": "Дэй-спа в Сент-Питерсберге; эстетист Светлана Пейш, услуги для лица, кожи, волос и бровей.",
   "languages": "английский",
@@ -1201,13 +1201,13 @@
   "phone": "",
   "url": "https://aedit.com/practice/svetlanas-day-spa-18189",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён — только славянское имя; работа на текущий момент тоже не подтверждена (только каталог aedit). Источники: https://aedit.com/provider/svetlana-peisch-21686 ; https://aedit.com/practice/svetlanas-day-spa-18189"
+  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён — только славянское имя; работа на текущий момент тоже не подтверждена (только каталог aedit). Источники: https://aedit.com/provider/svetlana-peisch-21686 ; https://aedit.com/practice/svetlanas-day-spa-18189 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Тампа",
-  "active": false,
+  "active": true,
   "name": "Face It Spa Tampa — уход за лицом",
   "description": "Студия ухода за лицом в Тампе (профиль на Thumbtack); специалист Casey сообщает, что проходил(а) обучение в Украине.",
   "languages": "английский; русский/украинский не подтверждён",
@@ -1215,13 +1215,13 @@
   "phone": "",
   "url": "https://www.thumbtack.com/fl/tampa/facial/face-it-spa-tampa/service/545609567322275849",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Неактивно до проверки: единственный признак — обучение в Украине (по поисковой выдаче), языки не указаны; адрес и телефон не получены. Источник: https://www.thumbtack.com/fl/tampa/facial/face-it-spa-tampa/service/545609567322275849"
+  "note": "Ресёрч 25.11.2026. Неактивно до проверки: единственный признак — обучение в Украине (по поисковой выдаче), языки не указаны; адрес и телефон не получены. Источник: https://www.thumbtack.com/fl/tampa/facial/face-it-spa-tampa/service/545609567322275849 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Тампа",
-  "active": false,
+  "active": true,
   "name": "Liudmilanails — мастер маникюра",
   "description": "Нейл-мастер в Тампе с записью через Booksy; рейтинг 4.9 (около 39 отзывов).",
   "languages": "английский; русский не подтверждён",
@@ -1229,13 +1229,13 @@
   "phone": "",
   "url": "https://booksy.com/en-us/1581376_liudmilanails_nail-salon_15761_tampa",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Неактивно до проверки: славянское имя в названии — единственный признак, язык не подтверждён; страницу Booksy открыть не удалось (сетевое ограничение), услуги и телефон не получены. Источник: https://booksy.com/en-us/1581376_liudmilanails_nail-salon_15761_tampa"
+  "note": "Ресёрч 25.11.2026. Неактивно до проверки: славянское имя в названии — единственный признак, язык не подтверждён; страницу Booksy открыть не удалось (сетевое ограничение), услуги и телефон не получены. Источник: https://booksy.com/en-us/1581376_liudmilanails_nail-salon_15761_tampa Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Тампа",
-  "active": false,
+  "active": true,
   "name": "Muza Spa European Standards — медспа, эстетист Анастасия Яковенко",
   "description": "Медспа «европейских стандартов» на N Dale Mabry Hwy: процедуры для лица и кожи, ресницы. В профиле AEDIT как специалист указана эстетист Anastasiia Iakovenko (более 12 лет в индустрии красоты).",
   "languages": "английский; русский/украинский не подтверждён",
@@ -1243,13 +1243,13 @@
   "phone": "",
   "url": "",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Неактивно до проверки: признаки косвенные (название Muza, позиционирование European standards, имя специалиста), язык и текущая работа не подтверждены; данные только из каталога AEDIT (сайт недоступен из сессии). Источники: https://aedit.com/practice/muza-spa-european-standards-18020, https://aedit.com/provider/anastasiia-iakovenko-21584"
+  "note": "Ресёрч 25.11.2026. Неактивно до проверки: признаки косвенные (название Muza, позиционирование European standards, имя специалиста), язык и текущая работа не подтверждены; данные только из каталога AEDIT (сайт недоступен из сессии). Источники: https://aedit.com/practice/muza-spa-european-standards-18020, https://aedit.com/provider/anastasiia-iakovenko-21584 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Тампа",
-  "active": false,
+  "active": true,
   "name": "Russian Manicure & Nail Boss Studio — студия маникюра",
   "description": "Нейл-студия в Тампе, специализирующаяся на русском (аппаратном) маникюре. В отзывах упоминаются мастера Alina и Nadya.",
   "languages": "английский; русский не подтверждён",
@@ -1257,13 +1257,13 @@
   "phone": "",
   "url": "",
   "hours": "ежедневно 10:00–20:00 (по данным агрегатора, уточняйте)",
-  "note": "Ресёрч 25.11.2026. Неактивно до проверки: русский маникюр — техника, русскоязычный персонал источниками не подтверждён. Данные только из агрегаторов, официального сайта нет; StyleSeat даёт другой адрес «Nail Boss Tampa» (3430 W Lambright St) — возможно, другой бизнес. Источники: https://www.poyst.com/business/russian-manicure-nail-boss-studio, https://localpedicures.vercel.app/pedicures-in/fl/tampa/russian-manicure-nail-boss-studio-33607"
+  "note": "Ресёрч 25.11.2026. Неактивно до проверки: русский маникюр — техника, русскоязычный персонал источниками не подтверждён. Данные только из агрегаторов, официального сайта нет; StyleSeat даёт другой адрес «Nail Boss Tampa» (3430 W Lambright St) — возможно, другой бизнес. Источники: https://www.poyst.com/business/russian-manicure-nail-boss-studio, https://localpedicures.vercel.app/pedicures-in/fl/tampa/russian-manicure-nail-boss-studio-33607 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Тампа",
-  "active": false,
+  "active": true,
   "name": "Self Esteem Spa — эстетист Анастасия Мороз (брови, ресницы, уход за кожей)",
   "description": "Спа-студия в районе Карроллвуд: уход за кожей лица, оформление бровей, ресницы, перманентный макияж и микроблейдинг. Владелица — эстетист Анастасия Мороз, родом из России, в США с 2013 года.",
   "languages": "английский; русский уточните при записи",
@@ -1271,13 +1271,13 @@
   "phone": "",
   "url": "",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — косвенно: профиль AEDIT сообщает, что Анастасия родилась в России и переехала в США в 2013 г.; прямого указания «говорим по-русски» не найдено. Рейтинг Birdeye 4.9 (35 отзывов), владелица — Анастасия. Источники: https://aedit.com/provider/anastasia-moroz-21922, https://reviews.birdeye.com/self-esteem-spa-154728901569194 СКРЫТО при сводке: нет ни телефона, ни сайта — связаться не через что."
+  "note": "Ресёрч 25.11.2026. Русский язык — косвенно: профиль AEDIT сообщает, что Анастасия родилась в России и переехала в США в 2013 г.; прямого указания «говорим по-русски» не найдено. Рейтинг Birdeye 4.9 (35 отзывов), владелица — Анастасия. Источники: https://aedit.com/provider/anastasia-moroz-21922, https://reviews.birdeye.com/self-esteem-spa-154728901569194 Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки; проверить: нет ни телефона, ни сайта — связаться не через что."
  },
  {
   "category": "krasota",
   "region": "tampa",
   "city": "Тарпон-Спрингс",
-  "active": false,
+  "active": true,
   "name": "Lashka Studio — наращивание ресниц, брови, обучение",
   "description": "Студия ресниц и бровей на US Highway 19 North: наращивание ресниц, ламинирование и окрашивание ресниц, оформление и ламинирование бровей, восковая депиляция лица; проводит обучение лэш-мастеров. Рейтинг 5,0 на Fresha.",
   "languages": "английский",
@@ -1285,7 +1285,7 @@
   "phone": "(727) 249-6220",
   "url": "https://www.fresha.com/a/lashka-studio-tarpon-springs-40170-us-highway-19-north-hdtbigjq",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён — есть только название в русском стиле («Лашка»); требуется проверка. В листингах два адреса: 40170 US Hwy 19 N, Tarpon Springs и 36454 US Hwy 19 N, Palm Harbor, FL 34684 — уточнить. Источники: https://www.fresha.com/a/lashka-studio-tarpon-springs-40170-us-highway-19-north-hdtbigjq ; https://www.atly.com/location/Lashka-StudioLash-AcademyLash-Pro-supply-Store"
+  "note": "Ресёрч 25.11.2026. Русский язык НЕ подтверждён — есть только название в русском стиле («Лашка»); требуется проверка. В листингах два адреса: 40170 US Hwy 19 N, Tarpon Springs и 36454 US Hwy 19 N, Palm Harbor, FL 34684 — уточнить. Источники: https://www.fresha.com/a/lashka-studio-tarpon-springs-40170-us-highway-19-north-hdtbigjq ; https://www.atly.com/location/Lashka-StudioLash-AcademyLash-Pro-supply-Store Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
@@ -1333,7 +1333,7 @@
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "ANNAZUR Organic Beauty Spa — органический уход за кожей",
   "description": "Спа по уходу за кожей на Salisbury Road. Эстетисты Ruzanna Tikhova (более 11 лет опыта, ранее владела салоном в Европе) и Tatyana Krivorak.",
   "languages": "английский; русский не подтверждён",
@@ -1341,13 +1341,13 @@
   "phone": "",
   "url": "https://aedit.com/provider/ruzanna-tikhova-19038",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русскоязычность не подтверждена (только имена мастеров и опыт в Европе). Точный адрес не виден (Salisbury Rd, Jacksonville). Источники: https://aedit.com/provider/ruzanna-tikhova-19038, https://aedit.com/provider/tatyana-krivorak-19252 Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Русскоязычность не подтверждена (только имена мастеров и опыт в Европе). Точный адрес не виден (Salisbury Rd, Jacksonville). Источники: https://aedit.com/provider/ruzanna-tikhova-19038, https://aedit.com/provider/tatyana-krivorak-19252 Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "Alina Nail Studio — студия русского маникюра",
   "description": "Нейл-студия, специализирующаяся на русском маникюре и сухом педикюре, также гель и акрил.",
   "languages": "английский; русский не подтверждён",
@@ -1355,13 +1355,13 @@
   "phone": "",
   "url": "https://www.instagram.com/alinanailsjax/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русскоязычность НЕ подтверждена: «русский маникюр» — техника. Адреса в каталогах расходятся: San Marco (Poyst, Facebook) и 428 Osceola Ave Ste A, Jacksonville Beach (Atly, Instagram) — уточнить. Источники: https://www.instagram.com/alinanailsjax/, https://www.facebook.com/p/Alina-Nail-Studio-61567617958241/, https://www.poyst.com/business/alina-nail-studio-russian-manicure, https://www.atly.com/location/RussianNailsByAlinaNailStudio Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Русскоязычность НЕ подтверждена: «русский маникюр» — техника. Адреса в каталогах расходятся: San Marco (Poyst, Facebook) и 428 Osceola Ave Ste A, Jacksonville Beach (Atly, Instagram) — уточнить. Источники: https://www.instagram.com/alinanailsjax/, https://www.facebook.com/p/Alina-Nail-Studio-61567617958241/, https://www.poyst.com/business/alina-nail-studio-russian-manicure, https://www.atly.com/location/RussianNailsByAlinaNailStudio Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "Beauty Therapy — эстетист Ильмира Краснова (пилинги, микроблейдинг)",
   "description": "Медспа на Williamsburg Park Blvd (32257). Ilmira Krasnova — лицензии косметолога, эстетиста и мастера перманентного макияжа, более 15 лет опыта: химические пилинги, чистки, воск, микроблейдинг.",
   "languages": "английский; русский не подтверждён",
@@ -1369,13 +1369,13 @@
   "phone": "",
   "url": "https://aedit.com/provider/ilmira-krasnova-19230",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русскоязычность не подтверждена (только имя). Источники: https://aedit.com/provider/ilmira-krasnova-19230 Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Русскоязычность не подтверждена (только имя). Источники: https://aedit.com/provider/ilmira-krasnova-19230 Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "Brows & More — перманентный макияж, мастер Марина Пиллок",
   "description": "Студия перманентного макияжа бровей, губ и век, а также воск. Владелица — лицензированный мастер перманента и эстетист Maryna Pillock.",
   "languages": "английский; русский/украинский не подтверждён",
@@ -1383,13 +1383,13 @@
   "phone": "",
   "url": "https://www.facebook.com/MarynaBrows/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Язык не подтверждён (только имя мастера). Активность под вопросом: в одном листинге MapQuest статус «Closed», дата неясна. Instagram @marynabrows («Maryna Brows | Jacksonville FL»). Источники: https://www.mapquest.com/us/florida/brows-more-415766033, https://www.facebook.com/MarynaBrows/, https://www.instagram.com/marynabrows/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Язык не подтверждён (только имя мастера). Активность под вопросом: в одном листинге MapQuest статус «Closed», дата неясна. Instagram @marynabrows («Maryna Brows | Jacksonville FL»). Источники: https://www.mapquest.com/us/florida/brows-more-415766033, https://www.facebook.com/MarynaBrows/, https://www.instagram.com/marynabrows/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "Lenari Massage Studio — массаж (Alena Parkhats)",
   "description": "Массажная студия в Джексонвилле, сеанс около $90.",
   "languages": "английский; русский не подтверждён",
@@ -1397,13 +1397,13 @@
   "phone": "",
   "url": "https://www.thumbtack.com/fl/jacksonville/physical-therapy/lenari/service/557189193511059466",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русскоязычность не подтверждена — только имя мастера Alena Parkhats в профиле Thumbtack. Источники: https://www.thumbtack.com/fl/jacksonville/physical-therapy/lenari/service/557189193511059466 Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Русскоязычность не подтверждена — только имя мастера Alena Parkhats в профиле Thumbtack. Источники: https://www.thumbtack.com/fl/jacksonville/physical-therapy/lenari/service/557189193511059466 Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "SHE — нейл-салон на Baymeadows (русский маникюр)",
   "description": "Нейл-салон: русский маникюр (около $70), наращивание, окрашивание бровей, воск.",
   "languages": "английский; русский не подтверждён",
@@ -1411,13 +1411,13 @@
   "phone": "",
   "url": "https://booksy.com/en-us/1572428_she_nail-salon_15697_jacksonville",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русскоязычность НЕ подтверждена; только услуга «русский маникюр» и мастер Yulianna в отзывах. Источники: https://booksy.com/en-us/1572428_she_nail-salon_15697_jacksonville Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Русскоязычность НЕ подтверждена; только услуга «русский маникюр» и мастер Yulianna в отзывах. Источники: https://booksy.com/en-us/1572428_she_nail-salon_15697_jacksonville Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "Siroki Lash Studio — ресницы, брови, перманент, обучение",
   "description": "Студия наращивания ресниц, бровей и перманентного макияжа, проводит обучение мастеров.",
   "languages": "английский; русский не подтверждён",
@@ -1425,13 +1425,13 @@
   "phone": "",
   "url": "https://www.instagram.com/sirokilashstudio/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Найден только Instagram; связь с русскоязычной общиной не подтверждена. Источники: https://www.instagram.com/sirokilashstudio/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Найден только Instagram; связь с русскоязычной общиной не подтверждена. Источники: https://www.instagram.com/sirokilashstudio/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "Sofi Nails Art Studio — русский маникюр и сухой педикюр",
   "description": "Небольшая нейл-студия: русский маникюр, сухой педикюр, дизайн ногтей.",
   "languages": "английский; русский не подтверждён",
@@ -1439,13 +1439,13 @@
   "phone": "",
   "url": "https://www.instagram.com/sofi_nails_artstudio/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Найден только Instagram (~200 подписчиков); русскоязычность не подтверждена. Источники: https://www.instagram.com/sofi_nails_artstudio/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Найден только Instagram (~200 подписчиков); русскоязычность не подтверждена. Источники: https://www.instagram.com/sofi_nails_artstudio/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "V-BEAUTY — ногти, ресницы, брови, перманентный макияж",
   "description": "Бьюти-студия: русский маникюр, педикюр, наращивание ресниц, брови, уход за кожей, перманентный макияж.",
   "languages": "английский; русский не подтверждён",
@@ -1453,13 +1453,13 @@
   "phone": "",
   "url": "https://vbeautyjax.com/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русскоязычность НЕ подтверждена; в отзывах упоминается мастер Viktoria. Источники: https://vbeautyjax.com/services, https://www.atly.com/location/V-BEAUTY Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Русскоязычность НЕ подтверждена; в отзывах упоминается мастер Viktoria. Источники: https://vbeautyjax.com/services, https://www.atly.com/location/V-BEAUTY Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл",
-  "active": false,
+  "active": true,
   "name": "Wonder Women Nails (мастер Виктория) — маникюр",
   "description": "Мастер маникюра Виктория, работает в салоне на Hodges Blvd; запись через директ Instagram.",
   "languages": "английский; русский не подтверждён",
@@ -1467,13 +1467,13 @@
   "phone": "",
   "url": "https://www.instagram.com/wonder_women_nails/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Данные из пина Pinterest «RUSSIAN MANICURE JACKSONVILLE» (октябрь 2024) — актуальность и язык не подтверждены. Источники: https://www.pinterest.com/pin/russian-manicure-jacksonville-on-instagram-how-do-you-like-this-halloween-design-option-the-cost-of-this-work-is-130-completed-strengthening--889601732640897495/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Данные из пина Pinterest «RUSSIAN MANICURE JACKSONVILLE» (октябрь 2024) — актуальность и язык не подтверждены. Источники: https://www.pinterest.com/pin/russian-manicure-jacksonville-on-instagram-how-do-you-like-this-halloween-design-option-the-cost-of-this-work-is-130-completed-strengthening--889601732640897495/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Джексонвилл-Бич",
-  "active": false,
+  "active": true,
   "name": "Kate Factory — ламинирование ресниц и бровей",
   "description": "Мастер по ламинированию ресниц (lash lift) и бровей, Джексонвилл-Бич.",
   "languages": "английский; русский не подтверждён",
@@ -1481,13 +1481,13 @@
   "phone": "",
   "url": "https://www.instagram.com/katefactory_florida/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Найден только Instagram (@katefactory_florida); язык и активность не подтверждены. Источники: https://www.instagram.com/katefactory_florida/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Найден только Instagram (@katefactory_florida); язык и активность не подтверждены. Источники: https://www.instagram.com/katefactory_florida/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Понте-Ведра",
-  "active": false,
+  "active": true,
   "name": "Diva Nails FL (Darina Kosova) — русский маникюр в Nocatee",
   "description": "Мастер маникюра Darina Kosova: русский маникюр, твёрдый гель, педикюр, район Nocatee.",
   "languages": "английский; русский не подтверждён",
@@ -1495,13 +1495,13 @@
   "phone": "",
   "url": "https://www.instagram.com/diva_nails_fl/",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Найден только Instagram-профиль; русский язык не подтверждён (имя + «Russian manicure»). Активность не проверена. Источники: https://www.instagram.com/diva_nails_fl/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Найден только Instagram-профиль; русский язык не подтверждён (имя + «Russian manicure»). Активность не проверена. Источники: https://www.instagram.com/diva_nails_fl/ Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
   "region": "jacksonville",
   "city": "Понте-Ведра",
-  "active": false,
+  "active": true,
   "name": "Liubov Mozolevskaya (Informed Touch Massage) — массажист LMT",
   "description": "Лицензированный массажист (FL AM75470): шведский, глубокотканный, тайский, миофасциальный, горячие камни, спортивный массаж. В био указан опыт работы в России; обучение — Alpha School of Massage, Jacksonville (2014).",
   "languages": "английский; русский уточните при записи",
@@ -1509,7 +1509,7 @@
   "phone": "",
   "url": "https://massagebook.com/Ponte_Vedra_Beach~Massage~InformedTouchMassage",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык прямо не указан, косвенно — био: «опыт в России». Работает на дому/выезд (адрес не публикуем). Текущая активность не подтверждена — поэтому active=false. Источники: https://massagebook.com/Ponte_Vedra_Beach~Massage~InformedTouchMassage, https://www.massagebook.com/therapists/informed-touch-massage/services Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Русский язык прямо не указан, косвенно — био: «опыт в России». Работает на дому/выезд (адрес не публикуем). Текущая активность не подтверждена — поэтому active=false. Источники: https://massagebook.com/Ponte_Vedra_Beach~Massage~InformedTouchMassage, https://www.massagebook.com/therapists/informed-touch-massage/services Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  },
  {
   "category": "krasota",
@@ -1529,7 +1529,7 @@
   "category": "krasota",
   "region": "",
   "city": "Нейплс",
-  "active": false,
+  "active": true,
   "name": "Yevhen Yevtushenko — независимый парикмахер-стилист",
   "description": "Парикмахер-стилист Евгений Евтушенко, уроженец Украины, более 25 лет в профессии, учился в Киевской академии парикмахерского искусства, проводил мастер-классы. После начала войны переехал во Флориду, получил лицензию косметолога и работает как независимый стилист в Нейплсе.",
   "languages": "английский; украинский/русский уточните при записи",
@@ -1537,13 +1537,13 @@
   "phone": "",
   "url": "https://citylifestyle.com/articles/the-career-of-yevhen-yevtushenko",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Язык прямо не подтверждён: уроженец Украины по статье City Lifestyle (Naples). Адрес, телефон и страница записи не найдены. Источник: https://citylifestyle.com/articles/the-career-of-yevhen-yevtushenko СКРЫТО при сводке: вместо сайта — статья в СМИ, контактов нет."
+  "note": "Ресёрч 25.11.2026. Язык прямо не подтверждён: уроженец Украины по статье City Lifestyle (Naples). Адрес, телефон и страница записи не найдены. Источник: https://citylifestyle.com/articles/the-career-of-yevhen-yevtushenko Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки; проверить: вместо сайта — статья в СМИ, контактов нет."
  },
  {
   "category": "krasota",
   "region": "",
   "city": "Таллахасси",
-  "active": false,
+  "active": true,
   "name": "Soleil 7 Hair Salon — парикмахер Даша Мейнард (из Украины)",
   "description": "Салон Aveda в Таллахасси. В репортаже WTXL упоминалась украинка Dasha Maynard, работавшая в Soleil 7 и учившаяся на косметолога.",
   "languages": "английский; украинский — уточните",
@@ -1551,6 +1551,6 @@
   "phone": "",
   "url": "https://www.wtxl.com/news/local-news/ukrainian-woman-in-tallahassee-watches-war-thousands-of-miles-away",
   "hours": "",
-  "note": "Ресёрч 25.11.2026. Украинское происхождение мастера — из репортажа WTXL (вероятно 2022 г.); работает ли она в салоне сейчас — не подтверждено. Адрес салона в каталогах расходится (1435 E Lafayette St #107 / 1410 Market St Ste C6). Источники: https://www.wtxl.com/news/local-news/ukrainian-woman-in-tallahassee-watches-war-thousands-of-miles-away, https://reviews.listen360.com/soleil-7-hair-salon-tallahassee Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
+  "note": "Ресёрч 25.11.2026. Украинское происхождение мастера — из репортажа WTXL (вероятно 2022 г.); работает ли она в салоне сейчас — не подтверждено. Адрес салона в каталогах расходится (1435 E Lafayette St #107 / 1410 Market St Ste C6). Источники: https://www.wtxl.com/news/local-news/ukrainian-woman-in-tallahassee-watches-war-thousands-of-miles-away, https://reviews.listen360.com/soleil-7-hair-salon-tallahassee Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов. Открыто 25.11.2026 по решению владельца сайта без дополнительной проверки."
  }
 ]
