@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static news_extras i18n %}
+{% block title %}{% translate "Центр ураганов: предупреждения, зоны эвакуации и убежища во Флориде" %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Ураганы во Флориде по-русски: действующие предупреждения NWS и NHC, зоны эвакуации и убежища по округам, как подготовиться и что делать после шторма." %}{% endblock %}
+{% block og %}{% translate "Центр ураганов" as og_title %}{% translate "Предупреждения, зоны эвакуации и убежища по округам Флориды — по-русски." as og_desc %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=og_desc url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_label %}{% translate "Центр ураганов" as hub_label %}{% breadcrumbs_jsonld home_label home_url hub_label request.path %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}"><a href="{% url 'news:home' %}">{% translate "Главная" %}</a></nav>
+  <article class="story story--page hub">
+    <h1 class="story__title">{% translate "Центр ураганов" %}</h1>
+    <p class="story__lede">{% translate "Всё о ураганах во Флориде в одном месте: что происходит сейчас, где ваша зона эвакуации и убежище, как подготовиться и куда звонить после шторма." %}</p>
+    <p class="hub__season{% if season.active %} hub__season--on{% endif %}">
+      {% if season.active %}{% blocktranslate trimmed with ends=season.ends|date:"j E" count n=season.days_left %}Сезон ураганов идёт: до {{ ends }} остался {{ n }} день.{% plural %}Сезон ураганов идёт: до {{ ends }} осталось {{ n }} дней.{% endblocktranslate %}
+      {% else %}{% blocktranslate trimmed with starts=season.starts|date:"j E Y" %}Межсезонье. Следующий сезон ураганов начнётся {{ starts }} — лучшее время подготовить дом и документы.{% endblocktranslate %}{% endif %}
+    </p>
+
+    <section class="hub__block" aria-labelledby="now-h">
+      <h2 id="now-h">{% translate "Сейчас" %}</h2>
+      {% if alerts %}
+      <ul class="alerts">
+        {% for al in alerts|slice:":12" %}
+        <li class="alert alert--{{ al.severity|lower }}">
+          <span class="alert__sev">{{ al|alert_severity }}</span>
+          <span class="alert__body">
+            <b class="alert__event">{{ al|alert_event }}</b>
+            <span class="alert__area">{{ al.area|truncatechars:160 }}</span>
+            {% if al.expires %}<span class="alert__time">{% blocktranslate trimmed with until=al.expires|date:"j E, H:i" %}до {{ until }}{% endblocktranslate %}</span>{% endif %}
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>{% translate "Действующих предупреждений Национальной метеослужбы по Флориде сейчас нет." %}</p>
+      {% endif %}
+      {% if nhc %}
+      <h3>{% translate "Центр по ураганам (NHC) за неделю" %}</h3>
+      <ul class="search-list">
+        {% for item in nhc %}<li><a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.title }}</a>{% if item.published_at %}<span class="search-list__meta">{{ item.published_at|date:"j E, H:i" }}</span>{% endif %}{% if item.short %}<span class="search-list__text" lang="en">{{ item.short }}</span>{% endif %}</li>{% endfor %}
+      </ul>
+      {% endif %}
+      <p class="weather__links">
+        <a href="https://www.nhc.noaa.gov/gtwo.php?basin=atlc&amp;fdays=7" target="_blank" rel="noopener">{% translate "Карта NHC: прогноз на 7 дней" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
+        <a href="https://www.weather.gov/" target="_blank" rel="noopener">{% translate "Погода по адресу: weather.gov" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
+      </p>
+    </section>
+
+    {% if news %}
+    <section class="hub__block" aria-labelledby="news-h">
+      <h2 id="news-h">{% translate "Наши новости о погоде" %}</h2>
+      <ul class="search-list">{% for a in news %}<li><a href="{{ a.get_absolute_url }}">{{ a.tr.title }}</a><span class="search-list__meta">{{ a.published_at|date:"j E" }}</span></li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+
+    <section class="hub__block" aria-labelledby="todo-h">
+      <h2 id="todo-h">{% translate "Что сделать заранее" %}</h2>
+      <ol class="hub__steps">
+        <li>{% blocktranslate trimmed %}<b>Узнайте свою зону эвакуации</b> — по адресу на <a href="https://www.floridadisaster.org/knowyourzone/" target="_blank" rel="noopener">Know Your Zone</a> или на сайте своего округа (таблица ниже). Зона — это не то же самое, что зона наводнения у страховки.{% endblocktranslate %}</li>
+        <li>{% blocktranslate trimmed %}<b>Подпишитесь на оповещения округа</b> — SMS и звонки об эвакуации приходят раньше новостей.{% endblocktranslate %}</li>
+        <li>{% blocktranslate trimmed %}<b>Соберите запас на 7 дней</b>: вода (около 4 литров на человека в день), еда, лекарства, документы в герметичном пакете, наличные, зарядки.{% endblocktranslate %}</li>
+        <li>{% blocktranslate trimmed %}<b>Проверьте страховку</b>: ураганная франшиза и отдельный полис от наводнения (у NFIP он вступает в силу через 30 дней).{% endblocktranslate %}</li>
+        <li>{% blocktranslate trimmed %}<b>Если нужен уход или электричество для медтехники</b> — заранее зарегистрируйтесь в <a href="https://snr.floridadisaster.org/" target="_blank" rel="noopener">реестре особых потребностей</a>: для вас подготовят место в специальном убежище.{% endblocktranslate %}</li>
+      </ol>
+      {% if guides %}<ul class="chips">{% for g in guides %}<li><a class="chip" href="{{ g.get_absolute_url }}">{{ g.tr.title }}</a></li>{% endfor %}</ul>{% endif %}
+    </section>
+
+    {% if statewide %}
+    <section class="hub__block" aria-labelledby="state-h">
+      <h2 id="state-h">{% translate "Официальные сайты штата и служб" %}</h2>
+      <ul class="hub__links">
+        {% for link in statewide.links %}<li><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a>{% if link.note %} — {{ link.note }}{% endif %}{% if link.phone %} · <a href="tel:{{ link.phone|cut:' '|cut:'-'|cut:'('|cut:')' }}">{{ link.phone }}</a>{% endif %}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if groups %}
+    <section class="hub__block" aria-labelledby="counties-h">
+      <h2 id="counties-h">{% translate "Ваш округ: эвакуация, убежища, оповещения" %}</h2>
+      <p>{% translate "Решения об эвакуации и открытии убежищ принимает округ. Найдите свой — по крупным городам в скобках." %}</p>
+      {% for group in groups %}
+      <h3>{% if group.region %}{{ group.region.tr.name }}{% else %}{% translate "Другие округа" %}{% endif %}</h3>
+      <div class="hub__counties">
+        {% for c in group.counties %}
+        <section class="hub__county" id="county-{{ c.county|slugify }}">
+          <h4>{{ c.county_ru }} <span class="hub__county-en" lang="en">({{ c.county }} County)</span></h4>
+          {% if c.cities_ru %}<p class="search-list__meta">{{ c.cities_ru|join:", " }}</p>{% endif %}
+          <ul class="hub__links">
+            {% if c.zone_url %}<li><a href="{{ c.zone_url }}" target="_blank" rel="noopener">{% translate "Узнать зону эвакуации" %}</a></li>{% endif %}
+            {% if c.shelters_url %}<li><a href="{{ c.shelters_url }}" target="_blank" rel="noopener">{% translate "Убежища" %}</a></li>{% endif %}
+            {% if c.alerts_url %}<li><a href="{{ c.alerts_url }}" target="_blank" rel="noopener">{% if c.alerts_name %}{% blocktranslate trimmed with name=c.alerts_name %}Оповещения: {{ name }}{% endblocktranslate %}{% else %}{% translate "Подписаться на оповещения" %}{% endif %}</a></li>{% endif %}
+            {% if c.sandbags_url %}<li><a href="{{ c.sandbags_url }}" target="_blank" rel="noopener">{% translate "Мешки с песком" %}</a></li>{% endif %}
+            {% if c.special_needs_url %}<li><a href="{{ c.special_needs_url }}" target="_blank" rel="noopener">{% translate "Убежище для людей с особыми потребностями" %}</a></li>{% endif %}
+            {% if c.em_url %}<li><a href="{{ c.em_url }}" target="_blank" rel="noopener">{% translate "Служба ЧС округа" %}</a></li>{% endif %}
+            {% if c.info_phone %}<li>{% translate "Справочная" %}: <b>{{ c.info_phone }}</b></li>{% endif %}
+          </ul>
+        </section>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    <p class="story__disclaimer">{% translate "Мы собираем ссылки на официальные службы и пересказываем их сообщения. В опасной ситуации следуйте указаниям властей вашего округа и звоните 911." %}</p>
+  </article>
+</div>
+{% endblock %}

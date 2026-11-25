@@ -16,6 +16,7 @@
     </ul>
     {% if alerts|length > 5 %}<p class="weather__more">{% blocktranslate trimmed with n=alerts|length|add:"-5" %}И ещё {{ n }} — полный список на <a href="https://www.weather.gov/" target="_blank" rel="noopener">weather.gov</a>{% endblocktranslate %}</p>{% endif %}
     <p class="weather__links">
+      <a href="{% url 'hubs:hurricanes' %}"><b>{% translate "Центр ураганов: зоны и убежища по округам" %}</b></a>
       <a href="https://www.nhc.noaa.gov/" target="_blank" rel="noopener">{% translate "Карта NHC" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
       <a href="https://www.floridadisaster.org/" target="_blank" rel="noopener">{% translate "Эвакуация: FDEM" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
     </p>

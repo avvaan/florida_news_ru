@@ -928,3 +928,24 @@ article.split { margin-top: 0; }
 .dir-owner p + p { margin-top: 10px; }
 .dir-share { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); }
 .dir-share__input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: .875rem; background: var(--paper); color: var(--ink); }
+
+/* Центр ураганов и «Иммиграция: что изменилось» */
+.hub__season { margin: 14px 0 0; padding: 10px 14px; border-radius: 8px; background: var(--mist); font-weight: 600; }
+.hub__season--on { background: #fff1e0; }
+.hub__block { margin-top: 34px; }
+.hub__block h3 { margin-top: 22px; }
+.hub__steps { padding-left: 1.3em; display: grid; gap: 10px; }
+.hub__links { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 6px; }
+.hub__links a { font-weight: 600; }
+.hub__counties { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 10px; }
+.hub__county { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+.hub__county h4 { margin: 0; font-size: 1.05rem; }
+.hub__county-en { font-weight: 400; color: var(--muted); font-size: .875rem; }
+.hub__programs { display: grid; gap: 16px; margin-top: 18px; }
+.hub__program { padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px; scroll-margin-top: 16px; }
+.hub__program h2 { margin: 4px 0 8px; font-size: 1.25rem; }
+.hub__status { margin: 0; font-size: .8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--gulf-deep); }
+.hub__status--paused, .hub__status--ended { color: #a33a1a; }
+.hub__status--changed, .hub__status--pending { color: #8a5a00; }
+.hub__todo { padding: 10px 12px; border-left: 3px solid var(--gulf); background: var(--mist); }
+.hub__sources { font-size: .875rem; color: var(--muted); }

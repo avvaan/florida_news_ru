@@ -110,7 +110,7 @@ class LegalSitemap(SiteRootSitemap):
     priority = 0.3
 
     def items(self):
-        return ["guides:list", "core-about", "core-dmca", "core-corrections"]
+        return ["guides:list", "hubs:hurricanes", "hubs:immigration", "core-about", "core-dmca", "core-corrections"]
 
     def location(self, item):
         return reverse(item)
