@@ -89,6 +89,9 @@ def immigration(request):
     from directory.models import Listing
 
     programs = list(Program.objects.published())
+    guides = {g.slug: g for g in Guide.objects.published().filter(slug__in=[p.guide_slug for p in programs])}
+    for program in programs:
+        program.guide = guides.get(program.guide_slug)
     checked = max((p.checked_on for p in programs), default=None)
     lawyers = Listing.objects.active().filter(category__slug="yuristy").filter(
         Q(name__icontains="иммиграц") | Q(description__icontains="иммиграц")).count()

@@ -23,6 +23,7 @@
         <h2 id="{{ p.slug }}-h">{{ p.tr.title }}</h2>
         <p>{{ p.tr.summary|linebreaksbr }}</p>
         {% if p.what_to_do %}<p class="hub__todo"><b>{% translate "Что делать:" %}</b> {{ p.tr.what_to_do|linebreaksbr }}</p>{% endif %}
+        {% if p.guide %}<p><a href="{{ p.guide.get_absolute_url }}">{% blocktranslate trimmed with title=p.guide.tr.title %}Подробнее в гайде «{{ title }}»{% endblocktranslate %}</a></p>{% endif %}
         {% if p.source_links %}<p class="hub__sources">{% translate "Источники:" %} {% for s in p.source_links %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
       </section>
       {% endfor %}

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tutflorida\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-25 15:33-0500\n"
+"POT-Creation-Date: 2026-11-25 15:35-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Ukrainian\n"
@@ -1032,7 +1032,7 @@ msgstr "Теми"
 #: templates/core/search.html:37 templates/core/search.html:75
 #: templates/guides/detail.html:15 templates/guides/detail.html:20
 #: templates/guides/list.html:6 templates/guides/list.html:10
-#: templates/hubs/immigration.html:46
+#: templates/hubs/immigration.html:47
 msgid "Гайды"
 msgstr "Гайди"
 
@@ -3307,14 +3307,19 @@ msgid "Что делать:"
 msgstr "Що робити:"
 
 #: templates/hubs/immigration.html:26
+#, python-format
+msgid "Подробнее в гайде «%(title)s»"
+msgstr "Докладніше в гайді «%(title)s»"
+
+#: templates/hubs/immigration.html:27
 msgid "Источники:"
 msgstr "Джерела:"
 
-#: templates/hubs/immigration.html:33
+#: templates/hubs/immigration.html:34
 msgid "Нужна помощь с документами?"
 msgstr "Потрібна допомога з документами?"
 
-#: templates/hubs/immigration.html:33
+#: templates/hubs/immigration.html:34
 msgid ""
 "Обращайтесь к лицензированному иммиграционному адвокату или аккредитованному"
 " представителю (DOJ). «Нотариусы» и «консультанты» не вправе давать "
@@ -3324,7 +3329,7 @@ msgstr ""
 "представника (DOJ). «Нотаріуси» та «консультанти» не мають права давати "
 "юридичні поради."
 
-#: templates/hubs/immigration.html:34
+#: templates/hubs/immigration.html:35
 #, python-format
 msgid "Русскоязычные иммиграционные адвокаты (%(n)s)"
 msgid_plural "Русскоязычные иммиграционные адвокаты (%(n)s)"
@@ -3332,15 +3337,15 @@ msgstr[0] "Імміграційні адвокати з українською �
 msgstr[1] "Імміграційні адвокати з українською чи російською (%(n)s)"
 msgstr[2] "Імміграційні адвокати з українською чи російською (%(n)s)"
 
-#: templates/hubs/immigration.html:34
+#: templates/hubs/immigration.html:35
 msgid "Русскоязычные юристы"
 msgstr "Російськомовні та україномовні юристи"
 
-#: templates/hubs/immigration.html:39
+#: templates/hubs/immigration.html:40
 msgid "Наши новости об иммиграции"
 msgstr "Наші новини про імміграцію"
 
-#: templates/hubs/immigration.html:51
+#: templates/hubs/immigration.html:52
 msgid ""
 "Это обзор новостей и официальных сообщений, а не юридическая консультация. "
 "Решения по вашему делу принимайте вместе с адвокатом."
