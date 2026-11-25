@@ -36,6 +36,7 @@
   <div class="masthead__top wrap">
     <p class="masthead__date">{{ now|date:"l, j E Y" }}</p>
     <div class="masthead__tools">
+      <a class="tg-link search-link" href="{% url 'core-search' %}"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>{% translate "Поиск" %}</a>
       {% if telegram_url %}<a class="tg-link" href="{{ telegram_url }}" target="_blank" rel="noopener">
         <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>{% translate "Наш Telegram" %}
       </a>{% endif %}
@@ -126,6 +127,8 @@
         <li><a href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>
         <li><a href="{% url 'places:list' %}">{% translate "Что посетить во Флориде" %}</a></li>
         <li><a href="{% url 'directory:index' %}">{% translate "Полезные ссылки и бизнесы" %}</a></li>
+        <li><a href="{% url 'hubs:hurricanes' %}">{% translate "Центр ураганов" %}</a></li>
+        <li><a href="{% url 'hubs:immigration' %}">{% translate "Иммиграция: что изменилось" %}</a></li>
         <li><a href="{% url 'core-about' %}">{% translate "О проекте" %}</a></li>
         <li><a href="{% url 'core-page' 'advertising' %}">{% translate "Реклама" %}</a></li>
         <li><a href="{% url 'core-corrections' %}">{% translate "Исправления" %}</a></li>

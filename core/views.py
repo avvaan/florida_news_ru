@@ -53,3 +53,13 @@ def robots_txt(request):
         f"Sitemap: {settings.SITE_URL}/news-sitemap.xml",
     ]
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain; charset=utf-8")
+
+
+def search(request):
+    """Поиск по сайту. Страница результатов закрыта noindex (бесконечные вариации запросов)."""
+    from . import search as site_search
+    from .i18n import current_language
+
+    query = request.GET.get("q", "")
+    found = site_search.search(query, current_language())
+    return render(request, "core/search.html", {"found": found, "query": found.query})

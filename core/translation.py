@@ -67,6 +67,7 @@ def _targets() -> list[Target]:
     from directory.models import Category, Listing
     from events.models import Event
     from guides.models import Guide
+    from hubs.models import Program
     from news.models import Article, Region, Tag, Topic
 
     return [
@@ -89,6 +90,9 @@ def _targets() -> list[Target]:
         Target(Listing, lambda: Listing.objects.active(),
                "справочник бизнесов: description — описание, hours — часы работы, languages — языки обслуживания"),
         Target(Tag, lambda: Tag.objects.filter(article__status="published").distinct(), "теги заметок"),
+        Target(Program, lambda: Program.objects.published(),
+               "иммиграционные программы США: title — название, summary — текущее положение, what_to_do — что делать. "
+               "Названия программ и форм (TPS, U4U, USCIS, I-765) не переводить"),
     ]
 
 

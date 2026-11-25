@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load news_extras i18n %}
+{% block title %}{% blocktranslate trimmed with name=item.name %}Обновить данные: {{ name }}{% endblocktranslate %} — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">{% translate "Справочник" %}</a><span aria-hidden="true">/</span><a href="{{ category.get_absolute_url }}">{{ category.tr.name }}</a><span aria-hidden="true">/</span><a href="{{ item.get_absolute_url }}">{{ item.name|truncatechars:40 }}</a>
+  </nav>
+  <section class="story story--page dir-form">
+    {% if sent %}
+    <h1 class="story__title">{% translate "Спасибо, правка отправлена" %}</h1>
+    <p class="story__lede">{% translate "Редактор проверит её и обновит страницу, обычно в течение пары дней. Если будут вопросы, напишем на ваш e-mail." %}</p>
+    {% else %}
+    <h1 class="story__title">{% translate "Это ваш бизнес?" %}</h1>
+    <p class="story__lede">{% blocktranslate trimmed with name=item.name %}Обновите данные «{{ name }}»: поправьте телефон, адрес, часы или описание. Правку проверит редактор, после этого на странице появится метка «Данные от владельца». Бесплатно.{% endblocktranslate %}</p>
+
+    <form class="dir-form__form" method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="dir-form__error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+      <div class="dir-form__trap" aria-hidden="true"><label for="id_company">{% translate "Компания" %}</label>{{ form.company }}</div>
+      {% for field in form %}{% if field.name != "company" and field.name != "agree" and field.name != "remove" %}
+      {% if field.name == "contact_name" %}<h2 class="sidebar__h">{% translate "Как с вами связаться (на сайте не публикуется)" %}</h2>{% endif %}
+      <div class="dir-form__field{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span aria-hidden="true">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.help_text %}<p class="dir-form__help">{{ field.help_text }}</p>{% endif %}
+        {% for e in field.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}
+      </div>
+      {% endif %}{% endfor %}
+      <div class="dir-form__field dir-form__check"><label>{{ form.remove }} {{ form.remove.label }}</label></div>
+      <div class="dir-form__field dir-form__check{% if form.agree.errors %} has-error{% endif %}">
+        <label>{{ form.agree }} {{ form.agree.label }}</label>
+        {% for e in form.agree.errors %}<p class="dir-form__field-error">{% translate "Нужно подтвердить." %}</p>{% endfor %}
+      </div>
+      <button class="btn" type="submit">{% translate "Отправить правку" %}</button>
+    </form>
+    {% endif %}
+
+    <section class="dir-share" aria-labelledby="share-h">
+      <h2 class="sidebar__h" id="share-h">{% translate "Поделитесь страницей с клиентами" %}</h2>
+      <p>{% translate "Ссылка на вашу страницу в справочнике — для сайта, Instagram, Google-профиля и визиток. Клиенты смогут оставить отзыв." %}</p>
+      <p><input class="dir-share__input" type="text" readonly value="{{ page_url }}" aria-label="{% translate "Ссылка на страницу" %}" onclick="this.select()"></p>
+      <p>{% translate "Значок для сайта — вставьте этот код в HTML:" %}</p>
+      <textarea class="dir-share__input" rows="3" readonly onclick="this.select()" aria-label="{% translate "Код значка" %}">&lt;a href="{{ page_url }}" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:#0f2433;color:#fff;font:600 14px/1.2 sans-serif;text-decoration:none"&gt;{% translate "Мы в справочнике TutFlorida — отзывы" %}&lt;/a&gt;</textarea>
+      <p class="dir-share__preview"><a href="{{ page_url }}" style="display:inline-block;padding:8px 14px;border-radius:8px;background:#0f2433;color:#fff;font:600 14px/1.2 sans-serif;text-decoration:none">{% translate "Мы в справочнике TutFlorida — отзывы" %}</a></p>
+    </section>
+    <p><a href="{{ item.get_absolute_url }}">← {{ item.name }}</a></p>
+  </section>
+</div>
+{% endblock %}

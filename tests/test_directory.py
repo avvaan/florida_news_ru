@@ -87,9 +87,11 @@ def test_category_region_filter(client):
     html = client.get("/links/vrachi/").content.decode()
     assert f"Все ({doctors.count()})" in html and "Другие города" in html
     assert html.index("Джексонвилл") < html.index("Палметто")  # регионы раньше «других городов»
-    tampa = client.get("/links/vrachi/?region=tampa").content.decode()
+    other = client.get("/links/vrachi/?region=other").content.decode()  # фильтр без своей страницы — noindex
+    assert other.count('class="dir__card"') == doctors.filter(region=None).count() > 1
+    assert 'content="noindex, follow"' in other
+    tampa = client.get("/links/vrachi/tampa/").content.decode()  # у региона — своя страница
     assert tampa.count('class="dir__card"') == doctors.filter(region__slug="tampa").count() > 1
-    assert 'content="noindex, follow"' in tampa
     produkty = client.get("/links/produkty/").content.decode()
     assert "Romashka" not in produkty and "Kalinka" in produkty  # Ромашка ждёт проверки, Калинку проверили
 
@@ -245,3 +247,70 @@ def test_research_waves_imported(client):
             assert item.editor_note == row["note"] and item.editor_note.startswith("Ресёрч 25.11.2026"), row["name"]
             if row["active"]:
                 assert row["phone"] or row["url"], row["name"]  # без контактов не публикуем
+
+
+def test_category_region_pages(client):
+    """/links/<категория>/<регион>/ — своя индексируемая страница под запрос «русский стоматолог в Майами»."""
+    from django.core.cache import cache
+
+    from directory.views import MIN_REGION_PAGE
+
+    dentists = Listing.objects.active().filter(category__slug="stomatologi", region__slug="miami")
+    assert dentists.count() >= MIN_REGION_PAGE
+    html = client.get("/links/stomatologi/miami/").content.decode()
+    assert "<title>Стоматологи в Майами и Южной Флориде — по-русски" in html
+    assert 'content="index, follow' in html and html.count('class="dir__card"') == dentists.count()
+    assert 'href="/links/stomatologi/orlando/"' in html  # соседние регионы — постоянными адресами
+    assert 'href="/links/yuristy/miami/"' in html  # «Ещё в Майами»: другие категории этого региона
+    # старый адрес с параметром — постоянный редирект; тонкая страница — noindex; неизвестный регион — 404
+    response = client.get("/links/stomatologi/?region=miami")
+    assert response.status_code == 301 and response["Location"] == "/links/stomatologi/miami/"
+    Category.objects.create(slug="test-thin", name="Тест", kind=Category.Kind.BUSINESS)
+    thin = Listing.objects.create(category=Category.objects.get(slug="test-thin"), name="Одно место",
+                                  region=dentists.first().region, url="https://a.example/")
+    assert 'content="noindex, follow"' in client.get("/links/test-thin/miami/").content.decode()
+    assert client.get("/links/stomatologi/atlantis/").status_code == 404
+    assert client.get(f"/links/test-thin/{thin.pk}-odno-mesto/").status_code == 200  # адрес бизнеса не сломан
+    cache.clear()
+    sitemap = client.get("/sitemap.xml").content.decode()
+    assert "/links/stomatologi/miami/</loc>" in sitemap and "/links/test-thin/miami/</loc>" not in sitemap
+
+
+def test_owner_update_goes_to_editor_and_applies(client, admin_client):
+    """«Это ваш бизнес?»: правка ждёт редактора, после «Применить» данные обновляются с меткой владельца."""
+    from directory.models import ListingUpdate
+
+    item = Listing.objects.active().filter(category__slug="krasota").first()
+    page = client.get(item.get_absolute_url()).content.decode()
+    assert item.get_update_url() in page and "Это ваш бизнес?" in page
+    form = client.get(item.get_update_url()).content.decode()
+    assert 'content="noindex, nofollow"' in form and "Мы в справочнике TutFlorida" in form  # значок для сайта
+    data = {"phone": "(305) 555-0101", "description": item.description, "contact_name": "Анна",
+            "contact_email": "anna@example.com", "agree": "on"}
+    html = client.post(item.get_update_url(), data).content.decode()
+    assert "правка отправлена" in html
+    update = ListingUpdate.objects.get(listing=item)
+    item.refresh_from_db()
+    assert update.status == "pending" and item.phone != "(305) 555-0101"  # сама не публикуется
+    assert list(update.changes()) == ["phone"]
+    update.apply()
+    item.refresh_from_db()
+    assert item.phone == "(305) 555-0101" and item.from_owner and "правка владельца" in item.editor_note
+    # просьба убрать бизнес снимает его с сайта
+    removal = ListingUpdate.objects.create(listing=item, remove=True, contact_name="Анна", contact_email="a@b.co")
+    removal.apply()
+    item.refresh_from_db()
+    assert not item.is_active
+    # бот, заполнивший скрытое поле, получает «спасибо», но правка не сохраняется
+    other = Listing.objects.active().filter(category__slug="krasota").first()
+    client.post(other.get_update_url(), {**data, "company": "spam"})
+    assert not ListingUpdate.objects.filter(listing=other).exists()
+
+
+def test_outreach_csv_export(admin_client):
+    item = Listing.objects.active().filter(category__slug="stomatologi").first()
+    response = admin_client.post("/admin/directory/listing/", {
+        "action": "action_export_outreach", "_selected_action": [item.pk]})
+    body = response.content.decode("utf-8-sig")
+    assert response["Content-Type"].startswith("text/csv") and item.name in body
+    assert item.get_update_url() in body and "Обновить данные" in body

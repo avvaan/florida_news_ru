@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load news_extras i18n %}
+{% block title %}{% translate "Иммиграция в США: что изменилось — TPS, U4U, сборы USCIS, грин-карта" %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Текущий статус иммиграционных программ для русско- и украиноязычных жителей Флориды: TPS для Украины, U4U, убежище, сборы USCIS, гражданство, лотерея DV — что изменилось и что делать." %}{% endblock %}
+{% block og %}{% translate "Иммиграция: что изменилось" as og_title %}{% translate "TPS, U4U, сборы USCIS, гражданство: текущий статус и что делать — по-русски." as og_desc %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=og_desc url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_label %}{% translate "Иммиграция: что изменилось" as hub_label %}{% breadcrumbs_jsonld home_label home_url hub_label request.path %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}"><a href="{% url 'news:home' %}">{% translate "Главная" %}</a></nav>
+  <article class="story story--page hub">
+    <h1 class="story__title">{% translate "Иммиграция: что изменилось" %}</h1>
+    <p class="story__lede">{% translate "Программы и правила, которые важнее всего для русско- и украиноязычных жителей Флориды: текущий статус, что поменялось и что сделать. Каждая карточка — со ссылками на официальные источники." %}</p>
+    {% if checked %}<p class="hub__season">{% blocktranslate trimmed with date=checked|date:"j E Y" %}Редакция проверяла сведения {{ date }}. Правила меняются быстро — перед подачей документов сверяйтесь с источником.{% endblocktranslate %}</p>{% endif %}
+
+    {% if programs %}
+    <nav class="guides__nav" aria-label="{% translate "Программы" %}">
+      {% for p in programs %}<a class="chip" href="#{{ p.slug }}">{{ p.tr.title }}</a>{% endfor %}
+    </nav>
+    <div class="hub__programs">
+      {% for p in programs %}
+      <section class="hub__program" id="{{ p.slug }}" aria-labelledby="{{ p.slug }}-h">
+        <p class="hub__status hub__status--{{ p.status }}">{{ p.get_status_display }}{% if p.changed_on %} · {% blocktranslate trimmed with date=p.changed_on|date:"j E Y" %}изменение от {{ date }}{% endblocktranslate %}{% endif %}</p>
+        <h2 id="{{ p.slug }}-h">{{ p.tr.title }}</h2>
+        <p>{{ p.tr.summary|linebreaksbr }}</p>
+        {% if p.what_to_do %}<p class="hub__todo"><b>{% translate "Что делать:" %}</b> {{ p.tr.what_to_do|linebreaksbr }}</p>{% endif %}
+        {% if p.guide %}<p><a href="{{ p.guide.get_absolute_url }}">{% blocktranslate trimmed with title=p.guide.tr.title %}Подробнее в гайде «{{ title }}»{% endblocktranslate %}</a></p>{% endif %}
+        {% if p.source_links %}<p class="hub__sources">{% translate "Источники:" %} {% for s in p.source_links %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+      </section>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <aside class="dir-owner">
+      <p><b>{% translate "Нужна помощь с документами?" %}</b> {% translate "Обращайтесь к лицензированному иммиграционному адвокату или аккредитованному представителю (DOJ). «Нотариусы» и «консультанты» не вправе давать юридические советы." %}</p>
+      <p><a class="btn btn--ghost" href="{% url 'directory:category' 'yuristy' %}">{% if lawyers %}{% blocktranslate trimmed count n=lawyers %}Русскоязычные иммиграционные адвокаты ({{ n }}){% plural %}Русскоязычные иммиграционные адвокаты ({{ n }}){% endblocktranslate %}{% else %}{% translate "Русскоязычные юристы" %}{% endif %}</a></p>
+    </aside>
+
+    {% if news %}
+    <section class="hub__block" aria-labelledby="news-h">
+      <h2 id="news-h">{% translate "Наши новости об иммиграции" %}</h2>
+      <ul class="search-list">{% for a in news %}<li><a href="{{ a.get_absolute_url }}">{{ a.tr.title }}</a><span class="search-list__meta">{{ a.published_at|date:"j E Y" }}</span></li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+
+    {% if guides %}
+    <section class="hub__block" aria-labelledby="guides-h">
+      <h2 id="guides-h">{% translate "Гайды" %}</h2>
+      <ul class="chips">{% for g in guides %}<li><a class="chip" href="{{ g.get_absolute_url }}">{{ g.tr.title }}</a></li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+
+    <p class="story__disclaimer">{% translate "Это обзор новостей и официальных сообщений, а не юридическая консультация. Решения по вашему делу принимайте вместе с адвокатом." %}</p>
+  </article>
+</div>
+{% endblock %}
