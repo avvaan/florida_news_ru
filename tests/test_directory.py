@@ -201,3 +201,24 @@ def test_doctors_filter_by_specialty(client):
     assert client.get("/links/vrachi/?spec=xxx").content.decode().count('class="dir__card"') == doctors.count()
     uk = client.get("/uk/links/vrachi/").content.decode()
     assert "Дитячі лікарі" in uk and "Усі напрями" in uk
+
+
+def test_krasota_research_batch(client):
+    import json
+    from pathlib import Path
+
+    from directory.models import Listing
+
+    rows = json.loads((Path(__file__).parents[1] / "directory/data/businesses_2026_11_krasota.json").read_text())
+    beauty = Listing.objects.filter(category__slug="krasota")
+    for row in rows:
+        item = beauty.get(name=row["name"])
+        assert item.is_active == row["active"], row["name"]
+        assert item.editor_note.startswith("Ресёрч 25.11.2026"), row["name"]
+        if row["active"]:
+            assert row["phone"] or row["url"], row["name"]  # без контактов не публикуем
+    banya = beauty.get(name__startswith="BeachBanya")
+    assert banya.phone == "(954) 921-7333" and banya.region.slug == "miami"
+    html = client.get("/links/krasota/").content.decode()
+    assert "BeachBanya" in html and "Eurotouch Esthetics" in html
+    assert "Marusya Beauty Salon" not in html  # скрытые кандидаты не видны читателям
