@@ -58,6 +58,16 @@ def _filtered(region=None, topic=None):
     return qs
 
 
+def pick_lead(articles):
+    """Главная тема: свежее срочное за 12 часов, иначе самое важное за сутки, иначе последнее."""
+    if not articles:
+        return None
+    now = timezone.now()
+    recent = [a for a in articles if a.published_at >= now - timedelta(hours=24)]
+    urgent = [a for a in recent if a.is_urgent and a.published_at >= now - timedelta(hours=12)]
+    return (urgent or sorted(recent, key=lambda a: -(a.score or 0)) or articles)[0]
+
+
 def front(request, region=None, topic=None, template="news/front.html", extra=None):
     """Главная и страницы регионов/тем: одна и та же лента с фильтрами."""
     region = region or Region.objects.filter(slug=request.GET.get("region")).first()
@@ -69,13 +79,12 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
     page = paginator.get_page(page_number)
     first_page = page.number == 1
 
-    lead, top, feed = None, [], list(page.object_list)
-    if first_page and feed:
-        # Главная тема: свежее срочное за 12 часов, иначе самое важное за сутки, иначе последнее.
-        recent = [a for a in feed if a.published_at >= timezone.now() - timedelta(hours=24)]
-        urgent = [a for a in recent if a.is_urgent and a.published_at >= timezone.now() - timedelta(hours=12)]
-        lead = (urgent or sorted(recent, key=lambda a: -(a.score or 0)) or feed)[0]
+    top, feed = [], list(page.object_list)
+    # Главная тема видна на каждой странице ленты: на второй и дальше — та же, что на первой.
+    lead = pick_lead(feed if first_page else list(qs[:PER_PAGE]))
+    if lead in feed:
         feed.remove(lead)
+    if first_page:
         top = feed[:3]
         feed = feed[3:]
 

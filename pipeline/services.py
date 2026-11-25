@@ -19,7 +19,7 @@ from sources.fetch import fetch_all
 from sources.models import Source, WeatherAlert
 
 from . import ai, prompts, toponyms
-from .budget import counted_articles_today, current_budget
+from .budget import articles_by_group_today, counted_articles_today, current_budget, topic_group, urgent_by_group
 from .clustering import cluster_items
 from .decisions import decide
 from .models import AICall, PipelineRun
@@ -478,8 +478,17 @@ def write_pending(say: RunLog) -> int:
     written = failures = 0
     quotas = {False: publication_quota(conf), True: publication_quota(conf, business=True)}
     limits = {False: conf.max_articles_per_day, True: conf.max_business_per_day}
+    # Разнообразие ленты: затяжное событие (наводнение) не должно занять все места.
+    per_group, urgent_per_group = articles_by_group_today(), urgent_by_group()
     for story in queue:
         business = story.topic_id is not None and story.topic.slug == BUSINESS
+        group = topic_group(story.topic.slug if story.topic_id else None)
+        if story.is_urgent and not business and urgent_per_group[group] >= conf.urgent_per_topic_12h:
+            # Срочное по этой теме уже было несколько раз за 12 часов: дальше — как обычная заметка.
+            story.is_urgent = False
+            story.note = (f"Срочных по теме за 12 часов уже {urgent_per_group[group]} — идёт как обычная. "
+                          f"{story.note}")[:500]
+            story.save(update_fields=["is_urgent", "note", "updated_at"])
         if not story.is_urgent and (story.score or 0) < conf.min_score_to_write:
             story.status = Story.Status.SKIPPED
             story.note = story.note or f"Важность {story.score} ниже порога {conf.min_score_to_write}"
@@ -493,6 +502,13 @@ def write_pending(say: RunLog) -> int:
                           f"взяли более важные (важность {story.score})")
             story.save(update_fields=["status", "note", "updated_at"])
             continue
+        if not story.is_urgent and not business and per_group[group] >= conf.max_per_topic_per_day:
+            story.status = Story.Status.SKIPPED
+            name = story.topic.name if story.topic_id else "без темы"
+            story.note = (f"Лимит темы «{name}» на сегодня ({conf.max_per_topic_per_day}): "
+                          f"оставляем место другим темам (важность {story.score})")
+            story.save(update_fields=["status", "note", "updated_at"])
+            continue
         budget = current_budget(conf)
         if budget.money_exceeded if business else not budget.allows(story.is_urgent):
             say(
@@ -503,8 +519,11 @@ def write_pending(say: RunLog) -> int:
         try:
             write_article(story, conf, say)
             written += 1
-            if not story.is_urgent:
+            if story.is_urgent:
+                urgent_per_group[group] += 1
+            else:
                 quotas[business] -= 1
+                per_group[group] += not business
             failures = 0
         except ai.AIError as exc:
             story.status = Story.Status.FAILED

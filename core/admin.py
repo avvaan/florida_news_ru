@@ -22,7 +22,10 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ("Отбор и публикация", {"fields": (
             "min_score_to_write", "publish_without_review", "auto_publish_enabled", "auto_publish_min_score", "min_verifier_confidence",
         )}),
-        ("Лимиты расходов", {"fields": ("max_articles_per_day", "ai_budget_per_day_usd")}),
+        ("Лимиты и разнообразие ленты", {"fields": (
+            "max_articles_per_day", "max_business_per_day", "max_per_topic_per_day", "urgent_per_topic_12h",
+            "ai_budget_per_day_usd",
+        )}),
         ("Сбор и склейка", {"fields": ("max_items_per_source", "cluster_window_hours", "cluster_similarity")}),
         ("Telegram", {"fields": ("telegram_enabled", "telegram_channel_url")}),
         ("Сайт", {"fields": ("contact_email", "adsense_enabled", "adsense_client")}),
