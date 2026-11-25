@@ -24,9 +24,11 @@ def test_seeded_categories_and_st_nina_church():
 
 
 def test_index_lists_official_links_and_business_categories(client):
+    Category.objects.create(slug="test-empty", name="Тест", kind=Category.Kind.BUSINESS)  # пустая категория
     html = client.get("/links/").content.decode()
     assert "Официальные ссылки" in html and "https://www.flhsmv.gov/" in html
-    assert 'href="/links/cerkvi/"' in html and "1 место" in html and "Пока пусто — предложите" in html
+    assert 'href="/links/cerkvi/"' in html and "Пока пусто — предложите" in html
+    assert re.search(r"\d+ мест", html)
     assert ">Справочник<" in client.get("/").content.decode()  # пункт меню
 
 
@@ -39,11 +41,12 @@ def test_church_page_has_local_business_markup(client):
 
 
 def test_empty_category_is_noindex_and_partner_is_labelled_first(client):
-    assert 'content="noindex, follow"' in client.get("/links/strahovanie/").content.decode()  # только скрытые
-    avto = Category.objects.get(slug="strahovanie")
+    # пустая категория (все категории справочника уже наполнены, поэтому создаём новую)
+    avto = Category.objects.create(slug="test-empty", name="Тест", kind=Category.Kind.BUSINESS)
+    assert 'content="noindex, follow"' in client.get("/links/test-empty/").content.decode()
     Listing.objects.create(category=avto, name="Клиника А", url="https://a.example/")
     Listing.objects.create(category=avto, name="Клиника Б", url="https://b.example/", is_partner=True)
-    html = client.get("/links/strahovanie/").content.decode()
+    html = client.get("/links/test-empty/").content.decode()
     assert html.index("Клиника Б") < html.index("Клиника А") and "Партнёр" in html
     assert 'content="index, follow' in html
 
@@ -59,9 +62,10 @@ def test_sitemap_includes_only_filled_categories(client):
     from django.core.cache import cache
 
     cache.clear()  # sitemap кэшируется на 10 минут
+    Category.objects.create(slug="test-empty", name="Тест", kind=Category.Kind.BUSINESS)  # пустая — в sitemap не попадает
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/links/</loc>" in sitemap and "/links/cerkvi/</loc>" in sitemap
-    assert "/links/vrachi/</loc>" in sitemap and "/links/strahovanie/</loc>" not in sitemap
+    assert "/links/vrachi/</loc>" in sitemap and "/links/test-empty/</loc>" not in sitemap
     assert "/links/produkty/</loc>" in sitemap  # «Лакомка» и Green Hills включены
 
 
