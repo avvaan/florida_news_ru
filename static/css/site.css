@@ -949,3 +949,6 @@ article.split { margin-top: 0; }
 .hub__status--changed, .hub__status--pending { color: #8a5a00; }
 .hub__todo { padding: 10px 12px; border-left: 3px solid var(--gulf); background: var(--mist); }
 .hub__sources { font-size: .875rem; color: var(--muted); }
+/* длинные адреса сайтов и e-mail не распирают карточки на телефоне */
+.dir__cards { grid-template-columns: minmax(0, 1fr); }
+.dir__card { min-width: 0; overflow-wrap: anywhere; }

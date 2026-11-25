@@ -39,10 +39,10 @@
         {% for item in nhc %}<li><a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.title }}</a>{% if item.published_at %}<span class="search-list__meta">{{ item.published_at|date:"j E, H:i" }}</span>{% endif %}{% if item.short %}<span class="search-list__text" lang="en">{{ item.short }}</span>{% endif %}</li>{% endfor %}
       </ul>
       {% endif %}
-      <p class="weather__links">
-        <a href="https://www.nhc.noaa.gov/gtwo.php?basin=atlc&amp;fdays=7" target="_blank" rel="noopener">{% translate "Карта NHC: прогноз на 7 дней" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
-        <a href="https://www.weather.gov/" target="_blank" rel="noopener">{% translate "Погода по адресу: weather.gov" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
-      </p>
+      <ul class="hub__links">
+        <li><a href="https://www.nhc.noaa.gov/gtwo.php?basin=atlc&amp;fdays=7" target="_blank" rel="noopener">{% translate "Карта NHC: прогноз на 7 дней" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a></li>
+        <li><a href="https://www.weather.gov/" target="_blank" rel="noopener">{% translate "Погода по адресу: weather.gov" %} <svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a></li>
+      </ul>
     </section>
 
     {% if news %}
@@ -59,7 +59,7 @@
         <li>{% blocktranslate trimmed %}<b>Подпишитесь на оповещения округа</b> — SMS и звонки об эвакуации приходят раньше новостей.{% endblocktranslate %}</li>
         <li>{% blocktranslate trimmed %}<b>Соберите запас на 7 дней</b>: вода (около 4 литров на человека в день), еда, лекарства, документы в герметичном пакете, наличные, зарядки.{% endblocktranslate %}</li>
         <li>{% blocktranslate trimmed %}<b>Проверьте страховку</b>: ураганная франшиза и отдельный полис от наводнения (у NFIP он вступает в силу через 30 дней).{% endblocktranslate %}</li>
-        <li>{% blocktranslate trimmed %}<b>Если нужен уход или электричество для медтехники</b> — заранее зарегистрируйтесь в <a href="https://snr.floridadisaster.org/" target="_blank" rel="noopener">реестре особых потребностей</a>: для вас подготовят место в специальном убежище.{% endblocktranslate %}</li>
+        <li>{% blocktranslate trimmed %}<b>Если нужен уход или электричество для медтехники</b> — заранее зарегистрируйтесь в <a href="https://www.floridadisaster.org/SNR" target="_blank" rel="noopener">реестре особых потребностей</a>: для вас подготовят место в специальном убежище.{% endblocktranslate %}</li>
       </ol>
       {% if guides %}<ul class="chips">{% for g in guides %}<li><a class="chip" href="{{ g.get_absolute_url }}">{{ g.tr.title }}</a></li>{% endfor %}</ul>{% endif %}
     </section>
@@ -70,6 +70,8 @@
       <ul class="hub__links">
         {% for link in statewide.links %}<li><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.title }}</a>{% if link.note %} — {{ link.note }}{% endif %}{% if link.phone %} · <a href="tel:{{ link.phone|cut:' '|cut:'-'|cut:'('|cut:')' }}">{{ link.phone }}</a>{% endif %}</li>{% endfor %}
       </ul>
+      {% if statewide.nws %}<h3>{% translate "Метеослужба (NWS) по районам" %}</h3>
+      <ul class="chips">{% for o in statewide.nws %}<li><a class="chip" href="{{ o.url }}" target="_blank" rel="noopener">{{ o.title }}</a></li>{% endfor %}</ul>{% endif %}
     </section>
     {% endif %}
 

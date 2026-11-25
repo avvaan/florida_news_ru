@@ -1,0 +1,886 @@
+{
+ "checked_on": "2026-11-25",
+ "statewide": {
+  "links": [
+   {
+    "title": "FloridaDisaster.org — служба ЧС штата (FDEM)",
+    "url": "https://www.floridadisaster.org/",
+    "note": "главный сайт: планы, приказы об эвакуации",
+    "phone": ""
+   },
+   {
+    "title": "Новости FDEM во время ЧС",
+    "url": "https://floridadisaster.org/Updates",
+    "note": "Во время ЧС FDEM открывает пункты бесплатного топлива (только для авто, до 10 галлонов); список публикуется на FloridaDisaster.org/Updates",
+    "phone": ""
+   },
+   {
+    "title": "Know Your Zone — зона эвакуации по адресу",
+    "url": "https://www.floridadisaster.org/KnowYourZone/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "Какие убежища открыты сейчас",
+    "url": "https://floridadisaster.org/shelter-status",
+    "note": "статус убежищ по округам во время ЧС",
+    "phone": ""
+   },
+   {
+    "title": "Реестр людей с особыми потребностями (SNR)",
+    "url": "https://www.floridadisaster.org/SNR",
+    "note": "место в специальном убежище и помощь с эвакуацией — регистрироваться заранее",
+    "phone": ""
+   },
+   {
+    "title": "Горячая линия штата (SAIL)",
+    "url": "https://floridadisaster.org/planprepare/information-line/",
+    "note": "Горячая линия штата работает только во время ЧС (англ., исп., гаит.-креольский)",
+    "phone": "1-800-342-3557"
+   },
+   {
+    "title": "FL511 — перекрытия дорог и эвакуационные маршруты",
+    "url": "https://fl511.com/emergencyinfo",
+    "note": "или звоните 511",
+    "phone": ""
+   },
+   {
+    "title": "Национальный центр по ураганам (NHC)",
+    "url": "https://www.nhc.noaa.gov/",
+    "note": "прогнозы, конусы и предупреждения",
+    "phone": ""
+   },
+   {
+    "title": "NHC: активные циклоны",
+    "url": "https://www.nhc.noaa.gov/cyclones/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "DisasterAssistance.gov — заявка на помощь FEMA",
+    "url": "https://www.disasterassistance.gov/",
+    "note": "после бедствия, если округ включён в декларацию",
+    "phone": "1-800-621-3362"
+   },
+   {
+    "title": "Приложение FEMA",
+    "url": "https://ready.gov/fema-app",
+    "note": "Отправьте ANDROID или APPLE на номер 43362",
+    "phone": ""
+   },
+   {
+    "title": "Ready.gov: ураганы",
+    "url": "https://www.ready.gov/hurricanes",
+    "note": "чек-листы подготовки",
+    "phone": ""
+   },
+   {
+    "title": "Citizens Property Insurance — ураганы и страховые случаи",
+    "url": "https://www.citizensfla.com/hurricanes",
+    "note": "линия для заявлений",
+    "phone": "866-411-2742"
+   },
+   {
+    "title": "Управление страхового надзора Флориды (OIR)",
+    "url": "https://sf01.floir.com/consumers/hurricane-season-resources",
+    "note": "права страхователя в сезон ураганов",
+    "phone": ""
+   },
+   {
+    "title": "Florida Power & Light (FPL): отключения света",
+    "url": "https://www.fplmaps.com/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "Duke Energy Florida: отключения света",
+    "url": "https://duke-energy.com/Outages/FAQ",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "Tampa Electric (TECO): отключения света",
+    "url": "https://www.tampaelectric.com/outagenotifications",
+    "note": "",
+    "phone": "1-877-588-1010"
+   },
+   {
+    "title": "JEA (Jacksonville): отключения света",
+    "url": "https://jea.com/storm",
+    "note": "",
+    "phone": ""
+   }
+  ],
+  "nws": [
+   {
+    "title": "NWS — Майами (Южная Флорида)",
+    "url": "https://www.weather.gov/mfl/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "NWS — Мельбурн (Центр и Восточное побережье)",
+    "url": "https://www.weather.gov/mlb/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "NWS — Тампа-Бэй (Запад и Юго-Запад)",
+    "url": "https://www.weather.gov/tbw/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "NWS — Джексонвилл (Северо-Восток)",
+    "url": "https://www.weather.gov/jax/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "NWS — Ки-Уэст (Флорида-Кис)",
+    "url": "https://www.weather.gov/key/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "NWS — Таллахасси (Биг-Бенд и Восточный Панхандл)",
+    "url": "https://www.weather.gov/tae/",
+    "note": "",
+    "phone": ""
+   },
+   {
+    "title": "NWS — Мобил/Пенсакола (Западный Панхандл)",
+    "url": "https://www.weather.gov/mob/",
+    "note": "",
+    "phone": ""
+   }
+  ]
+ },
+ "counties": [
+  {
+   "county": "Miami-Dade",
+   "county_ru": "Майами-Дейд",
+   "region": "miami",
+   "cities_ru": [
+    "Майами",
+    "Майами-Бич",
+    "Хайалиа",
+    "Корал-Гейблс",
+    "Хоумстед",
+    "Авентура",
+    "Санни-Айлс-Бич",
+    "Дорал"
+   ],
+   "em_url": "https://www.miamidade.gov/global/emergency/home.page",
+   "zone_url": "https://www.miamidade.gov/global/emergency/hurricane/storm-surge-zones.page",
+   "shelters_url": "https://www.miamidade.gov/global/emergency/hurricane/emergency-information-lookup.page",
+   "alerts_name": "Miami-Dade Alerts",
+   "alerts_url": "https://www.miamidade.gov/alerts/",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.miamidade.gov/global/service.page?Mduid_service=ser1477583540306215",
+   "info_phone": "311"
+  },
+  {
+   "county": "Broward",
+   "county_ru": "Бровард",
+   "region": "miami",
+   "cities_ru": [
+    "Форт-Лодердейл",
+    "Холливуд",
+    "Помпано-Бич",
+    "Корал-Спрингс",
+    "Пембрук-Пайнс",
+    "Галландейл-Бич",
+    "Санрайз",
+    "Дейви"
+   ],
+   "em_url": "https://www.broward.org/Hurricane/pages/default.aspx",
+   "zone_url": "https://www.broward.org/hurricane/pages/evacuations.aspx",
+   "shelters_url": "https://www.broward.org/Hurricane/Pages/ShelterLocations.aspx",
+   "alerts_name": "AlertBroward",
+   "alerts_url": "https://www.broward.org/Emergency/Pages/AlertBroward.aspx",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.broward.org/HURRICANE/ATOZ/Pages/SpecialNeedsBeforeEvent.aspx",
+   "info_phone": "311 / 954-831-4000"
+  },
+  {
+   "county": "Palm Beach",
+   "county_ru": "Палм-Бич",
+   "region": "miami",
+   "cities_ru": [
+    "Уэст-Палм-Бич",
+    "Бока-Ратон",
+    "Бойнтон-Бич",
+    "Делрей-Бич",
+    "Юпитер",
+    "Палм-Бич-Гарденс",
+    "Веллингтон",
+    "Палм-Бич"
+   ],
+   "em_url": "https://discover.pbc.gov/publicsafety/dem/pages/hurricane.aspx",
+   "zone_url": "https://readypbc.com/",
+   "shelters_url": "https://discover.pbc.gov/publicsafety/dem/Pages/Shelters.aspx",
+   "alerts_name": "AlertPBC",
+   "alerts_url": "https://discover.pbc.gov/oem/Pages/Alert-PBC.aspx",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "561-712-6400 (программа Special Needs)"
+  },
+  {
+   "county": "Monroe",
+   "county_ru": "Монро (Флорида-Кис)",
+   "region": "miami",
+   "cities_ru": [
+    "Ки-Уэст",
+    "Марафон",
+    "Ки-Ларго",
+    "Исламорада",
+    "Биг-Пайн-Ки",
+    "Таверньер"
+   ],
+   "em_url": "https://www.monroecountyem.com/",
+   "zone_url": "",
+   "shelters_url": "https://www.monroecounty-fl.gov/992/Shelters",
+   "alerts_name": "Alert!Monroe",
+   "alerts_url": "https://www.monroecountyem.com/alertmonroe",
+   "sandbags_url": "",
+   "special_needs_url": "http://www.monroecounty-fl.gov/148/Special-Needs-Registry",
+   "info_phone": "1-800-955-5504"
+  },
+  {
+   "county": "Martin",
+   "county_ru": "Мартин",
+   "region": "miami",
+   "cities_ru": [
+    "Стюарт",
+    "Палм-Сити",
+    "Дженсен-Бич",
+    "Хоуб-Саунд",
+    "Индиантаун",
+    "Сьюэлс-Пойнт"
+   ],
+   "em_url": "https://www.martin.fl.us/EM",
+   "zone_url": "https://www.martin.fl.us/EvacuationZones",
+   "shelters_url": "https://www.martin.fl.us/Shelters",
+   "alerts_name": "AlertMartin",
+   "alerts_url": "https://www.martin.fl.us/alertmartin",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.martin.fl.us/SpecialNeeds",
+   "info_phone": "311 / 772-287-1652"
+  },
+  {
+   "county": "St. Lucie",
+   "county_ru": "Сент-Луси",
+   "region": "miami",
+   "cities_ru": [
+    "Порт-Сент-Луси",
+    "Форт-Пирс",
+    "Хатчинсон-Айленд",
+    "Сент-Луси-Вилледж"
+   ],
+   "em_url": "https://stlucieco.gov/hurricane",
+   "zone_url": "https://www.stlucieco.gov/departments-and-services/public-safety/shelter-evacuation-info",
+   "shelters_url": "https://www.stlucieco.gov/departments-and-services/public-safety/shelter-evacuation-info",
+   "alerts_name": "Alert St. Lucie",
+   "alerts_url": "",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.stlucieco.gov/departments-and-services/public-safety/special-medical-needs-information",
+   "info_phone": ""
+  },
+  {
+   "county": "Indian River",
+   "county_ru": "Индиан-Ривер",
+   "region": "orlando",
+   "cities_ru": [
+    "Веро-Бич",
+    "Себастьян",
+    "Феллсмир",
+    "Индиан-Ривер-Шорс",
+    "Орчид"
+   ],
+   "em_url": "https://indianriver.gov/services/emergency_services/emergency_management/index.php",
+   "zone_url": "",
+   "shelters_url": "https://indianriver.gov/services/emergency_services/emergency_management/status.php",
+   "alerts_name": "Alert Indian River",
+   "alerts_url": "",
+   "sandbags_url": "https://indianriver.gov/services/emergency_services/emergency_management/status.php",
+   "special_needs_url": "https://indianriver.gov/services/emergency_services/emergency_management/special_needs_shelter.php",
+   "info_phone": ""
+  },
+  {
+   "county": "Brevard",
+   "county_ru": "Бревард",
+   "region": "orlando",
+   "cities_ru": [
+    "Мельбурн",
+    "Палм-Бэй",
+    "Титусвилл",
+    "Кокоа",
+    "Кокоа-Бич",
+    "Мерритт-Айленд",
+    "Сателлайт-Бич",
+    "Рокледж"
+   ],
+   "em_url": "https://www.brevardfl.gov/StormCenter",
+   "zone_url": "https://www.brevardfl.gov/EmergencyManagement/BePrepared/Step1KnowYourRisk",
+   "shelters_url": "https://www.brevardfl.gov/StormCenter",
+   "alerts_name": "AlertBrevard",
+   "alerts_url": "",
+   "sandbags_url": "https://www.brevardfl.gov/StormCenter",
+   "special_needs_url": "",
+   "info_phone": "2-1-1; EM 321-637-6670"
+  },
+  {
+   "county": "Volusia",
+   "county_ru": "Волусия",
+   "region": "orlando",
+   "cities_ru": [
+    "Дейтона-Бич",
+    "Делтона",
+    "Порт-Ориндж",
+    "Нью-Смирна-Бич",
+    "Орманд-Бич",
+    "Деланд",
+    "Дейтона-Бич-Шорс"
+   ],
+   "em_url": "https://www.volusia.org/hurricane/",
+   "zone_url": "https://www.volusia.org/services/public-protection/emergency-management/get-prepared/evacuation-plan.stml",
+   "shelters_url": "https://www.volusia.org/services/emergency-services/emergency-management/get-prepared/shelter-information.stml",
+   "alerts_name": "AlertVolusia",
+   "alerts_url": "https://www.volusia.org/alertvolusia",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "386-254-1500"
+  },
+  {
+   "county": "Flagler",
+   "county_ru": "Флаглер",
+   "region": "orlando",
+   "cities_ru": [
+    "Палм-Кост",
+    "Флаглер-Бич",
+    "Баннелл",
+    "Беверли-Бич",
+    "Маринленд"
+   ],
+   "em_url": "https://www.flaglercounty.gov/County-Services/Emergency-Management/Sheltering-and-Evacuation",
+   "zone_url": "https://www.flaglercounty.gov/County-Services/Emergency-Management/Sheltering-and-Evacuation",
+   "shelters_url": "https://www.flaglercounty.gov/County-Services/Emergency-Management/During-an-Emergency-Sheltering-and-Evacuation",
+   "alerts_name": "ALERTFlagler",
+   "alerts_url": "",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": ""
+  },
+  {
+   "county": "St. Johns",
+   "county_ru": "Сент-Джонс",
+   "region": "jacksonville",
+   "cities_ru": [
+    "Сент-Огастин",
+    "Понте-Ведра-Бич",
+    "Сент-Огастин-Бич",
+    "Сент-Джонс",
+    "Хастингс",
+    "Уорлд-Голф-Виллидж"
+   ],
+   "em_url": "https://www.sjcfl.us/evacuation-information/",
+   "zone_url": "https://www.sjcfl.us/evacuation-information/",
+   "shelters_url": "https://www.sjcfl.us/evacuation-information/hurricane-evacuation-shelters/",
+   "alerts_name": "Alert St. Johns",
+   "alerts_url": "https://www.alertstjohns.com/",
+   "sandbags_url": "https://www.sjcfl.us/sandbag-distribution-june-2026/",
+   "special_needs_url": "https://www.sjcfl.us/sjc-special-medical-needs-shelter-requirements/",
+   "info_phone": "904-824-5550"
+  },
+  {
+   "county": "Duval",
+   "county_ru": "Дювал",
+   "region": "jacksonville",
+   "cities_ru": [
+    "Джексонвилл",
+    "Джексонвилл-Бич",
+    "Нептун-Бич",
+    "Атлантик-Бич",
+    "Болдуин"
+   ],
+   "em_url": "https://www.jaxready.com/",
+   "zone_url": "https://www.jaxready.com/",
+   "shelters_url": "https://www.jaxready.com/",
+   "alerts_name": "AlertJax",
+   "alerts_url": "https://www.jaxready.com/ALERTJAX",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": ""
+  },
+  {
+   "county": "Nassau",
+   "county_ru": "Нассо",
+   "region": "jacksonville",
+   "cities_ru": [
+    "Фернандина-Бич",
+    "Юли",
+    "Каллахан",
+    "Хиллиард",
+    "Амелия-Айленд"
+   ],
+   "em_url": "https://www.onenassau.com/hurricane",
+   "zone_url": "https://www.onenassau.com/know-your-zone",
+   "shelters_url": "https://www.nassaucountyfl.com/1479/Pet-Friendly-Shelters",
+   "alerts_name": "AlertNassau",
+   "alerts_url": "https://www.onenassau.com/",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.onenassau.com/evac-special-needs",
+   "info_phone": "904-548-0900"
+  },
+  {
+   "county": "Clay",
+   "county_ru": "Клей",
+   "region": "jacksonville",
+   "cities_ru": [
+    "Ориндж-Парк",
+    "Флеминг-Айленд",
+    "Грин-Ков-Спрингс",
+    "Мидлберг",
+    "Кистоун-Хайтс",
+    "Оквуд-Плантейшн"
+   ],
+   "em_url": "https://www.claycountygov.com/community/emergency-management/disaster-preparedness/evacuation-flood-zones",
+   "zone_url": "https://www.claycountygov.com/community/emergency-management/disaster-preparedness/evacuation-flood-zones",
+   "shelters_url": "",
+   "alerts_name": "Alert Clay",
+   "alerts_url": "https://www.claycountygov.com/community/emergency-management/alert-clay-staying-informed",
+   "sandbags_url": "https://www.claycountygov.com/community/alert-clay/faq",
+   "special_needs_url": "https://www.claycountygov.com/community/emergency-management/disaster-preparedness/special-medical-needs",
+   "info_phone": "904-529-2770 (регистр Special Medical Needs)"
+  },
+  {
+   "county": "Orange",
+   "county_ru": "Ориндж",
+   "region": "orlando",
+   "cities_ru": [
+    "Орландо",
+    "Уинтер-Парк",
+    "Эпопка",
+    "Оукои",
+    "Уинтер-Гарден",
+    "Мейтленд",
+    "Виндермир"
+   ],
+   "em_url": "https://www.orangecountyfl.net/EmergencySafety/shelters.aspx",
+   "zone_url": "",
+   "shelters_url": "https://www.orangecountyfl.net/EmergencySafety/shelters.aspx",
+   "alerts_name": "OCFL Alert (приложение)",
+   "alerts_url": "",
+   "sandbags_url": "",
+   "special_needs_url": "https://orangecountyfl.net/EmergencySafety/EmergencyMedicalServices/SpecialNeedsProgram.aspx",
+   "info_phone": "311 / 407-836-3111"
+  },
+  {
+   "county": "Seminole",
+   "county_ru": "Семинол",
+   "region": "orlando",
+   "cities_ru": [
+    "Санфорд",
+    "Олтамонт-Спрингс",
+    "Овьедо",
+    "Лейк-Мэри",
+    "Лонгвуд",
+    "Уинтер-Спрингс",
+    "Кассельберри"
+   ],
+   "em_url": "https://www.seminolecountyfl.gov/departments-services/prepare-seminole/emergency-management/frequently-asked-questions",
+   "zone_url": "",
+   "shelters_url": "https://www.seminolecountyfl.gov/departments-services/prepare-seminole/stay-informed/shelter-information",
+   "alerts_name": "Alert Seminole",
+   "alerts_url": "",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.seminolecountyfl.gov/core/fileparse.php/4367/urlt/SpecialNeedsDisasterGuide.pdf",
+   "info_phone": "407-665-5102 (Office of Emergency Management)"
+  },
+  {
+   "county": "Osceola",
+   "county_ru": "Оцеола",
+   "region": "orlando",
+   "cities_ru": [
+    "Киссимми",
+    "Сент-Клауд",
+    "Селебрейшн",
+    "Пойнсиана",
+    "Бюнавента-Лейкс",
+    "Харменис"
+   ],
+   "em_url": "https://www.osceola.org/agencies-departments/emergency-management/",
+   "zone_url": "",
+   "shelters_url": "https://www.osceola.org/Services/Disaster-Response-and-Preparedness/Shelters",
+   "alerts_name": "Alert Osceola",
+   "alerts_url": "https://www.alertosceola.org/",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "407-742-0000 (Hurricane Hotline) / 407-742-9000"
+  },
+  {
+   "county": "Lake",
+   "county_ru": "Лейк",
+   "region": "orlando",
+   "cities_ru": [
+    "Клермонт",
+    "Лисберг",
+    "Тавариз",
+    "Маунт-Дора",
+    "Юстис",
+    "Груверленд",
+    "Минеола",
+    "Леди-Лейк"
+   ],
+   "em_url": "https://www.lakecountyfl.gov/559/Emergency-Management",
+   "zone_url": "",
+   "shelters_url": "https://c.lakecountyfl.gov/storm/",
+   "alerts_name": "AlertLake",
+   "alerts_url": "",
+   "sandbags_url": "https://c.lakecountyfl.gov/storm/",
+   "special_needs_url": "",
+   "info_phone": "352-253-9999 (Citizens' Information Line)"
+  },
+  {
+   "county": "Polk",
+   "county_ru": "Полк",
+   "region": "orlando",
+   "cities_ru": [
+    "Лейкленд",
+    "Уинтер-Хейвен",
+    "Бартоу",
+    "Хейнс-Сити",
+    "Дэвенпорт",
+    "Лейк-Уэйлс",
+    "Оберндейл"
+   ],
+   "em_url": "https://www.polkfl.gov/public-safety/emergency-management/",
+   "zone_url": "",
+   "shelters_url": "https://www.polkfl.gov/news/open-polk-county-shelters/",
+   "alerts_name": "Alert Polk",
+   "alerts_url": "",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "863-298-7000 (EOC)"
+  },
+  {
+   "county": "Hillsborough",
+   "county_ru": "Хиллсборо",
+   "region": "tampa",
+   "cities_ru": [
+    "Тампа",
+    "Брэндон",
+    "Плант-Сити",
+    "Темпл-Террас",
+    "Риверью",
+    "Аполло-Бич",
+    "Рускин"
+   ],
+   "em_url": "https://hcfl.gov/residents/stay-safe",
+   "zone_url": "https://hcfl.gov/residents/stay-safe/act/understanding-evacuation-orders",
+   "shelters_url": "https://hcfl.gov/residents/stay-safe/emergency-evacuation-shelter-list",
+   "alerts_name": "HCFL Alert",
+   "alerts_url": "https://hcfl.gov/residents/public-safety/emergency-management/hcfl-alert",
+   "sandbags_url": "",
+   "special_needs_url": "https://hillsboroughcounty.org/residents/public-safety/emergency-management/action-folder/register-for-special-needs-disaster-assistance",
+   "info_phone": "813-236-3800 (Office of Emergency Management)"
+  },
+  {
+   "county": "Pinellas",
+   "county_ru": "Пинеллас",
+   "region": "tampa",
+   "cities_ru": [
+    "Сент-Питерсберг",
+    "Клируотер",
+    "Ларго",
+    "Данидин",
+    "Тарпон-Спрингс",
+    "Сент-Пит-Бич",
+    "Пинеллас-Парк",
+    "Сейфти-Харбор"
+   ],
+   "em_url": "https://pinellas.gov/department/emergency-management/",
+   "zone_url": "https://pinellas.gov/services/find-your-evacuation-zone/",
+   "shelters_url": "https://pinellas.gov/emergency-information/public-shelters/",
+   "alerts_name": "Alert Pinellas",
+   "alerts_url": "https://pinellas.gov/services/sign-up-for-alert-pinellas/",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.pinellascounty.org/specialneeds",
+   "info_phone": "727-464-3800"
+  },
+  {
+   "county": "Pasco",
+   "county_ru": "Паско",
+   "region": "tampa",
+   "cities_ru": [
+    "Нью-Порт-Ричи",
+    "Порт-Ричи",
+    "Уэсли-Чапел",
+    "Дейд-Сити",
+    "Хадсон",
+    "Лэнд-О-Лейкс",
+    "Зефирхиллс"
+   ],
+   "em_url": "https://www.pascoemergencymanagement.com/",
+   "zone_url": "https://mypas.co/Map",
+   "shelters_url": "https://www.mypasco.net/",
+   "alerts_name": "Alert Pasco",
+   "alerts_url": "https://www.pascoemergencymanagement.com/",
+   "sandbags_url": "https://www.pascocountyfl.gov/_T18_R481.php",
+   "special_needs_url": "",
+   "info_phone": "727-847-2411 (Customer Service Center)"
+  },
+  {
+   "county": "Hernando",
+   "county_ru": "Эрнандо",
+   "region": "tampa",
+   "cities_ru": [
+    "Спринг-Хилл",
+    "Бруксвилл",
+    "Уики-Уачи",
+    "Хернандо-Бич",
+    "Ридж-Мэнор"
+   ],
+   "em_url": "https://www.hernandocounty.us/EM",
+   "zone_url": "",
+   "shelters_url": "",
+   "alerts_name": "Alert Hernando",
+   "alerts_url": "https://www.alerthernando.org/",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "352-754-4083 (Public Information Center)"
+  },
+  {
+   "county": "Manatee",
+   "county_ru": "Манати",
+   "region": "tampa",
+   "cities_ru": [
+    "Брейдентон",
+    "Палметто",
+    "Лейквуд-Ранч",
+    "Анна-Мария",
+    "Холмс-Бич",
+    "Брейдентон-Бич",
+    "Пэрриш"
+   ],
+   "em_url": "https://www.mymanatee.org/departments/public-safety-department/emergency-management-division",
+   "zone_url": "https://www.mymanatee.org/level",
+   "shelters_url": "https://www.mymanatee.org/services-and-amenities/service-listing/service-details/find-an-emergency-shelter",
+   "alerts_name": "Manatee County Everbridge Alerts",
+   "alerts_url": "",
+   "sandbags_url": "https://www.mymanatee.org/connect/news-and-information/news-and-information/article-detail/emergency-management-division-posts/2025/07/15/manatee-county-launches-sandbag-initiative-to-prepare-for-hurricane-season",
+   "special_needs_url": "https://www.mymanatee.org/services-and-amenities/service-listing/service-details/special-needs-registry",
+   "info_phone": "311 / 941-748-4501; EM 941-749-3500"
+  },
+  {
+   "county": "Sarasota",
+   "county_ru": "Сарасота",
+   "region": "tampa",
+   "cities_ru": [
+    "Сарасота",
+    "Норт-Порт",
+    "Венис",
+    "Лонгбот-Ки",
+    "Сиеста-Ки",
+    "Инглвуд",
+    "Осприй"
+   ],
+   "em_url": "https://www.scgov.net/government/emergency-services/hurricane-preparedness/what-s-my-risk",
+   "zone_url": "https://www.scgov.net/government/emergency-services/hurricane-preparedness/what-s-my-risk",
+   "shelters_url": "https://www.scgov.net/government/emergency-services/emergency-management/evacuation-centers",
+   "alerts_name": "Alert Sarasota County",
+   "alerts_url": "https://www.alertsarasotacounty.com/",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.scgov.net/government/emergency-services/emergency-management/transportation-plan-hurricane-evacuation-centers",
+   "info_phone": "311"
+  },
+  {
+   "county": "Charlotte",
+   "county_ru": "Шарлотт",
+   "region": "tampa",
+   "cities_ru": [
+    "Порт-Шарлотт",
+    "Пунта-Горда",
+    "Энглвуд",
+    "Рутонда-Уэст",
+    "Бока-Гранде"
+   ],
+   "em_url": "https://www.charlottecountyfl.gov/departments/emergency-management/",
+   "zone_url": "https://www.charlottecountyfl.gov/departments/emergency-management/know-your-zone.stml",
+   "shelters_url": "https://www.charlottecountyfl.gov/departments/emergency-management/shelter-listing.stml",
+   "alerts_name": "Alert Charlotte",
+   "alerts_url": "https://www.alertcharlotte.com/",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "941-833-4000 (Emergency Management)"
+  },
+  {
+   "county": "Lee",
+   "county_ru": "Ли",
+   "region": "",
+   "cities_ru": [
+    "Форт-Майерс",
+    "Кейп-Корал",
+    "Форт-Майерс-Бич",
+    "Бонита-Спрингс",
+    "Эстеро",
+    "Санибел",
+    "Лихай-Акрс"
+   ],
+   "em_url": "https://www.leegov.com/publicsafety/emergencymanagement",
+   "zone_url": "https://www.leeeoc.com/",
+   "shelters_url": "https://www.leegov.com/Hurricane",
+   "alerts_name": "AlertLee",
+   "alerts_url": "https://www.alertlee.com/",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.leeeoc.com/",
+   "info_phone": "239-533-0622 (Emergency Management)"
+  },
+  {
+   "county": "Collier",
+   "county_ru": "Коллиер",
+   "region": "",
+   "cities_ru": [
+    "Нейплс",
+    "Марко-Айленд",
+    "Иммокали",
+    "Голден-Гейт",
+    "Эверглейдс-Сити",
+    "Эйв-Мария"
+   ],
+   "em_url": "",
+   "zone_url": "",
+   "shelters_url": "https://www.colliercountyfl.gov/government/county-manager-operations/divisions/communications-government-public-affairs/pages-for-emergency-info-on-home-page/hurricane-shelter-information/-selectview-1",
+   "alerts_name": "Alert Collier",
+   "alerts_url": "https://www.alertcollier.com/",
+   "sandbags_url": "",
+   "special_needs_url": "https://www.colliercountyfl.gov/government/county-manager-operations/divisions/emergency-management/special-needs-program",
+   "info_phone": "311"
+  },
+  {
+   "county": "Alachua",
+   "county_ru": "Алачуа",
+   "region": "",
+   "cities_ru": [
+    "Гейнсвилл",
+    "Алачуа",
+    "Ньюберри",
+    "Хай-Спрингс",
+    "Хоторн",
+    "Аркер"
+   ],
+   "em_url": "https://www.alachuacountyready.com/",
+   "zone_url": "",
+   "shelters_url": "https://www.alachuacountyready.com/",
+   "alerts_name": "Alachua County Alerts (текст ALACHUA на 888-777)",
+   "alerts_url": "",
+   "sandbags_url": "https://alachuacounty.us/news/Article/pages/Hurricane-Milton-Update-1--Sandbags-and-Special-Needs-Registry.aspx",
+   "special_needs_url": "https://www.alachuacounty.us/SpecialNeeds",
+   "info_phone": "352-264-6500"
+  },
+  {
+   "county": "Leon",
+   "county_ru": "Леон",
+   "region": "",
+   "cities_ru": [
+    "Таллахасси",
+    "Вудвилл",
+    "Бредфордвилл"
+   ],
+   "em_url": "https://cms.leoncountyfl.gov/home/County-Administrator/Administration/Assistant-to-the-County-Administrator-for-Community-Relations-and-Resilience/Emergency-Management",
+   "zone_url": "",
+   "shelters_url": "",
+   "alerts_name": "",
+   "alerts_url": "",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "850-606-3700 (Citizens Information Line); 2-1-1"
+  },
+  {
+   "county": "Escambia",
+   "county_ru": "Эскамбия",
+   "region": "",
+   "cities_ru": [
+    "Пенсакола",
+    "Пенсакола-Бич",
+    "Перидо-Ки",
+    "Сенчури",
+    "Кантонмент",
+    "Миртл-Гроув"
+   ],
+   "em_url": "https://myescambia.com/our-services/public-safety/beready",
+   "zone_url": "https://myescambia.com/our-services/public-safety/beready/know-your-zone",
+   "shelters_url": "https://myescambia.com/our-services/public-safety/beready/hurricane-shelters/evacuation-shelter-list",
+   "alerts_name": "Alert Escambia",
+   "alerts_url": "https://myescambia.com/our-services/public-safety/beready/how-will-you-know",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "850-471-6400 (Emergency Management)"
+  },
+  {
+   "county": "Santa Rosa",
+   "county_ru": "Санта-Роза",
+   "region": "",
+   "cities_ru": [
+    "Милтон",
+    "Наварр",
+    "Галф-Бриз",
+    "Пейс",
+    "Джей",
+    "Наварр-Бич"
+   ],
+   "em_url": "https://www.santarosa.fl.gov/m/faq",
+   "zone_url": "https://www.santarosa.fl.gov/KnowYourZone",
+   "shelters_url": "",
+   "alerts_name": "Alert Santa Rosa",
+   "alerts_url": "https://www.alertsantarosa.com/",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "850-983-4636 (транспорт до убежищ)"
+  },
+  {
+   "county": "Okaloosa",
+   "county_ru": "Окалуса",
+   "region": "",
+   "cities_ru": [
+    "Форт-Уолтон-Бич",
+    "Дестин",
+    "Крествью",
+    "Нисвилл",
+    "Мэри-Эстер",
+    "Окалуса-Айленд"
+   ],
+   "em_url": "https://myokaloosa.com/emergency-management/faqs",
+   "zone_url": "https://www.myokaloosa.com/gis_PS",
+   "shelters_url": "https://www.myokaloosa.com/sites/default/files/Users/piouser/ShelterInformation-Updated060325.pdf",
+   "alerts_name": "Alert Okaloosa",
+   "alerts_url": "",
+   "sandbags_url": "",
+   "special_needs_url": "",
+   "info_phone": "850-651-7150 (Emergency Management)"
+  },
+  {
+   "county": "Bay",
+   "county_ru": "Бэй",
+   "region": "",
+   "cities_ru": [
+    "Панама-Сити",
+    "Панама-Сити-Бич",
+    "Линн-Хейвен",
+    "Каллауэй",
+    "Мехико-Бич",
+    "Спрингфилд"
+   ],
+   "em_url": "https://www.baycountyfl.gov/411/Public-Safety",
+   "zone_url": "https://www.baycountyfl.gov/511/Evacuation-Zones",
+   "shelters_url": "https://www.baycountyfl.gov/766/Emergency-Shelters",
+   "alerts_name": "AlertBay",
+   "alerts_url": "https://www.alertbay.org/",
+   "sandbags_url": "https://www.baycountyfl.gov/m/faq?cat=20",
+   "special_needs_url": "https://www.baycountyfl.gov/769/Special-Needs-Information",
+   "info_phone": "850-248-6090 (Citizens Information Center)"
+  }
+ ],
+ "note": "Ресёрч 25.11.2026 по поисковой выдаче; часть адресов взята из текста официальных страниц — проверяйте перед сезоном."
+}
