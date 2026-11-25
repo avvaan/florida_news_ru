@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 {% load static news_extras comments_tags i18n %}
-{% block title %}{% if category.kind == "business" %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде — по-русски{% endblocktranslate %}{% else %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде{% endblocktranslate %}{% endif %} — {{ site_name }}{% endblock %}
-{% block description %}{{ category.tr.description|default:category.tr.name }}{% endblock %}
+{% block title %}{% if region_page %}{% blocktranslate trimmed with name=category.tr.name where=region_page.tr.name_locative %}{{ name }} {{ where }} — по-русски{% endblocktranslate %}{% elif category.kind == "business" %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде — по-русски{% endblocktranslate %}{% else %}{% blocktranslate trimmed with name=category.tr.name %}{{ name }} во Флориде{% endblocktranslate %}{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}{% if region_page %}{% blocktranslate trimmed count n=listings|length with where=region_page.tr.name_locative %}{{ n }} место {{ where }}.{% plural %}{{ n }} мест {{ where }}.{% endblocktranslate %} {% endif %}{{ category.tr.description|default:category.tr.name }}{% endblock %}
 {% block og %}{% include "includes/og.html" with title=category.tr.name|add:" — "|add:site_name description=category.tr.description|default:category.tr.name url=request.path %}{% endblock %}
-{% block robots %}{% if not listings or current_region or current_spec or near %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% translate "Главная" as home_label %}{% translate "Ссылки и бизнесы" as dir_label %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url category.tr.name category.get_absolute_url %}{% if listings %}{% directory_jsonld category listings %}{% endif %}{% endblock %}
+{% block robots %}{% if region_page %}{% if region_indexable and not current_spec and not near %}{{ block.super }}{% else %}noindex, follow{% endif %}{% elif not listings or current_region or current_spec or near %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% translate "Главная" as home_label %}{% translate "Ссылки и бизнесы" as dir_label %}{% if region_page %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url category.tr.name category.get_absolute_url region_page.tr.name request.path %}{% else %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url category.tr.name category.get_absolute_url %}{% endif %}{% if listings %}{% directory_jsonld category listings %}{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <nav class="crumbs" aria-label="{% translate "Навигация" %}">
-    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">{% translate "Ссылки и бизнесы" %}</a>
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">{% translate "Ссылки и бизнесы" %}</a>{% if region_page %}<span aria-hidden="true">/</span><a href="{{ category.get_absolute_url }}">{{ category.tr.name }}</a>{% endif %}
   </nav>
   <section class="story dir">
-    <div class="dir__head">{% if category.icon %}<span class="dir__icon dir__icon--lg"><img src="{% static category.icon %}" alt="" width="72" height="72"></span>{% endif %}<h1 class="story__title">{{ category.tr.name }}</h1></div>
-    {% if category.description %}<p class="story__lede">{{ category.tr.description }}</p>{% endif %}
+    <div class="dir__head">{% if category.icon %}<span class="dir__icon dir__icon--lg"><img src="{% static category.icon %}" alt="" width="72" height="72"></span>{% endif %}<h1 class="story__title">{% if region_page %}{% blocktranslate trimmed with name=category.tr.name where=region_page.tr.name_locative %}{{ name }} {{ where }}{% endblocktranslate %}{% else %}{{ category.tr.name }}{% endif %}</h1></div>
+    {% if region_page %}<p class="story__lede">{% blocktranslate trimmed count n=listings|length with where=region_page.tr.name_locative %}{{ n }} место {{ where }}.{% plural %}{{ n }} мест {{ where }}.{% endblocktranslate %} {{ category.tr.description }}</p>
+    {% elif category.description %}<p class="story__lede">{{ category.tr.description }}</p>{% endif %}
 
     {% if regions %}
     <nav class="guides__nav" aria-label="{% translate "Регион" %}">
-      <a class="chip{% if not current_region %} is-current{% endif %}" href="{% querystring region=None %}">{% blocktranslate trimmed %}Все ({{ total }}){% endblocktranslate %}</a>
-      {% for r in regions %}<a class="chip{% if current_region == r.slug %} is-current{% endif %}" href="{% querystring region=r.slug %}" rel="nofollow">{{ r.tr.name }}</a>{% endfor %}
-      {% if has_other %}<a class="chip{% if current_region == 'other' %} is-current{% endif %}" href="{% querystring region='other' %}" rel="nofollow">{% translate "Другие города" %}</a>{% endif %}
+      <a class="chip{% if not current_region %} is-current{% endif %}" href="{% if region_page %}{{ category.get_absolute_url }}{% else %}{% querystring region=None %}{% endif %}">{% blocktranslate trimmed %}Все ({{ total }}){% endblocktranslate %}</a>
+      {% for r in regions %}{% if r.slug in region_slugs_with_page %}<a class="chip{% if current_region == r.slug %} is-current{% endif %}" href="{% url 'directory:category-region' category.slug r.slug %}">{{ r.tr.name }}</a>{% else %}<a class="chip{% if current_region == r.slug %} is-current{% endif %}" href="{% if region_page %}{{ category.get_absolute_url }}?region={{ r.slug }}{% else %}{% querystring region=r.slug %}{% endif %}" rel="nofollow">{{ r.tr.name }}</a>{% endif %}{% endfor %}
+      {% if has_other %}<a class="chip{% if current_region == 'other' %} is-current{% endif %}" href="{% if region_page %}{{ category.get_absolute_url }}?region=other{% else %}{% querystring region='other' %}{% endif %}" rel="nofollow">{% translate "Другие города" %}</a>{% endif %}
     </nav>
     {% endif %}
     {% if specialties %}
@@ -63,8 +64,8 @@
         {% if category.kind == "business" %}{% include "directory/suggest.html" %}{% endif %}
         {% if others %}
         <nav class="dir__others" aria-labelledby="others-h">
-          <h2 class="sidebar__h" id="others-h">{% translate "Другие категории" %}</h2>
-          <ul class="chips">{% for c in others %}<li><a class="chip" href="{{ c.get_absolute_url }}">{{ c.tr.name }}</a></li>{% endfor %}</ul>
+          <h2 class="sidebar__h" id="others-h">{% if region_page %}{% blocktranslate trimmed with where=region_page.tr.name_locative %}Ещё {{ where }}{% endblocktranslate %}{% else %}{% translate "Другие категории" %}{% endif %}</h2>
+          <ul class="chips">{% for c in others %}<li><a class="chip" href="{% if region_page %}{% url 'directory:category-region' c.slug region_page.slug %}{% else %}{{ c.get_absolute_url }}{% endif %}">{{ c.tr.name }}</a></li>{% endfor %}</ul>
         </nav>
         {% endif %}
       </div>

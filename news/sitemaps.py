@@ -169,6 +169,29 @@ class DirectorySitemap(SiteRootSitemap):
         return reverse("directory:index") if item == "index" else item.get_absolute_url()
 
 
+class DirectoryRegionSitemap(SiteRootSitemap):
+    """Страницы «категория + регион» (/links/stomatologi/miami/) — только с MIN_REGION_PAGE и больше мест."""
+
+    changefreq = "weekly"
+    priority = 0.6
+
+    def items(self):
+        from collections import defaultdict
+
+        from directory.views import region_pages
+
+        by_category = defaultdict(list)
+        for item in (Listing.objects.active().filter(category__kind=Category.Kind.BUSINESS)
+                     .select_related("category", "region")):
+            by_category[item.category].append(item)
+        return [(category, region) for category in sorted(by_category, key=lambda c: c.order)
+                for region in region_pages(category, by_category[category])]
+
+    def location(self, item):
+        category, region = item
+        return reverse("directory:category-region", args=[category.slug, region.slug])
+
+
 class EventSitemap(SiteRootSitemap):
     changefreq = "daily"
     priority = 0.6
@@ -231,5 +254,5 @@ def google_news_items():
 SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": GuideSitemap, "pages": PageSitemap,
             "places": DestinationSitemap,
             "authors": AuthorSitemap, "legal": LegalSitemap,
-            "directory": DirectorySitemap, "events": EventSitemap,
+            "directory": DirectorySitemap, "directory-regions": DirectoryRegionSitemap, "events": EventSitemap,
             "classifieds": ClassifiedSitemap}
