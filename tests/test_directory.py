@@ -223,3 +223,19 @@ def test_krasota_research_batch(client):
     hidden = [row["name"] for row in rows if not row["active"]]
     assert hidden == ["Marusya Beauty Salon — салон красоты"]  # скрыт только закрывшийся бизнес
     assert "Marusya Beauty Salon" not in html and "Открыто 25.11.2026" not in html  # заметка редакции не видна читателям
+
+
+def test_research_waves_imported(client):
+    """Ресёрч-пакеты (businesses_2026_11_res_*.json): каждая запись в базе, видимость и заметка совпадают с таблицей."""
+    import json
+    from pathlib import Path
+
+    from directory.models import Listing
+
+    for path in sorted((Path(__file__).parents[1] / "directory/data").glob("businesses_2026_11_res_*.json")):
+        for row in json.loads(path.read_text()):
+            item = Listing.objects.get(category__slug=row["category"], name=row["name"])
+            assert item.is_active == row["active"], row["name"]
+            assert item.editor_note == row["note"] and item.editor_note.startswith("Ресёрч 25.11.2026"), row["name"]
+            if row["active"]:
+                assert row["phone"] or row["url"], row["name"]  # без контактов не публикуем

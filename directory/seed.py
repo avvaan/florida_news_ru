@@ -318,3 +318,10 @@ def import_batch10_krasota(apps, schema_editor):
 def import_batch11_krasota_open(apps, schema_editor):
     """Скрытые записи «Красота и здоровье» открыты по решению владельца сайта (кроме закрывшегося бизнеса)."""
     apply_business_updates(apps, schema_editor, "businesses_2026_11_krasota_open.json")
+
+
+def import_research_wave(filename):
+    """Ресёрч-пакет (ноябрь 2026): новые записи создаются, существующие по названию дополняются."""
+    def forwards(apps, schema_editor):
+        apply_business_updates(apps, schema_editor, filename)
+    return forwards
