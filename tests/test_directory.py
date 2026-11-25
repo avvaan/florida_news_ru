@@ -215,10 +215,11 @@ def test_krasota_research_batch(client):
         item = beauty.get(name=row["name"])
         assert item.is_active == row["active"], row["name"]
         assert item.editor_note.startswith("Ресёрч 25.11.2026"), row["name"]
-        if row["active"]:
-            assert row["phone"] or row["url"], row["name"]  # без контактов не публикуем
+        assert item.editor_note == row["note"], row["name"]
     banya = beauty.get(name__startswith="BeachBanya")
     assert banya.phone == "(954) 921-7333" and banya.region.slug == "miami"
     html = client.get("/links/krasota/").content.decode()
     assert "BeachBanya" in html and "Eurotouch Esthetics" in html
-    assert "Marusya Beauty Salon" not in html  # скрытые кандидаты не видны читателям
+    hidden = [row["name"] for row in rows if not row["active"]]
+    assert hidden == ["Marusya Beauty Salon — салон красоты"]  # скрыт только закрывшийся бизнес
+    assert "Marusya Beauty Salon" not in html and "Открыто 25.11.2026" not in html  # заметка редакции не видна читателям
