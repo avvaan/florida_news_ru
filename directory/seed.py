@@ -228,7 +228,8 @@ def apply_business_updates(apps, schema_editor, filename):
     rows = json.loads((Path(__file__).parent / "data" / filename).read_text(encoding="utf-8"))
     fields = {"name": "name", "description": "description", "languages": "languages", "address": "address",
               "phone": "phone", "url": "url", "hours": "hours", "city": "city", "active": "is_active",
-              "recommended": "is_recommended", "note": "editor_note", "guide": "guide_slug"}
+              "recommended": "is_recommended", "note": "editor_note", "guide": "guide_slug",
+              "specialty": "specialty"}
     for row in rows:
         names = [n for n in (row.get("match"), row.get("name")) if n]
         item = Listing.objects.filter(name__in=names).first()
@@ -286,5 +287,29 @@ def import_batch7(apps, schema_editor):
 
 
 def import_batch8(apps, schema_editor):
-    """Ресёрч рубрики «Красота и здоровье» по всей Флориде (ноябрь 2026)."""
+    """Украинские бизнесы Флориды из таблицы владельца (группа Facebook): 11 с контактами, остальные скрыты."""
+    import_businesses(apps, schema_editor, "businesses_2026_10_batch8.json")
+
+
+def import_batch9_doctors(apps, schema_editor):
+    """226 русскоязычных врачей по всей Флориде (ноябрь 2026): язык и адрес по профилям больничных сетей,
+    сайтам практик и справочникам, лицензия — по реестру Минздрава штата. 13 врачей, у которых русский
+    под сомнением (источники противоречат), скрыты до звонка — «Проверка: нужен звонок» в заметке редакции."""
+    apply_business_updates(apps, schema_editor, "businesses_2026_11_vrachi.json")
+
+
+def guess_doctor_specialties(apps, schema_editor):
+    """Направление врачам из таблиц редакции — по специальности в названии (directory/specialties.py)."""
+    from directory.specialties import guess
+
+    Listing = apps.get_model("directory", "Listing")
+    for item in Listing.objects.filter(category__slug="vrachi", specialty=""):
+        item.specialty = guess(item.name)
+        if item.specialty:
+            item.save(update_fields=["specialty"])
+
+
+def import_batch10_krasota(apps, schema_editor):
+    """Ресёрч рубрики «Красота и здоровье» по всей Флориде (ноябрь 2026): 53 записи на сайте, остальные скрыты
+    до проверки — причина в заметке редакции."""
     apply_business_updates(apps, schema_editor, "businesses_2026_11_krasota.json")

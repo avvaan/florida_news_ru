@@ -2,6 +2,8 @@ from django.contrib import admin, messages
 from django.utils import timezone
 from django.utils.html import format_html
 
+from core.i18n import uk_fieldset
+
 from .models import Guide, GuideSource
 from django import forms
 
@@ -73,6 +75,7 @@ class GuideAdmin(admin.ModelAdmin):
                                                   "«проверено человеком» — только после этого можно опубликовать."}),
         ("Для черновика", {"fields": ("topics", "brief", "official_domains", "review_notes")}),
         ("Служебное", {"fields": ("created_at", "updated_at"), "classes": ("collapse",)}),
+        uk_fieldset(Guide),
     )
 
     @admin.display(description="текст", boolean=True)

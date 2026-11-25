@@ -14,7 +14,7 @@ envVarGroups:
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: SITE_URL
-        value: https://florida-ru.com
+        value: https://tutflorida.com
       - key: DJANGO_ALLOWED_HOSTS
         sync: false
       - key: DJANGO_CSRF_TRUSTED_ORIGINS
@@ -24,6 +24,9 @@ envVarGroups:
       - key: DEEPSEEK_API_KEY
         sync: false
       - key: GOOGLE_SITE_VERIFICATION
+        sync: false
+      # Ключ API для агента (40 символов 0-9a-f). build.sh создаст пользователя agent с этим ключом.
+      - key: AGENT_API_TOKEN
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false

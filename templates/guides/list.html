@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% load static news_extras %}
-{% block title %}Гайды: жизнь во Флориде — {{ site_name }}{% endblock %}
-{% block description %}Подробные гайды на русском по официальным источникам: документы и статус, машина, жильё, ураганы, деньги и работа, медицина, дети и учёба во Флориде.{% endblock %}
-{% block og %}{% include "includes/og.html" with title="Гайды: жизнь во Флориде — "|add:site_name description="Подробные гайды на русском по официальным источникам: документы, машина, жильё, ураганы, деньги, медицина и учёба во Флориде." url=request.path image="guides/podgotovka-k-uraganu-1" %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'guides:list' as guides_url %}{% breadcrumbs_jsonld "Главная" home_url "Гайды" guides_url %}{% collection_jsonld "Гайды: жизнь во Флориде" "Подробные гайды на русском по официальным источникам" guides_url all_guides %}{% endblock %}
+{% load static news_extras i18n %}
+{% block title %}{% translate "Гайды: жизнь во Флориде" %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Подробные гайды на русском по официальным источникам: документы и статус, машина, жильё, ураганы, деньги и работа, медицина, дети и учёба во Флориде." %}{% endblock %}
+{% block og %}{% translate "Гайды: жизнь во Флориде" as og_title %}{% translate "Подробные гайды на русском по официальным источникам: документы, машина, жильё, ураганы, деньги, медицина и учёба во Флориде." as og_description %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=og_description url=request.path image="guides/podgotovka-k-uraganu-1" %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'guides:list' as guides_url %}{% translate "Главная" as home_label %}{% translate "Гайды" as guides_label %}{% translate "Гайды: жизнь во Флориде" as coll_name %}{% translate "Подробные гайды на русском по официальным источникам" as coll_description %}{% breadcrumbs_jsonld home_label home_url guides_label guides_url %}{% collection_jsonld coll_name coll_description guides_url all_guides %}{% endblock %}
 {% block content %}
 <div class="wrap">
   <section class="story guides">
-    <h1 class="story__title">Гайды</h1>
-    <p class="story__lede">Подробные статьи о жизни во Флориде по официальным источникам: документы, машина, жильё, ураганы, деньги, медицина и учёба. Мы обновляем их, когда меняются правила.</p>
+    <h1 class="story__title">{% translate "Гайды" %}</h1>
+    <p class="story__lede">{% translate "Подробные статьи о жизни во Флориде по официальным источникам: документы, машина, жильё, ураганы, деньги, медицина и учёба. Мы обновляем их, когда меняются правила." %}</p>
     {% if sections %}
     {% if sections|length > 1 %}
-    <nav class="guides__nav" aria-label="Разделы гайдов">
+    <nav class="guides__nav" aria-label="{% translate "Разделы гайдов" %}">
       {% for s in sections %}<a class="chip" href="#{{ s.slug }}">{{ s.name }}</a>{% endfor %}
     </nav>
     {% endif %}
@@ -23,8 +23,8 @@
         <li class="guide-card">
           <a href="{{ g.get_absolute_url }}">
             {% if g.cover %}{% with small=g.cover|add:"-640.webp" %}<img src="{% static small %}" alt="" width="640" height="360" loading="lazy" decoding="async">{% endwith %}{% endif %}
-            <b>{{ g.title }}</b>
-            {% if g.teaser %}<span>{{ g.teaser }}</span>{% endif %}
+            <b>{{ g.tr.title }}</b>
+            {% if g.tr.teaser %}<span>{{ g.tr.teaser }}</span>{% endif %}
           </a>
         </li>
         {% endfor %}
@@ -32,7 +32,7 @@
     </section>
     {% endfor %}
     {% else %}
-    <p>Гайды скоро появятся.</p>
+    <p>{% translate "Гайды скоро появятся." %}</p>
     {% endif %}
   </section>
 </div>

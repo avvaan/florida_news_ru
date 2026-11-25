@@ -15,11 +15,12 @@ from guides.models import Guide
 from news.covers import candidates_for, fresh_choices, primary_pool, replacement
 from news.models import BUSINESS, Article, ArticleSource, Region, Story, Tag, Topic, neighbour_articles, neighbour_covers
 from social.services import has_trusted_source, run_social
+from sources.article_text import full_texts
 from sources.fetch import fetch_all
 from sources.models import Source, WeatherAlert
 
-from . import ai, prompts, toponyms
-from .budget import counted_articles_today, current_budget
+from . import ai, facebook, prompts, toponyms
+from .budget import articles_by_group_today, counted_articles_today, current_budget, topic_group, urgent_by_group
 from .clustering import cluster_items
 from .decisions import decide
 from .models import AICall, PipelineRun
@@ -143,7 +144,10 @@ def classify_new(say: RunLog) -> int:
 
 def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     items = story_items(story)
-    brief = prompts.story_brief(items)
+    texts = full_texts(items)
+    if texts:
+        say(f"«{story.title[:60]}»: полный текст статьи из {len(texts)} источн.")
+    brief = prompts.story_brief(items, texts)
     region = story.region.name if story.region else "Флорида"
     topic = story.topic.name if story.topic else "—"
 
@@ -194,6 +198,8 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         publish_without_review=conf.publish_without_review,
         has_trusted_source=has_trusted_source(items),
         source_conflicts=verification.source_conflicts,
+        word_count=len(draft.body.split()),
+        min_words=conf.min_article_words,
         auto_publish_min_score=conf.auto_publish_min_score,
         min_confidence=conf.min_verifier_confidence,
     )
@@ -219,6 +225,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             guide=next((g for g in guides if g.slug == draft.guide), None),
             region=story.region,
             topic=story.topic,
+            author=conf.default_author if conf.default_author_id and conf.default_author.is_active else None,
             business_kind=business_kind(story),
             is_urgent=story.is_urgent,
             is_sensitive=story.is_sensitive,
@@ -478,8 +485,17 @@ def write_pending(say: RunLog) -> int:
     written = failures = 0
     quotas = {False: publication_quota(conf), True: publication_quota(conf, business=True)}
     limits = {False: conf.max_articles_per_day, True: conf.max_business_per_day}
+    # Разнообразие ленты: затяжное событие (наводнение) не должно занять все места.
+    per_group, urgent_per_group = articles_by_group_today(), urgent_by_group()
     for story in queue:
         business = story.topic_id is not None and story.topic.slug == BUSINESS
+        group = topic_group(story.topic.slug if story.topic_id else None)
+        if story.is_urgent and not business and urgent_per_group[group] >= conf.urgent_per_topic_12h:
+            # Срочное по этой теме уже было несколько раз за 12 часов: дальше — как обычная заметка.
+            story.is_urgent = False
+            story.note = (f"Срочных по теме за 12 часов уже {urgent_per_group[group]} — идёт как обычная. "
+                          f"{story.note}")[:500]
+            story.save(update_fields=["is_urgent", "note", "updated_at"])
         if not story.is_urgent and (story.score or 0) < conf.min_score_to_write:
             story.status = Story.Status.SKIPPED
             story.note = story.note or f"Важность {story.score} ниже порога {conf.min_score_to_write}"
@@ -493,6 +509,13 @@ def write_pending(say: RunLog) -> int:
                           f"взяли более важные (важность {story.score})")
             story.save(update_fields=["status", "note", "updated_at"])
             continue
+        if not story.is_urgent and not business and per_group[group] >= conf.max_per_topic_per_day:
+            story.status = Story.Status.SKIPPED
+            name = story.topic.name if story.topic_id else "без темы"
+            story.note = (f"Лимит темы «{name}» на сегодня ({conf.max_per_topic_per_day}): "
+                          f"оставляем место другим темам (важность {story.score})")
+            story.save(update_fields=["status", "note", "updated_at"])
+            continue
         budget = current_budget(conf)
         if budget.money_exceeded if business else not budget.allows(story.is_urgent):
             say(
@@ -503,8 +526,11 @@ def write_pending(say: RunLog) -> int:
         try:
             write_article(story, conf, say)
             written += 1
-            if not story.is_urgent:
+            if story.is_urgent:
+                urgent_per_group[group] += 1
+            else:
                 quotas[business] -= 1
+                per_group[group] += not business
             failures = 0
         except ai.AIError as exc:
             story.status = Story.Status.FAILED
@@ -555,6 +581,10 @@ def publish_article(article: Article, *, say=log.info) -> Article:
         say(f"Telegram: {result}")
     except Exception as exc:  # noqa: BLE001 — сбой Telegram не отменяет публикацию на сайте
         say(f"Telegram: ошибка — {exc}")
+    try:
+        say(f"Facebook: {facebook.post_article(article)}")
+    except Exception as exc:  # noqa: BLE001 — сбой Facebook тоже не отменяет публикацию
+        say(f"Facebook: ошибка — {exc}")
     return article
 
 
@@ -619,6 +649,13 @@ def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | N
             stats["classified"] = classify_new(say)
             stats["written"] = write_pending(say)
             say(f"Отбор: {stats['classified']}, написано заметок: {stats['written']}")
+            try:
+                from core.translation import translate_pending
+
+                stats["translated_uk"] = translate_pending(say)
+            except Exception as exc:  # noqa: BLE001 — сбой перевода не мешает новостям
+                say(f"Перевод на украинский: сбой — {type(exc).__name__}: {exc}")
+                log.exception("Сбой перевода на украинский")
         stats["ai_cost_today"] = str(AICall.objects.today().total_cost())
     except Exception as exc:  # noqa: BLE001
         run.success = False

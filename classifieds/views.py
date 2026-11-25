@@ -6,6 +6,7 @@ from django.db.models import Case, Count, ExpressionWrapper, F, FloatField, Inte
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.translation import gettext as _, gettext_noop
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
@@ -20,6 +21,10 @@ from .models import MAX_PHOTOS, Ad, Category, Photo
 PER_PAGE = 24
 CONTACTS_PER_HOUR = 40  # с одного адреса — дальше похоже на сбор телефонов
 EDITS_PER_DAY = 10  # каждая правка — новая проверка ИИ
+
+# Подписи к отклонённым фото (Photo.REJECT_TEXT и запасная в Photo.public_note) — для перевода на странице автора.
+PHOTO_NOTES = (gettext_noop("не похоже на то, что в объявлении"), gettext_noop("похоже на скриншот, мем или документ"),
+               gettext_noop("не подходит для семейного сайта"))
 
 
 def _photos():
@@ -199,7 +204,7 @@ def submit(request):
             return render(request, "classifieds/manage.html", {"ad": None})
         key = ip_hash(request)
         if Ad.objects.since(24).filter(ip_hash=key).count() >= moderation.MAX_PER_IP_PER_DAY:
-            form.add_error(None, "С этого адреса уже подано несколько объявлений за сутки. Попробуйте завтра.")
+            form.add_error(None, _("С этого адреса уже подано несколько объявлений за сутки. Попробуйте завтра."))
         else:
             ad = form.save(commit=False)
             ad.ip_hash = key
@@ -217,7 +222,10 @@ def _own_ad(token):
 @never_cache
 def manage(request, token):
     ad = _own_ad(token)
-    return render(request, "classifieds/manage.html", {"ad": ad, "photos": list(ad.photos.all())})
+    photos = list(ad.photos.all())
+    for photo in photos:
+        photo.note_text = _(photo.public_note) if photo.public_note else ""
+    return render(request, "classifieds/manage.html", {"ad": ad, "photos": photos})
 
 
 @never_cache
@@ -232,7 +240,7 @@ def edit(request, token):
                   existing_photos=len([p for p in kept if p.pk not in remove_ids]))
     edits_key = f"ad-edits:{ad.pk}"
     if request.method == "POST" and cache.get(edits_key, 0) >= EDITS_PER_DAY:
-        form.add_error(None, "Сегодня объявление уже правили много раз. Попробуйте завтра.")
+        form.add_error(None, _("Сегодня объявление уже правили много раз. Попробуйте завтра."))
     elif request.method == "POST" and form.is_valid():
         cache.set(edits_key, cache.get(edits_key, 0) + 1, 24 * 3600)
         ad = form.save(commit=False)

@@ -3,11 +3,12 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy
 
 from ads.models import AdBanner
 from guides.models import Guide
@@ -15,7 +16,9 @@ from sources.models import WeatherAlert
 
 from .models import BUSINESS, HIDDEN_IN_NAV, Article, Region, Tag, Topic
 
-PER_PAGE = 16
+PER_PAGE = 20
+# Тег с меньшим числом заметок закрыт noindex — на него не ссылаемся, чтобы Google не тратил обход.
+TAG_MIN_ARTICLES = 3
 
 
 def published():
@@ -58,6 +61,16 @@ def _filtered(region=None, topic=None):
     return qs
 
 
+def pick_lead(articles):
+    """Главная тема: свежее срочное за 12 часов, иначе самое важное за сутки, иначе последнее."""
+    if not articles:
+        return None
+    now = timezone.now()
+    recent = [a for a in articles if a.published_at >= now - timedelta(hours=24)]
+    urgent = [a for a in recent if a.is_urgent and a.published_at >= now - timedelta(hours=12)]
+    return (urgent or sorted(recent, key=lambda a: -(a.score or 0)) or articles)[0]
+
+
 def front(request, region=None, topic=None, template="news/front.html", extra=None):
     """Главная и страницы регионов/тем: одна и та же лента с фильтрами."""
     region = region or Region.objects.filter(slug=request.GET.get("region")).first()
@@ -69,13 +82,12 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
     page = paginator.get_page(page_number)
     first_page = page.number == 1
 
-    lead, top, feed = None, [], list(page.object_list)
-    if first_page and feed:
-        # Главная тема: свежее срочное за 12 часов, иначе самое важное за сутки, иначе последнее.
-        recent = [a for a in feed if a.published_at >= timezone.now() - timedelta(hours=24)]
-        urgent = [a for a in recent if a.is_urgent and a.published_at >= timezone.now() - timedelta(hours=12)]
-        lead = (urgent or sorted(recent, key=lambda a: -(a.score or 0)) or feed)[0]
+    top, feed = [], list(page.object_list)
+    # Главная тема видна на каждой странице ленты: на второй и дальше — та же, что на первой.
+    lead = pick_lead(feed if first_page else list(qs[:PER_PAGE]))
+    if lead in feed:
         feed.remove(lead)
+    if first_page:
         top = feed[:3]
         feed = feed[3:]
 
@@ -84,6 +96,9 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
     most_important = list(
         qs.filter(published_at__gte=since).exclude(pk__in=shown).order_by("-score", "-published_at")[:5]
     )
+    if first_page and lead:  # дайджест стоит рядом с главной темой — в ленте те же заметки не повторяем
+        digest = {a.pk for a in most_important}
+        feed = [a for a in feed if a.pk not in digest]
 
     context = {
         "region": region,
@@ -117,7 +132,7 @@ def topic_view(request, slug):
     return front(request, topic=topic)
 
 
-BUSINESS_KINDS = {"stocks": "Акции", "deals": "Сделки"}
+BUSINESS_KINDS = {"stocks": gettext_lazy("Акции"), "deals": gettext_lazy("Сделки")}
 
 
 def business_view(request, kind=None):
@@ -153,7 +168,20 @@ def tag_view(request, slug):
     page = Paginator(qs, PER_PAGE).get_page(request.GET.get("page") or 1)
     return render(request, "news/tag.html", {
         "tag": tag, "feed": page.object_list, "page_obj": page, "ads": ads_for(),
+        "is_thin": page.paginator.count < TAG_MIN_ARTICLES,
     })
+
+
+def indexable_tag_ids(tags) -> set:
+    """Теги, у которых своя страница открыта для индексации (не меньше TAG_MIN_ARTICLES заметок)."""
+    now = timezone.now()
+    return set(
+        Tag.objects.filter(pk__in=[t.pk for t in tags])
+        .annotate(n=Count("article", filter=Q(article__status=Article.Status.PUBLISHED,
+                                              article__published_at__lte=now)))
+        .filter(n__gte=TAG_MIN_ARTICLES)
+        .values_list("pk", flat=True)
+    )
 
 
 def article_view(request, slug):
@@ -177,16 +205,17 @@ def article_view(request, slug):
         "ads": ads_for(article.region),
         "is_preview": is_preview,
         "urgent": urgent_strip(),
+        "linked_tag_ids": indexable_tag_ids(article.tags.all()),
     })
 
 
 class LatestFeed(Feed):
-    title = "Florida RU — новости штата по-русски"
-    description = "Короткие новости Флориды на русском со ссылками на первоисточники"
+    title = gettext_lazy("TutFlorida — новости штата")
+    description = gettext_lazy("Короткие новости Флориды на русском со ссылками на первоисточники")
 
     # Ссылки только на канонический домен (SITE_URL), а не на хост, с которого пришёл запрос.
     def link(self):
-        return f"{settings.SITE_URL}/"
+        return f"{settings.SITE_URL}{reverse('news:home')}"  # / или /uk/
 
     def feed_url(self):
         return f"{settings.SITE_URL}{reverse('news:rss')}"
@@ -198,10 +227,10 @@ class LatestFeed(Feed):
         return published()[:30]
 
     def item_title(self, item):
-        return ("🚨 " if item.urgent_now else "") + item.title
+        return ("🚨 " if item.urgent_now else "") + item.loc("title")
 
     def item_description(self, item):
-        return item.teaser
+        return item.loc("teaser")
 
     def item_pubdate(self, item):
         return item.published_at

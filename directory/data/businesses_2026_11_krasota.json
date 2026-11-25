@@ -128,20 +128,6 @@
  {
   "category": "krasota",
   "region": "miami",
-  "city": "Корал-Спрингс",
-  "active": true,
-  "name": "Khrom Dermatology MedSpa & Wellness — дерматология и медспа (д-р Татьяна Хром)",
-  "description": "Флоридский филиал клиники дерматолога Татьяны Хром (основная практика — в Бруклине, Нью-Йорк); специализация — косметическая и медицинская дерматология, инъекционные процедуры.",
-  "languages": "русский, английский",
-  "address": "12462 W Atlantic Blvd, Suite 1, Coral Springs, FL 33071",
-  "phone": "(954) 688-9677",
-  "url": "https://b2bco.com/khrommedspaflorida",
-  "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — клиника представлена в русскоязычном каталоге BAZAR.club (раздел врачей/клиник Майами) с описанием на русском. В Fresha есть также адрес 1460 N University Dr, тел. (954) 752-7552 — уточнить актуальный. Источники: https://www.bazar.club/miami/business/doctors ; https://www.medifind.com/doctors/tatiana-khrom/7221803 ; https://npiscan.com/npi/1437982055 ; https://form.jotform.com/250055159229052"
- },
- {
-  "category": "krasota",
-  "region": "miami",
   "city": "Майами",
   "active": true,
   "name": "Alexandra — инструктор бальных и латиноамериканских танцев",
@@ -418,20 +404,6 @@
   "url": "https://www.beachbanya.com",
   "hours": "",
   "note": "Ресёрч 25.11.2026. Русская ориентация — объявление «BeachBanya/ПляжБаня» в русскоязычном каталоге to4ka.us (пропарка веником, травяной чай); страница Yelp обновлена в ноябре 2026. Часы в справочниках расходятся (Hollywood TAP — круглосуточно, Tripadvisor — Сб 12:00–01:00), уточняйте. Источники: https://to4ka.us/catalog/miami/russian-banya-and-sauna/all/beachbanyapliazbania-bania-i-sauna-v-maiami_9858c233-41b4-41e9-b1be-4eb066c199af, https://www.yelp.com/biz/beachbanya-hollywood, https://hollywoodfltap.com/listings/beach-banya/, https://saunadiscovery.com/saunas/beachbanya-hollywood"
- },
- {
-  "category": "krasota",
-  "region": "miami",
-  "city": "Холливуд",
-  "active": true,
-  "name": "Dimitri Gitelmaker, MD (Ocean Drive Aesthetics) — медспа, инъекции",
-  "description": "Врач-терапевт (MD, internal medicine), принимающий в медспа Ocean Drive Aesthetics в Холливуде. В профиле клиники указаны инъекционные процедуры, коррекция фигуры и IV-терапия.",
-  "languages": "русский, английский, испанский",
-  "address": "3800 S Ocean Dr, Suite 230, Hollywood, FL 33019",
-  "phone": "(305) 771-0034",
-  "url": "http://oceandraesthetics.com/",
-  "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — указан в профиле специалиста на evolus.com («English, Russian & Spanish fluently»). Источники: https://www.evolus.com/specialists/dimitri-gitelmaker ; https://practicefinder.newpatientsinc.com/medspa/ocean-drive-aesthetics-hollywood-fl/"
  },
  {
   "category": "krasota",
@@ -1538,20 +1510,6 @@
   "url": "https://massagebook.com/Ponte_Vedra_Beach~Massage~InformedTouchMassage",
   "hours": "",
   "note": "Ресёрч 25.11.2026. Русский язык прямо не указан, косвенно — био: «опыт в России». Работает на дому/выезд (адрес не публикуем). Текущая активность не подтверждена — поэтому active=false. Источники: https://massagebook.com/Ponte_Vedra_Beach~Massage~InformedTouchMassage, https://www.massagebook.com/therapists/informed-touch-massage/services Сайты напрямую открыть не удалось (WebFetch заблокирован сетью сессии), данные взяты из поисковой выдачи/сниппетов."
- },
- {
-  "category": "krasota",
-  "region": "jacksonville",
-  "city": "Понте-Ведра-Бич",
-  "active": false,
-  "name": "Sherif El-Salawy, MD (Aesthetix Plus Medical Spa) — медспа, инъекции",
-  "description": "Врач (MD), специализирующийся на эстетической медицине, работает в медспа Aesthetix Plus в Понте-Ведре. Клиника предлагает инъекции и филлеры, лазерные процедуры, уход за кожей и программы снижения веса под медицинским контролем.",
-  "languages": "русский, английский, итальянский",
-  "address": "486 Town Plaza Ave, Suite 420, Ponte Vedra, FL 32081",
-  "phone": "(904) 834-3440",
-  "url": "https://evolus.com/specialists/sherif-el-salawy",
-  "hours": "",
-  "note": "Ресёрч 25.11.2026. Русский язык — указан в профиле на evolus.com («English, Italian & Russian fluently»). В разных каталогах адрес расходится (486 Town Plaza Ave Ste 420 vs 351 Town Plaza Ave Ste 202) — уточнить. Источники: https://evolus.com/specialists/sherif-el-salawy ; https://practicefinder.newpatientsinc.com/medspa/aesthetix-plus-medical-spa-ponte-vedra-beach-fl/ СКРЫТО при сводке: источники противоречат друг другу по языку / в профиле только английский."
  },
  {
   "category": "krasota",

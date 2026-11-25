@@ -11,6 +11,7 @@ import time
 
 from django import forms
 from django.core import signing
+from django.utils.translation import gettext as _, gettext_lazy
 
 from .models import Comment
 
@@ -29,13 +30,14 @@ class CommentForm(forms.ModelForm):
     website = forms.CharField(required=False, widget=forms.TextInput(attrs={
         "autocomplete": "off", "tabindex": "-1",
     }))  # ловушка для ботов
-    agree = forms.BooleanField(label="Согласен с правилами комментариев")
+    agree = forms.BooleanField(label=gettext_lazy("Согласен с правилами комментариев"))
 
     class Meta:
         model = Comment
         fields = ["name", "email", "rating", "text"]
-        labels = {"name": "Имя", "email": "E-mail", "rating": "Оценка", "text": "Комментарий"}
-        help_texts = {"email": "Не публикуется. Нужен, только если редакции понадобится с вами связаться."}
+        labels = {"name": gettext_lazy("Имя"), "email": "E-mail", "rating": gettext_lazy("Оценка"),
+                  "text": gettext_lazy("Комментарий")}
+        help_texts = {"email": gettext_lazy("Не публикуется. Нужен, только если редакции понадобится с вами связаться.")}
         widgets = {
             "name": forms.TextInput(attrs={"maxlength": 60, "autocomplete": "name"}),
             "email": forms.EmailInput(attrs={"autocomplete": "email"}),
@@ -49,8 +51,8 @@ class CommentForm(forms.ModelForm):
         self.fields["stamp"].initial = make_stamp(kind, pk)
         if kind == "listing":
             self.fields["rating"].required = True
-            self.fields["text"].label = "Отзыв"
-            self.fields["text"].help_text = "Расскажите о своём опыте: что понравилось, что нет. Без оскорблений."
+            self.fields["text"].label = _("Отзыв")
+            self.fields["text"].help_text = _("Расскажите о своём опыте: что понравилось, что нет. Без оскорблений.")
         else:
             del self.fields["rating"]
 
@@ -58,28 +60,28 @@ class CommentForm(forms.ModelForm):
         try:
             kind, pk, ts = signing.Signer(salt=SALT).unsign(self.cleaned_data["stamp"]).split(":")
         except (signing.BadSignature, ValueError) as exc:
-            raise forms.ValidationError("Обновите страницу и попробуйте ещё раз.") from exc
+            raise forms.ValidationError(_("Обновите страницу и попробуйте ещё раз.")) from exc
         age = time.time() - int(ts)
         if (kind, pk) != (self.kind, str(self.pk)) or age > MAX_SECONDS:
-            raise forms.ValidationError("Форма устарела — обновите страницу и отправьте ещё раз.")
+            raise forms.ValidationError(_("Форма устарела — обновите страницу и отправьте ещё раз."))
         if age < MIN_SECONDS:
-            raise forms.ValidationError("Слишком быстро. Подождите пару секунд и отправьте ещё раз.")
+            raise forms.ValidationError(_("Слишком быстро. Подождите пару секунд и отправьте ещё раз."))
         return self.cleaned_data["stamp"]
 
     def clean_name(self):
         name = " ".join(self.cleaned_data["name"].split())
         if len(name) < 2:
-            raise forms.ValidationError("Укажите имя.")
+            raise forms.ValidationError(_("Укажите имя."))
         if LINK_RE.search(name):
-            raise forms.ValidationError("В имени не должно быть ссылок.")
+            raise forms.ValidationError(_("В имени не должно быть ссылок."))
         return name
 
     def clean_text(self):
         text = self.cleaned_data["text"].strip()
         if len(text) < 5:
-            raise forms.ValidationError("Комментарий слишком короткий.")
+            raise forms.ValidationError(_("Комментарий слишком короткий."))
         if LINK_RE.search(text):
-            raise forms.ValidationError("Ссылки в комментариях не публикуем — уберите их, пожалуйста.")
+            raise forms.ValidationError(_("Ссылки в комментариях не публикуем — уберите их, пожалуйста."))
         return text
 
     @property

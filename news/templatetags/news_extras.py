@@ -4,8 +4,10 @@ from django import template
 from django.conf import settings
 from django.templatetags.static import static
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
+from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from core.seed import SITE_OWNER
 
@@ -21,7 +23,13 @@ def absolute(path: str) -> str:
 
 @register.simple_tag
 def cover(article, size: str = "") -> str:
-    """URL обложки: size="" — 1200px webp, "640" — 640px webp, "jpg" — 1200px jpeg."""
+    """URL обложки: size="" — 1200px webp, "640" — 640px webp, "jpg" — 1200px jpeg.
+
+    Если у заметки есть своё фото из медиатеки — его адрес нужной ширины.
+    """
+    photo = getattr(article, "photo", None)
+    if photo is not None:
+        return photo.sized(640 if size == "640" else 1200)
     base = article.cover if hasattr(article, "cover") else str(article)
     if size == "640":
         return static(f"{base}-640.webp")
@@ -61,16 +69,39 @@ def ago(value) -> str:
     delta = timezone.now() - value
     minutes = int(delta.total_seconds() // 60)
     if minutes < 1:
-        return "только что"
+        return _("только что")
     if minutes < 60:
-        return f"{minutes} {plural_ru(minutes, 'минуту,минуты,минут')} назад"
+        return _("%(n)s %(unit)s назад") % {"n": minutes, "unit": plural_ru(minutes, _("минуту,минуты,минут"))}
     hours = minutes // 60
     if hours < 24:
-        return f"{hours} {plural_ru(hours, 'час,часа,часов')} назад"
-    local = timezone.localtime(value)
-    months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа",
-              "сентября", "октября", "ноября", "декабря"]
-    return f"{local.day} {months[local.month - 1]}, {local:%H:%M}"
+        return _("%(n)s %(unit)s назад") % {"n": hours, "unit": plural_ru(hours, _("час,часа,часов"))}
+    return date_format(timezone.localtime(value), "j E, H:i")  # «21 ноября, 14:05» на языке страницы
+
+
+def lang() -> str:
+    """Язык страницы для разметки (inLanguage): ru или uk."""
+    return translation.get_language() or settings.LANGUAGE_CODE
+
+
+def loc(obj, name: str):
+    """Поле на языке страницы, если у модели есть перевод (Translatable), иначе как есть."""
+    return obj.loc(name) if hasattr(obj, "loc") else getattr(obj, name)
+
+
+@register.filter
+def alert_event(alert) -> str:
+    """Название погодного предупреждения на языке страницы."""
+    from sources.weather import event_label
+
+    return event_label(alert.event, alert.event_ru)
+
+
+@register.filter
+def alert_severity(alert) -> str:
+    """Степень опасности предупреждения на языке страницы."""
+    from sources.weather import severity_label
+
+    return severity_label(alert.severity) or alert.get_severity_display()
 
 
 def _jsonld(data: dict) -> str:
@@ -95,8 +126,20 @@ def publisher() -> dict:
     }
 
 
+def person(author) -> dict:
+    """Автор-человек для разметки: имя, страница, должность, профили."""
+    data = {"@type": "Person", "name": author.name, "url": f"{settings.SITE_URL}{author.get_absolute_url()}"}
+    if role := loc(author, "role"):
+        data["jobTitle"] = role
+    if author.photo:
+        data["image"] = f"{settings.SITE_URL}{author.photo.url}"
+    if links := author.link_list:
+        data["sameAs"] = links
+    return data
+
+
 def editorial_author() -> dict:
-    return {"@type": "Organization", "name": f"Редакция {settings.SITE_NAME}",
+    return {"@type": "Organization", "name": _("Редакция %(site)s") % {"site": settings.SITE_NAME},
             "url": f"{settings.SITE_URL}{reverse('core-about')}"}
 
 
@@ -113,46 +156,48 @@ def article_jsonld(article) -> str:
         "@context": "https://schema.org",
         "@type": "NewsArticle",
         "mainEntityOfPage": {"@type": "WebPage", "@id": url},
-        "headline": article.title[:110],
-        "description": article.teaser,
-        "image": [f"{settings.SITE_URL}{static(article.cover + '.jpg')}"],
+        "headline": article.loc("title")[:110],
+        "description": article.loc("teaser"),
+        "image": [absolute(cover(article, "jpg"))],
         "datePublished": published.isoformat(),
         "dateModified": (article.revised_at or published).isoformat(),
-        "inLanguage": "ru",
-        "author": editorial_author(),
+        "inLanguage": lang(),
+        "author": person(author) if (author := article.byline_author) else editorial_author(),
         "publisher": publisher(),
+        "wordCount": article.word_count,
         "isBasedOn": [s.url for s in article.sources.all()],
-        "keywords": [t.name for t in article.tags.all()],
+        "keywords": [loc(t, "name") for t in article.tags.all()],
     }
     if article.topic:
-        data["articleSection"] = article.topic.name
+        data["articleSection"] = loc(article.topic, "name")
     if article.region:
-        data["contentLocation"] = {"@type": "Place", "name": f"{article.region.name}, Florida"}
+        data["contentLocation"] = {"@type": "Place", "name": f"{loc(article.region, 'name')}, Florida"}
     return _jsonld(data)
 
 
 @register.simple_tag
-def guide_jsonld(guide) -> str:
+def guide_jsonld(guide, editor=None) -> str:
     url = f"{settings.SITE_URL}{guide.get_absolute_url()}"
     published = guide.published_at or guide.created_at
     data = {
         "@context": "https://schema.org",
         "@type": "Article",
         "mainEntityOfPage": {"@type": "WebPage", "@id": url},
-        "headline": guide.title[:110],
-        "description": guide.teaser,
+        "headline": loc(guide, "title")[:110],
+        "description": loc(guide, "teaser"),
         "datePublished": published.isoformat(),
         "dateModified": (guide.revised_at or published).isoformat(),
-        "inLanguage": "ru",
+        "inLanguage": lang(),
         "author": editorial_author(),
         "publisher": publisher(),
         "citation": [s.url for s in guide.sources.all()],
+        **({"editor": person(editor)} if editor else {}),
         "wordCount": guide.word_count,
-        "about": [t.name for t in guide.topics.all()],
+        "about": [loc(t, "name") for t in guide.topics.all()],
         "spatialCoverage": {"@type": "State", "name": "Florida", "addressCountry": "US"},
     }
     if guide.section:
-        data["articleSection"] = guide.get_section_display()
+        data["articleSection"] = str(guide.get_section_display())
     if images := guide.image_paths:
         data["image"] = [f"{settings.SITE_URL}{static(path + '.jpg')}" for path in images]
     return _jsonld(data)
@@ -193,9 +238,9 @@ def website_jsonld() -> str:
         "@type": "WebSite",
         "@id": f"{settings.SITE_URL}/#website",
         "name": settings.SITE_NAME,
-        "alternateName": "Флорида по-русски",
+        "alternateName": "Тут Флорида",
         "url": f"{settings.SITE_URL}/",
-        "inLanguage": "ru",
+        "inLanguage": lang(),
         "publisher": {"@id": f"{settings.SITE_URL}/#organization"},
     })
 
@@ -209,12 +254,13 @@ def collection_jsonld(name, description, url, items) -> str:
         "name": str(name),
         "description": str(description),
         "url": absolute(str(url)),
-        "inLanguage": "ru",
+        "inLanguage": lang(),
         "isPartOf": {"@id": f"{settings.SITE_URL}/#website"},
         "mainEntity": {
             "@type": "ItemList",
             "itemListElement": [
-                {"@type": "ListItem", "position": n, "url": absolute(item.get_absolute_url()), "name": item.title}
+                {"@type": "ListItem", "position": n, "url": absolute(item.get_absolute_url()),
+                 "name": loc(item, "title")}
                 for n, item in enumerate(items, start=1)
             ],
         },
@@ -226,8 +272,9 @@ def directory_jsonld(category, listings) -> str:
     """ItemList записей справочника: бизнесы — LocalBusiness (или Church и т. п.), ссылки — WebSite."""
     def entry(item):
         if category.kind == "links":
-            return {"@type": "WebSite", "name": item.name, "url": item.url, "description": item.description}
-        data = {"@type": category.schema_type or "LocalBusiness", "name": item.name, "description": item.description}
+            return {"@type": "WebSite", "name": item.name, "url": item.url, "description": loc(item, "description")}
+        data = {"@type": category.schema_type or "LocalBusiness", "name": item.name,
+                "description": loc(item, "description")}
         if item.url:
             data["url"] = item.url
         if item.phone:
@@ -242,7 +289,7 @@ def directory_jsonld(category, listings) -> str:
     return _jsonld({
         "@context": "https://schema.org",
         "@type": "ItemList",
-        "name": category.name,
+        "name": loc(category, "name"),
         "itemListElement": [{"@type": "ListItem", "position": n, "item": entry(item)}
                             for n, item in enumerate(listings, start=1)],
     })
@@ -253,8 +300,8 @@ def listing_jsonld(item) -> str:
     """LocalBusiness (или Church, Dentist…) со средней оценкой и последними отзывами читателей."""
     data = {"@context": "https://schema.org", "@type": item.category.schema_type or "LocalBusiness",
             "name": item.name, "url": absolute(item.get_absolute_url())}
-    if item.description:
-        data["description"] = item.description
+    if description := loc(item, "description"):
+        data["description"] = description
     if item.url:
         data["sameAs"] = item.url
     if item.phone:
@@ -277,15 +324,10 @@ def listing_jsonld(item) -> str:
 
 @register.simple_tag
 def person_jsonld(author) -> str:
-    data = {
-        "@context": "https://schema.org", "@type": "Person", "name": author.name,
-        "url": f"{settings.SITE_URL}{author.get_absolute_url()}",
-        "worksFor": {"@id": f"{settings.SITE_URL}/#organization", "name": settings.SITE_NAME},
-    }
-    if author.role:
-        data["jobTitle"] = author.role
-    if author.photo:
-        data["image"] = f"{settings.SITE_URL}{author.photo.url}"
+    data = {"@context": "https://schema.org", **person(author),
+            "worksFor": {"@id": f"{settings.SITE_URL}/#organization", "name": settings.SITE_NAME}}
+    if author.email:
+        data["email"] = author.email
     return _jsonld(data)
 
 
@@ -306,8 +348,8 @@ def event_jsonld(event) -> str:
     data = {
         "@context": "https://schema.org",
         "@type": "Event",
-        "name": event.title,
-        "description": event.description,
+        "name": loc(event, "title"),
+        "description": loc(event, "description"),
         "startDate": iso(event.starts_on, event.starts_at),
         "eventStatus": "https://schema.org/EventScheduled",
         "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
@@ -318,7 +360,7 @@ def event_jsonld(event) -> str:
         },
         "organizer": {"@type": "Organization", "name": event.organizer, **({"url": event.url} if event.url else {})},
         "url": absolute(event.get_absolute_url()),
-        "inLanguage": "ru",
+        "inLanguage": lang(),
     }
     if event.ends_on:
         data["endDate"] = iso(event.ends_on)
@@ -332,3 +374,9 @@ def event_jsonld(event) -> str:
         if event.is_free:
             data["offers"].update({"price": "0", "priceCurrency": "USD"})
     return _jsonld(data)
+
+
+@register.filter
+def media_sized(item, width) -> str:
+    """Фото из медиатеки нужной ширины: {{ photo|media_sized:800 }}"""
+    return item.sized(int(width)) if item else ""

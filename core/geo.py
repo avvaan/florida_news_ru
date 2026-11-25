@@ -11,6 +11,8 @@ import math
 import re
 from functools import lru_cache
 
+from django.utils.translation import gettext, gettext_noop
+
 # Главные города регионов сайта — от них считаем расстояние. (код региона, именительный, «к …», «от …», lat, lon)
 HUBS = {
     "miami": ("Майами", "к Майами", "от Майами", 25.7743, -80.1937),
@@ -18,6 +20,12 @@ HUBS = {
     "tampa": ("Тампа", "к Тампе", "от Тампы", 27.9506, -82.4572),
     "jacksonville": ("Джексонвилл", "к Джексонвиллу", "от Джексонвилла", 30.3322, -81.6557),
 }
+# Подписи для перевода на украинский (makemessages): «Ближе к …» и «… от …» собираются из HUBS.
+_HUB_MSGIDS = (
+    gettext_noop("Ближе к Майами"), gettext_noop("Ближе к Орландо"), gettext_noop("Ближе к Тампе"),
+    gettext_noop("Ближе к Джексонвиллу"), gettext_noop("от Майами"), gettext_noop("от Орландо"),
+    gettext_noop("от Тампы"), gettext_noop("от Джексонвилла"),
+)
 
 # (lat, lon, названия: английское, русское, другие написания)
 CITIES = [
@@ -95,6 +103,7 @@ CITIES = [
     (27.8164, -80.4706, "Sebastian", "Себастьян"),
     (28.0345, -80.5887, "Palm Bay", "Палм-Бэй", "Палм-Бей"),
     (28.0836, -80.6081, "Melbourne", "Мельбурн", "Мелбурн"),
+    (28.3506, -80.7253, "Rockledge", "Роклидж", "Роклэдж"),
     (28.1761, -80.5901, "Satellite Beach", "Сателлайт-Бич"),
     (28.3200, -80.6076, "Cocoa Beach", "Какао-Бич", "Коко-Бич"),
     (28.3861, -80.7420, "Cocoa", "Какао", "Коко"),
@@ -124,6 +133,7 @@ CITIES = [
     (28.0395, -81.9498, "Lakeland", "Лейкленд"),
     (28.0222, -81.7329, "Winter Haven", "Винтер-Хейвен"),
     (28.9005, -81.2637, "Deltona", "Делтона"),
+    (28.9489, -81.2987, "Orange City", "Ориндж-Сити", "Оранж-Сити"),
     (29.0283, -81.3031, "DeLand", "Деленд", "Де-Ленд"),
     (29.2108, -81.0228, "Daytona Beach", "Дейтона-Бич", "Daytona", "Дейтона"),
     (29.2858, -81.0559, "Ormond Beach", "Ормонд-Бич"),
@@ -153,6 +163,7 @@ CITIES = [
     (27.7253, -82.7412, "St. Pete Beach", "Сент-Пит-Бич", "Saint Pete Beach"),
     (27.7692, -82.7690, "Treasure Island", "Трежер-Айленд"),
     (27.9378, -82.2859, "Brandon", "Брэндон", "Брендон"),
+    (27.7181, -82.3518, "Sun City Center", "Сан-Сити-Сентер", "Сан-Сити"),
     (27.8661, -82.3265, "Riverview", "Ривервью"),
     (27.7731, -82.4076, "Apollo Beach", "Аполло-Бич"),
     (28.2397, -82.3279, "Wesley Chapel", "Уэсли-Чепел", "Весли-Чепел"),
@@ -160,6 +171,7 @@ CITIES = [
     (28.1511, -82.4615, "Lutz", "Лутц"),
     (28.0186, -82.1129, "Plant City", "Плант-Сити"),
     (28.2442, -82.7193, "New Port Richey", "Нью-Порт-Ричи"),
+    (28.3645, -82.6934, "Hudson", "Хадсон"),
     (28.4769, -82.5254, "Spring Hill", "Спринг-Хилл"),
     (28.2336, -82.1812, "Zephyrhills", "Зефирхиллс"),
     (27.4989, -82.5748, "Bradenton", "Брейдентон", "Брадентон"),
@@ -189,6 +201,7 @@ CITIES = [
     (30.2397, -81.3856, "Ponte Vedra Beach", "Понте-Ведра-Бич", "Ponte Vedra", "Понте-Ведра"),
     (29.9012, -81.3124, "St. Augustine", "Сент-Огастин", "Saint Augustine", "Сент-Августин"),
     (30.1661, -81.7065, "Orange Park", "Оранж-Парк"),
+    (29.9919, -81.6787, "Green Cove Springs", "Грин-Коув-Спрингс"),
     (30.0933, -81.7190, "Fleming Island", "Флеминг-Айленд"),
     (30.6697, -81.4626, "Fernandina Beach", "Фернандина-Бич"),
     (29.6516, -82.3248, "Gainesville", "Гейнсвилл"),
@@ -263,12 +276,13 @@ def distance_text(point: tuple[float, float] | None, hub: str) -> str:
     if value < 3:
         return ""
     n = value % 100
-    word = "миля" if n % 10 == 1 and n != 11 else "мили" if n % 10 in (2, 3, 4) and not 12 <= n <= 14 else "миль"
-    return f"≈ {value} {word} {HUBS[hub][2]}"
+    one, few, many = gettext("миля,мили,миль").split(",")
+    word = one if n % 10 == 1 and n != 11 else few if n % 10 in (2, 3, 4) and not 12 <= n <= 14 else many
+    return f"≈ {value} {word} {gettext(HUBS[hub][2])}"
 
 
 def hub_choices() -> list[tuple[str, str]]:
-    return [(slug, f"Ближе {to}") for slug, (_, to, *_) in HUBS.items()]
+    return [(slug, gettext(f"Ближе {to}")) for slug, (_, to, *_) in HUBS.items()]
 
 
 def near_links(request, param: str, prefix: str = "") -> list[dict]:

@@ -11,7 +11,10 @@ from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 
+from core.i18n import Translatable, uk_field
 from core.text import make_slug
+
+from .specialties import Specialty
 
 
 @lru_cache(maxsize=256)
@@ -25,7 +28,7 @@ class CategoryQuerySet(models.QuerySet):
         return self.prefetch_related(models.Prefetch("listings", queryset=Listing.objects.active()))
 
 
-class Category(models.Model):
+class Category(Translatable):
     class Kind(models.TextChoices):
         LINKS = "links", "Полезные ссылки"
         BUSINESS = "business", "Бизнесы"
@@ -42,6 +45,11 @@ class Category(models.Model):
     order = models.PositiveSmallIntegerField("порядок", default=0)
 
     objects = CategoryQuerySet.as_manager()
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("name", "description")
+    name_uk = uk_field(name)
+    description_uk = uk_field(description)
 
     class Meta:
         ordering = ["kind", "order", "name"]
@@ -67,7 +75,7 @@ class ListingQuerySet(models.QuerySet):
         )
 
 
-class Listing(models.Model):
+class Listing(Translatable):
     category = models.ForeignKey(Category, verbose_name="категория", on_delete=models.CASCADE, related_name="listings")
     name = models.CharField("название", max_length=160)
     description = models.TextField("описание", blank=True, help_text="2–4 предложения: чем полезен, для кого")
@@ -78,7 +86,15 @@ class Listing(models.Model):
     region = models.ForeignKey(
         "news.Region", verbose_name="регион", null=True, blank=True, on_delete=models.SET_NULL,
     )
+    photo = models.ForeignKey(
+        "gallery.MediaItem", verbose_name="фото", null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="+", limit_choices_to={"kind": "photo"}, help_text="Фото или логотип на странице бизнеса",
+    )
     languages = models.CharField("языки", max_length=120, blank=True, help_text="Например: русский, украинский, английский")
+    specialty = models.CharField(
+        "направление", max_length=12, choices=Specialty.choices, blank=True,
+        help_text="Только для врачей: по нему фильтр «Терапевты, Детские врачи…» на странице категории",
+    )
     hours = models.CharField("часы работы / расписание", max_length=200, blank=True)
     guide_slug = models.SlugField(
         "гайд по теме (slug)", max_length=120, blank=True,
@@ -101,6 +117,12 @@ class Listing(models.Model):
     updated_at = models.DateTimeField("изменено", auto_now=True)
 
     objects = ListingQuerySet.as_manager()
+
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("description", "hours", "languages")
+    description_uk = uk_field(description)
+    hours_uk = uk_field(hours)
+    languages_uk = uk_field(languages)
 
     class Meta:
         ordering = ["category", "order", "name"]

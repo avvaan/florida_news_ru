@@ -3,7 +3,9 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy
 
+from core.i18n import Translatable, uk_field
 from core.text import make_slug
 
 from . import markup
@@ -33,20 +35,20 @@ class GuideQuerySet(models.QuerySet):
         return guides[:limit]
 
 
-class Guide(models.Model):
+class Guide(Translatable):
     class Status(models.TextChoices):
         DRAFT = "draft", "черновик"
         PUBLISHED = "published", "опубликован"
 
     class Section(models.TextChoices):
-        DOCS = "docs", "Документы и статус"
-        CAR = "car", "Машина"
-        HOUSING = "housing", "Жильё"
-        HURRICANES = "hurricanes", "Ураганы и безопасность"
-        MONEY = "money", "Деньги и работа"
-        HEALTH = "health", "Медицина"
-        KIDS = "kids", "Дети и учёба"
-        EVERYDAY = "everyday", "Повседневное"
+        DOCS = "docs", gettext_lazy("Документы и статус")
+        CAR = "car", gettext_lazy("Машина")
+        HOUSING = "housing", gettext_lazy("Жильё")
+        HURRICANES = "hurricanes", gettext_lazy("Ураганы и безопасность")
+        MONEY = "money", gettext_lazy("Деньги и работа")
+        HEALTH = "health", gettext_lazy("Медицина")
+        KIDS = "kids", gettext_lazy("Дети и учёба")
+        EVERYDAY = "everyday", gettext_lazy("Повседневное")
 
     title = models.CharField("заголовок", max_length=160)
     slug = models.SlugField("адрес (латиница)", max_length=120, unique=True)
@@ -89,6 +91,12 @@ class Guide(models.Model):
 
     objects = GuideQuerySet.as_manager()
 
+    # Украинский перевод (см. core/i18n.py)
+    TRANSLATED = ("title", "teaser", "body")
+    title_uk = uk_field(title)
+    teaser_uk = uk_field(teaser)
+    body_uk = uk_field(body)
+
     class Meta:
         ordering = ["title"]
         verbose_name = "гайд"
@@ -115,7 +123,7 @@ class Guide(models.Model):
     @property
     def blocks(self) -> list[markup.Block]:
         """Текст для шаблона: разделы, абзацы, списки, таблицы, врезки и иллюстрации (см. markup.py)."""
-        return markup.parse(self.body)
+        return markup.parse(self.loc("body"))
 
     @property
     def toc(self) -> list[markup.Block]:
@@ -137,7 +145,8 @@ class Guide(models.Model):
             if block.kind == "h2":
                 if inside:
                     break
-                inside = "вопрос" in strip_tags(block.text).lower()
+                heading = strip_tags(block.text).lower()
+                inside = "вопрос" in heading or "питан" in heading  # «Вопросы и ответы» / «Питання та відповіді»
                 continue
             if not inside:
                 continue
@@ -166,12 +175,12 @@ class Guide(models.Model):
     @property
     def short_title(self) -> str:
         """Заголовок до двоеточия и без «во Флориде» — для компактных списков: «Florida ID для тех, кто не водит»."""
-        short = self.title.split(":", 1)[0].strip()
-        return short.replace(" во Флориде", "").strip() or short
+        short = self.loc("title").split(":", 1)[0].strip()
+        return short.replace(" во Флориде", "").replace(" у Флориді", "").replace(" в Флориді", "").strip() or short
 
     @property
     def reading_minutes(self) -> int:
-        return max(1, round(markup.plain_length(self.body) / 1300))
+        return max(1, round(markup.plain_length(self.loc("body")) / 1300))
 
     def save(self, *args, **kwargs):
         if not self.slug:
