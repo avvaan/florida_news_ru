@@ -2,6 +2,7 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
+from . import content_views as cv
 from . import views
 
 router = DefaultRouter()
@@ -13,6 +14,19 @@ router.register("pages", views.PageViewSet)
 router.register("regions", views.RegionViewSet)
 router.register("topics", views.TopicViewSet)
 router.register("pipeline", views.PipelineViewSet)
+router.register("media", cv.MediaViewSet, basename="media")
+router.register("events", cv.EventViewSet, basename="event")
+router.register("directory/categories", cv.DirectoryCategoryViewSet, basename="directory-category")
+router.register("directory/listings", cv.ListingViewSet, basename="listing")
+router.register("directory/submissions", cv.SubmissionViewSet, basename="submission")
+router.register("guides", cv.GuideViewSet, basename="guide")
+router.register("classifieds/categories", cv.AdCategoryViewSet, basename="ad-category")
+router.register("classifieds/ads", cv.AdViewSet, basename="classified")
+router.register("comments", cv.CommentViewSet, basename="comment")
+router.register("tags", cv.TagViewSet, basename="tag")
+router.register("authors", cv.AuthorViewSet, basename="author")
+router.register("signal-sources", cv.SignalSourceViewSet, basename="signal-source")
+router.register("hints", cv.HintViewSet, basename="hint")
 
 urlpatterns = [
     path("v1/settings/", views.SettingsView.as_view(), name="api-settings"),

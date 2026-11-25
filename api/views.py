@@ -12,6 +12,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ads.models import AdBanner
+from classifieds.models import Ad
+from comments.models import Comment
+from directory.models import Listing, Submission
+from events.models import Event
+from gallery.models import MediaItem
+from guides.models import Guide
+from core import translation
 from core.models import Page, SiteSettings
 from news.covers import cover_pools, describe
 from news.models import Article, Region, Topic
@@ -40,8 +47,8 @@ class ArticleViewSet(viewsets.ModelViewSet):
     serializer_class = s.ArticleSerializer
 
     def get_queryset(self):
-        qs = (Article.objects.select_related("region", "topic").prefetch_related("tags", "sources")
-              .order_by("-created_at"))
+        qs = (Article.objects.select_related("region", "topic", "guide", "photo", "video")
+              .prefetch_related("tags", "sources", "gallery").order_by("-created_at"))
         params = self.request.query_params
         if value := params.get("status"):
             qs = qs.filter(status=value)
@@ -60,6 +67,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def publish(self, request, pk=None):
         """Опубликовать на сайте (и отправить в Telegram, если он включён)."""
         article = publish_article(self.get_object())
+        translation.spawn_translation()  # украинская версия — сразу, а не к следующему проходу
         return Response(self.get_serializer(article).data)
 
     @extend_schema(request=None, responses=s.ArticleSerializer)
@@ -164,12 +172,21 @@ class WeatherAlertViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin, viewse
     http_method_names = ["get", "patch"]
 
 
+@extend_schema(parameters=[
+    OpenApiParameter("language", str, description="ru / uk — блоки только для этой версии; all — для обеих"),
+])
 class AdBannerViewSet(viewsets.ModelViewSet):
     """Рекламные блоки. Картинку загружайте как multipart/form-data, поле image."""
 
     queryset = AdBanner.objects.select_related("region")
     serializer_class = s.AdBannerSerializer
     parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if value := self.request.query_params.get("language"):
+            qs = qs.filter(language="" if value == "all" else value)
+        return qs
 
 
 class PageViewSet(viewsets.ModelViewSet):
@@ -263,6 +280,24 @@ class StatsView(APIView):
                 "broken": Source.objects.filter(is_broken=True).count(),
                 "total": Source.objects.count(),
             },
+            "events": {
+                "upcoming": Event.objects.upcoming().count(),
+                "by_status": dict(Event.objects.values_list("status").annotate(n=Count("id"))),
+            },
+            "directory": {
+                "listings_active": Listing.objects.filter(is_active=True).count(),
+                "submissions_pending": Submission.objects.filter(status=Submission.Status.PENDING).count(),
+            },
+            "classifieds": {
+                "active": Ad.objects.active().count(),
+                "by_status": dict(Ad.objects.values_list("status").annotate(n=Count("id"))),
+            },
+            "comments": {
+                "by_status": dict(Comment.objects.values_list("status").annotate(n=Count("id"))),
+                "reported": Comment.objects.filter(reports__gt=0).count(),
+            },
+            "guides": dict(Guide.objects.values_list("status").annotate(n=Count("id"))),
+            "media": dict(MediaItem.objects.values_list("kind").annotate(n=Count("id"))),
             "weather_alerts_active": WeatherAlert.objects.filter(is_active=True, is_hidden=False).count(),
             "last_run": s.PipelineRunSerializer(last).data if last else None,
         })

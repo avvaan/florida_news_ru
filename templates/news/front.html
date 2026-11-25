@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load static news_extras %}
+{% load static news_extras i18n %}
 
-{% block title %}{% if region %}Новости {{ region.name_locative }} на русском — {{ site_name }}{% elif topic %}{{ topic.name }} во Флориде — новости на русском — {{ site_name }}{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block description %}{% if region and region.description %}{{ region.description }}{% elif topic %}{{ topic.name }}: новости Флориды на русском языке, коротко и со ссылкой на первоисточник.{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block title %}{% if region %}{% blocktranslate trimmed with name=region.tr.name_locative site=site_name %}Новости {{ name }} на русском — {{ site }}{% endblocktranslate %}{% elif topic %}{% blocktranslate trimmed with name=topic.tr.name site=site_name %}{{ name }} во Флориде — новости на русском — {{ site }}{% endblocktranslate %}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block description %}{% if region and region.description %}{{ region.tr.description }}{% elif topic %}{% blocktranslate trimmed with name=topic.tr.name %}{{ name }}: новости Флориды на русском языке, коротко и со ссылкой на первоисточник.{% endblocktranslate %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block canonical %}{{ request.path|absolute }}{% if page_obj.number > 1 %}?page={{ page_obj.number }}{% endif %}{% endblock %}
 
-{% block og %}{% if region %}{% with t="Новости "|add:region.name_locative|add:" на русском — "|add:site_name %}{% include "includes/og.html" with title=t description=region.description|default:"Новости Флориды на русском языке: коротко и со ссылкой на первоисточник." url=request.path %}{% endwith %}{% elif topic %}{% with t=topic.name|add:" во Флориде — новости на русском — "|add:site_name %}{% include "includes/og.html" with title=t description=topic.description|default:"Новости Флориды на русском языке: коротко и со ссылкой на первоисточник." url=request.path image=topic.cover %}{% endwith %}{% else %}{{ block.super }}{% endif %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% if is_home %}{% organization_jsonld %}{% website_jsonld %}{% elif region %}{% breadcrumbs_jsonld "Главная" home_url region.name region.get_absolute_url %}{% elif topic %}{% breadcrumbs_jsonld "Главная" home_url topic.name topic.get_absolute_url %}{% endif %}{% if region or topic %}{% if feed %}{% if region %}{% collection_jsonld "Новости "|add:region.name_locative region.description|default:"Новости Флориды на русском" request.path feed %}{% else %}{% collection_jsonld topic.name topic.description|default:"Новости Флориды на русском" request.path feed %}{% endif %}{% endif %}{% endif %}{% endblock %}
+{% block og %}{% translate "Новости Флориды на русском языке: коротко и со ссылкой на первоисточник." as og_default %}{% if region %}{% blocktranslate trimmed asvar t with name=region.tr.name_locative site=site_name %}Новости {{ name }} на русском — {{ site }}{% endblocktranslate %}{% include "includes/og.html" with title=t description=region.tr.description|default:og_default url=request.path %}{% elif topic %}{% blocktranslate trimmed asvar t with name=topic.tr.name site=site_name %}{{ name }} во Флориде — новости на русском — {{ site }}{% endblocktranslate %}{% include "includes/og.html" with title=t description=topic.tr.description|default:og_default url=request.path image=topic.cover %}{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% translate "Главная" as home_name %}{% if is_home %}{% organization_jsonld %}{% website_jsonld %}{% elif region %}{% breadcrumbs_jsonld home_name home_url region.tr.name region.get_absolute_url %}{% elif topic %}{% breadcrumbs_jsonld home_name home_url topic.tr.name topic.get_absolute_url %}{% endif %}{% if region or topic %}{% if feed %}{% translate "Новости Флориды на русском" as ld_default %}{% if region %}{% blocktranslate trimmed asvar ld_name with name=region.tr.name_locative %}Новости {{ name }}{% endblocktranslate %}{% collection_jsonld ld_name region.tr.description|default:ld_default request.path feed %}{% else %}{% collection_jsonld topic.tr.name topic.tr.description|default:ld_default request.path feed %}{% endif %}{% endif %}{% endif %}{% endblock %}
 
 {% block top_ad %}{% endblock %}
 
@@ -15,17 +15,17 @@
 
   {% if region or topic %}
   <header class="section-head">
-    <h1 class="section-head__h">{% if region %}Новости {{ region.name_locative }}{% else %}{{ topic.name }}{% endif %}</h1>
-    {% if region and not region.is_statewide %}<p class="section-head__sub">Плюс общештатные новости, которые касаются всех жителей Флориды</p>{% endif %}
-    {% if topic.slug == "events" %}<p class="section-head__sub">Ищете, куда сходить? <a href="{% url 'events:list' %}">Афиша событий</a> от организаторов — концерты, спектакли и праздники.</p>{% endif %}
+    <h1 class="section-head__h">{% if region %}{% blocktranslate trimmed with name=region.tr.name_locative %}Новости {{ name }}{% endblocktranslate %}{% else %}{{ topic.tr.name }}{% endif %}</h1>
+    {% if region and not region.is_statewide %}<p class="section-head__sub">{% translate "Плюс общештатные новости, которые касаются всех жителей Флориды" %}</p>{% endif %}
+    {% if topic.slug == "events" %}{% url 'events:list' as events_url %}<p class="section-head__sub">{% blocktranslate trimmed with url=events_url %}Ищете, куда сходить? <a href="{{ url }}">Афиша событий</a> от организаторов — концерты, спектакли и праздники.{% endblocktranslate %}</p>{% endif %}
     {% if region %}
-    <ul class="chips" aria-label="Темы">
-      {% for t in nav_topics %}<li><a class="chip" href="{% url 'news:home' %}?region={{ region.slug }}&amp;topic={{ t.slug }}">{{ t.short_name }}</a></li>{% endfor %}
+    <ul class="chips" aria-label="{% translate "Темы" %}">
+      {% for t in nav_topics %}<li><a class="chip" href="{% url 'news:home' %}?region={{ region.slug }}&amp;topic={{ t.slug }}">{{ t.tr.short_name }}</a></li>{% endfor %}
     </ul>
     {% endif %}
   </header>
   {% else %}
-  <h1 class="visually-hidden">{{ site_name }} — новости Флориды на русском</h1>
+  <h1 class="visually-hidden">{{ site_name }} — {% translate "новости Флориды на русском" %}</h1>
   {% endif %}
 
   {% if alerts and not topic or alerts and topic.slug == "weather" or alerts and topic.slug == "safety" %}
@@ -33,89 +33,91 @@
   {% endif %}
 
   {% if lead %}
-  <section class="front" aria-label="Главное">
+  <section class="front" aria-label="{% translate "Главное" %}">
     <article class="lead{% if lead.urgent_now %} lead--urgent{% endif %}">
       <a class="lead__img" href="{{ lead.get_absolute_url }}" tabindex="-1" aria-hidden="true">
         <img src="{% cover lead %}" alt="" width="1200" height="675" fetchpriority="high">
       </a>
       <div class="lead__body">
-        <h2 class="lead__title"><a href="{{ lead.get_absolute_url }}">{% if lead.urgent_now %}<span class="flag">Срочно</span> {% endif %}{{ lead.title }}</a></h2>
-        <p class="lead__teaser">{{ lead.teaser }}</p>
+        <h2 class="lead__title"><a href="{{ lead.get_absolute_url }}">{% if lead.urgent_now %}<span class="flag">{% translate "Срочно" %}</span> {% endif %}{{ lead.tr.title }}</a></h2>
+        <p class="lead__teaser">{{ lead.tr.teaser }}</p>
         {% include "includes/meta.html" with a=lead %}
       </div>
     </article>
 
+    {% if ads.top %}<div class="promo-top promo-top--lead">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
+
     <aside class="digest" aria-labelledby="digest-h">
-      <h2 class="digest__h" id="digest-h">Самое важное за сутки</h2>
+      <h2 class="digest__h" id="digest-h">{% translate "Самое важное за сутки" %}</h2>
       {% if most_important %}
       <ol class="digest__list">
         {% for a in most_important %}
         <li class="digest__item">
-          <a href="{{ a.get_absolute_url }}">{% if a.urgent_now %}<span class="flag">Срочно</span> {% endif %}{{ a.title }}</a>
+          <a href="{{ a.get_absolute_url }}">{% if a.urgent_now %}<span class="flag">{% translate "Срочно" %}</span> {% endif %}{{ a.tr.title }}</a>
           {% include "includes/meta.html" %}
         </li>
         {% endfor %}
       </ol>
       {% else %}
-      <p class="digest__empty">За последние сутки других важных новостей нет — это хорошие новости.</p>
+      <p class="digest__empty">{% translate "За последние сутки других важных новостей нет — это хорошие новости." %}</p>
       {% endif %}
     </aside>
   </section>
 
   {% if top %}
-  <section class="tiles" aria-label="Ещё главное">
+  <section class="tiles" aria-label="{% translate "Ещё главное" %}">
     {% for a in top %}{% include "includes/tile.html" %}{% endfor %}
   </section>
   {% endif %}
   {% endif %}
 
-  {% if ads.top %}<div class="ad-top">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
+  {% if ads.top %}<div class="promo-top{% if lead %} promo-top--inline{% endif %}">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
 
   <div class="columns">
     <section class="feed" aria-labelledby="feed-h">
       {% if topic.slug == "events" and page_obj.number == 1 %}{% include "includes/featured_events.html" with wide=True %}{% endif %}
-      <h2 class="feed__h" id="feed-h">{% if page_obj.number > 1 %}Лента · страница {{ page_obj.number }}{% else %}Лента новостей{% endif %}</h2>
+      <h2 class="feed__h" id="feed-h">{% if page_obj.number > 1 %}{% blocktranslate trimmed with n=page_obj.number %}Лента · страница {{ n }}{% endblocktranslate %}{% else %}{% translate "Лента новостей" %}{% endif %}</h2>
       {% for a in feed %}
         {% include "includes/row.html" %}
         {% if forloop.counter == 5 and ads.infeed %}{% include "includes/ad.html" with ad=ads.infeed %}{% endif %}
       {% empty %}
         {% if not lead %}
         <div class="empty">
-          <p class="empty__title">Здесь пока пусто</p>
-          <p>Новости обновляются дважды в день — утром и вечером.{% if telegram_url %} Подпишитесь на Telegram, чтобы не пропустить главное.{% endif %}</p>
-          {% if telegram_url %}<a class="btn" href="{{ telegram_url }}" target="_blank" rel="noopener">Подписаться в Telegram</a>{% endif %}
+          <p class="empty__title">{% translate "Здесь пока пусто" %}</p>
+          <p>{% translate "Новости обновляются дважды в день — утром и вечером." %}{% if telegram_url %} {% translate "Подпишитесь на Telegram, чтобы не пропустить главное." %}{% endif %}</p>
+          {% if telegram_url %}<a class="btn" href="{{ telegram_url }}" target="_blank" rel="noopener">{% translate "Подписаться в Telegram" %}</a>{% endif %}
         </div>
         {% endif %}
       {% endfor %}
       {% include "includes/pager.html" %}
     </section>
 
-    <aside class="sidebar" aria-label="Боковая колонка">
+    <aside class="sidebar" aria-label="{% translate "Боковая колонка" %}">
       {% include "includes/tg_cta.html" %}
       {% if ads.sidebar %}{% include "includes/ad.html" with ad=ads.sidebar %}{% endif %}
       {% if guides %}
       <nav class="useful" aria-labelledby="useful-h">
-        <h2 class="sidebar__h" id="useful-h">Полезное</h2>
+        <h2 class="sidebar__h" id="useful-h">{% translate "Полезное" %}</h2>
         <ul class="useful__list">
-          {% for g in guides %}<li><a href="{{ g.get_absolute_url }}">{{ g.title }}</a></li>{% endfor %}
+          {% for g in guides %}<li><a href="{{ g.get_absolute_url }}">{{ g.tr.title }}</a></li>{% endfor %}
         </ul>
-        <a class="useful__all" href="{% url 'guides:list' %}">Все гайды →</a>
+        <a class="useful__all" href="{% url 'guides:list' %}">{% translate "Все гайды →" %}</a>
       </nav>
       {% endif %}
       {% if business_latest %}
       <nav class="useful" aria-labelledby="biz-h">
-        <h2 class="sidebar__h" id="biz-h">Бизнес: акции и сделки</h2>
+        <h2 class="sidebar__h" id="biz-h">{% translate "Бизнес: акции и сделки" %}</h2>
         <ul class="useful__list">
-          {% for a in business_latest %}<li><a href="{{ a.get_absolute_url }}">{{ a.title }}</a></li>{% endfor %}
+          {% for a in business_latest %}<li><a href="{{ a.get_absolute_url }}">{{ a.tr.title }}</a></li>{% endfor %}
         </ul>
-        <a class="useful__all" href="{% url 'news:business' %}">Все бизнес-новости →</a>
+        <a class="useful__all" href="{% url 'news:business' %}">{% translate "Все бизнес-новости →" %}</a>
       </nav>
       {% endif %}
       <nav class="topic-index" aria-labelledby="topics-h">
-        <h2 class="sidebar__h" id="topics-h">Темы</h2>
+        <h2 class="sidebar__h" id="topics-h">{% translate "Темы" %}</h2>
         <ul>
           {% for t in nav_topics %}
-          <li><a href="{{ t.get_absolute_url }}"><img src="{% static t.cover|add:'-640.webp' %}" alt="" width="64" height="36" loading="lazy"><span>{{ t.name }}</span></a></li>
+          <li><a href="{{ t.get_absolute_url }}"><img src="{% static t.cover|add:'-640.webp' %}" alt="" width="64" height="36" loading="lazy"><span>{{ t.tr.name }}</span></a></li>
           {% endfor %}
         </ul>
       </nav>
@@ -126,15 +128,15 @@
   {% if guide_sections %}
   <section class="home-guides" aria-labelledby="home-guides-h">
     <div class="home-guides__head">
-      <h2 class="feed__h" id="home-guides-h">Гайды: жизнь во Флориде</h2>
-      <a class="useful__all" href="{% url 'guides:list' %}">Все гайды →</a>
+      <h2 class="feed__h" id="home-guides-h">{% translate "Гайды: жизнь во Флориде" %}</h2>
+      <a class="useful__all" href="{% url 'guides:list' %}">{% translate "Все гайды →" %}</a>
     </div>
     <div class="home-guides__grid">
       {% for s in guide_sections %}
       <nav class="home-guides__section" aria-labelledby="hg-{{ s.slug }}">
         <h3 class="home-guides__h" id="hg-{{ s.slug }}"><a href="{% url 'guides:list' %}#{{ s.slug }}">{{ s.name }}</a></h3>
         <ul class="home-guides__list">
-          {% for g in s.guides %}<li><a href="{{ g.get_absolute_url }}" title="{{ g.title }}">{{ g.short_title }}</a></li>{% endfor %}
+          {% for g in s.guides %}<li><a href="{{ g.get_absolute_url }}" title="{{ g.tr.title }}">{{ g.short_title }}</a></li>{% endfor %}
         </ul>
       </nav>
       {% endfor %}

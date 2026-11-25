@@ -30,7 +30,7 @@ from .helpers import fake_deepseek_response, make_source
 
 pytestmark = pytest.mark.django_db
 
-BODY = " ".join(["слово"] * 100)
+BODY = " ".join(["слово"] * 450)
 KEYS = dict(PERPLEXITY_API_KEY="pk", XAI_API_KEY="xk", AI_PROVIDER="deepseek")
 
 

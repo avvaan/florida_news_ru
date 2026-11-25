@@ -23,7 +23,8 @@ def decide(*, score: int, is_urgent: bool, is_sensitive: bool, has_official_sour
            verified_ok: bool, verifier_confidence: float, issues: list[str],
            insufficient_facts: bool, auto_publish_enabled: bool, auto_publish_min_score: int,
            min_confidence: Decimal | float, publish_without_review: bool = False,
-           has_trusted_source: bool = True, source_conflicts: list[str] | None = None) -> Decision:
+           has_trusted_source: bool = True, source_conflicts: list[str] | None = None,
+           word_count: int | None = None, min_words: int = 0) -> Decision:
     # Правила сильнее любых настроек (даже «публиковать всё без проверки»):
     # без записи от СМИ или официального источника не публикуем (одного поста из соцсетей недостаточно);
     # если источники противоречат друг другу (место, жертвы, имена…) — решает человек.
@@ -31,6 +32,10 @@ def decide(*, score: int, is_urgent: bool, is_sensitive: bool, has_official_sour
         return Decision(REVIEW, "Нет подтверждения от СМИ или официального источника")
     if source_conflicts:
         return Decision(REVIEW, "Источники противоречат друг другу: " + "; ".join(source_conflicts[:3]))
+    # Короткий пересказ — слабая страница, которая тянет вниз весь сайт в Google. Срочное (ураган,
+    # эвакуация) выходит и коротким: оно закрыто от поисковиков, но читатели должны узнать сразу.
+    if word_count is not None and word_count < min_words and not is_urgent:
+        return Decision(REVIEW, f"Короткая заметка: {word_count} слов при минимуме {min_words} — допишите или отклоните")
     decision = _decide(
         score=score, is_urgent=is_urgent, is_sensitive=is_sensitive, has_official_source=has_official_source,
         verified_ok=verified_ok, verifier_confidence=verifier_confidence, issues=issues,

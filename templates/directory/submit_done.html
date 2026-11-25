@@ -1,27 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Заявка в справочник — {{ site_name }}{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Заявка в справочник" %} — {{ site_name }}{% endblock %}
 {% block robots %}noindex, nofollow{% endblock %}
 {% block head %}{% if submission and submission.status == "pending" %}<meta http-equiv="refresh" content="6">{% endif %}{% endblock %}
 {% block content %}
 <div class="wrap">
-  <nav class="crumbs" aria-label="Навигация">
-    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">Ссылки и бизнесы</a>
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'directory:index' %}">{% translate "Ссылки и бизнесы" %}</a>
   </nav>
   <section class="story story--page dir-form">
     {% if not submission or submission.status == "pending" %}
-    <h1 class="story__title">Заявка на проверке</h1>
-    <p class="story__lede">Спасибо! Проверяем заявку — обычно это занимает пару минут. Страница обновится сама.</p>
-    {% if submission %}<p class="dir-form__help">Сохраните ссылку на эту страницу, чтобы узнать результат позже.</p>{% endif %}
+    <h1 class="story__title">{% translate "Заявка на проверке" %}</h1>
+    <p class="story__lede">{% translate "Спасибо! Проверяем заявку — обычно это занимает пару минут. Страница обновится сама." %}</p>
+    {% if submission %}<p class="dir-form__help">{% translate "Сохраните ссылку на эту страницу, чтобы узнать результат позже." %}</p>{% endif %}
     {% elif submission.status == "approved" %}
-    <h1 class="story__title">Готово, бизнес в справочнике</h1>
-    <p class="story__lede">«{{ submission.listing.name|default:submission.name }}» опубликован в разделе «{{ submission.listing.category.name }}» с меткой «Данные от владельца». Описание мы могли сократить.</p>
-    {% if submission.listing %}<p><a class="btn" href="{{ submission.listing.category.get_absolute_url }}">Посмотреть в справочнике</a></p>{% endif %}
+    <h1 class="story__title">{% translate "Готово, бизнес в справочнике" %}</h1>
+    <p class="story__lede">{% blocktranslate trimmed with name=submission.listing.name|default:submission.name category_name=submission.listing.category.tr.name %}«{{ name }}» опубликован в разделе «{{ category_name }}» с меткой «Данные от владельца». Описание мы могли сократить.{% endblocktranslate %}</p>
+    {% if submission.listing %}<p><a class="btn" href="{{ submission.listing.category.get_absolute_url }}">{% translate "Посмотреть в справочнике" %}</a></p>{% endif %}
     {% else %}
-    <h1 class="story__title">Заявка не прошла проверку</h1>
-    <p class="story__lede">{{ submission.public_reason|default:"Заявка не прошла проверку." }}</p>
-    <p>Если вы считаете, что это ошибка, напишите нам через страницу <a href="{% url 'core-page' 'contacts' %}">«Контакты»</a> и укажите название бизнеса.</p>
+    <h1 class="story__title">{% translate "Заявка не прошла проверку" %}</h1>
+    <p class="story__lede">{{ submission.public_reason|default:_("Заявка не прошла проверку.") }}</p>
+    <p>{% url 'core-page' 'contacts' as contacts_url %}{% blocktranslate trimmed %}Если вы считаете, что это ошибка, напишите нам через страницу <a href="{{ contacts_url }}">«Контакты»</a> и укажите название бизнеса.{% endblocktranslate %}</p>
     {% endif %}
-    <p><a href="{% url 'directory:index' %}">← К справочнику</a></p>
+    <p><a href="{% url 'directory:index' %}">{% translate "← К справочнику" %}</a></p>
   </section>
 </div>
 {% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static news_extras places_extras %}
+{% block title %}{{ t.section_title }} — {{ site_name }}{% endblock %}
+{% block description %}{{ t.section_description }}{% endblock %}
+{% block canonical %}{{ list_url|absolute }}{% endblock %}
+{% block og %}{% with first=items|first %}{% include "includes/og.html" with title=t.section_title description=t.section_description url=list_url image=first.cover %}{% endwith %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% breadcrumbs_jsonld t.home home_url t.section list_url %}{% destinations_collection_jsonld t.section_title t.section_description list_url items lang %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story guides places">
+    <nav class="crumbs" aria-label="{{ t.breadcrumbs }}"><a href="{% url 'news:home' %}">{{ t.home }}</a><span aria-hidden="true">/</span><span>{{ t.section }}</span></nav>
+    <h1 class="story__title">{{ t.section_title }}</h1>
+    <p class="story__lede">{{ t.section_lede }}</p>
+    {% if regions %}
+    {% if regions|length > 1 %}
+    <nav class="guides__nav" aria-label="{{ t.regions_nav }}">
+      {% for r in regions %}<a class="chip" href="#{{ r.slug }}">{{ r.name }}</a>{% endfor %}
+    </nav>
+    {% endif %}
+    {% for r in regions %}
+    <section class="guides__section" id="{{ r.slug }}" aria-labelledby="{{ r.slug }}-h">
+      <div class="section-head"><h2 class="section-head__h" id="{{ r.slug }}-h">{{ r.name }}</h2></div>
+      <ul class="guides__grid">
+        {% for d in r.items %}
+        <li class="guide-card">
+          <a href="{{ d.get_absolute_url }}">
+            {% if d.cover %}{% with small=d.cover|add:"-640.webp" %}<img src="{% static small %}" alt="" width="640" height="360" loading="lazy" decoding="async">{% endwith %}{% endif %}
+            <b>{{ d.title }}</b>
+            {% if d.teaser %}<span>{{ d.teaser }}</span>{% endif %}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
+    {% else %}
+    <p class="places__empty">{{ t.empty }}</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

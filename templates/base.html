@@ -1,22 +1,21 @@
-{% load static news_extras %}<!doctype html>
-<html lang="ru">
+{% load static news_extras i18n %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{{ site_name }} — новости Флориды по-русски{% endblock %}</title>
-  <meta name="description" content="{% block description %}Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник.{% endblock %}">
+  <title>{% block title %}{{ site_name }} — {% translate "новости Флориды" %}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{% translate "Главные новости Флориды на русском: погода и ураганы, законы, деньги, события в Майами, Орландо, Тампе и Джексонвилле. Коротко и со ссылкой на первоисточник." %}{% endblock %}">
   <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1{% endblock %}">
   <link rel="canonical" href="{% block canonical %}{{ request.path|absolute }}{% endblock %}">
-  <link rel="alternate" hreflang="ru" href="{{ request.path|absolute }}">
-  <link rel="alternate" hreflang="x-default" href="{{ request.path|absolute }}">
+  {% block alternates %}{% include "includes/alternates.html" %}{% endblock %}
   <meta name="theme-color" content="#0f2433">
   {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
   <meta property="og:site_name" content="{{ site_name }}">
-  <meta property="og:locale" content="ru_RU">
-  {% block og %}{% include "includes/og.html" with title=site_name|add:" — новости Флориды по-русски" description="Погода и ураганы, законы, деньги и события Флориды — коротко и по-русски." url=request.path %}{% endblock %}
+  <meta property="og:locale" content="{% if is_uk %}uk_UA{% else %}ru_RU{% endif %}">
+  {% block og %}{% translate "новости Флориды" as og_tagline %}{% translate "Погода и ураганы, законы, деньги и события Флориды — коротко и по делу." as og_description %}{% include "includes/og.html" with title=site_name|add:" — "|add:og_tagline description=og_description url=request.path %}{% endblock %}
   <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" type="application/rss+xml" title="{{ site_name }}" href="{% url 'news:rss' %}">
-  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
   <link rel="apple-touch-icon" href="{% static 'img/logo-512.png' %}">
   <link rel="preload" href="{% static 'fonts/golos-text-cyrillic-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{% static 'fonts/golos-text-cyrillic-800-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
@@ -25,68 +24,67 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site_conf.adsense_client }}" crossorigin="anonymous"></script>
   {% endif %}
   {% block head %}{% endblock %}
+  <script defer src="{% static 'js/lang.js' %}"></script>
   {% block stats %}<script defer src="{% static 'js/hit.js' %}"></script>{% endblock %}{# счётчик: сигнал из браузера, см. stats/tracking.py #}
 </head>
 <body class="{% block body_class %}{% endblock %}">
-<!--
-THESIS: Русскоязычная первая полоса Флориды, где иерархию задаёт срочность, а не только свежесть: сначала то, что угрожает или меняет жизнь, потом всё остальное. Отказ от безликой сетки одинаковых карточек блога.
-OWN-WORLD: Белая бумага, чернильно-синий #0f2433, зелень залива #0b7a75 — знаки флоридских хайвеев, оранжевый «штормовой» #c2410c только для срочного, солнечный #ffc93c для предупреждений. Таблички регионов как дорожные указатели с белой внутренней рамкой. Плоские иллюстрации в стиле флоридских туристических плакатов середины века. Golos Text + Unbounded для логотипа.
-STORY: Читатель за секунды видит, есть ли угроза (полоса «Срочно», блок погоды), потом главную тему дня, затем ленту своего города; доверяет, потому что под каждой заметкой — первоисточник; подписывается на Telegram.
-FIRST VIEWPORT: Шапка-табло с логотипом и датой, ряд табличек-указателей регионов, оранжевая полоса «Срочно» (если есть), блок «Погода и ураганы» (если есть), затем главная тема (обложка 16:9 + крупный заголовок) слева и «Самое важное за сутки» справа.
-FORM: Классическая новостная первая полоса (выбор пользователя, «Флоридский портал»), без броска концептов — направление закреплено брифом.
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
--->
-<a class="skip" href="#main">К содержанию</a>
+<a class="skip" href="#main">{% translate "К содержанию" %}</a>
 {% include "includes/icons.svg" %}
-{% if demo_mode %}<div class="demo-ribbon" role="note">Демо-данные: заметки на этой копии сайта выдуманы для проверки дизайна</div>{% endif %}
+{% if demo_mode %}<div class="demo-ribbon" role="note">{% translate "Демо-данные: заметки на этой копии сайта выдуманы для проверки дизайна" %}</div>{% endif %}
 
 <header class="masthead">
   <div class="masthead__top wrap">
     <p class="masthead__date">{{ now|date:"l, j E Y" }}</p>
-    {% if telegram_url %}<a class="tg-link" href="{{ telegram_url }}" target="_blank" rel="noopener">
-      <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>Наш Telegram
-    </a>{% endif %}
+    <div class="masthead__tools">
+      {% if telegram_url %}<a class="tg-link" href="{{ telegram_url }}" target="_blank" rel="noopener">
+        <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>{% translate "Наш Telegram" %}
+      </a>{% endif %}
+      <nav class="lang" aria-label="{% translate "Язык сайта" %}">
+        {% for l in lang_switch %}<a class="lang__item" href="{{ l.url }}" hreflang="{{ l.code }}" lang="{{ l.code }}" title="{{ l.name }}"{% if l.current %} aria-current="true"{% endif %}>{{ l.label }}</a>{% endfor %}
+      </nav>
+    </div>
   </div>
   <div class="masthead__brand wrap">
-    <a class="logo" href="{% url 'news:home' %}" aria-label="{{ site_name }} — на главную">
-      <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
-      <span class="logo__word">Florida<br>RU</span>
+    <a class="logo" href="{% url 'news:home' %}" aria-label="{{ site_name }} — {% translate "на главную" %}">
+      <picture><source srcset="{% static 'img/logo-mark.webp' %}" type="image/webp"><img class="logo__mark" src="{% static 'img/logo-mark.png' %}" alt="" width="56" height="56"></picture>
+      <span class="logo__word"><span class="logo__tut">Tut</span>Florida</span>
     </a>
-    <p class="masthead__tagline">Новости штата по-русски: коротко, по делу и&nbsp;со&nbsp;ссылкой на&nbsp;первоисточник</p>
+    <p class="masthead__tagline">{% translate "Новости штата: коротко, по делу и&nbsp;со&nbsp;ссылкой на&nbsp;первоисточник" %}</p>
   </div>
-  <nav class="signs" aria-label="Регионы">
+  <nav class="signs" aria-label="{% translate "Регионы" %}">
     <ul class="signs__row wrap">
-      <li><a class="sign{% if is_home %} is-current{% endif %}" href="{% url 'news:home' %}"{% if is_home %} aria-current="page"{% endif %}>Главное</a></li>
+      <li><a class="sign{% if is_home %} is-current{% endif %}" href="{% url 'news:home' %}"{% if is_home %} aria-current="page"{% endif %}>{% translate "Главное" %}</a></li>
       {% for r in nav_regions %}
-      <li><a class="sign{% if region and region.pk == r.pk %} is-current{% endif %}" href="{{ r.get_absolute_url }}"{% if region and region.pk == r.pk %} aria-current="page"{% endif %}>{{ r.name }}</a></li>
+      <li><a class="sign{% if region and region.pk == r.pk %} is-current{% endif %}" href="{{ r.get_absolute_url }}"{% if region and region.pk == r.pk %} aria-current="page"{% endif %}>{{ r.tr.name }}</a></li>
       {% endfor %}
     </ul>
   </nav>
-  <nav class="topics" aria-label="Темы">
+  <nav class="topics" aria-label="{% translate "Темы" %}">
     <ul class="topics__row wrap">
       {% for t in nav_topics %}
-      <li><a class="topics__link{% if topic and topic.pk == t.pk %} is-current{% endif %}" href="{{ t.get_absolute_url }}"{% if topic and topic.pk == t.pk %} aria-current="page"{% endif %}>{{ t.short_name }}</a></li>
+      <li><a class="topics__link{% if topic and topic.pk == t.pk %} is-current{% endif %}" href="{{ t.get_absolute_url }}"{% if topic and topic.pk == t.pk %} aria-current="page"{% endif %}>{{ t.tr.short_name }}</a></li>
       {% endfor %}
-      <li><a class="topics__link topics__link--section" href="{% url 'guides:list' %}">Гайды</a></li>
-      <li><a class="topics__link topics__link--section" href="{% url 'events:list' %}">Афиша</a></li>
-      <li><a class="topics__link topics__link--section" href="{% url 'classifieds:index' %}">Объявления</a></li>
-      <li><a class="topics__link topics__link--section" href="{% url 'directory:index' %}">Справочник</a></li>
+      <li><a class="topics__link topics__link--section" href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>
+      <li><a class="topics__link topics__link--section{% if places_section %} is-current{% endif %}" href="{% url 'places:list' %}"{% if places_section %} aria-current="page"{% endif %}>{% translate "Что посетить" %}</a></li>
+      <li><a class="topics__link topics__link--section" href="{% url 'events:list' %}">{% translate "Афиша" %}</a></li>
+      <li><a class="topics__link topics__link--section" href="{% url 'classifieds:index' %}">{% translate "Объявления" %}</a></li>
+      <li><a class="topics__link topics__link--section" href="{% url 'directory:index' %}">{% translate "Справочник" %}</a></li>
     </ul>
   </nav>
 </header>
 
 {% if urgent %}
-<section class="urgent" aria-label="Срочно">
+<section class="urgent" aria-label="{% translate "Срочно" %}">
   <div class="wrap urgent__inner">
-    <span class="urgent__label">Срочно</span>
+    <span class="urgent__label">{% translate "Срочно" %}</span>
     <ul class="urgent__list">
-      {% for a in urgent %}<li><a href="{{ a.get_absolute_url }}">{{ a.title }}</a> <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|date:"H:i" }}</time></li>{% endfor %}
+      {% for a in urgent %}<li><a href="{{ a.get_absolute_url }}">{{ a.tr.title }}</a> <time datetime="{{ a.published_at|date:'c' }}">{{ a.published_at|date:"H:i" }}</time></li>{% endfor %}
     </ul>
   </div>
 </section>
 {% endif %}
 
-{% block top_ad %}{% if ads.top %}<div class="wrap ad-top">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}{% endblock %}
+{% block top_ad %}{% if ads.top %}<div class="wrap promo-top">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}{% endblock %}
 
 <main id="main" class="main">
 {% block content %}{% endblock %}
@@ -96,46 +94,47 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <div class="wrap footer__grid">
     <div class="footer__brand">
       <a class="logo logo--footer" href="{% url 'news:home' %}">
-        <svg class="logo__mark" aria-hidden="true"><use href="#i-mark"/></svg>
-        <span class="logo__word">Florida<br>RU</span>
+        <picture><source srcset="{% static 'img/logo-mark.webp' %}" type="image/webp"><img class="logo__mark" src="{% static 'img/logo-mark.png' %}" alt="" width="56" height="56"></picture>
+        <span class="logo__word"><span class="logo__tut">Tut</span>Florida</span>
       </a>
       <p class="footer__note">{{ disclaimer }}</p>
-      {% if site_conf.contact_email %}<p class="footer__mail">Почта редакции: <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>{% endif %}
+      {% if site_conf.contact_email %}<p class="footer__mail">{% translate "Почта редакции:" %} <a href="mailto:{{ site_conf.contact_email }}">{{ site_conf.contact_email }}</a></p>{% endif %}
     </div>
-    <nav aria-label="Разделы">
-      <h2 class="footer__h">Регионы</h2>
-      <ul class="footer__list">{% for r in nav_regions %}<li><a href="{{ r.get_absolute_url }}">{{ r.name }}</a></li>{% endfor %}</ul>
+    <nav aria-label="{% translate "Разделы" %}">
+      <h2 class="footer__h">{% translate "Регионы" %}</h2>
+      <ul class="footer__list">{% for r in nav_regions %}<li><a href="{{ r.get_absolute_url }}">{{ r.tr.name }}</a></li>{% endfor %}</ul>
     </nav>
-    <nav aria-label="Темы сайта">
-      <h2 class="footer__h">Темы</h2>
-      <ul class="footer__list">{% for t in nav_topics %}<li><a href="{{ t.get_absolute_url }}">{{ t.name }}</a></li>{% endfor %}</ul>
+    <nav aria-label="{% translate "Темы сайта" %}">
+      <h2 class="footer__h">{% translate "Темы" %}</h2>
+      <ul class="footer__list">{% for t in nav_topics %}<li><a href="{{ t.get_absolute_url }}">{{ t.tr.name }}</a></li>{% endfor %}</ul>
     </nav>
-    <nav aria-label="О сайте">
-      <h2 class="footer__h">Редакция</h2>
+    <nav aria-label="{% translate "О сайте" %}">
+      <h2 class="footer__h">{% translate "Редакция" %}</h2>
       <ul class="footer__list">
-        {% for p in footer_pages %}<li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></li>{% endfor %}
+        {% for p in footer_pages %}<li><a href="{{ p.get_absolute_url }}">{{ p.tr.title }}</a></li>{% endfor %}
         <li><a href="{% url 'news:rss' %}">RSS</a></li>
       </ul>
       {% if telegram_url %}<a class="btn btn--tg" href="{{ telegram_url }}" target="_blank" rel="noopener">
-        <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>Подписаться в Telegram
+        <svg class="i" aria-hidden="true"><use href="#i-telegram"/></svg>{% translate "Подписаться в Telegram" %}
       </a>{% endif %}
     </nav>
   </div>
   <div class="wrap footer__legal">
-    <p>© {{ now.year }} {{ site_owner }}. Florida RU — florida-ru.com</p>
-    <nav aria-label="Правовая информация">
+    <p>© {{ now.year }} {{ site_owner }}. TutFlorida — tutflorida.com</p>
+    <nav aria-label="{% translate "Правовая информация" %}">
       <ul class="footer__links">
-        <li><a href="{% url 'guides:list' %}">Гайды</a></li>
-        <li><a href="{% url 'directory:index' %}">Полезные ссылки и бизнесы</a></li>
-        <li><a href="{% url 'core-about' %}">О проекте</a></li>
-        <li><a href="{% url 'core-page' 'advertising' %}">Реклама</a></li>
-        <li><a href="{% url 'core-corrections' %}">Исправления</a></li>
-        <li><a href="{% url 'core-dmca' %}">Авторские права (DMCA)</a></li>
-        <li><a href="{% url 'core-page' 'privacy' %}">Политика конфиденциальности</a></li>
-        <li><a href="{% url 'core-page' 'contacts' %}">Контакты</a></li>
+        <li><a href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>
+        <li><a href="{% url 'places:list' %}">{% translate "Что посетить во Флориде" %}</a></li>
+        <li><a href="{% url 'directory:index' %}">{% translate "Полезные ссылки и бизнесы" %}</a></li>
+        <li><a href="{% url 'core-about' %}">{% translate "О проекте" %}</a></li>
+        <li><a href="{% url 'core-page' 'advertising' %}">{% translate "Реклама" %}</a></li>
+        <li><a href="{% url 'core-corrections' %}">{% translate "Исправления" %}</a></li>
+        <li><a href="{% url 'core-dmca' %}">{% translate "Авторские права (DMCA)" %}</a></li>
+        <li><a href="{% url 'core-page' 'privacy' %}">{% translate "Политика конфиденциальности" %}</a></li>
+        <li><a href="{% url 'core-page' 'contacts' %}">{% translate "Контакты" %}</a></li>
       </ul>
     </nav>
-    <p>Иллюстрации — собственные, фото — лицензионный сток Freepik. Фотографии из чужих статей мы не используем.</p>
+    <p>{% translate "Иллюстрации — собственные, фото — лицензионный сток Freepik и снимки в общественном достоянии (Библиотека Конгресса, NASA, NPS) с указанием автора. Фотографии из чужих статей мы не используем." %}</p>
   </div>
 </footer>
 </body>

@@ -40,7 +40,7 @@
 {% block content_title %}
   <h1>Посещаемость сайта</h1>
   <nav class="st-periods" aria-label="Период">
-    {% for p in periods %}<a href="?days={{ p }}{% if raw %}&amp;bots=1{% endif %}"{% if p == days %} class="is-on"{% endif %}>{% if p == 365 %}год{% else %}{{ p }} дней{% endif %}</a>{% endfor %}
+    {% for p in periods %}<a href="?days={{ p }}{% if not raw %}&amp;bots=0{% endif %}"{% if p == days %} class="is-on"{% endif %}>{% if p == 365 %}год{% else %}{{ p }} дней{% endif %}</a>{% endfor %}
   </nav>
 
   <div class="st-cards">
@@ -71,9 +71,10 @@
     </div>
   </div>
   <div class="st-bots">
-    <span>Отсеяно ботов сегодня: {{ bots_today|intcomma }} ({{ bots_today_pct }}%)</span>
-    {% if raw %}<a href="?days={{ days }}">скрыть ботов — только люди</a><span>Сейчас показано всё подряд: люди, боты и старый серверный счётчик.</span>
-    {% else %}<a href="?days={{ days }}&amp;bots=1">показать ботов</a>{% endif %}
+    {% if raw %}<span>Ботов сегодня: {{ bots_today|intcomma }} ({{ bots_today_pct }}%) — учтены в цифрах</span>
+    <a href="?days={{ days }}&amp;bots=0">скрыть ботов — только люди</a><span>Сейчас показано всё подряд: люди, боты и старый серверный счётчик.</span>
+    {% else %}<span>Отсеяно ботов сегодня: {{ bots_today|intcomma }} ({{ bots_today_pct }}%)</span>
+    <a href="?days={{ days }}">показать всех, с ботами</a>{% endif %}
   </div>
 
   <div class="st-box">
