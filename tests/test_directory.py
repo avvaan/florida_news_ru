@@ -274,3 +274,43 @@ def test_category_region_pages(client):
     cache.clear()
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/links/stomatologi/miami/</loc>" in sitemap and "/links/test-thin/miami/</loc>" not in sitemap
+
+
+def test_owner_update_goes_to_editor_and_applies(client, admin_client):
+    """«Это ваш бизнес?»: правка ждёт редактора, после «Применить» данные обновляются с меткой владельца."""
+    from directory.models import ListingUpdate
+
+    item = Listing.objects.active().filter(category__slug="krasota").first()
+    page = client.get(item.get_absolute_url()).content.decode()
+    assert item.get_update_url() in page and "Это ваш бизнес?" in page
+    form = client.get(item.get_update_url()).content.decode()
+    assert 'content="noindex, nofollow"' in form and "Мы в справочнике TutFlorida" in form  # значок для сайта
+    data = {"phone": "(305) 555-0101", "description": item.description, "contact_name": "Анна",
+            "contact_email": "anna@example.com", "agree": "on"}
+    html = client.post(item.get_update_url(), data).content.decode()
+    assert "правка отправлена" in html
+    update = ListingUpdate.objects.get(listing=item)
+    item.refresh_from_db()
+    assert update.status == "pending" and item.phone != "(305) 555-0101"  # сама не публикуется
+    assert list(update.changes()) == ["phone"]
+    update.apply()
+    item.refresh_from_db()
+    assert item.phone == "(305) 555-0101" and item.from_owner and "правка владельца" in item.editor_note
+    # просьба убрать бизнес снимает его с сайта
+    removal = ListingUpdate.objects.create(listing=item, remove=True, contact_name="Анна", contact_email="a@b.co")
+    removal.apply()
+    item.refresh_from_db()
+    assert not item.is_active
+    # бот, заполнивший скрытое поле, получает «спасибо», но правка не сохраняется
+    other = Listing.objects.active().filter(category__slug="krasota").first()
+    client.post(other.get_update_url(), {**data, "company": "spam"})
+    assert not ListingUpdate.objects.filter(listing=other).exists()
+
+
+def test_outreach_csv_export(admin_client):
+    item = Listing.objects.active().filter(category__slug="stomatologi").first()
+    response = admin_client.post("/admin/directory/listing/", {
+        "action": "action_export_outreach", "_selected_action": [item.pk]})
+    body = response.content.decode("utf-8-sig")
+    assert response["Content-Type"].startswith("text/csv") and item.name in body
+    assert item.get_update_url() in body and "Обновить данные" in body

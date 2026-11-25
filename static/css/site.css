@@ -921,3 +921,10 @@ article.split { margin-top: 0; }
 .search-list__meta { font-size: .875rem; color: var(--muted); }
 .search-list__text { font-size: .95rem; }
 @media (max-width: 600px) { .search-link { font-size: 0; gap: 0; } .search-link .i { width: 20px; height: 20px; } }
+
+/* «Это ваш бизнес?» и значок для сайта владельца */
+.dir-owner { margin: 28px 0 8px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--mist); }
+.dir-owner p { margin: 0; }
+.dir-owner p + p { margin-top: 10px; }
+.dir-share { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); }
+.dir-share__input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: .875rem; background: var(--paper); color: var(--ink); }

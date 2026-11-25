@@ -10,5 +10,6 @@ urlpatterns = [
     path("add/<uuid:token>/", views.submission_status, name="submission"),
     path("<slug:slug>/", views.directory_category, name="category"),
     path("<slug:slug>/<int:pk>-<slug:item_slug>/", views.listing_detail, name="listing"),
+    path("<slug:slug>/<int:pk>-<slug:item_slug>/update/", views.listing_update, name="listing-update"),
     path("<slug:slug>/<slug:region>/", views.directory_category, name="category-region"),
 ]

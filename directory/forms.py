@@ -65,3 +65,37 @@ class SubmissionForm(forms.ModelForm):
         if not data.get("url") and not data.get("phone"):
             raise forms.ValidationError(_("Укажите телефон или сайт — иначе клиенты не смогут с вами связаться."))
         return data
+
+
+class ListingUpdateForm(forms.ModelForm):
+    """«Это ваш бизнес? Обновите данные» — правку смотрит редактор, сама она не публикуется."""
+
+    company = forms.CharField(required=False, widget=forms.TextInput(attrs={"autocomplete": "off", "tabindex": "-1"}))
+    agree = forms.BooleanField(label=_("Подтверждаю, что представляю этот бизнес"))
+
+    class Meta:
+        from .models import ListingUpdate
+
+        model = ListingUpdate
+        fields = ["description", "phone", "url", "address", "city", "hours", "languages", "remove", "comment",
+                  "contact_name", "contact_email", "contact_phone"]
+        labels = {
+            "description": _("Описание"), "phone": _("Телефон для клиентов"), "url": _("Сайт или страница в соцсетях"),
+            "address": _("Адрес"), "city": _("Город"), "hours": _("Часы работы"), "languages": _("Языки"),
+            "remove": _("Прошу убрать бизнес из справочника"), "comment": _("Что ещё поправить (фото, категория и т. п.)"),
+            "contact_name": _("Ваше имя"), "contact_email": _("Ваш e-mail"),
+            "contact_phone": _("Телефон для связи с редакцией (необязательно)"),
+        }
+        help_texts = {
+            "description": _("2–5 предложений: услуги, для кого, опыт, лицензия. Без капса и рекламных обещаний."),
+            "languages": _("Например: русский, украинский, английский"),
+            "contact_email": _("Ответим сюда, если будут вопросы. На сайте не публикуется."),
+        }
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 5, "maxlength": 1500}),
+            "comment": forms.Textarea(attrs={"rows": 3, "maxlength": 1000}),
+            "url": forms.URLInput(attrs={"placeholder": "https://"}),
+            "phone": forms.TextInput(attrs={"autocomplete": "tel", "inputmode": "tel"}),
+            "contact_name": forms.TextInput(attrs={"autocomplete": "name"}),
+            "contact_email": forms.EmailInput(attrs={"autocomplete": "email"}),
+        }

@@ -1,11 +1,13 @@
 import hashlib
 import hmac
 from collections import Counter
+from datetime import timedelta
 
 from django.conf import settings
 from django.db.models import Avg, Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 
@@ -14,8 +16,8 @@ from core.models import SiteSettings
 from guides.models import Guide
 
 from . import moderation
-from .forms import SubmissionForm
-from .models import Category, Listing, Submission
+from .forms import ListingUpdateForm, SubmissionForm
+from .models import Category, Listing, ListingUpdate, Submission
 from .specialties import Specialty
 
 
@@ -176,3 +178,31 @@ def submit(request):
 def submission_status(request, token):
     sub = get_object_or_404(Submission.objects.select_related("listing__category"), token=token)
     return render(request, "directory/submit_done.html", {"submission": sub})
+
+
+MAX_UPDATES_PER_IP_PER_DAY = 5
+
+
+@never_cache
+def listing_update(request, slug, pk, item_slug):
+    """«Это ваш бизнес?»: владелец предлагает правку, редактор применяет её в админке. Плюс значок для сайта."""
+    item = get_object_or_404(Listing.objects.select_related("category"), pk=pk, is_active=True,
+                             category__kind=Category.Kind.BUSINESS)
+    initial = {name: getattr(item, name) for name in ListingUpdate.FIELDS}
+    form = ListingUpdateForm(request.POST or None, initial=initial)
+    sent = False
+    if request.method == "POST" and form.is_valid():
+        if not form.cleaned_data.get("company"):  # ловушка для ботов: им молча «спасибо»
+            key = ip_hash(request)
+            recent = ListingUpdate.objects.filter(ip_hash=key, created_at__gte=timezone.now() - timedelta(hours=24))
+            if recent.count() >= MAX_UPDATES_PER_IP_PER_DAY:
+                form.add_error(None, _("С этого адреса уже отправлено несколько правок за сутки. Попробуйте завтра."))
+                return render(request, "directory/update.html", {"item": item, "category": item.category, "form": form})
+            update = form.save(commit=False)
+            update.listing, update.ip_hash = item, key
+            update.save()
+        sent = True
+    page_url = request.build_absolute_uri(item.get_absolute_url())
+    return render(request, "directory/update.html", {
+        "item": item, "category": item.category, "form": form, "sent": sent, "page_url": page_url,
+    })

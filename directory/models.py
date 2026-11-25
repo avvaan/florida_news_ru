@@ -138,6 +138,11 @@ class Listing(Translatable):
             return self.url
         return reverse("directory:listing", args=[self.category.slug, self.pk, make_slug(self.name, 60) or "biznes"])
 
+    def get_update_url(self):
+        """«Это ваш бизнес? Обновите данные»."""
+        return reverse("directory:listing-update",
+                       args=[self.category.slug, self.pk, make_slug(self.name, 60) or "biznes"])
+
     @property
     def phone_href(self) -> str:
         digits = "".join(ch for ch in self.phone if ch.isdigit() or ch == "+")
@@ -199,3 +204,65 @@ class Submission(models.Model):
 
     def __str__(self):
         return f"{self.name} · {self.get_status_display()}"
+
+
+class ListingUpdate(models.Model):
+    """Правка от владельца бизнеса: «Это ваш бизнес? Обновите данные».
+
+    Публикует только редактор (админка → действие «Применить»): чужие правки (конкурент поменял телефон)
+    в справочник сами не попадают. Пустое поле — «оставить как есть».
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "ждёт редактора"
+        APPLIED = "applied", "применено"
+        REJECTED = "rejected", "отклонено"
+
+    listing = models.ForeignKey(Listing, verbose_name="запись", on_delete=models.CASCADE, related_name="updates")
+    status = models.CharField("статус", max_length=10, choices=Status.choices, default=Status.PENDING, db_index=True)
+    description = models.TextField("описание", max_length=1500, blank=True)
+    phone = models.CharField("телефон", max_length=40, blank=True)
+    url = models.URLField("сайт", max_length=500, blank=True)
+    address = models.CharField("адрес", max_length=200, blank=True)
+    city = models.CharField("город", max_length=80, blank=True)
+    hours = models.CharField("часы работы", max_length=200, blank=True)
+    languages = models.CharField("языки", max_length=120, blank=True)
+    remove = models.BooleanField("просит убрать из справочника", default=False)
+    comment = models.TextField("комментарий владельца", max_length=1000, blank=True)
+    contact_name = models.CharField("имя", max_length=120)
+    contact_email = models.EmailField("e-mail")
+    contact_phone = models.CharField("телефон для связи с редакцией", max_length=40, blank=True)
+    ip_hash = models.CharField("IP (хэш)", max_length=32, blank=True, db_index=True)
+    created_at = models.DateTimeField("получено", default=timezone.now, db_index=True)
+    handled_at = models.DateTimeField("обработано", null=True, blank=True)
+
+    FIELDS = ("description", "phone", "url", "address", "city", "hours", "languages")
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "правка от владельца"
+        verbose_name_plural = "правки от владельцев"
+
+    def __str__(self):
+        return f"{self.listing} · {self.get_status_display()}"
+
+    def changes(self) -> dict:
+        """Поля, которые владелец действительно поменял: {поле: (было, стало)}."""
+        return {name: (getattr(self.listing, name), getattr(self, name)) for name in self.FIELDS
+                if getattr(self, name) and getattr(self, name).strip() != (getattr(self.listing, name) or "").strip()}
+
+    def apply(self) -> None:
+        listing = self.listing
+        if self.remove:
+            listing.is_active = False
+        else:
+            for name, (_old, new) in self.changes().items():
+                setattr(listing, name, new.strip())
+            listing.from_owner = True
+        stamp = timezone.localdate().strftime("%d.%m.%Y")
+        listing.editor_note = (f"{listing.editor_note}\n" if listing.editor_note else "") + (
+            f"{stamp}: {'снято по просьбе владельца' if self.remove else 'правка владельца применена'} "
+            f"({self.contact_name}, {self.contact_email}).")
+        listing.save()
+        self.status, self.handled_at = self.Status.APPLIED, timezone.now()
+        self.save(update_fields=["status", "handled_at"])

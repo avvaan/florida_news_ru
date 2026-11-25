@@ -32,7 +32,12 @@
 
     {% comments_block item %}
 
-    <p class="story__disclaimer">{% url 'core-page' 'contacts' as contacts_url %}{% blocktranslate trimmed %}Отзывы пишут читатели, их проверяет автоматическая модерация. Редакция не отвечает за услуги бизнеса. Вы владелец и нашли ошибку? Напишите через <a href="{{ contacts_url }}">«Контакты»</a>.{% endblocktranslate %}</p>
+    <aside class="dir-owner">
+      <p><b>{% translate "Это ваш бизнес?" %}</b> {% translate "Обновите телефон, адрес или описание и получите значок для своего сайта — бесплатно." %}</p>
+      <p><a class="btn btn--ghost" href="{{ item.get_update_url }}" rel="nofollow">{% translate "Обновить данные" %}</a></p>
+    </aside>
+
+    <p class="story__disclaimer">{% translate "Отзывы пишут читатели, их проверяет автоматическая модерация. Редакция не отвечает за услуги бизнеса." %}</p>
 
     {% if nearby %}
     <section class="dir__others" aria-labelledby="nearby-h">
