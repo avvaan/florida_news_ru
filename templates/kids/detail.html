@@ -5,7 +5,7 @@
 {% block og %}{% include "includes/og.html" with title=club.name|add:" — "|add:site_name description=club.tr.description|default:club.category_label url=club.get_absolute_url %}{% endblock %}
 {% block canonical %}{{ club.get_absolute_url|absolute }}{% endblock %}
 {% block alternates %}{% include "includes/alternates.html" with obj=club %}{% endblock %}
-{% block robots %}{% if is_preview or club.is_archived or not club.shown_translated or request.GET %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block robots %}{% if not club.is_indexable or not club.shown_translated or request.GET %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block head %}<script type="application/ld+json">{{ breadcrumbs_ld|safe }}</script>{% if club.is_published %}
   <script type="application/ld+json">{{ club_ld|safe }}</script>{% endif %}{% endblock %}
 {% block content %}

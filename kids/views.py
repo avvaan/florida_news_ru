@@ -70,8 +70,8 @@ class Section:
 
 
 def indexable_sections() -> list[Section]:
-    """Списки, открытые для поиска: в каждом не меньше MIN_INDEXABLE опубликованных кружков."""
-    clubs = list(Club.objects.published().select_related("city"))
+    """Списки, открытые для поиска: в каждом не меньше MIN_INDEXABLE проверенных редакцией кружков."""
+    clubs = list(Club.objects.published().filter(last_verified_at__isnull=False).select_related("city"))
     counts = Counter()
     for club in clubs:
         counts[("", None)] += 1
@@ -98,7 +98,9 @@ def club_list(request, first=None, second=None):
     f = filters.parse_extra(request.GET, f)
     clubs = list(filters.find(f))
     published = list(Club.objects.published().only("category", "city_id"))
-    indexable = filters.is_indexable(len(clubs), f) and not request.GET.get("page")
+    # Для поиска считаем только проверенные редакцией кружки: непроверенные карточки закрыты noindex.
+    verified = sum(1 for club in clubs if club.last_verified_at)
+    indexable = filters.is_indexable(verified, f) and not request.GET.get("page")
     page = Paginator(clubs, PER_PAGE).get_page(request.GET.get("page") or 1)
     initial = {"cat": f.category, "city": f.city.slug if f.city else "", **f.extra}
     crumbs = seo.breadcrumbs(f)
