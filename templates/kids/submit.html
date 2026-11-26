@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load news_extras i18n %}
+{% block title %}{% translate "Добавить детский кружок в каталог" %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Бесплатно добавьте детский кружок или секцию в Центральной Флориде в каталог TutFlorida. Редакция проверит данные перед публикацией." %}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'kids:list' %}">{% translate "Детям" %}</a>
+  </nav>
+  <section class="story story--page dir-form">
+    <h1 class="story__title">{% translate "Добавить кружок" %}</h1>
+    <p class="story__lede">{% translate "Бесплатно — для владельцев кружков и для родителей. Редакция проверит данные и опубликует карточку; обычно это занимает несколько дней." %}</p>
+
+    <details class="dir-form__rules">
+      <summary>{% translate "Что мы публикуем" %}</summary>
+      <p>{% translate "Детские кружки, секции, студии и школы выходного дня в Центральной Флориде, а также онлайн-занятия, где можно заниматься на русском или украинском языке." %}</p>
+      <p>{% translate "Мы публикуем только то, что можем проверить: если не знаете расписание, цену или условия оплаты из стипендии — оставьте поле пустым, на сайте будет «не указано»." %}</p>
+      <p>{% translate "Фото с детьми публикуем только с явного разрешения владельца кружка." %}</p>
+    </details>
+
+    <form class="dir-form__form" method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="dir-form__error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+      <div class="dir-form__trap" aria-hidden="true"><label for="id_company">{% translate "Компания" %}</label>{{ form.company }}</div>
+      {% for field in form %}{% if field.name != "company" and field.name != "agree" %}
+      {% if field.name == "submitter_role" or field.name == "languages" or field.name == "esa_programs" %}
+      <fieldset class="dir-form__field kids-form__choices{% if field.errors %} has-error{% endif %}">
+        <legend>{{ field.label }}{% if field.field.required %} <span aria-hidden="true">*</span>{% endif %}</legend>
+        {{ field }}
+        {% for e in field.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}
+      </fieldset>
+      {% else %}
+      {% include "classifieds/_field.html" %}
+      {% endif %}
+      {% endif %}{% endfor %}
+      <div class="dir-form__field dir-form__check{% if form.agree.errors %} has-error{% endif %}">
+        <label>{{ form.agree }} {{ form.agree.label }}</label>
+        {% for e in form.agree.errors %}<p class="dir-form__field-error">{% translate "Нужно подтвердить." %}</p>{% endfor %}
+      </div>
+      <button class="btn" type="submit">{% translate "Отправить на проверку" %}</button>
+      <p class="dir-form__help">{% translate "Поля со звёздочкой обязательны. Нужен хотя бы один способ связи с кружком." %}</p>
+    </form>
+  </section>
+</div>
+{% endblock %}

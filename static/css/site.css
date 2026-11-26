@@ -136,10 +136,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .sign.is-current { background: var(--sun); color: var(--ink); box-shadow: inset 0 0 0 3px var(--sun), inset 0 0 0 4.5px var(--ink); }
 
 .topics { border-bottom: 1px solid var(--line); }
-.topics__row { display: flex; gap: 4px 20px; overflow-x: auto; padding-block: 2px; scrollbar-width: none; }
+.topics__row { display: flex; gap: 4px 14px; overflow-x: auto; padding-block: 2px; scrollbar-width: none; }
 @media (max-width: 1279px) { .topics__row { column-gap: 8px; } }  /* все пункты в одну строку от ~960px */
 @media (max-width: 999px) { .topics__row { column-gap: 6px; } }
-@media (min-width: 960px) and (max-width: 1099px) { .topics .topics__link { font-size: .88rem; } }  /* + «Что посетить» */
+@media (min-width: 1100px) and (max-width: 1279px) { .topics .topics__link { font-size: .94rem; } }  /* + «Детям» */
+@media (min-width: 960px) and (max-width: 1099px) { .topics .topics__link { font-size: .82rem; } }  /* + «Что посетить», «Детям» */
 .topics__link {
   display: inline-block; padding: 12px 0; white-space: nowrap; color: var(--ink-2);
   font-weight: 600; font-size: 1rem; text-decoration: none; border-bottom: 3px solid transparent;
@@ -952,3 +953,62 @@ article.split { margin-top: 0; }
 /* длинные адреса сайтов и e-mail не распирают карточки на телефоне */
 .dir__cards { grid-template-columns: minmax(0, 1fr); }
 .dir__card { min-width: 0; overflow-wrap: anywhere; }
+
+/* --- «Детям»: каталог кружков (/deti/) --- */
+.kids__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.kids-filters { margin-top: 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--mist); }
+.kids-filters > summary { cursor: pointer; padding: 12px 16px; font-weight: 700; list-style-position: inside; }
+.kids-filters__form { display: grid; gap: 12px; padding: 4px 16px 16px; grid-template-columns: 1fr 1fr; }
+.kids-filters__field { display: grid; gap: 4px; min-width: 0; }
+.kids-filters__field label { font-size: .875rem; font-weight: 600; color: var(--ink-2); }
+.kids-filters__field select, .kids-filters__field input {
+  width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--paper); color: var(--ink); font: inherit; font-size: 1rem; }
+.kids-filters__field select:focus, .kids-filters__field input:focus { outline: 3px solid var(--sun); outline-offset: 1px; }
+.kids-filters__buttons { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; }
+@media (min-width: 760px) { .kids-filters__form { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .kids-filters__form { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.kids__nav { margin-top: 14px; }
+.kids-map { margin-top: 18px; }
+.kids-map__open { display: inline-flex; align-items: center; gap: 6px; }
+.kids-map__box { height: min(60vh, 440px); margin-top: 12px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
+.kids-map__note { margin-top: 6px; font-size: .875rem; color: var(--muted); }
+.kids__cards { display: grid; gap: 16px; margin: 22px 0 0; padding: 0; list-style: none; }
+@media (min-width: 760px) { .kids__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .kids__cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.kids-card { display: flex; flex-direction: column; }
+.kids-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: .875rem; color: var(--muted); margin: 0 0 6px; }
+.kids-card__meta a { color: inherit; }
+.kids-card__cat { font-weight: 700; color: var(--gulf-deep); text-decoration: none; }
+.kids-card .dir__facts div { grid-template-columns: 6.5em 1fr; }
+.kids-card__verified { margin-top: auto !important; padding-top: 12px; font-size: .8125rem; color: var(--muted); }
+.kids-badge--esa { background: var(--sun-soft); color: var(--ink); }
+.kids__empty p + p { margin-top: 10px; }
+.kids__note { margin-top: 28px; max-width: 760px; font-size: .9375rem; color: var(--muted); }
+.kids-banner { margin-bottom: 16px; padding: 10px 14px; border-radius: 8px; background: var(--sun-soft); border: 1px solid var(--sun); }
+.kids-club__photos { display: grid; gap: 10px; margin-top: 18px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.kids-club__photos img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; }
+.kids-club__photos figcaption { font-size: .8125rem; color: var(--muted); margin-top: 4px; }
+.kids-club__facts div { grid-template-columns: 9em 1fr; }
+@media (max-width: 599px) { .kids-club__facts div, .kids-card .dir__facts div { grid-template-columns: 1fr; gap: 0; } }
+.kids-club__h { margin-top: 26px; font-size: 1.25rem; }
+.kids-club__contacts { flex-wrap: wrap; }
+.kids-club__map { margin-top: 22px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+.kids-club__map iframe { display: block; width: 100%; height: 300px; border: 0; }
+.kids-club__verified { margin-top: 18px; font-size: .9375rem; color: var(--ink-2); }
+.kids-club__verified a { color: var(--gulf-deep); }
+.kids-report { margin-top: 22px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; }
+.kids-report > summary { cursor: pointer; font-weight: 600; color: var(--gulf-deep); }
+.kids-report .dir-form__form { margin-top: 14px; }
+.kids-report__ok { margin-top: 10px; color: var(--gulf-deep); font-weight: 600; }
+.kids-report__reasons, .kids-form__choices { border: 0; padding: 0; margin: 0; }
+.kids-report__reasons legend, .kids-form__choices legend { font-weight: 600; margin-bottom: 6px; padding: 0; }
+.kids-report__reasons div, .kids-form__choices div { display: grid; gap: 6px; }
+.kids-report__reasons label, .kids-form__choices label { display: flex; gap: 10px; align-items: center; font-weight: 400; min-height: 32px; }
+.kids-report__reasons input, .kids-form__choices input { width: 20px; height: 20px; flex: none; margin: 0; }
+.kids-esa h2 { margin-top: 28px; font-size: 1.35rem; }
+.kids-esa p, .kids-esa ul { margin-top: 12px; max-width: 72ch; }
+.kids-esa li + li { margin-top: 6px; }
+mark.verify { background: var(--sun); color: var(--ink); padding: 0 4px; border-radius: 3px; font-size: .9em; }
+.dir__crosslink { margin-top: 12px; font-weight: 600; }
+.dir__crosslink a { color: var(--gulf-deep); }

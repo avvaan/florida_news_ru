@@ -68,6 +68,7 @@ def _targets() -> list[Target]:
     from events.models import Event
     from guides.models import Guide
     from hubs.models import Program
+    from kids.models import City as KidsCity, Club
     from news.models import Article, Region, Tag, Topic
 
     return [
@@ -90,6 +91,12 @@ def _targets() -> list[Target]:
         Target(Listing, lambda: Listing.objects.active(),
                "справочник бизнесов: description — описание, hours — часы работы, languages — языки обслуживания"),
         Target(Tag, lambda: Tag.objects.filter(article__status="published").distinct(), "теги заметок"),
+        Target(KidsCity, lambda: KidsCity.objects.all(),
+               "города Центральной Флориды: name — название, name_locative — «где?» (в Лонгвуде → у Лонгвуді)"),
+        Target(Club, lambda: Club.objects.published(),
+               "каталог детских кружков: description — описание, schedule_text — расписание, price_text — стоимость, "
+               "esa_note — примечание о стипендиях. Названия программ (PEP, FES-UA, FES-EO, FTC, Step Up For "
+               "Students) и суммы в долларах не переводить и не менять"),
         Target(Program, lambda: Program.objects.published(),
                "иммиграционные программы США: title — название, summary — текущее положение, what_to_do — что делать. "
                "Названия программ и форм (TPS, U4U, USCIS, I-765) не переводить"),

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Сообщить об ошибке" %} — {{ club.name }} — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story story--page dir-form">
+    <h1 class="story__title">{% translate "Сообщить об ошибке" %}</h1>
+    <p class="story__lede"><a href="{{ club.get_absolute_url }}">{{ club.name }}</a></p>
+    <form class="dir-form__form" method="post" action="{{ club.get_report_url }}">
+      {% csrf_token %}
+      <div class="dir-form__trap" aria-hidden="true"><label for="id_company">{% translate "Компания" %}</label>{{ form.company }}</div>
+      <fieldset class="dir-form__field kids-report__reasons"><legend>{{ form.reason.label }}</legend>{{ form.reason }}{% for e in form.reason.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}</fieldset>
+      {% include "classifieds/_field.html" with field=form.comment %}
+      {% include "classifieds/_field.html" with field=form.contact %}
+      <button class="btn" type="submit">{% translate "Отправить" %}</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

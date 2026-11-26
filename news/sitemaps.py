@@ -13,6 +13,7 @@ from classifieds.models import Ad
 from classifieds.models import Category as AdCategory
 from events.models import Event
 from guides.models import Guide
+from kids.models import Club
 from places.models import Destination
 
 from .models import HIDDEN_IN_NAV, Article, Region, Topic
@@ -236,6 +237,40 @@ class ClassifiedSitemap(SiteRootSitemap):
         return [{"loc": p.url, "title": item.title} for p in item.public_photos()]
 
 
+class KidsSitemap(SiteRootSitemap):
+    """«Детям»: списки с MIN_INDEXABLE и больше кружков (остальные закрыты noindex) и опубликованные карточки."""
+
+    changefreq = "weekly"
+    priority = 0.6
+
+    def items(self):
+        from kids import seo
+        from kids.views import indexable_sections
+
+        pages = indexable_sections()
+        if seo.ESA_PAGE_VERIFIED:
+            pages.append("esa")
+        return [*pages, *Club.objects.published().select_related("city").order_by("pk")]
+
+    def get_languages_for_item(self, item):
+        if item == "esa":  # страница только по-русски
+            return [settings.LANGUAGE_CODE]
+        return super().get_languages_for_item(item)
+
+    def location(self, item):
+        if item == "esa":
+            return reverse("kids:esa")
+        return item.get_absolute_url()  # Club или kids.views.Section
+
+    def lastmod(self, item):
+        return item.updated_at if isinstance(item, Club) else None
+
+    def images(self, item) -> list[dict]:
+        if not isinstance(item, Club):
+            return []
+        return [{"loc": p.media.url, "title": item.name} for p in item.public_photos()]
+
+
 class AuthorSitemap(SiteRootSitemap):
     changefreq = "monthly"
     priority = 0.3
@@ -255,4 +290,4 @@ SITEMAPS = {"sections": SectionSitemap, "articles": ArticleSitemap, "guides": Gu
             "places": DestinationSitemap,
             "authors": AuthorSitemap, "legal": LegalSitemap,
             "directory": DirectorySitemap, "directory-regions": DirectoryRegionSitemap, "events": EventSitemap,
-            "classifieds": ClassifiedSitemap}
+            "classifieds": ClassifiedSitemap, "kids": KidsSitemap}
