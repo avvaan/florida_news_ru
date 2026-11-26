@@ -421,3 +421,14 @@ def test_google_verification_meta_has_only_code(client, value, monkeypatch):
     with override_settings(GOOGLE_SITE_VERIFICATION=conf.GOOGLE_SITE_VERIFICATION):
         html = client.get("/").content.decode()
     assert '<meta name="google-site-verification" content="ABC123">' in html
+
+
+def test_static_files_have_no_dangling_source_maps():
+    """Сборка статики (collectstatic с хэшами) падает на ссылке sourceMappingURL на несуществующий файл:
+    так образ не собирался и автодеплой откатывался. Проверяем все JS и CSS в static/."""
+    from django.conf import settings
+
+    root = settings.BASE_DIR / "static"
+    for path in [*root.rglob("*.js"), *root.rglob("*.css")]:
+        for ref in re.findall(r"sourceMappingURL=([^\s*]+)", path.read_text(encoding="utf-8", errors="ignore")):
+            assert (path.parent / ref).exists(), f"{path.relative_to(root)} ссылается на отсутствующий {ref}"
