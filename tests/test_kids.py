@@ -24,7 +24,7 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture(autouse=True)
 def empty_catalog(request):
     """Миграция 0003 публикует первые кружки; тестам фильтров и правил нужен пустой каталог."""
-    if not request.node.name.startswith("test_first_clubs"):
+    if not request.node.name.startswith("test_first_clubs"):  # оба теста миграций
         ClubReport.objects.all().delete()
         Club.objects.all().delete()
 
@@ -54,16 +54,39 @@ def ld(html: str) -> dict:
 # --- первые кружки (миграция 0003) ---
 
 def test_first_clubs_published_by_migration(client):
-    published = Club.objects.filter(status=Club.Status.PUBLISHED)
-    assert published.count() == 7 and set(published.values_list("city__slug", flat=True)) == {"orlando"}
+    first = Club.objects.filter(status=Club.Status.PUBLISHED, editor_note__contains="опубликовано по решению владельца")
+    assert first.count() == 7 and set(first.values_list("city__slug", flat=True)) == {"orlando"}
     assert Club.objects.get(name="Bilingual Bridges").status == Club.Status.DRAFT  # нет города и формата
     yulia = Club.objects.get(name="Yulia's Piano Studio")
     assert yulia.last_verified_at is None and "без ручной сверки" in yulia.editor_note  # ресёрч не сверен
     assert yulia.lang_ru and yulia.lang_uk and "Киев" not in yulia.description
     assert Club.objects.get(website="https://russianballetorlando.org/").last_verified_at.isoformat() == "2026-10-17"
-    html = client.get("/deti/").content.decode()
+    html = client.get("/deti/muzyka/orlando/").content.decode()
     assert "Yulia&#x27;s Piano Studio" in html and "Ещё не проверено редакцией" in html
-    assert robots(html).startswith("index")
+
+
+def test_first_clubs_all_central_florida_any_language(client):
+    """Миграция 0004: все найденные кружки на любом языке, описание — по-русски, сомнительные — черновики."""
+    import re as _re
+
+    published = Club.objects.filter(status=Club.Status.PUBLISHED)
+    assert published.count() == 273
+    assert published.values("city").distinct().count() == 15
+    assert all(_re.search(r"[а-яё]{3,}", c.description, _re.I) for c in published)
+    assert all(c.last_verified_at is None for c in published.filter(editor_note__contains="без ручной сверки")
+               .exclude(website__contains="russianballet").exclude(website__contains="alenka")
+               .exclude(website__contains="russianclass"))
+    drafts = set(Club.objects.filter(status=Club.Status.DRAFT).values_list("name", flat=True))
+    assert {"Goldfish Swim School – Winter Park", "Huntington Learning Center Winter Garden"} <= drafts
+    assert Club.objects.filter(website__contains="russianclass.tilda.ws").count() == 1  # без дублей
+    html = client.get("/deti/").content.decode()
+    assert robots(html).startswith("index") and "<title>Детские кружки и секции в Центральной Флориде — TutFlorida" in html
+    assert robots(client.get("/deti/edinoborstva/").content.decode()).startswith("index")
+    assert html.count('class="dir__card kids-card"') == 30 and "Страница 1 из 10" in html  # 273 по 30
+    page2 = client.get("/deti/?page=2").content.decode()
+    assert robots(page2) == "noindex, follow" and page2.count('class="dir__card kids-card"') == 30
+    assert 'href="?page=3"' in page2 and 'href="/deti/"' in page2
+    assert len(json.loads(re.search(r'id="kids-points"[^>]*>(.*?)</script>', html, re.S).group(1))) > 200
 
 
 # --- модель ---
