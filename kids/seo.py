@@ -16,9 +16,9 @@ from django.utils.translation import gettext as _, ngettext
 
 from .models import CATEGORY_TITLES, Category, Club
 
-# Страница «Как оплатить кружок из стипендии»: пока редактор не проверил пометки [ПРОВЕРИТЬ], её видит
-# только редакция (остальным — 404), она закрыта от поиска и её нет в sitemap и в ссылках раздела.
-ESA_PAGE_VERIFIED = False
+# Страница «Как оплатить кружок из стипендии» опубликована (решение владельца 26.11.2026): открыта для всех,
+# в sitemap и в ссылках раздела. False — снова видна только редакции и закрыта от поиска.
+ESA_PAGE_VERIFIED = True
 
 
 def where(f) -> str:

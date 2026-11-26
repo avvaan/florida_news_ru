@@ -177,7 +177,7 @@ def test_thin_pages_are_noindex_and_out_of_sitemap(client, catalog):
     assert "/deti/shakhmaty/orlando/</loc>" in xml and "/deti/shakhmaty/</loc>" in xml
     assert "/deti/tantsy/</loc>" not in xml and "/deti/longwood/</loc>" not in xml
     assert "/deti/kruzhok/chess-orlando-orlando/</loc>" in xml and "draft-club" not in xml
-    assert "stipendii-pep-fes" not in xml  # страница о стипендиях ещё не проверена
+    assert "/deti/stipendii-pep-fes/</loc>" in xml and "/uk/deti/stipendii-pep-fes/" not in xml  # только по-русски
 
 
 def test_empty_catalog_is_noindex(client):
@@ -358,12 +358,23 @@ def test_import_command_and_directory_export_file():
 
 # --- страница о стипендиях, меню, тег Search Console ---
 
-def test_esa_page_hidden_until_verified(client):
+def test_esa_page_public_without_editor_markers(client):
+    html = client.get("/deti/stipendii-pep-fes/").content.decode()
+    assert robots(html).startswith("index") and "stepupforstudents.org" in html
+    assert "ПРОВЕРИТЬ" not in html and "Черновик" not in html  # пометки — только в комментариях шаблона
+    assert '<link rel="alternate" hreflang="uk"' not in html and 'href="/uk/deti/" hreflang="uk"' in html
+    assert client.get("/uk/deti/stipendii-pep-fes/").status_code == 404
+    assert 'href="/deti/stipendii-pep-fes/"' in client.get("/deti/").content.decode()
+
+
+def test_esa_page_can_be_hidden_again(client, monkeypatch):
+    from kids import seo
+
+    monkeypatch.setattr(seo, "ESA_PAGE_VERIFIED", False)
     assert client.get("/deti/stipendii-pep-fes/").status_code == 404
     client.force_login(User.objects.create_user("ed", password="x", is_staff=True))
     html = client.get("/deti/stipendii-pep-fes/").content.decode()
-    assert "[ПРОВЕРИТЬ" in html and robots(html) == "noindex, nofollow" and "stepupforstudents.org" in html
-    assert client.get("/uk/deti/stipendii-pep-fes/").status_code == 404
+    assert robots(html) == "noindex, nofollow" and "Черновик" in html
 
 
 def test_menu_and_footer_link(client):
