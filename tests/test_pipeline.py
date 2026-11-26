@@ -257,6 +257,16 @@ def test_truncated_answer_is_not_used(stories):
     assert AICall.objects.filter(success=False, error__icontains="max_tokens").count() == 2
 
 
+@override_settings(AI_PROVIDER="deepseek")
+def test_writer_gets_16k_token_budget(stories):
+    """На крупных сюжетах 8000 токенов не хватало — ответ обрезался, заметка не писалась."""
+    fake = FakeAI()
+    run_with(fake)
+    draft_schema = json.dumps(Draft.model_json_schema(), ensure_ascii=False)
+    writer_calls = [c for c in fake.calls if draft_schema in c["messages"][0]["content"]]
+    assert writer_calls and all(c["max_tokens"] == 16000 for c in writer_calls)
+
+
 def test_run_pipeline_without_network_records_run(stories):
     with mock.patch.object(ai, "get_client", return_value=FakeAI()):
         run = run_pipeline(fetch=False)

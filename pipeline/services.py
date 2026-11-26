@@ -142,6 +142,11 @@ def classify_new(say: RunLog) -> int:
 
 # --- Написание и проверка ---------------------------------------------------
 
+# Лимит ответа автора. 8000 не хватало на крупные сюжеты с несколькими источниками (самолёт FedEx в MIA,
+# наводнения — ноябрь 2026): ответ обрезался, заметка не писалась. Платим только за реально выданные токены.
+WRITER_MAX_TOKENS = 16000
+
+
 def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     items = story_items(story)
     texts = full_texts(items)
@@ -165,7 +170,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             f"Гайды:\n{prompts.guides_brief(guides)}"
         ),
         output=Draft,
-        max_tokens=8000,
+        max_tokens=WRITER_MAX_TOKENS,
         story=story,
         effort=settings.AI_WRITER_EFFORT or None,
     )
