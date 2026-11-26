@@ -53,7 +53,10 @@ REDIRECT_TO_CANONICAL_SUFFIXES = (".onrender.com", "florida-ru.com", f"www.{CANO
 HEALTHCHECK_PATH = "/healthz"
 SITE_NAME = "TutFlorida"
 # Мета-тег подтверждения сайта в Google Search Console (только значение content="…").
-GOOGLE_SITE_VERIFICATION = os.environ.get("GOOGLE_SITE_VERIFICATION", "").strip()
+# Search Console выдаёт для DNS строку «google-site-verification=КОД», а мета-тегу нужен только КОД:
+# приставку срезаем, иначе подтверждение через HTML-тег не проходит.
+GOOGLE_SITE_VERIFICATION = os.environ.get("GOOGLE_SITE_VERIFICATION", "").strip().removeprefix(
+    "google-site-verification=").strip()
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -79,6 +82,7 @@ INSTALLED_APPS = [
     "comments",
     "gallery",
     "hubs",
+    "kids",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",

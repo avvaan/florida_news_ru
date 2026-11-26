@@ -69,6 +69,7 @@
       <li><a class="topics__link topics__link--section{% if places_section %} is-current{% endif %}" href="{% url 'places:list' %}"{% if places_section %} aria-current="page"{% endif %}>{% translate "Что посетить" %}</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'events:list' %}">{% translate "Афиша" %}</a></li>
       <li><a class="topics__link topics__link--section" href="{% url 'classifieds:index' %}">{% translate "Объявления" %}</a></li>
+      {% with kids_now=request.resolver_match.app_name %}<li><a class="topics__link topics__link--section{% if kids_now == "kids" %} is-current{% endif %}" href="{% url 'kids:list' %}"{% if kids_now == "kids" %} aria-current="page"{% endif %}>{% translate "Детям" %}</a></li>{% endwith %}
       <li><a class="topics__link topics__link--section" href="{% url 'directory:index' %}">{% translate "Справочник" %}</a></li>
     </ul>
   </nav>
@@ -126,6 +127,7 @@
       <ul class="footer__links">
         <li><a href="{% url 'guides:list' %}">{% translate "Гайды" %}</a></li>
         <li><a href="{% url 'places:list' %}">{% translate "Что посетить во Флориде" %}</a></li>
+        <li><a href="{% url 'kids:list' %}">{% translate "Детские кружки и секции" %}</a></li>
         <li><a href="{% url 'directory:index' %}">{% translate "Полезные ссылки и бизнесы" %}</a></li>
         <li><a href="{% url 'hubs:hurricanes' %}">{% translate "Центр ураганов" %}</a></li>
         <li><a href="{% url 'hubs:immigration' %}">{% translate "Иммиграция: что изменилось" %}</a></li>

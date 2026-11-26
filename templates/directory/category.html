@@ -14,6 +14,7 @@
     <div class="dir__head">{% if category.icon %}<span class="dir__icon dir__icon--lg"><img src="{% static category.icon %}" alt="" width="72" height="72"></span>{% endif %}<h1 class="story__title">{% if region_page %}{% blocktranslate trimmed with name=category.tr.name where=region_page.tr.name_locative %}{{ name }} {{ where }}{% endblocktranslate %}{% else %}{{ category.tr.name }}{% endif %}</h1></div>
     {% if region_page %}<p class="story__lede">{% blocktranslate trimmed count n=listings|length with where=region_page.tr.name_locative %}{{ n }} место {{ where }}.{% plural %}{{ n }} мест {{ where }}.{% endblocktranslate %} {{ category.tr.description }}</p>
     {% elif category.description %}<p class="story__lede">{{ category.tr.description }}</p>{% endif %}
+    {% if category.slug == "deti" %}<p class="dir__crosslink"><a href="{% url 'kids:list' %}">{% translate "Каталог детских кружков и секций Центральной Флориды — с фильтрами по возрасту, языку и оплате из стипендий" %} →</a></p>{% endif %}
 
     {% if regions %}
     <nav class="guides__nav" aria-label="{% translate "Регион" %}">

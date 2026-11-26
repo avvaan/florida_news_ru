@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Спасибо! Кружок отправлен на проверку" %} — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story story--page dir-form">
+    <h1 class="story__title">{% translate "Спасибо!" %}</h1>
+    <p class="story__lede">{% translate "Заявка получена. Редакция проверит данные и опубликует карточку кружка; если будут вопросы, напишем на указанный e-mail." %}</p>
+    <p class="kids__actions"><a class="btn" href="{% url 'kids:list' %}">{% translate "В каталог кружков" %}</a></p>
+  </section>
+</div>
+{% endblock %}

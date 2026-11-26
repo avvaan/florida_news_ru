@@ -32,6 +32,17 @@
     </section>
     {% endif %}
 
+    {% if found.clubs %}
+    <section class="search-group" aria-labelledby="s-kids">
+      <h2 class="sidebar__h" id="s-kids">{% translate "Детские кружки" %}</h2>
+      <ul class="search-list">
+        {% for c in found.clubs %}<li><a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+          <span class="search-list__meta">{{ c.category_label }}{% if c.city %} · {{ c.city.tr.name }}{% endif %}</span>
+          {% if c.description %}<span class="search-list__text">{{ c.tr.description|truncatechars:160 }}</span>{% endif %}</li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
     {% if found.guides %}
     <section class="search-group" aria-labelledby="s-guides">
       <h2 class="sidebar__h" id="s-guides">{% translate "Гайды" %}</h2>

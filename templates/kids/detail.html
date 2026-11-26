@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static news_extras i18n %}
+{% block title %}{{ club.name }} — {{ club.category_label|lower }}{% if club.city %}, {{ club.city.tr.name }}{% endif %} — {{ site_name }}{% endblock %}
+{% block description %}{% if club.description %}{{ club.tr.description|truncatechars:150 }}{% else %}{{ club.name }} — {{ club.category_label|lower }}{% if club.city %} {{ club.city.tr.name_locative }}{% endif %}.{% endif %}{% if club.age_text %} {% translate "Возраст" %}: {{ club.age_text }}.{% endif %}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=club.name|add:" — "|add:site_name description=club.tr.description|default:club.category_label url=club.get_absolute_url %}{% endblock %}
+{% block canonical %}{{ club.get_absolute_url|absolute }}{% endblock %}
+{% block alternates %}{% include "includes/alternates.html" with obj=club %}{% endblock %}
+{% block robots %}{% if is_preview or club.is_archived or not club.shown_translated or request.GET %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block head %}<script type="application/ld+json">{{ breadcrumbs_ld|safe }}</script>{% if club.is_published %}
+  <script type="application/ld+json">{{ club_ld|safe }}</script>{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    {% for name, url in crumbs %}{% if not forloop.first %}<span aria-hidden="true">/</span>{% endif %}<a href="{{ url }}">{{ name }}</a>{% endfor %}
+  </nav>
+  <article class="story story--page dir kids-club">
+    {% if is_preview %}<p class="kids-banner" role="note">{% translate "Черновик: эту страницу видит только редакция." %}</p>{% endif %}
+    {% if club.is_archived %}<p class="kids-banner" role="note">{% translate "Карточка в архиве: возможно, кружок больше не работает или данные устарели." %} <a href="{{ category_url }}">{% translate "Другие кружки этого направления" %}</a></p>{% endif %}
+    <p class="kids-card__meta"><a class="kids-card__cat" href="{{ category_url }}">{{ club.category_label }}</a>{% if club.city %} · <svg class="i" aria-hidden="true"><use href="#i-pin"/></svg><a href="{{ club.city.get_absolute_url }}">{{ club.city.tr.name }}</a>{% endif %}</p>
+    <h1 class="story__title">{{ club.name }}</h1>
+    {% if club.accepts_esa %}<p class="dir__badges"><span class="dir__badge kids-badge--esa">{% translate "Принимает стипендии" %}{% if club.esa_programs %}: {{ club.esa_programs|join:", " }}{% endif %}</span></p>{% endif %}
+
+    {% if photos %}
+    <div class="kids-club__photos">
+      {% for p in photos %}<figure><img src="{{ p.media|media_sized:900 }}" alt="{{ p.media.alt|default:club.name }}"{% if p.media.width %} width="{{ p.media.width }}" height="{{ p.media.height }}"{% endif %} loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">{% if p.media.caption %}<figcaption>{{ p.media.caption }}</figcaption>{% endif %}</figure>{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if club.description %}<p class="story__lede">{{ club.tr.description|linebreaksbr }}</p>{% endif %}
+
+    <dl class="dir__facts kids-club__facts">
+      <div><dt>{% translate "Возраст" %}</dt><dd>{{ club.age_text|default:_("не указан") }}</dd></div>
+      <div><dt>{% translate "Язык занятий" %}</dt><dd>{{ club.languages|join:", "|default:_("не указан") }}</dd></div>
+      <div><dt>{% translate "Формат" %}</dt><dd>{{ club.get_format_display }}</dd></div>
+      {% if club.has_offline %}<div><dt>{% translate "Где" %}</dt><dd>{% if club.address %}<a href="https://www.google.com/maps/search/?api=1&amp;query={{ club.map_query|urlencode }}" target="_blank" rel="noopener">{{ club.address }}</a>{% elif club.city %}{{ club.city.tr.name }}{% else %}{% translate "не указано" %}{% endif %}</dd></div>{% endif %}
+      <div><dt>{% translate "Расписание" %}</dt><dd>{% if club.schedule_text %}{{ club.tr.schedule_text|linebreaksbr }}{% else %}{% translate "не указано" %}{% endif %}</dd></div>
+      <div><dt>{% translate "Стоимость" %}</dt><dd>{% if club.price_text %}{{ club.tr.price_text|linebreaksbr }}{% else %}{% translate "не указано" %}{% endif %}</dd></div>
+      <div><dt>{% translate "Стипендии" %}</dt><dd>
+        {% if club.esa_status == "yes" %}{% translate "Принимает оплату из стипендий Step Up For Students" %}{% if club.esa_programs %}: {{ club.esa_programs|join:", " }}{% endif %}.
+        {% elif club.esa_status == "no" %}{% translate "Оплату из стипендий не принимает." %}
+        {% else %}{% translate "Не указано, принимает ли оплату из стипендий PEP, FES или FTC — спросите у кружка." %}{% endif %}
+        {% if club.esa_note %}<br>{{ club.tr.esa_note }}{% endif %}
+        {% if esa_page %}<br><a href="{% url 'kids:esa' %}">{% translate "Как оплатить кружок из стипендии" %}</a>{% endif %}
+      </dd></div>
+    </dl>
+
+    {% if club.phone or club.email or club.website or club.instagram or club.facebook or club.telegram_url or club.whatsapp_url %}
+    <h2 class="kids-club__h">{% translate "Связаться с кружком" %}</h2>
+    <p class="dir__card-actions kids-club__contacts">
+      {% if club.phone %}<a class="btn" href="{{ club.phone_href }}">{{ club.phone }}</a>{% endif %}
+      {% if club.website %}<a class="btn btn--ghost" href="{{ club.website }}" target="_blank" rel="noopener nofollow">{% blocktranslate trimmed with domain=club.domain %}Сайт: {{ domain }}{% endblocktranslate %}</a>{% endif %}
+      {% if club.email %}<a class="btn btn--ghost" href="mailto:{{ club.email }}">{{ club.email }}</a>{% endif %}
+      {% if club.whatsapp_url %}<a class="btn btn--ghost" href="{{ club.whatsapp_url }}" target="_blank" rel="noopener nofollow">WhatsApp</a>{% endif %}
+      {% if club.telegram_url %}<a class="btn btn--ghost" href="{{ club.telegram_url }}" target="_blank" rel="noopener nofollow">Telegram</a>{% endif %}
+      {% if club.instagram %}<a class="btn btn--ghost" href="{{ club.instagram }}" target="_blank" rel="noopener nofollow">Instagram</a>{% endif %}
+      {% if club.facebook %}<a class="btn btn--ghost" href="{{ club.facebook }}" target="_blank" rel="noopener nofollow">Facebook</a>{% endif %}
+    </p>
+    {% endif %}
+
+    {% if club.has_offline and club.map_query %}
+    <div class="kids-club__map">
+      <iframe title="{% translate "Карта" %}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+              src="https://maps.google.com/maps?q={{ club.map_query|urlencode }}&amp;z={% if club.point_is_exact or club.address %}15{% else %}12{% endif %}&amp;output=embed"></iframe>
+    </div>
+    {% endif %}
+
+    <p class="kids-club__verified">{% if club.last_verified_at %}{% blocktranslate trimmed with date=club.last_verified_at|date:"j E Y" %}Информация проверена {{ date }}.{% endblocktranslate %}{% else %}{% translate "Информация ещё не проверена редакцией." %}{% endif %}
+      {% if club.source_url %}<a href="{{ club.source_url }}" target="_blank" rel="noopener nofollow">{% translate "Источник" %}</a>{% endif %}</p>
+
+    {% if club.is_published %}
+    <details class="kids-report" id="report"{% if report_sent %} open{% endif %}>
+      <summary>{% translate "Сообщить об ошибке или что информация устарела" %}</summary>
+      {% if report_sent %}
+      <p class="kids-report__ok" role="status">{% translate "Спасибо! Редакция проверит карточку." %}</p>
+      {% else %}
+      <form class="dir-form__form" method="post" action="{{ club.get_report_url }}">
+        {% csrf_token %}
+        <div class="dir-form__trap" aria-hidden="true"><label for="id_company">{% translate "Компания" %}</label>{{ report_form.company }}</div>
+        <fieldset class="dir-form__field kids-report__reasons"><legend>{{ report_form.reason.label }}</legend>{{ report_form.reason }}</fieldset>
+        {% include "classifieds/_field.html" with field=report_form.comment %}
+        {% include "classifieds/_field.html" with field=report_form.contact %}
+        <button class="btn" type="submit">{% translate "Отправить" %}</button>
+      </form>
+      {% endif %}
+    </details>
+    {% endif %}
+
+    {% if nearby %}
+    <section class="dir__others" aria-labelledby="nearby-h">
+      <h2 class="sidebar__h" id="nearby-h">{% blocktranslate trimmed with name=club.category_label %}Ещё в направлении «{{ name }}»{% endblocktranslate %}</h2>
+      <ul class="chips">{% for other in nearby %}<li><a class="chip" href="{{ other.get_absolute_url }}">{{ other.name|truncatechars:48 }}{% if other.city %} · {{ other.city.tr.name }}{% endif %}</a></li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+    <p class="story__disclaimer">{% translate "Редакция не связана с кружками и не отвечает за занятия. Расписание, цены и условия оплаты уточняйте у кружка перед записью." %}</p>
+  </article>
+</div>
+{% endblock %}

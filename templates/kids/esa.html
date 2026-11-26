@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% comment %}
+  Текст только по-русски. Пока в kids/seo.py ESA_PAGE_VERIFIED = False, страницу видит только редакция,
+  она закрыта от поиска и её нет в sitemap. Редактор сверяет каждое место с пометкой <mark class="verify">
+  с сайтом stepupforstudents.org, убирает пометки и ставит ESA_PAGE_VERIFIED = True.
+  Суммы, сроки и правила сюда не вписываем, пока они не проверены по официальному сайту.
+{% endcomment %}
+{% block title %}Как оплатить детский кружок из стипендии PEP или FES во Флориде — {{ site_name }}{% endblock %}
+{% block description %}Коротко о флоридских стипендиях Step Up For Students (PEP, FES-UA, FES-EO, FTC): можно ли оплатить из них кружок, что спросить у кружка и где проверить правила.{% endblock %}
+{% block robots %}{% if verified %}{{ block.super }}{% else %}noindex, nofollow{% endif %}{% endblock %}
+{% block head %}<script type="application/ld+json">{{ breadcrumbs_ld|safe }}</script>{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="Навигация">
+    {% for name, url in crumbs %}{% if not forloop.first %}<span aria-hidden="true">/</span>{% endif %}<a href="{{ url }}">{{ name }}</a>{% endfor %}
+  </nav>
+  <article class="story story--page kids-esa">
+    {% if not verified %}<p class="kids-banner" role="note">Черновик для редакции: страницу видят только сотрудники. Проверьте места с жёлтой пометкой по сайту Step Up For Students, уберите пометки и включите страницу (ESA_PAGE_VERIFIED в kids/seo.py).</p>{% endif %}
+    <h1 class="story__title">Как оплатить кружок из стипендии PEP или FES</h1>
+    <p class="story__lede">Во Флориде есть государственные стипендии на образование детей. Их администрирует некоммерческая организация Step Up For Students. Из некоторых программ можно оплачивать не только школу, но и дополнительные занятия — при условии, что кружок подходит под правила программы. <mark class="verify">[ПРОВЕРИТЬ: какие программы разрешают оплату внешкольных занятий]</mark></p>
+
+    <h2>Какие бывают программы</h2>
+    <ul>
+      <li><b>PEP</b> — Personalized Education Program. <mark class="verify">[ПРОВЕРИТЬ: кому положена — для детей на индивидуальном (домашнем) обучении]</mark></li>
+      <li><b>FES-UA</b> — Family Empowerment Scholarship for Students with Unique Abilities. <mark class="verify">[ПРОВЕРИТЬ: кому положена — для детей с особыми потребностями]</mark></li>
+      <li><b>FES-EO</b> — Family Empowerment Scholarship for Educational Options. <mark class="verify">[ПРОВЕРИТЬ: кому положена и можно ли из неё платить за кружки]</mark></li>
+      <li><b>FTC</b> — Florida Tax Credit Scholarship. <mark class="verify">[ПРОВЕРИТЬ: кому положена и можно ли из неё платить за кружки]</mark></li>
+    </ul>
+
+    <h2>Как это обычно устроено</h2>
+    <p>Родитель оплачивает разрешённые расходы со счёта стипендии ребёнка через систему Step Up For Students. <mark class="verify">[ПРОВЕРИТЬ: как называется система для оплаты и как именно платят — напрямую поставщику через каталог или возмещение по чеку]</mark></p>
+    <p>Чтобы получить оплату напрямую, кружок обычно должен быть зарегистрирован в Step Up For Students как поставщик услуг. <mark class="verify">[ПРОВЕРИТЬ: требования к поставщику и порядок регистрации]</mark></p>
+
+    <h2>Что спросить у кружка перед записью</h2>
+    <ul>
+      <li>Зарегистрирован ли кружок как поставщик в Step Up For Students и по каким программам (PEP, FES-UA, FES-EO, FTC).</li>
+      <li>Как проходит оплата: напрямую со счёта стипендии или вы платите сами и получаете возмещение.</li>
+      <li>Какие документы кружок выдаёт для отчёта: счёт, чек, описание занятий.</li>
+    </ul>
+
+    <h2>Как это отмечено в нашем каталоге</h2>
+    <p>Отметка «принимает стипендии» ставится со слов кружка или по информации на его сайте; рядом указана дата, когда редакция проверяла карточку. Если отметки нет, это значит «не указано», а не «не принимает». Условия могут меняться: перед записью уточняйте их у кружка.</p>
+
+    <h2>Где проверить правила</h2>
+    <p>Официальный сайт программ — <a href="https://www.stepupforstudents.org/" target="_blank" rel="noopener">stepupforstudents.org</a>. Там же — разделы для родителей и для поставщиков услуг. <mark class="verify">[ПРОВЕРИТЬ: добавить прямые ссылки на страницы PEP, FES-UA, FES-EO, FTC и раздел для поставщиков]</mark></p>
+
+    <p class="kids__actions"><a class="btn" href="{% url 'kids:list' %}?esa=any">Кружки, которые принимают стипендии</a><a class="btn btn--ghost" href="{% url 'kids:list' %}">Весь каталог</a></p>
+    <p class="story__disclaimer">Это не юридическая и не финансовая консультация. Решение об оплате принимает Step Up For Students по своим правилам.</p>
+  </article>
+</div>
+{% endblock %}

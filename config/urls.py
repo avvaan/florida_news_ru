@@ -45,6 +45,7 @@ urlpatterns += i18n_patterns(
     path("dmca/", core_views.dmca, name="core-dmca"),
     path("corrections/", core_views.corrections, name="core-corrections"),
     path("poisk/", core_views.search, name="core-search"),
+    path("deti/", include("kids.urls")),
     path("", include("hubs.urls")),
     path("", include("news.urls")),
     prefix_default_language=False,

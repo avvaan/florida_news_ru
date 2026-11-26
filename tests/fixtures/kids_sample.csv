@@ -1,0 +1,6 @@
+name,slug,description,category,age_min,age_max,teaching_language,city,address,lat,lng,format,schedule_text,price_text,esa,esa_programs,esa_note,phone,email,website,instagram,facebook,telegram,whatsapp,source_url,last_verified_at,status,is_featured,editor_note
+Тестовый шахматный кружок,,Тестовая запись для проверки импорта.,shakhmaty,6,12,русский;английский,Orlando,100 Test St,28.54,-81.38,очно,,,принимает,PEP;FES-UA,,(407) 000-0001,,https://chess.example.com/,,,,,https://chess.example.com/,2026-11-20,published,,ТЕСТ
+Тестовая студия танцев,test-dance,Тестовая запись для проверки импорта.,Балет и танцы,4,,украинский,Лонгвуд,,,,очно,,,не указано,,,(407) 000-0002,,https://dance.example.com,,,,,,,,,ТЕСТ
+Тестовая робототехника онлайн,,Тестовая запись для проверки импорта.,robototekhnika,9,16,двуязычный,,,,,онлайн,,,не принимает,,,,robots@example.com,https://www.robots.example.com/,,,@robots_test,,,,,,ТЕСТ
+Тестовое плавание,,Тестовая запись для проверки импорта.,plavanie,3,10,английский;русский,winter-park,,,,оба,,,да,FTC,Уточнять у тренера,,,,,,,(407) 000-0004,,20.11.2026,,,ТЕСТ
+Тестовая подготовка к школе,,Тестовая запись для проверки импорта.,podgotovka-k-shkole,4,6,русский,Oviedo,,,,очно,,,,,,(407) 000-0005,,https://school.example.com/,,,,,,,,,ТЕСТ

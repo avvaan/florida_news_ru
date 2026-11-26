@@ -15,7 +15,7 @@ from django.db.models import Q
 
 MAX_QUERY = 80
 MIN_TERM = 2
-LIMITS = {"listings": 30, "guides": 10, "places": 8, "events": 8, "articles": 20}
+LIMITS = {"listings": 30, "clubs": 15, "guides": 10, "places": 8, "events": 8, "articles": 20}
 ENDINGS = re.compile(
     r"(ами|ями|ого|его|ому|ему|ыми|ими|ах|ях|ов|ев|ей|ой|ий|ый|ая|яя|ое|ее|ам|ям|ом|ем|ую|юю|а|я|ы|и|у|ю|е|о|ь)$"
 )
@@ -56,6 +56,7 @@ class Results:
     query: str = ""
     terms: list = field(default_factory=list)
     listings: list = field(default_factory=list)
+    clubs: list = field(default_factory=list)
     guides: list = field(default_factory=list)
     places: list = field(default_factory=list)
     events: list = field(default_factory=list)
@@ -70,6 +71,7 @@ def search(query: str, lang: str = "ru") -> Results:
     from directory.models import Category, Listing
     from events.models import Event
     from guides.models import Guide
+    from kids.models import Club
     from news.models import Article
     from places.models import Destination
 
@@ -87,6 +89,10 @@ def search(query: str, lang: str = "ru") -> Results:
                 .select_related("category", "region"))[:200]
     found.listings = sorted(listings, key=lambda i: -score(i.name + " " + i.category.name, found.terms))[
         :LIMITS["listings"]]
+    clubs = (Club.objects.published().filter(match(["name", "address", "city__name", "city__name_en",
+                                                    *tr("description")], found.terms))
+             .select_related("city"))[:100]
+    found.clubs = sorted(clubs, key=lambda c: -score(c.name, found.terms))[:LIMITS["clubs"]]
     guides = Guide.objects.published().filter(match(tr("title", "teaser", "body"), found.terms))[:100]
     found.guides = sorted(guides, key=lambda g: -score(g.loc("title"), found.terms))[:LIMITS["guides"]]
     places = Destination.objects.published().filter(lang=lang).filter(match(["title", "teaser", "body"], found.terms))

@@ -1,0 +1,12 @@
+{% load i18n %}<li class="dir__card kids-card">
+  <p class="kids-card__meta"><span class="kids-card__cat">{{ club.category_label }}</span>{% if club.city %} · <svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{{ club.city.tr.name }}{% endif %}{% if club.format != "offline" %} · {{ club.get_format_display }}{% endif %}</p>
+  <h2 class="dir__card-h"><a href="{{ club.get_absolute_url }}">{{ club.name }}</a></h2>
+  {% if club.accepts_esa %}<p class="dir__badges"><span class="dir__badge kids-badge--esa">{% translate "Принимает стипендии" %}{% if club.esa_programs %}: {{ club.esa_programs|join:", " }}{% endif %}</span></p>{% endif %}
+  {% if club.description %}<p>{{ club.tr.description|truncatechars:220 }}</p>{% endif %}
+  <dl class="dir__facts">
+    <div><dt>{% translate "Возраст" %}</dt><dd>{{ club.age_text|default:_("не указан") }}</dd></div>
+    <div><dt>{% translate "Язык" %}</dt><dd>{{ club.languages|join:", "|default:_("не указан") }}</dd></div>
+    {% if club.price_text %}<div><dt>{% translate "Стоимость" %}</dt><dd>{{ club.tr.price_text|truncatechars:90 }}</dd></div>{% endif %}
+  </dl>
+  <p class="kids-card__verified">{% if club.last_verified_at %}{% blocktranslate trimmed with date=club.last_verified_at|date:"j E Y" %}Проверено {{ date }}{% endblocktranslate %}{% else %}{% translate "Ещё не проверено редакцией" %}{% endif %}</p>
+</li>

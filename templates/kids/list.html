@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static news_extras i18n %}
+{% block title %}{{ title }} — {{ site_name }}{% endblock %}
+{% block description %}{{ description }}{% endblock %}
+{% block og %}{% include "includes/og.html" with title=title description=description url=request.path %}{% endblock %}
+{% block robots %}{% if indexable %}{{ block.super }}{% else %}noindex, follow{% endif %}{% endblock %}
+{% block head %}<script type="application/ld+json">{{ breadcrumbs_ld|safe }}</script>{% if itemlist_ld %}
+  <script type="application/ld+json">{{ itemlist_ld|safe }}</script>{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    {% for name, url in crumbs %}{% if not forloop.first %}<span aria-hidden="true">/</span>{% endif %}<a href="{{ url }}">{{ name }}</a>{% endfor %}
+  </nav>
+  <section class="story kids">
+    <h1 class="story__title">{{ h1 }}</h1>
+    <p class="story__lede">{% if clubs %}{% blocktranslate trimmed count n=clubs|length %}{{ n }} кружок или секция в каталоге.{% plural %}{{ n }} кружков и секций в каталоге.{% endblocktranslate %} {% endif %}{% translate "Язык занятий, возраст, формат и отметка, принимает ли кружок оплату из флоридских стипендий PEP, FES и FTC. Перед записью уточняйте детали у кружка." %}</p>
+    <p class="kids__actions">
+      <a class="btn" href="{% url 'kids:submit' %}">{% translate "Добавить кружок" %}</a>
+      {% if esa_page %}<a class="btn btn--ghost" href="{% url 'kids:esa' %}">{% translate "Как оплатить из стипендии" %}</a>{% endif %}
+    </p>
+
+    <details class="kids-filters" id="filters" open>
+      <summary>{% translate "Фильтры" %}{% if f.has_extra %} <span class="ads__n">{{ f.extra|length }}</span>{% endif %}</summary>
+      <form class="kids-filters__form" method="get" action="{% url 'kids:list' %}">
+        {% for field in filter_form %}
+        <div class="kids-filters__field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+        </div>
+        {% endfor %}
+        <div class="kids-filters__buttons">
+          <button class="btn" type="submit">{% translate "Показать" %}</button>
+          {% if not f.is_empty %}<a class="btn btn--ghost" href="{% url 'kids:list' %}">{% translate "Сбросить всё" %}</a>{% endif %}
+        </div>
+      </form>
+    </details>
+    <script>(function(){var d=document.getElementById("filters");if(d&&window.matchMedia("(max-width: 759px)").matches&&{% if f.has_extra %}false{% else %}true{% endif %})d.open=false;})();</script>
+
+    {% if nav.categories|length > 1 or f.category %}
+    <nav class="guides__nav kids__nav" aria-label="{% translate "Направления" %}">
+      <a class="chip{% if not f.category %} is-current{% endif %}" href="{% if f.city %}{{ f.city.get_absolute_url }}{% else %}{% url 'kids:list' %}{% endif %}">{% translate "Все направления" %}</a>
+      {% for c in nav.categories %}<a class="chip{% if c.current %} is-current{% endif %}" href="{{ c.url }}"{% if not c.indexable %} rel="nofollow"{% endif %}{% if c.current %} aria-current="page"{% endif %}>{{ c.label }} <span class="ads__n">{{ c.count }}</span></a>{% endfor %}
+    </nav>
+    {% endif %}
+    {% if nav.cities|length > 1 or f.city %}
+    <nav class="guides__nav kids__nav" aria-label="{% translate "Города" %}">
+      <a class="chip{% if not f.city %} is-current{% endif %}" href="{% if f.category %}{% url 'kids:section' f.category %}{% else %}{% url 'kids:list' %}{% endif %}">{% translate "Все города" %}</a>
+      {% for c in nav.cities %}<a class="chip{% if c.current %} is-current{% endif %}" href="{{ c.url }}"{% if not c.indexable %} rel="nofollow"{% endif %}{% if c.current %} aria-current="page"{% endif %}>{{ c.label }} <span class="ads__n">{{ c.count }}</span></a>{% endfor %}
+    </nav>
+    {% endif %}
+
+    {% if points %}
+    <div class="kids-map">
+      <button class="btn btn--ghost kids-map__open" type="button" data-kids-map aria-controls="kids-map" aria-expanded="false"
+              data-css="{% static 'vendor/leaflet/leaflet.css' %}" data-js="{% static 'vendor/leaflet/leaflet.js' %}"
+              data-approx="{% translate "центр города" %}" data-error="{% translate "Не удалось загрузить карту. Попробуйте обновить страницу." %}">
+        <svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>{% blocktranslate trimmed count n=points|length %}Показать на карте ({{ n }}){% plural %}Показать на карте ({{ n }}){% endblocktranslate %}
+      </button>
+      <div class="kids-map__box" id="kids-map" hidden></div>
+      <p class="kids-map__note" hidden>{% translate "Если точного адреса нет, кружок отмечен в центре города." %}</p>
+      {{ points|json_script:"kids-points" }}
+    </div>
+    {% endif %}
+
+    {% if clubs %}
+    <ul class="kids__cards">
+      {% for club in clubs %}{% include "kids/_card.html" %}{% endfor %}
+    </ul>
+    {% else %}
+    <div class="dir__empty kids__empty" role="status">
+      {% if total %}
+      <p><b>{% translate "По этим условиям кружков пока нет." %}</b> {% translate "Попробуйте убрать часть фильтров или выбрать соседний город." %}</p>
+      <p class="kids__actions">{% if reset_url %}<a class="btn btn--ghost" href="{{ reset_url }}">{% translate "Убрать фильтры" %}</a>{% endif %}<a class="btn btn--ghost" href="{% url 'kids:list' %}">{% translate "Весь каталог" %}</a></p>
+      {% else %}
+      <p><b>{% translate "Каталог только начинает наполняться." %}</b> {% translate "Мы публикуем кружки после проверки. Знаете хороший кружок или ведёте его сами — расскажите нам." %}</p>
+      {% endif %}
+      <p><a href="{% url 'kids:submit' %}">{% translate "Добавить кружок" %} →</a></p>
+    </div>
+    {% endif %}
+
+    <aside class="kids__note">
+      <p>{% translate "Данные о кружках собирает редакция из открытых источников и от самих кружков; у каждой карточки указана дата проверки. Отметка о стипендиях — со слов кружка или с его сайта: уточняйте её перед записью." %}</p>
+    </aside>
+  </section>
+</div>
+{% if points %}<script defer src="{% static 'js/kids-map.js' %}"></script>{% endif %}
+{% endblock %}
