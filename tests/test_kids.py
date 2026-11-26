@@ -21,6 +21,14 @@ from .helpers import FIXTURES
 pytestmark = pytest.mark.django_db
 
 
+@pytest.fixture(autouse=True)
+def empty_catalog(request):
+    """Миграция 0003 публикует первые кружки; тестам фильтров и правил нужен пустой каталог."""
+    if not request.node.name.startswith("test_first_clubs"):
+        ClubReport.objects.all().delete()
+        Club.objects.all().delete()
+
+
 def city(slug="orlando"):
     return City.objects.get(slug=slug)
 
@@ -41,6 +49,21 @@ def ld(html: str) -> dict:
         kind = data["@type"]
         out[kind if isinstance(kind, str) else "+".join(kind)] = data
     return out
+
+
+# --- первые кружки (миграция 0003) ---
+
+def test_first_clubs_published_by_migration(client):
+    published = Club.objects.filter(status=Club.Status.PUBLISHED)
+    assert published.count() == 7 and set(published.values_list("city__slug", flat=True)) == {"orlando"}
+    assert Club.objects.get(name="Bilingual Bridges").status == Club.Status.DRAFT  # нет города и формата
+    yulia = Club.objects.get(name="Yulia's Piano Studio")
+    assert yulia.last_verified_at is None and "без ручной сверки" in yulia.editor_note  # ресёрч не сверен
+    assert yulia.lang_ru and yulia.lang_uk and "Киев" not in yulia.description
+    assert Club.objects.get(website="https://russianballetorlando.org/").last_verified_at.isoformat() == "2026-10-17"
+    html = client.get("/deti/").content.decode()
+    assert "Yulia&#x27;s Piano Studio" in html and "Ещё не проверено редакцией" in html
+    assert robots(html).startswith("index")
 
 
 # --- модель ---
