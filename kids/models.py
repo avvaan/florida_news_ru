@@ -261,6 +261,12 @@ class Club(Translatable):
         return self.status == self.Status.PUBLISHED
 
     @property
+    def is_indexable(self) -> bool:
+        """Карточка открыта для поиска только после проверки редакцией: непроверенные данные из поисковых
+        выдержек — тонкие страницы, массово они вредят всему сайту в Google (scaled content)."""
+        return self.status == self.Status.PUBLISHED and self.last_verified_at is not None
+
+    @property
     def is_archived(self) -> bool:
         return self.status == self.Status.ARCHIVED
 

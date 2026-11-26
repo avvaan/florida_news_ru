@@ -250,7 +250,9 @@ class KidsSitemap(SiteRootSitemap):
         pages = indexable_sections()
         if seo.ESA_PAGE_VERIFIED:
             pages.append("esa")
-        return [*pages, *Club.objects.published().select_related("city").order_by("pk")]
+        # Карточки — только проверенные редакцией (непроверенные закрыты noindex, см. Club.is_indexable).
+        return [*pages, *Club.objects.published().filter(last_verified_at__isnull=False)
+                .select_related("city").order_by("pk")]
 
     def get_languages_for_item(self, item):
         if item == "esa":  # страница только по-русски

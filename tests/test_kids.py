@@ -34,6 +34,7 @@ def city(slug="orlando"):
 
 
 def make(name, category="shakhmaty", city_slug="orlando", status=Club.Status.PUBLISHED, **kw):
+    kw.setdefault("last_verified_at", timezone.localdate())  # по умолчанию — проверен редакцией
     return Club.objects.create(name=name, category=category, status=status,
                                city=city(city_slug) if city_slug else None, **kw)
 
@@ -81,7 +82,10 @@ def test_first_clubs_all_central_florida_any_language(client):
     assert Club.objects.filter(website__contains="russianclass.tilda.ws").count() == 1  # без дублей
     html = client.get("/deti/").content.decode()
     assert robots(html).startswith("index") and "<title>Детские кружки и секции в Центральной Флориде — TutFlorida" in html
-    assert robots(client.get("/deti/edinoborstva/").content.decode()).startswith("index")
+    # непроверенные карточки из поиска закрыты от Google: страница направления без проверенных — noindex
+    assert robots(client.get("/deti/edinoborstva/").content.decode()) == "noindex, follow"
+    card = Club.objects.filter(category="edinoborstva", status=Club.Status.PUBLISHED).first()
+    assert robots(client.get(card.get_absolute_url()).content.decode()) == "noindex, follow"
     assert html.count('class="dir__card kids-card"') == 30 and "Страница 1 из 10" in html  # 273 по 30
     page2 = client.get("/deti/?page=2").content.decode()
     assert robots(page2) == "noindex, follow" and page2.count('class="dir__card kids-card"') == 30
@@ -128,7 +132,7 @@ def test_club_validation_and_helpers():
 def test_stale_queryset():
     fresh = make("Fresh", last_verified_at=timezone.localdate())
     old = make("Old", last_verified_at=timezone.localdate() - timedelta(days=91))
-    never = make("Never")
+    never = make("Never", last_verified_at=None)
     assert set(Club.objects.stale()) == {old, never} and fresh not in Club.objects.stale()
 
 
@@ -267,6 +271,26 @@ def test_club_page_markup_verified_date_and_report_button(client, catalog):
     assert "Стоимость</dt><dd>не указано" in html.replace("\n", "").replace("  ", "")
     online = client.get(catalog["chess_online"].get_absolute_url()).content.decode()
     assert "EducationalOrganization" in ld(online) and "maps.google.com" not in online
+
+
+def test_unverified_club_is_noindex_and_out_of_sitemap(client):
+    """Защита от «массового малоценного контента»: непроверенная карточка видна людям, но не Google."""
+    from django.core.cache import cache
+
+    verified = [make(f"Verified {n}") for n in range(3)]
+    raw = make("Raw From Search", last_verified_at=None)
+    html = client.get(raw.get_absolute_url()).content.decode()
+    assert "Raw From Search" in html and robots(html) == "noindex, follow"
+    assert robots(client.get(verified[0].get_absolute_url()).content.decode()).startswith("index")
+    cache.clear()
+    xml = client.get("/sitemap.xml").content.decode()
+    assert verified[0].get_absolute_url() + "</loc>" in xml and raw.slug not in xml
+    # 3 проверенных + 1 непроверенный: список открыт; 2 проверенных + много непроверенных — закрыт
+    assert robots(client.get("/deti/shakhmaty/").content.decode()).startswith("index")
+    verified[0].delete()
+    for n in range(5):
+        make(f"Raw {n}", last_verified_at=None)
+    assert robots(client.get("/deti/shakhmaty/").content.decode()) == "noindex, follow"
 
 
 def test_draft_hidden_archived_noindex(client, catalog):
