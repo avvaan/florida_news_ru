@@ -4,7 +4,7 @@
 {% block description %}{{ event.tr.description|truncatechars:160 }}{% endblock %}
 {% block og %}{% include "includes/og.html" with title=event.tr.title description=event.tr.description|truncatechars:200 url=request.path %}{% endblock %}
 {% block alternates %}{% include "includes/alternates.html" with obj=event %}{% endblock %}
-{% block robots %}{% if not event.shown_translated %}noindex, follow{% else %}{% if event.is_past %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endif %}{% endblock %}
+{% block robots %}{% if not event.shown_translated %}noindex, follow{% else %}{% if not event.is_indexable %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endif %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% url 'events:list' as list_url %}{% translate "Главная" as home_label %}{% translate "Афиша" as list_label %}{% breadcrumbs_jsonld home_label home_url list_label list_url event.tr.title event.get_absolute_url %}{% event_jsonld event %}{% endblock %}
 {% block content %}
 <div class="wrap">

@@ -6,7 +6,7 @@
 {% block canonical %}{{ ad.get_absolute_url|absolute }}{% endblock %}
 {# Текст объявления не переводится: на /uk/ — только русский адрес в hreflang и noindex #}
 {% block alternates %}{% include "includes/alternates.html" with obj=ad %}{% endblock %}
-{% block robots %}{% if is_uk or not ad.is_active or show_contacts or reported or report_open %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block robots %}{% if is_uk or not ad.is_indexable or show_contacts or reported or report_open %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% url 'classifieds:index' as list_url %}{% translate "Главная" as home_label %}{% translate "Объявления" as list_label %}{% breadcrumbs_jsonld home_label home_url list_label list_url ad.category.parent.tr.name ad.category.parent.get_absolute_url ad.category.tr.name ad.category.get_absolute_url ad.title ad.get_absolute_url %}{% endblock %}
 {% block content %}
 <div class="wrap">

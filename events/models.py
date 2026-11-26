@@ -11,6 +11,9 @@ from core.i18n import UK, Translatable, for_language, language_field, uk_field
 from core.text import make_slug
 
 
+# Событие открыто для поиска, только если описание не короче этого (Event.is_indexable).
+INDEX_MIN_WORDS = 80
+
 class EventQuerySet(models.QuerySet):
     def published(self):
         return self.filter(status=Event.Status.APPROVED)
@@ -110,6 +113,12 @@ class Event(Translatable):
     @property
     def last_day(self):
         return self.ends_on or self.starts_on
+
+    @property
+    def is_indexable(self) -> bool:
+        """Событие открыто для поиска, только если оно не прошло и у него развёрнутое описание: карточка
+        «название + дата + площадка» — тонкая страница (docs/SEO_RULES.md)."""
+        return not self.is_past and len((self.description or "").split()) >= INDEX_MIN_WORDS
 
     @property
     def is_past(self) -> bool:

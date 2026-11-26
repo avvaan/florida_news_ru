@@ -22,6 +22,10 @@ LIFETIME = timedelta(days=30)
 RENEW_WINDOW = timedelta(days=5)  # продлить можно за 5 дней до конца и после
 RENEW_GRACE = timedelta(days=60)  # …но не позже, чем через 60 дней после окончания
 MAX_PHOTOS = 5
+# Объявление открыто для поиска, только если текст не короче этого (Ad.is_indexable); рубрика — если в ней
+# не меньше MIN_INDEXABLE_ADS живых объявлений.
+INDEX_MIN_WORDS = 80
+MIN_INDEXABLE_ADS = 3
 
 # Иллюстрации рубрик (Higgsfield, 28.10.2026) для объявлений без фото: {slug}.webp 960×720,
 # {slug}-480.webp для карточек и {slug}.jpg 1200×675 для соцсетей. Список — по файлам, чтобы новая рубрика
@@ -162,6 +166,11 @@ class Ad(models.Model):
     @property
     def is_active(self) -> bool:
         return self.status == self.Status.APPROVED and bool(self.expires_at) and self.expires_at > timezone.now()
+
+    @property
+    def is_indexable(self) -> bool:
+        """Объявление открыто для поиска, только если оно живое и текст развёрнутый (docs/SEO_RULES.md)."""
+        return self.is_active and len((self.description or "").split()) >= INDEX_MIN_WORDS
 
     @property
     def is_expired(self) -> bool:

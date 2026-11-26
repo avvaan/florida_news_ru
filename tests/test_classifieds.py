@@ -182,7 +182,14 @@ def test_approved_ad_with_photos_is_published(client):
     assert ad.views == 1 and ad.contact_views == 1
     assert client.get(f"/obyavleniya/{ad.pk}-wrong-slug/").status_code == 301
     cache.clear()
+    # короткий текст объявления — тонкая страница: видна людям, но закрыта от поиска и не в sitemap
+    assert ad.get_absolute_url() not in client.get("/sitemap.xml").content.decode()
+    assert 'content="noindex, follow"' in detail
+    ad.description = " ".join(["слово"] * 80)
+    ad.save(update_fields=["description"])
+    cache.clear()
     assert ad.get_absolute_url() in client.get("/sitemap.xml").content.decode()
+    assert 'content="noindex, follow"' not in client.get(ad.get_absolute_url()).content.decode()
     cache.clear()
 
 
