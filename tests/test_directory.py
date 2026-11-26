@@ -314,3 +314,31 @@ def test_outreach_csv_export(admin_client):
     body = response.content.decode("utf-8-sig")
     assert response["Content-Type"].startswith("text/csv") and item.name in body
     assert item.get_update_url() in body and "Обновить данные" in body
+
+
+def test_thin_business_card_is_noindex_until_reviews_or_description(client):
+    """Карточка «название + телефон + пара фраз» закрыта от поиска и не в sitemap (docs/SEO_RULES.md);
+    открывается, когда есть опубликованный отзыв или описание от 80 слов."""
+    from django.core.cache import cache
+
+    from comments.models import Comment
+
+    cat = Category.objects.create(slug="test-thin", name="Тест", kind=Category.Kind.BUSINESS)
+    thin = Listing.objects.create(category=cat, name="Тонкая карточка", phone="(305) 555-0100",
+                                  description="Семейный врач, говорит по-русски.")
+    rich = Listing.objects.create(category=cat, name="Подробная карточка", description=" ".join(["слово"] * 80))
+
+    def robots(item):
+        html = client.get(item.get_absolute_url()).content.decode()
+        return re.search(r'<meta name="robots" content="([^"]*)"', html).group(1)
+
+    assert robots(thin) == "noindex, follow" and robots(rich).startswith("index")
+    cache.clear()
+    xml = client.get("/sitemap.xml").content.decode()
+    assert rich.get_absolute_url() in xml and thin.get_absolute_url() not in xml
+
+    Comment.objects.create(listing=thin, name="Анна", email="a@example.com", text="Хороший врач", rating=5,
+                           status=Comment.Status.APPROVED)
+    assert robots(thin).startswith("index")
+    cache.clear()
+    assert thin.get_absolute_url() in client.get("/sitemap.xml").content.decode()

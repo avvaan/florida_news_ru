@@ -5,7 +5,7 @@
 {% block og %}{% include "includes/og.html" with title=item.name|add:" — "|add:site_name description=item.tr.description|default:category.tr.name url=item.get_absolute_url %}{% endblock %}
 {% block canonical %}{{ item.get_absolute_url|absolute }}{% endblock %}
 {% block alternates %}{% include "includes/alternates.html" with obj=item %}{% endblock %}
-{% block robots %}{% if not item.shown_translated %}noindex, follow{% else %}{% if request.GET %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endif %}{% endblock %}
+{% block robots %}{% if not item.shown_translated or not item.is_indexable %}noindex, follow{% else %}{% if request.GET %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endif %}{% endblock %}
 {% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% translate "Главная" as home_label %}{% translate "Справочник" as dir_label %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url category.tr.name category.get_absolute_url item.name item.get_absolute_url %}{% listing_jsonld item %}{% endblock %}
 {% block content %}
 <div class="wrap">
