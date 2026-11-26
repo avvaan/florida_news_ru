@@ -114,7 +114,14 @@ def test_approved_event_with_image_is_published(client):
     assert item["startDate"].endswith("T19:00") and item["location"]["name"] == "Gwen Margolis Center"
     assert item["image"] == [event.image_url] and "anna@example.com" not in detail
     cache.clear()  # sitemap кэшируется на 10 минут — не оставляем свой ответ другим тестам
+    # короткое описание — тонкая страница: закрыта от поиска и не в sitemap, пока его не дополнят
+    assert event.get_absolute_url() not in client.get("/sitemap.xml").content.decode()
+    assert 'content="noindex, follow"' in detail
+    event.description = " ".join(["слово"] * 80)
+    event.save(update_fields=["description"])
+    cache.clear()
     assert event.get_absolute_url() in client.get("/sitemap.xml").content.decode()
+    assert 'content="noindex, follow"' not in client.get(event.get_absolute_url()).content.decode()
     cache.clear()
 
 

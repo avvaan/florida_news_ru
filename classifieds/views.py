@@ -16,7 +16,7 @@ from news.models import Region
 
 from . import moderation
 from .forms import AdForm, FilterForm, ReportForm
-from .models import MAX_PHOTOS, Ad, Category, Photo
+from .models import MAX_PHOTOS, MIN_INDEXABLE_ADS, Ad, Category, Photo
 
 PER_PAGE = 24
 CONTACTS_PER_HOUR = 40  # с одного адреса — дальше похоже на сбор телефонов
@@ -109,7 +109,7 @@ def index(request):
     ads, form, filtered = _filtered(request, Ad.objects.active())
     page = _page(request, ads)
     return render(request, "classifieds/list.html", {
-        "sections": sections, "page_obj": page, "form": form, "filtered": filtered,
+        "sections": sections, "page_obj": page, "form": form, "filtered": filtered, "min_indexable": MIN_INDEXABLE_ADS,
         "total": sum(s.count for s in sections), "regions": _regions(),
         "near_links": geo.near_links(request, "sort", "near-"),
     })
@@ -128,7 +128,7 @@ def category(request, slug):
     page = _page(request, ads)
     return render(request, "classifieds/list.html", {
         "category": cat, "section": section, "children": children, "page_obj": page, "form": form,
-        "filtered": filtered, "total": sum(counts.values()) if cat.is_section else counts.get(cat.pk, 0),
+        "filtered": filtered, "min_indexable": MIN_INDEXABLE_ADS, "total": sum(counts.values()) if cat.is_section else counts.get(cat.pk, 0),
         "regions": _regions(), "near_links": geo.near_links(request, "sort", "near-"),
     })
 

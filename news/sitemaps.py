@@ -200,8 +200,8 @@ class EventSitemap(SiteRootSitemap):
     priority = 0.6
 
     def items(self):
-        # прошедшие события закрыты noindex — в sitemap только ближайшие
-        return ["list", *Event.objects.upcoming()]
+        # прошедшие и тонкие (короткое описание) события закрыты noindex — их в sitemap нет
+        return ["list", *[event for event in Event.objects.upcoming() if event.is_indexable]]
 
     def location(self, item):
         return reverse("events:list") if item == "list" else item.get_absolute_url()
@@ -220,12 +220,21 @@ class ClassifiedSitemap(SiteRootSitemap):
     priority = 0.5
 
     def items(self):
-        # рубрики без объявлений и истёкшие объявления закрыты noindex — в sitemap их нет
-        active = Ad.objects.active()
-        used = set(active.values_list("category_id", flat=True))
-        used |= set(AdCategory.objects.filter(pk__in=used).values_list("parent_id", flat=True))
-        cats = AdCategory.objects.filter(pk__in=used).order_by("parent_id", "order")
-        return ["index", *cats, *active.newest().prefetch_related("photos")]
+        # рубрики, где меньше MIN_INDEXABLE_ADS живых объявлений, и короткие или истёкшие объявления закрыты
+        # noindex — их в sitemap нет
+        from collections import Counter
+
+        from classifieds.models import MIN_INDEXABLE_ADS
+
+        active = list(Ad.objects.active().select_related("category").newest().prefetch_related("photos"))
+        counts = Counter()
+        for ad in active:
+            counts[ad.category_id] += 1
+            if ad.category.parent_id:
+                counts[ad.category.parent_id] += 1
+        cats = AdCategory.objects.filter(pk__in=[pk for pk, n in counts.items() if n >= MIN_INDEXABLE_ADS])
+        index = ["index"] if len(active) >= MIN_INDEXABLE_ADS else []
+        return [*index, *cats.order_by("parent_id", "order"), *[ad for ad in active if ad.is_indexable]]
 
     def location(self, item):
         return reverse("classifieds:index") if item == "index" else item.get_absolute_url()

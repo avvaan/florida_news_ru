@@ -39,7 +39,8 @@ def api():
 
 
 def make_event(title, language="", **kw) -> Event:
-    data = {"title": title, "description": f"Описание: {title}", "starts_on": timezone.localdate() + timedelta(days=5),
+    # описание от 80 слов: короткие события закрыты от поиска (Event.is_indexable), а здесь проверяем языки
+    data = {"title": title, "description": f"Описание: {title}. " + " ".join(["подробности"] * 80), "starts_on": timezone.localdate() + timedelta(days=5),
             "venue": "Зал", "address": "1 Main St", "city": "Орландо", "organizer": "Организатор",
             "contact_name": "Иван", "contact_email": "i@example.com", "status": Event.Status.APPROVED,
             "language": language}
@@ -55,7 +56,7 @@ def events():
     return {
         "all": make_event("Концерт для всех", title_uk="Концерт для всіх"),
         "ru": make_event("Только по-русски", "ru"),
-        "uk": make_event("Різдвяний ярмарок", "uk", description="Українська громада запрошує на ярмарок.",
+        "uk": make_event("Різдвяний ярмарок", "uk", description="Українська громада запрошує на ярмарок. " + " ".join(["подробиці"] * 80),
                          price="Вхід вільний"),
     }
 
