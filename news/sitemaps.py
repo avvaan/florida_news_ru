@@ -162,9 +162,11 @@ class DirectorySitemap(SiteRootSitemap):
 
     def items(self):
         # пустые категории закрыты noindex — в sitemap только те, где есть записи
+        # карточки бизнесов — только с отзывами или нормальным описанием (Listing.is_indexable)
+        listings = (Listing.objects.filter(is_active=True, category__kind=Category.Kind.BUSINESS)
+                    .with_review_count().select_related("category").order_by("category__order", "pk"))
         return ["index", *Category.objects.filter(listings__is_active=True).distinct().order_by("kind", "order"),
-                *Listing.objects.filter(is_active=True, category__kind=Category.Kind.BUSINESS)
-                .select_related("category").order_by("category__order", "pk")]
+                *[item for item in listings if item.is_indexable]]
 
     def location(self, item):
         return reverse("directory:index") if item == "index" else item.get_absolute_url()

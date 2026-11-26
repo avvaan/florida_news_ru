@@ -68,7 +68,17 @@ class Category(Translatable):
         return category_icon(self.slug)
 
 
+# Карточка бизнеса без отзывов открыта для поиска, только если описание не короче этого (Listing.is_indexable).
+INDEX_MIN_WORDS = 80
+
+
 class ListingQuerySet(models.QuerySet):
+    def with_review_count(self):
+        from comments.models import Comment
+
+        return self.annotate(approved_reviews=models.Count(
+            "comments", filter=models.Q(comments__status=Comment.Status.APPROVED)))
+
     def active(self):
         return self.filter(is_active=True).order_by(
             "-is_partner", "-is_recommended", "order", models.F("region__order").asc(nulls_last=True), "city", "name",
@@ -142,6 +152,20 @@ class Listing(Translatable):
         """«Это ваш бизнес? Обновите данные»."""
         return reverse("directory:listing-update",
                        args=[self.category.slug, self.pk, make_slug(self.name, 60) or "biznes"])
+
+    @property
+    def is_indexable(self) -> bool:
+        """Страница бизнеса открыта для поиска, только если на ней есть своё содержание: опубликованные отзывы
+        или описание от INDEX_MIN_WORDS слов. Карточка «название + телефон + пара фраз» — тонкая страница; сотни
+        таких на молодом сайте Google считает массовым малоценным контентом (см. docs/SEO_RULES.md)."""
+        if not self.is_active or self.category.kind != Category.Kind.BUSINESS:
+            return False
+        if len((self.description or "").split()) >= INDEX_MIN_WORDS:
+            return True
+        approved = getattr(self, "approved_reviews", None)  # аннотация из sitemap, иначе запрос
+        if approved is None:
+            approved = self.comments.published().exists()
+        return bool(approved)
 
     @property
     def phone_href(self) -> str:
