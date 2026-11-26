@@ -215,7 +215,8 @@ def test_seo_titles(client, catalog):
     assert "<title>Кружки по шахматам для детей в Орландо — на русском языке — TutFlorida</title>" in html
     assert ">Кружки по шахматам для детей в Орландо</h1>" in html
     html = client.get("/deti/longwood/").content.decode()
-    assert "Детские кружки и секции в Лонгвуде — на русском языке" in html
+    # в Лонгвуде 1 из 3 кружков на украинском, 2 — без указанного языка: обещать «на русском» нельзя
+    assert "<title>Детские кружки и секции в Лонгвуде — TutFlorida</title>" in html
     assert 'rel="canonical" href="http://localhost:8000/deti/longwood/"' in html
     data = ld(html)
     assert data["ItemList"]["numberOfItems"] == 3

@@ -101,7 +101,7 @@ def club_list(request, first=None, second=None):
     crumbs = seo.breadcrumbs(f)
     context = {
         "f": f, "clubs": clubs, "total": len(published), "indexable": indexable,
-        "title": seo.title(f), "h1": seo.h1(f), "description": seo.description(f, len(clubs)),
+        "title": seo.title(f, clubs), "h1": seo.h1(f), "description": seo.description(f, len(clubs)),
         "crumbs": crumbs[:-1] if not f.is_empty else crumbs[:1],
         "breadcrumbs_ld": seo.dumps(seo.breadcrumbs_jsonld(crumbs)),
         "itemlist_ld": seo.dumps(seo.itemlist_jsonld(seo.h1(f), clubs)) if clubs else "",

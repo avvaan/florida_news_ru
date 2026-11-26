@@ -31,7 +31,20 @@ def h1(f) -> str:
     return _("Детские кружки и секции %(where)s") % {"where": where(f)}
 
 
-def title(f) -> str:
+def mostly_slavic(clubs) -> bool:
+    """Больше половины кружков на странице ведут занятия на русском, украинском или двуязычно."""
+    clubs = list(clubs)
+    slavic = sum(1 for c in clubs if c.lang_ru or c.lang_uk or c.lang_bilingual)
+    return bool(clubs) and slavic * 2 > len(clubs)
+
+
+def title(f, clubs=None) -> str:
+    """«… — на русском языке» — только если это правда для большинства кружков на странице.
+
+    Каталог открыт для всех кружков (на любом языке), и обещание в заголовке не должно обманывать.
+    """
+    if clubs is not None and not mostly_slavic(clubs):
+        return h1(f)
     return _("%(h1)s — на русском языке") % {"h1": h1(f)}
 
 
