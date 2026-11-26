@@ -6,6 +6,7 @@ from datetime import timedelta
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -20,6 +21,7 @@ from .forms import ClubSubmitForm, FilterForm, ReportForm
 from .models import Category, City, Club, ClubReport
 
 MAX_SUBMISSIONS_PER_IP_PER_DAY = 5
+PER_PAGE = 30  # карточек на странице списка; страницы со 2-й закрыты noindex, карта — по всей выборке
 MAX_REPORTS_PER_IP_PER_DAY = 10
 
 
@@ -97,14 +99,16 @@ def club_list(request, first=None, second=None):
     clubs = list(filters.find(f))
     published = list(Club.objects.published().only("category", "city_id"))
     indexable = filters.is_indexable(len(clubs), f) and not request.GET.get("page")
+    page = Paginator(clubs, PER_PAGE).get_page(request.GET.get("page") or 1)
     initial = {"cat": f.category, "city": f.city.slug if f.city else "", **f.extra}
     crumbs = seo.breadcrumbs(f)
     context = {
-        "f": f, "clubs": clubs, "total": len(published), "indexable": indexable,
-        "title": seo.title(f), "h1": seo.h1(f), "description": seo.description(f, len(clubs)),
+        "f": f, "clubs": page.object_list, "count": len(clubs), "page_obj": page,
+        "total": len(published), "indexable": indexable,
+        "title": seo.title(f, clubs), "h1": seo.h1(f), "description": seo.description(f, len(clubs)),
         "crumbs": crumbs[:-1] if not f.is_empty else crumbs[:1],
         "breadcrumbs_ld": seo.dumps(seo.breadcrumbs_jsonld(crumbs)),
-        "itemlist_ld": seo.dumps(seo.itemlist_jsonld(seo.h1(f), clubs)) if clubs else "",
+        "itemlist_ld": seo.dumps(seo.itemlist_jsonld(seo.h1(f), page.object_list)) if clubs else "",
         "filter_form": FilterForm(initial=initial), "nav": nav_links(f, published),
         "points": map_points(clubs), "reset_url": seo.list_url(f.category, f.city) if f.has_extra else "",
         "esa_page": seo.ESA_PAGE_VERIFIED or request.user.is_staff,

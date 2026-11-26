@@ -13,7 +13,7 @@
   </nav>
   <section class="story kids">
     <h1 class="story__title">{{ h1 }}</h1>
-    <p class="story__lede">{% if clubs %}{% blocktranslate trimmed count n=clubs|length %}{{ n }} кружок или секция в каталоге.{% plural %}{{ n }} кружков и секций в каталоге.{% endblocktranslate %} {% endif %}{% translate "Язык занятий, возраст, формат и отметка, принимает ли кружок оплату из флоридских стипендий PEP, FES и FTC. Перед записью уточняйте детали у кружка." %}</p>
+    <p class="story__lede">{% if count %}{% blocktranslate trimmed count n=count %}{{ n }} кружок или секция в каталоге.{% plural %}{{ n }} кружков и секций в каталоге.{% endblocktranslate %} {% endif %}{% translate "Язык занятий, возраст, формат и отметка, принимает ли кружок оплату из флоридских стипендий PEP, FES и FTC. Перед записью уточняйте детали у кружка." %}</p>
     <p class="kids__actions">
       <a class="btn" href="{% url 'kids:submit' %}">{% translate "Добавить кружок" %}</a>
       {% if esa_page %}<a class="btn btn--ghost" href="{% url 'kids:esa' %}">{% translate "Как оплатить из стипендии" %}</a>{% endif %}
@@ -66,6 +66,13 @@
     <ul class="kids__cards">
       {% for club in clubs %}{% include "kids/_card.html" %}{% endfor %}
     </ul>
+    {% if page_obj.has_other_pages %}
+    <nav class="pager" aria-label="{% translate "Страницы" %}">
+      {% if page_obj.has_previous %}<a class="btn btn--ghost" href="{% if page_obj.previous_page_number == 1 %}{% querystring page=None %}{% else %}{% querystring page=page_obj.previous_page_number %}{% endif %}" rel="prev">← {% translate "Назад" %}</a>{% endif %}
+      <span class="pager__num">{% blocktranslate trimmed with n=page_obj.number total=page_obj.paginator.num_pages %}Страница {{ n }} из {{ total }}{% endblocktranslate %}</span>
+      {% if page_obj.has_next %}<a class="btn btn--ghost" href="{% querystring page=page_obj.next_page_number %}" rel="next">{% translate "Дальше" %} →</a>{% endif %}
+    </nav>
+    {% endif %}
     {% else %}
     <div class="dir__empty kids__empty" role="status">
       {% if total %}
