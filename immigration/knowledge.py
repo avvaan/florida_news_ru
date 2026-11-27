@@ -13,7 +13,7 @@ from datetime import timedelta
 
 import requests
 from django.conf import settings
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 
@@ -67,8 +67,27 @@ def session() -> requests.Session:
 FORCE = {"on": False}  # --force: перенарезать всё (после правки правил нарезки), даже если текст не изменился
 
 
+def _clean_page(page: Page) -> Page:
+    """Нулевые байты (бывают в полном тексте Federal Register) PostgreSQL в текстовые поля не принимает."""
+    page.title = (page.title or "").replace("\x00", "")
+    for section in page.sections:
+        section.heading = section.heading.replace("\x00", "")
+        section.lines = [line.replace("\x00", "") for line in section.lines]
+    return page
+
+
 def store(source: Source, page: Page, *, now=None) -> Outcome:
-    """Сохраняет текст источника: перенарезает фрагменты, только если текст изменился (или --force)."""
+    """Сохраняет текст источника: перенарезает фрагменты, только если текст изменился (или --force).
+
+    Ошибка базы на одном источнике помечает его «не скачано», а не обрывает всё обновление.
+    """
+    try:
+        return _store(source, _clean_page(page), now=now)
+    except (DatabaseError, ValueError) as exc:
+        return fail(source, Source.Status.FAILED, f"{type(exc).__name__}: {exc}")
+
+
+def _store(source: Source, page: Page, *, now=None) -> Outcome:
     now = now or timezone.now()
     new_hash = page.content_hash
     changed = new_hash != source.content_hash
@@ -253,11 +272,20 @@ def update_all(*, only: str = "", official: bool = True, ours: bool = True, forc
         for item in S.officials():
             if only and only not in item.url:
                 continue
-            report.add(fetch_official(item, http))
+            _guard(report, item.url, lambda item=item: report.add(fetch_official(item, http)))
         if not only or "visa-bulletin" in only:
-            report.add(update_visa_bulletin(http))
+            _guard(report, S.VISA_BULLETIN_INDEX, lambda: report.add(update_visa_bulletin(http)))
         if not only or "federalregister" in only:
-            update_federal_register(http, report)
+            _guard(report, S.FR_API, lambda: update_federal_register(http, report))
     if ours and not only:
-        update_ours(report)
+        _guard(report, settings.SITE_URL, lambda: update_ours(report))
     return report
+
+
+def _guard(report: Report, url: str, step) -> None:
+    """Сбой одного шага (страница, Federal Register, наши материалы) не обрывает остальные."""
+    try:
+        step()
+    except Exception as exc:  # noqa: BLE001 — записываем в отчёт и идём дальше
+        log.exception("База знаний: сбой шага %s", url)
+        report.add(Outcome(url, Source.Status.FAILED, note=f"{type(exc).__name__}: {exc}"[:300]))

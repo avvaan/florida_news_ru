@@ -528,3 +528,28 @@ def test_api_update_and_sources_staff_only(client, kb, tmp_path, monkeypatch):
         assert args[-2:] == ["manage.py", "immigration_update"]
     data = client.get("/api/v1/immigration/sources/", **auth).json()
     assert data["sources_ok"] == 1 and data["chunks"] == 1 and data["sources"][0]["url"] == kb.url
+
+
+def test_nul_bytes_and_one_failure_do_not_stop_update(monkeypatch):
+    from immigration.extract import Page, Section
+
+    src = Source.objects.create(url="https://www.federalregister.gov/documents/x", agency="fr", kind="fr_doc")
+    page = Page(title="Doc\x00", sections=[Section("Summary", ["TPS for Ukraine is extended\x00 for 18 months, "
+                                                               "work permits are extended automatically."])])
+    out = knowledge.store(src, page)
+    assert out.status == "ok" and "\x00" not in Chunk.objects.get(source=src).text
+
+    calls = []
+
+    def boom(item, http):
+        calls.append(item.url)
+        if len(calls) == 1:
+            raise RuntimeError("сбой одной страницы")
+        return knowledge.Outcome(item.url, "ok")
+
+    monkeypatch.setattr(knowledge, "fetch_official", boom)
+    monkeypatch.setattr(knowledge, "update_visa_bulletin", lambda http: knowledge.Outcome("vb", "blocked"))
+    monkeypatch.setattr(knowledge, "update_federal_register", lambda http, report: None)
+    report = knowledge.update_all(ours=False)
+    assert len(calls) == len(knowledge.S.officials())  # после сбоя первой — остальные всё равно скачаны
+    assert report.failed[0].note.startswith("RuntimeError")
