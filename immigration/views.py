@@ -63,8 +63,11 @@ def login_start(request):
         if form.cleaned_data.get("company"):  # ловушка для ботов
             return redirect("immigration:login-code")
         if accounts.is_staff_email(email):
-            form.add_error("email", _("Сотрудники входят через админку."))
-        elif accounts.too_many_codes(email, request):
+            # Сотрудники входят через админку. Отвечаем так же, как всем, — чтобы по форме нельзя было узнать,
+            # какой адрес принадлежит сотруднику; письмо не отправляем.
+            request.session[SESSION_EMAIL] = email
+            return redirect("immigration:login-code")
+        if accounts.too_many_codes(email, request):
             form.add_error(None, _("Слишком много запросов кода. Попробуйте через 15 минут."))
         else:
             try:

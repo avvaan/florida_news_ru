@@ -292,8 +292,9 @@ def test_login_by_code_saves_consent(client):
 
 def test_staff_email_cannot_log_in_by_code(client):
     User.objects.create_user("boss", email="boss@example.com", password="x", is_staff=True)
-    client.post("/immigration/vhod/", {"email": "boss@example.com", "consent": "on"})
-    assert not mail.outbox
+    resp = client.post("/immigration/vhod/", {"email": "boss@example.com", "consent": "on"})
+    assert resp.status_code == 302 and resp["Location"] == "/immigration/vhod/kod/"  # как для всех
+    assert not mail.outbox and not LoginCode.objects.exists()
 
 
 @override_settings(EMAIL_CONFIGURED=False)

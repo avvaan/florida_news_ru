@@ -20,7 +20,7 @@ STOP = {"the", "a", "an", "of", "to", "in", "for", "and", "or", "is", "are", "ho
         "как", "что", "это", "для", "или", "по", "на", "в", "и", "с", "о", "об", "ли", "не", "у", "из", "к", "до",
         "як", "що", "це", "та", "чи", "з", "і", "й", "від"}
 MIN_SCORE = 0.01
-TOP = 6
+TOP = 8
 
 
 @dataclass
@@ -83,12 +83,12 @@ def _search_simple(query_en: str, query_ru: str, limit: int) -> list[Hit]:
 
 
 def _top(hits: list[Hit], limit: int) -> list[Hit]:
-    """Лучшие фрагменты, не больше двух с одной страницы — чтобы источники были разными."""
+    """Лучшие фрагменты, не больше трёх с одной страницы — чтобы источники были разными."""
     hits.sort(key=lambda h: -h.score)
     out, per_source = [], {}
     for hit in hits:
         n = per_source.get(hit.chunk.source_id, 0)
-        if n >= 2:
+        if n >= 3:
             continue
         per_source[hit.chunk.source_id] = n + 1
         out.append(hit)
