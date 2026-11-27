@@ -2,6 +2,8 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
+from immigration import api as immigration_api
+
 from . import content_views as cv
 from . import views
 
@@ -32,6 +34,8 @@ urlpatterns = [
     path("v1/settings/", views.SettingsView.as_view(), name="api-settings"),
     path("v1/stats/", views.StatsView.as_view(), name="api-stats"),
     path("v1/covers/", views.CoversView.as_view(), name="api-covers"),
+    path("v1/immigration/update/", immigration_api.UpdateView.as_view(), name="api-immigration-update"),
+    path("v1/immigration/sources/", immigration_api.SourcesView.as_view(), name="api-immigration-sources"),
     path("v1/", include(router.urls)),
     path("schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path("docs/", SpectacularSwaggerView.as_view(url_name="api-schema"), name="api-docs"),

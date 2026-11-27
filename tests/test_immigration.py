@@ -508,3 +508,23 @@ def test_policy_manual_updates_section_not_indexed():
     page = parse_html("<main><h2>A. Continuous Residence</h2><p>" + "residence rule text " * 20 + "</p>"
                       "<h2>Updates</h2><p>" + "technical update fee federal register " * 20 + "</p></main>")
     assert [h for h, _t in chunks(page)] == ["A. Continuous Residence"]
+
+
+def test_api_update_and_sources_staff_only(client, kb, tmp_path, monkeypatch):
+    from rest_framework.authtoken.models import Token
+
+    from immigration import api
+
+    monkeypatch.setattr(api, "LOCK", tmp_path / "lock")
+    staff = User.objects.create_user("agent", is_staff=True)
+    auth = {"HTTP_AUTHORIZATION": f"Token {Token.objects.create(user=staff).key}"}
+    client.force_login(reader())
+    assert client.post("/api/v1/immigration/update/").status_code in (401, 403)  # читатель — нет
+    client.logout()
+    with mock.patch.object(api.subprocess, "Popen") as popen:
+        popen.return_value.wait.return_value = 0
+        assert client.post("/api/v1/immigration/update/", **auth).status_code == 202
+        args = popen.call_args.args[0]
+        assert args[-2:] == ["manage.py", "immigration_update"]
+    data = client.get("/api/v1/immigration/sources/", **auth).json()
+    assert data["sources_ok"] == 1 and data["chunks"] == 1 and data["sources"][0]["url"] == kb.url
