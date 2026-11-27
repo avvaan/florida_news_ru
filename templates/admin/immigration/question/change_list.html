@@ -1,0 +1,12 @@
+{% extends "admin/change_list.html" %}
+{% block content_title %}{{ block.super }}
+{% with s=imm_stats %}
+<div style="display:flex;flex-wrap:wrap;gap:16px;margin:8px 0 16px;padding:12px 16px;border:1px solid var(--hairline-color);border-radius:6px">
+  <div><b>Помощник:</b> {% if s.enabled %}открыт для читателей{% else %}только сотрудники (закрытая проверка){% endif %} — <a href="{% url 'admin:immigration_assistantsettings_changelist' %}">переключить</a></div>
+  <div><b>Расход:</b> сегодня ${{ s.cost_today|floatformat:4 }} · месяц ${{ s.cost_month|floatformat:2 }} из ${{ s.budget }}</div>
+  <div><b>Вопросов:</b> сегодня {{ s.questions_today }} · месяц {{ s.questions_month }}</div>
+  <div><b>👎 не разобрано:</b> <a href="?feedback__exact=-1&reviewed__exact=0">{{ s.thumbs_down }}</a></div>
+  <div><b>База:</b> источников {{ s.sources_ok }}, фрагментов {{ s.chunks }} · <a href="{% url 'admin:immigration_source_changelist' %}?fresh=stale">давно не проверялись: {{ s.sources_stale }}</a> · <a href="{% url 'admin:immigration_source_changelist' %}?fresh=broken">не скачиваются: {{ s.sources_broken }}</a></div>
+</div>
+{% endwith %}
+{% endblock %}

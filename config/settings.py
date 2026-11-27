@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "gallery",
     "hubs",
     "kids",
+    "immigration",
     "rest_framework",
     "rest_framework.authtoken",
     "drf_spectacular",
@@ -216,6 +217,8 @@ AI_DEDUP_MODEL = os.environ.get("AI_DEDUP_MODEL") or (
 )
 AI_WRITER_MODEL = os.environ.get("AI_WRITER_MODEL") or _DEFAULT_MODELS["writer"]
 AI_VERIFIER_MODEL = os.environ.get("AI_VERIFIER_MODEL") or AI_CLASSIFIER_MODEL
+# Иммиграционный помощник (/immigration/): дешёвая модель для разбора вопроса и ответа по найденным фрагментам.
+IMMIGRATION_AI_MODEL = os.environ.get("IMMIGRATION_AI_MODEL") or AI_CLASSIFIER_MODEL
 # Перевод контента на украинский (core/translation.py). Пусто — модель отбора: перевод ru→uk ей по силам.
 AI_TRANSLATOR_MODEL = os.environ.get("AI_TRANSLATOR_MODEL") or AI_CLASSIFIER_MODEL
 # Сколько долларов в день можно потратить на перевод (кроме срочного перевода свежих заметок).
@@ -290,6 +293,24 @@ FACEBOOK_PAGE_TOKEN = os.environ.get("FACEBOOK_PAGE_TOKEN", "").strip()
 DEMO_MODE = env_bool("DEMO_MODE", False)
 FORMS_URLFIELD_ASSUME_HTTPS = True
 SERVE_MEDIA = env_bool("SERVE_MEDIA", False)
+
+# --- Почта (коды входа в иммиграционный помощник) -------------------------------------------------
+# Без EMAIL_HOST письма не отправляются, а вход читателей показывает «пока не настроен».
+# Пример для SMTP почтового сервиса: EMAIL_HOST=smtp.example.com EMAIL_PORT=587 EMAIL_HOST_USER=…
+# EMAIL_HOST_PASSWORD=… EMAIL_USE_TLS=1 DEFAULT_FROM_EMAIL="TutFlorida <no-reply@tutflorida.com>"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = env_bool("EMAIL_USE_SSL", False)
+EMAIL_TIMEOUT = 20
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "TutFlorida <no-reply@tutflorida.com>")
+if EMAIL_HOST:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+elif DEBUG:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # локально код печатается в консоль
+EMAIL_CONFIGURED = bool(EMAIL_HOST) or DEBUG
 
 # --- API для удалённого управления ----------------------------------------------
 # Доступ — только сотрудникам (is_staff) по токену: заголовок «Authorization: Token <ключ>».

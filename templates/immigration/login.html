@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Вход в иммиграционный помощник" %} — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story story--page dir-form">
+    <h1 class="story__title">{% translate "Вход по e-mail" %}</h1>
+    <p class="story__lede">{% translate "Пароль не нужен: пришлём одноразовый код. Мы не просим имя, A-number, номер дела или SSN." %}</p>
+    <form class="dir-form__form" method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="dir-form__error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+      <div class="dir-form__trap" aria-hidden="true"><label for="id_company">{% translate "Компания" %}</label>{{ form.company }}</div>
+      {% include "classifieds/_field.html" with field=form.email %}
+      <div class="dir-form__field dir-form__check{% if form.consent.errors %} has-error{% endif %}">
+        <label>{{ form.consent }} {{ form.consent.label }}</label>
+        {% for e in form.consent.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}
+      </div>
+      <button class="btn" type="submit">{% translate "Получить код" %}</button>
+      <p class="dir-form__help">{% translate "Отмечая галочку, вы подтверждаете, что понимаете: помощник даёт общую информацию по официальным источникам, а не юридическую консультацию. Мы сохраним дату согласия и IP-адрес." %} <a href="{% url 'core-page' 'privacy' %}">{% translate "Политика конфиденциальности" %}</a></p>
+    </form>
+  </section>
+</div>
+{% endblock %}
