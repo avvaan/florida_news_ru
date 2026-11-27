@@ -13,9 +13,11 @@ class Command(BaseCommand):
         parser.add_argument("--only", default="", help="Только адреса, содержащие эту строку (проверка одного адреса)")
         parser.add_argument("--no-official", action="store_true", help="Без официальных сайтов (только наши материалы)")
         parser.add_argument("--no-ours", action="store_true", help="Без наших гайдов и новостей")
+        parser.add_argument("--force", action="store_true",
+                            help="Перенарезать все страницы, даже если текст не изменился (после правки нарезки)")
 
-    def handle(self, only="", no_official=False, no_ours=False, **options):
-        report = update_all(only=only, official=not no_official, ours=not no_ours)
+    def handle(self, only="", no_official=False, no_ours=False, force=False, **options):
+        report = update_all(only=only, official=not no_official, ours=not no_ours, force=force)
         for o in report.outcomes:
             mark = "✓" if o.status == "ok" else "✗"
             changed = " (изменилась)" if o.changed else ""

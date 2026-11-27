@@ -1,0 +1,55 @@
+# immigration_update — 27.11.2026, облачная сессия Claude Code (адрес дата-центра)
+✓ ok          13 фр.  https://www.uscis.gov/i-765 
+✓ ok           8 фр.  https://www.uscis.gov/i-485 
+✓ ok          10 фр.  https://www.uscis.gov/i-130 
+✓ ok           9 фр.  https://www.uscis.gov/i-131 
+✓ ok           4 фр.  https://www.uscis.gov/i-90 
+✓ ok          11 фр.  https://www.uscis.gov/n-400 
+✓ ok           3 фр.  https://www.uscis.gov/i-821 
+✓ ok          16 фр.  https://www.uscis.gov/i-589 
+✓ ok           3 фр.  https://www.uscis.gov/ar-11 
+✓ ok           8 фр.  https://www.uscis.gov/i-751 
+✓ ok           7 фр.  https://www.uscis.gov/i-864 
+✓ ok           1 фр.  https://www.uscis.gov/newsroom/alerts/update-on-form-i-134a (изменилась) переадресация с https://www.uscis.gov/i-134a
+✓ ok           6 фр.  https://www.uscis.gov/i-539 
+✓ ok           7 фр.  https://www.uscis.gov/i-912 
+✓ ok           4 фр.  https://www.uscis.gov/n-600 
+✓ ok           6 фр.  https://www.uscis.gov/i-131a 
+✓ ok           5 фр.  https://www.uscis.gov/g-1055 
+✓ ok          23 фр.  https://www.uscis.gov/policy-manual/volume-12-part-d-chapter-3 
+✓ ok          10 фр.  https://www.uscis.gov/policy-manual/volume-12-part-d-chapter-4 
+✓ ok          25 фр.  https://www.uscis.gov/policy-manual/volume-12-part-e-chapter-2 
+✓ ok          27 фр.  https://www.uscis.gov/policy-manual/volume-12-part-f-chapter-2 
+✓ ok          57 фр.  https://www.uscis.gov/policy-manual/volume-12-part-f-chapter-5 
+✓ ok          14 фр.  https://www.uscis.gov/forms/filing-fees 
+✓ ok          23 фр.  https://www.uscis.gov/humanitarian/temporary-protected-status 
+✓ ok          18 фр.  https://www.uscis.gov/humanitarian/humanitarian_parole (изменилась) переадресация с https://www.uscis.gov/humanitarian/humanitarian-parole
+✓ ok           1 фр.  https://www.uscis.gov/newsroom/alerts/update-on-form-i-134a переадресация с https://www.uscis.gov/ukraine
+✓ ok           1 фр.  https://www.uscis.gov/newsroom/alerts/update-on-form-i-134a переадресация с https://www.uscis.gov/humanitarian/uniting-for-ukraine
+✓ ok          11 фр.  https://www.uscis.gov/newsroom/alerts 
+✓ ok           5 фр.  https://www.uscis.gov/addresschange 
+✓ ok          14 фр.  https://www.uscis.gov/alienregistration 
+✓ ok           4 фр.  https://www.uscis.gov/green-card/after-we-grant-your-green-card/replace-your-green-card 
+✓ ok           3 фр.  https://www.uscis.gov/green-card/after-we-grant-your-green-card/international-travel-as-a-permanent-resident 
+✓ ok           5 фр.  https://www.uscis.gov/green-card/after-we-grant-your-green-card/conditional-permanent-residence/removing-conditions-on-permanent-residence-based-on-marriage 
+✓ ok          12 фр.  https://www.uscis.gov/citizenship/find-study-materials-and-resources/study-for-the-test 
+✓ ok           2 фр.  https://www.uscis.gov/citizenship/exceptions-and-accommodations 
+✓ ok           7 фр.  https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/common-scams 
+✓ ok           7 фр.  https://www.uscis.gov/forms/filing-guidance/tips-for-filing-forms-by-mail 
+✓ ok           1 фр.  https://www.justice.gov/eoir/find-legal-representation 
+✓ ok           2 фр.  https://www.justice.gov/eoir/list-pro-bono-legal-service-providers 
+✓ ok           1 фр.  https://www.justice.gov/eoir/recognition-accreditation-roster-reports (изменилась) 
+✓ ok           3 фр.  https://www.justice.gov/eoir/self-help-materials 
+✗ blocked      0 фр.  https://travel.state.gov/content/travel/en/legal/visa-law0/visa-bulletin.html HTTP 403
+✓ ok           1 фр.  https://www.federalregister.gov/documents/2026/11/17/2026-23320/appellate-procedures-for-the-board-of-immigration-appeals 
+✓ ok           1 фр.  https://www.federalregister.gov/documents/2026/10/14/2026-21024/imposition-and-collection-of-civil-penalties-for-certain-immigration-related-violations 
+✓ ok           1 фр.  https://www.federalregister.gov/documents/2026/10/01/2026-20186/certain-dhs-immigration-related-fees-required-by-hr-1-fiscal-year-2027-adjustments-for-inflation 
+✓ ok           1 фр.  https://www.federalregister.gov/documents/2026/09/29/2026-19841/inflation-adjustment-for-eoir-obbba-fees-for-certain-dhs-forms-fiscal-year-2027 
+✓ ok           1 фр.  https://www.federalregister.gov/documents/2026/09/28/2026-19756/extension-without-change-of-a-currently-approved-collection-biographic-information-registration 
+✓ ok          40 фр.  http://localhost:8000/guides/ssn-i-itin/ 
+✓ ok          34 фр.  http://localhost:8000/guides/grazhdanstvo-ssha/ 
+✓ ok          30 фр.  http://localhost:8000/guides/grin-karta/ 
+✓ ok          36 фр.  http://localhost:8000/guides/moshennichestvo/ 
+✓ ok          37 фр.  http://localhost:8000/guides/perevod-notarius-apostil/ 
+✓ ok          33 фр.  http://localhost:8000/guides/smena-adresa/ 
+источников скачано: 52, изменилось: 3, фрагментов: 612, не скачано: 1; удалено старой переписки: 0

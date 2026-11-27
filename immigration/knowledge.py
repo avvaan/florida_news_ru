@@ -64,13 +64,16 @@ def session() -> requests.Session:
     return s
 
 
+FORCE = {"on": False}  # --force: перенарезать всё (после правки правил нарезки), даже если текст не изменился
+
+
 def store(source: Source, page: Page, *, now=None) -> Outcome:
-    """Сохраняет текст источника: перенарезает фрагменты, только если текст изменился."""
+    """Сохраняет текст источника: перенарезает фрагменты, только если текст изменился (или --force)."""
     now = now or timezone.now()
     new_hash = page.content_hash
     changed = new_hash != source.content_hash
     with transaction.atomic():
-        if changed:
+        if changed or FORCE["on"]:
             source.chunks.all().delete()
             Chunk.objects.bulk_create([Chunk(source=source, section=heading, text=text, position=n)
                                        for n, (heading, text) in enumerate(chunks(page))])
@@ -242,8 +245,9 @@ def update_ours(report: Report) -> None:
     stale.update(is_active=False)
 
 
-def update_all(*, only: str = "", official: bool = True, ours: bool = True) -> Report:
+def update_all(*, only: str = "", official: bool = True, ours: bool = True, force: bool = False) -> Report:
     report = Report()
+    FORCE["on"] = force
     http = session()
     if official:
         for item in S.officials():

@@ -173,10 +173,17 @@ def parse_markdown(text: str, title: str = "") -> Page:
     return Page(title=title, sections=[s for s in sections if s.lines])
 
 
+# Служебные разделы: журнал правок Policy Manual, сноски, меню «связанное». В них упоминается всё подряд —
+# в поиске они вытесняли бы содержательные фрагменты.
+SKIP_SECTIONS = re.compile(r"^(updates|footnotes|related (links|content)|share this page|last reviewed)", re.I)
+
+
 def chunks(page: Page, limit: int = CHUNK_WORDS) -> list[tuple[str, str]]:
     """[(раздел, текст)]: разделы режутся по абзацам примерно на limit слов, мелкие склеиваются с соседом."""
     out: list[tuple[str, str]] = []
     for section in page.sections:
+        if SKIP_SECTIONS.match(section.heading):
+            continue
         current: list[str] = []
         size = 0
         for line in section.lines:

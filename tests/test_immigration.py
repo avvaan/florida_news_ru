@@ -188,6 +188,7 @@ def test_no_fragments_means_not_in_base(client, enabled, fake_ai):
     ("Пошлина составляет $520 [7].", [7], False),  # сноска на несуществующий источник
     ("Пошлина составляет $520.", [], False),  # без сносок
     ("В источниках этого нет.", [], True),
+    ("Во фрагментах нет информации об этом: они про смену адреса [1].", [1], True),  # сноски не по вопросу
 ])
 def test_answer_without_real_citations_becomes_not_in_base(client, enabled, kb, answer, cited, insufficient):
     fake = FakeAI(answer=answer, cited=cited, insufficient=insufficient)
@@ -195,7 +196,17 @@ def test_answer_without_real_citations_becomes_not_in_base(client, enabled, kb, 
     with mock.patch.object(assistant.ai, "ask", side_effect=fake):
         ask(client, "Сколько стоит подать I-765?")
     q = Question.objects.get()
-    assert q.kind == Question.Kind.NO_SOURCES and "$520" not in q.answer
+    assert q.kind == Question.Kind.NO_SOURCES and "$520" not in q.answer and "смену адреса" not in q.answer
+
+
+def test_partial_answer_with_real_citations_is_kept(client, enabled, kb):
+    fake = FakeAI(answer="Точной суммы в базе нет. Размер пошлины публикуется в Fee Schedule [1].", cited=[1],
+                  insufficient=True)
+    client.force_login(reader())
+    with mock.patch.object(assistant.ai, "ask", side_effect=fake):
+        ask(client, "Сколько стоит подать I-765?")
+    q = Question.objects.get()
+    assert q.kind == Question.Kind.ANSWERED and "Fee Schedule [1]" in q.answer and q.sources
 
 
 def test_answer_in_ukrainian(client, enabled, kb):
@@ -491,3 +502,9 @@ def test_admin_dashboard_and_switch(client, kb):
     assert "только сотрудники (закрытая проверка)" in html and "источников 1" in html
     assert client.get("/admin/immigration/source/?fresh=stale").status_code == 200
     assert client.get("/admin/immigration/assistantsettings/").status_code == 200
+
+
+def test_policy_manual_updates_section_not_indexed():
+    page = parse_html("<main><h2>A. Continuous Residence</h2><p>" + "residence rule text " * 20 + "</p>"
+                      "<h2>Updates</h2><p>" + "technical update fee federal register " * 20 + "</p></main>")
+    assert [h for h, _t in chunks(page)] == ["A. Continuous Residence"]

@@ -17,6 +17,9 @@ from .models import Chunk
 
 STOP = {"the", "a", "an", "of", "to", "in", "for", "and", "or", "is", "are", "how", "what", "do", "does", "can",
         "my", "i", "on", "with", "by", "be", "it", "this", "that", "who", "when", "where", "which", "about",
+        # слишком общие для этой базы: совпадают почти с каждым фрагментом
+        "uscis", "immigration", "immigrant", "form", "forms", "united", "states", "u.s", "us", "dhs", "federal",
+        "information", "иммиграция", "иммиграционный", "иммиграционных",
         "как", "что", "это", "для", "или", "по", "на", "в", "и", "с", "о", "об", "ли", "не", "у", "из", "к", "до",
         "як", "що", "це", "та", "чи", "з", "і", "й", "від"}
 MIN_SCORE = 0.01
@@ -46,6 +49,7 @@ def _base():
 
 def _search_postgres(query_en: str, query_ru: str, limit: int) -> list[Hit]:
     from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+    from django.db.models import Value
 
     hits: list[Hit] = []
     for lang, config, query in (("en", "english", query_en), ("ru", "russian", query_ru or query_en)):
@@ -56,8 +60,10 @@ def _search_postgres(query_en: str, query_ru: str, limit: int) -> list[Hit]:
         for word in words:
             part = SearchQuery(word, config=config, search_type="plain")
             tsquery = part if tsquery is None else tsquery | part
-        vector = SearchVector("section", weight="A", config=config) + SearchVector("text", weight="B", config=config)
-        qs = (_base().filter(source__language=lang).annotate(rank=SearchRank(vector, tsquery, cover_density=True))
+        vector = (SearchVector("source__title", weight="A", config=config)
+                  + SearchVector("section", weight="A", config=config)
+                  + SearchVector("text", weight="B", config=config))
+        qs = (_base().filter(source__language=lang).annotate(rank=SearchRank(vector, tsquery, cover_density=True, normalization=Value(1)))
               .filter(rank__gt=MIN_SCORE).order_by("-rank")[:limit])
         hits += [Hit(chunk, float(chunk.rank)) for chunk in qs]
     return _top(hits, limit)
@@ -75,7 +81,7 @@ def _search_simple(query_en: str, query_ru: str, limit: int) -> list[Hit]:
         stems = stems_en if chunk.source.language == "en" else stems_ru
         if not stems:
             continue
-        body = f"{chunk.section} {chunk.section} {chunk.text}".lower()
+        body = f"{chunk.source.title} {chunk.section} {chunk.section} {chunk.text}".lower()
         found = sum(1 for s in stems if s in body)
         if found:
             hits.append(Hit(chunk, found / len(stems)))
