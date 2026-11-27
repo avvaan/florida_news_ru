@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Удалить аккаунт" %} — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story story--page dir-form">
+    <h1 class="story__title">{% translate "Удалить аккаунт" %}</h1>
+    <p class="story__lede">{% translate "Удалятся аккаунт, e-mail, согласие и вся история вопросов. Восстановить их будет нельзя." %}</p>
+    <form class="dir-form__form" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="confirm" value="yes">
+      <button class="btn" type="submit">{% translate "Удалить навсегда" %}</button>
+      <p class="dir-form__help"><a href="{% url 'immigration:page' %}">{% translate "Отмена" %}</a></p>
+    </form>
+  </section>
+</div>
+{% endblock %}

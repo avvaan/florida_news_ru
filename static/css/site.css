@@ -1012,3 +1012,52 @@ article.split { margin-top: 0; }
 mark.verify { background: var(--sun); color: var(--ink); padding: 0 4px; border-radius: 3px; font-size: .9em; }
 .dir__crosslink { margin-top: 12px; font-weight: 600; }
 .dir__crosslink a { color: var(--gulf-deep); }
+
+/* --- Иммиграционный помощник (/immigration/) --- */
+.imm { max-width: 820px; }
+.imm-limits { margin-top: 20px; padding: 14px 18px; border-radius: 12px; background: var(--sun-soft); border: 1px solid var(--sun); }
+.imm-limits h2 { font-size: 1.05rem; }
+.imm-limits ul { margin: 8px 0 0; padding-left: 1.2em; }
+.imm-limits li + li { margin-top: 2px; }
+.imm-limits p { margin-top: 10px; font-size: .9375rem; }
+.imm-limits a, .imm-disclaimer a, .imm-sources a, .imm-lawyers a { color: var(--gulf-deep); }
+.imm-messages { margin-top: 16px; }
+.imm-msg { padding: 10px 14px; border-radius: 8px; background: var(--mist); }
+.imm-msg--warning, .imm-msg--error { background: #fef3f2; border: 1px solid #f4c7c3; }
+.imm-box { margin-top: 22px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; }
+.imm-box h2 { font-size: 1.2rem; }
+.imm-box p { margin-top: 8px; }
+.imm-region { margin-top: 20px; display: grid; gap: 8px; }
+.imm-region label { font-weight: 600; }
+.imm-region__row { display: flex; flex-wrap: wrap; gap: 8px; }
+.imm-region select, .imm-ask textarea {
+  min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font: inherit; font-size: 1rem; background: var(--paper); color: var(--ink); }
+.imm-ask { margin-top: 22px; display: grid; gap: 8px; }
+.imm-ask label { font-weight: 700; }
+.imm-ask textarea { width: 100%; min-height: 96px; resize: vertical; }
+.imm-ask textarea:focus, .imm-region select:focus { outline: 3px solid var(--sun); outline-offset: 1px; border-color: var(--gulf); }
+.imm-ask__hint { font-size: .875rem; color: var(--muted); }
+.imm-ask .btn { justify-self: start; }
+.imm-history { margin-top: 30px; }
+.imm-history > h2 { font-size: 1.25rem; }
+.imm-qa { margin-top: 16px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; scroll-margin-top: 16px; }
+.imm-qa__q { font-weight: 700; white-space: pre-wrap; overflow-wrap: anywhere; }
+.imm-qa__a { margin-top: 10px; line-height: 1.6; overflow-wrap: anywhere; }
+.imm-qa__a p + p, .imm-qa__a p + ul, .imm-qa__a ul + p { margin-top: 10px; }
+.imm-qa__a ul { padding-left: 1.2em; margin: 8px 0 0; }
+.imm-qa__a--personal, .imm-qa__a--prohibited, .imm-qa__a--no_sources, .imm-qa__a--off_topic, .imm-qa__a--error {
+  padding: 10px 12px; border-radius: 8px; background: var(--mist); }
+.imm-cite { text-decoration: none; font-weight: 700; color: var(--gulf-deep); }
+.imm-sources { margin: 12px 0 0; padding-left: 1.6em; font-size: .9375rem; }
+.imm-sources li { overflow-wrap: anywhere; }
+.imm-sources li + li { margin-top: 4px; }
+.imm-sources__meta { color: var(--muted); font-size: .8125rem; }
+.imm-lawyers { margin: 10px 0 0; padding-left: 1.2em; }
+.imm-lawyers li + li { margin-top: 4px; }
+.imm-disclaimer { margin-top: 12px; font-size: .8125rem; color: var(--muted); }
+.imm-feedback { margin-top: 10px; display: flex; align-items: center; gap: 8px; font-size: .875rem; color: var(--muted); }
+.imm-vote { min-width: 44px; min-height: 36px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); cursor: pointer; font-size: 1rem; }
+.imm-vote.is-on { background: var(--mist); border-color: var(--gulf); }
+.imm-account { margin-top: 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.imm-account__delete { color: #b42318; font-size: .875rem; }
+.imm-account__note { flex-basis: 100%; font-size: .8125rem; color: var(--muted); }

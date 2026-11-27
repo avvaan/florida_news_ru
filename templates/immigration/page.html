@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n immigration_tags %}
+{% block title %}{% translate "Иммиграционный помощник: как устроена иммиграция США" %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Справочный помощник по иммиграции США: объясняет формы, процессы и пошлины и всегда даёт ссылку на официальный источник. Не юридическая консультация." %}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><a href="{% url 'hubs:immigration' %}">{% translate "Иммиграция" %}</a>
+  </nav>
+  <section class="story story--page imm">
+    <h1 class="story__title">{% translate "Иммиграционный помощник" %}</h1>
+    <p class="story__lede">{% translate "Объясняет, как устроена иммиграция США в целом: какие бывают пути, что это за форма и кто её подаёт, сколько стоит пошлина, как проверить статус дела и что изменилось в правилах. К каждому ответу — ссылки на официальные источники." %}</p>
+
+    <aside class="imm-limits" aria-labelledby="imm-not-h">
+      <h2 id="imm-not-h">{% translate "Чего помощник не делает" %}</h2>
+      <ul>
+        <li>{% translate "не разбирает вашу личную ситуацию, не оценивает шансы и сроки;" %}</li>
+        <li>{% translate "не заполняет формы и не подсказывает, что говорить офицеру, на интервью или в суде;" %}</li>
+        <li>{% translate "не помогает с обманом, подделкой документов и уходом от иммиграционных органов." %}</li>
+      </ul>
+      <p>{% translate "Это справочник, а не юридическая консультация. Для своей ситуации обратитесь к иммиграционному адвокату:" %} <a href="{{ lawyers_url }}">{% translate "адвокаты в нашем справочнике" %}</a> · <a href="{{ eoir_url }}" target="_blank" rel="noopener">{% translate "бесплатная юридическая помощь (EOIR)" %}</a></p>
+    </aside>
+
+    {% if messages %}<div class="imm-messages" role="status">{% for m in messages %}<p class="imm-msg imm-msg--{{ m.tags }}">{{ m }}</p>{% endfor %}</div>{% endif %}
+
+    {% if not user.is_authenticated %}
+    <div class="imm-box">
+      <h2>{% translate "Войдите, чтобы задать вопрос" %}</h2>
+      {% if email_ready %}
+      <p>{% translate "Без пароля: пришлём код на e-mail. Имя, номер дела и A-number не нужны." %}</p>
+      <p><a class="btn" href="{% url 'immigration:login' %}">{% translate "Войти по e-mail" %}</a></p>
+      {% else %}
+      <p>{% translate "Вход для читателей скоро откроется." %}</p>
+      {% endif %}
+    </div>
+    {% elif closed_beta %}
+    <div class="imm-box">
+      <h2>{% translate "Помощник в закрытой проверке" %}</h2>
+      <p>{% translate "Мы проверяем ответы перед открытием для всех. Ваш аккаунт сохранён — как только помощник откроется, вы сможете задавать вопросы." %}</p>
+    </div>
+    {% elif allowed %}
+      {% if needs_region %}
+      <form class="imm-region" method="post" action="{% url 'immigration:region' %}">
+        {% csrf_token %}
+        <label for="id_region">{% translate "Где вы живёте? Чтобы при необходимости показать адвокатов рядом." %}</label>
+        <div class="imm-region__row">{{ region_form.region }}<button class="btn btn--ghost" type="submit">{% translate "Сохранить" %}</button></div>
+      </form>
+      {% endif %}
+      <form class="imm-ask" method="post" action="{% url 'immigration:page' %}">
+        {% csrf_token %}
+        <label for="{{ form.question.id_for_label }}">{{ form.question.label }}</label>
+        {{ form.question }}
+        {% for e in form.question.errors %}<p class="dir-form__field-error">{{ e }}</p>{% endfor %}
+        <p class="imm-ask__hint">{% translate "Не пишите имя, A-number, номер дела и SSN: номера мы всё равно скрываем." %}{% if left_today is not None %} {% blocktranslate trimmed count n=left_today %}Сегодня можно задать ещё {{ n }} вопрос.{% plural %}Сегодня можно задать ещё {{ n }} вопросов.{% endblocktranslate %}{% endif %}</p>
+        <button class="btn" type="submit">{% translate "Спросить" %}</button>
+      </form>
+    {% endif %}
+
+    {% if history %}
+    <section class="imm-history" aria-labelledby="imm-hist-h">
+      <h2 id="imm-hist-h">{% translate "Ваши вопросы" %}</h2>
+      {% for q in history %}
+      <article class="imm-qa" id="q-{{ q.pk }}">
+        <p class="imm-qa__q">{{ q.question }}</p>
+        <div class="imm-qa__a imm-qa__a--{{ q.kind }}">{{ q|answer_html }}</div>
+        {% if q.sources %}
+        <ol class="imm-sources">
+          {% for s in q.sources %}<li id="q{{ q.pk }}-s{{ s.n }}" value="{{ s.n }}"><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a> <span class="imm-sources__meta">{{ s.agency }}{% if s.checked %} · {% blocktranslate with date=s.checked %}проверено {{ date }}{% endblocktranslate %}{% endif %}</span></li>{% endfor %}
+        </ol>
+        {% endif %}
+        {% if q.lawyers %}
+        <ul class="imm-lawyers">
+          {% for l in q.lawyers %}<li><a href="{{ l.url }}"{% if l.external %} target="_blank" rel="noopener"{% endif %}>{{ l.name }}</a>{% if l.city %} · {{ l.city }}{% endif %}{% if l.partner %} <span class="dir__badge dir__badge--partner">{% translate "Партнёр" %}</span>{% endif %}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        <p class="imm-disclaimer">{% translate "Это общая информация, а не юридическая консультация. Для вашей ситуации обратитесь к" %} <a href="{{ lawyers_url }}">{% translate "иммиграционному адвокату" %}</a>.</p>
+        <form class="imm-feedback" method="post" action="{% url 'immigration:feedback' q.pk %}">
+          {% csrf_token %}
+          <span>{% translate "Ответ полезен?" %}</span>
+          <button type="submit" name="value" value="1" class="imm-vote{% if q.feedback == 1 %} is-on{% endif %}" aria-label="{% translate "Да" %}" aria-pressed="{% if q.feedback == 1 %}true{% else %}false{% endif %}">👍</button>
+          <button type="submit" name="value" value="-1" class="imm-vote{% if q.feedback == -1 %} is-on{% endif %}" aria-label="{% translate "Нет" %}" aria-pressed="{% if q.feedback == -1 %}true{% else %}false{% endif %}">👎</button>
+        </form>
+      </article>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <div class="imm-account">
+      <form method="post" action="{% url 'immigration:logout' %}">{% csrf_token %}<button class="btn btn--ghost" type="submit">{% translate "Выйти" %}</button></form>
+      {% if history %}<form method="post" action="{% url 'immigration:delete-history' %}">{% csrf_token %}<button class="btn btn--ghost" type="submit">{% translate "Удалить историю" %}</button></form>{% endif %}
+      {% if not user.is_staff %}<a class="imm-account__delete" href="{% url 'immigration:delete-account' %}">{% translate "Удалить аккаунт" %}</a>{% endif %}
+      <p class="imm-account__note">{% blocktranslate trimmed with days=conf.retention_days %}Вопросы и ответы хранятся {{ days }} дней, потом удаляются автоматически.{% endblocktranslate %}</p>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

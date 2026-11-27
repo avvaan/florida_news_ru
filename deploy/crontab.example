@@ -15,3 +15,8 @@ PATH=/usr/local/bin:/usr/bin:/bin
 # Дважды в день, 11:07 и 22:07 UTC (7:07 и 18:07 во Флориде летом): конвейер
 # новостей — то, что на Render было cron-задачей florida-pipeline.
 7 11,22 * * * cd /home/deploy/florida && docker compose exec -T web python manage.py run_pipeline >> "$HOME/florida-pipeline.log" 2>&1
+
+# Раз в неделю, по понедельникам в 09:41 UTC: база знаний иммиграционного помощника (официальные страницы
+# USCIS/EOIR/Госдепа из списка immigration/sources.py, Federal Register за 90 дней, наши гайды и новости).
+# Изменившиеся страницы перенарезаются; заодно удаляется переписка старше срока хранения.
+41 9 * * 1 cd /home/deploy/florida && docker compose exec -T web python manage.py immigration_update >> "$HOME/florida-immigration.log" 2>&1

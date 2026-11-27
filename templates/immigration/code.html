@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Код из письма" %} — {{ site_name }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="story story--page dir-form">
+    <h1 class="story__title">{% translate "Введите код" %}</h1>
+    <p class="story__lede">{% blocktranslate trimmed %}Мы отправили 6-значный код на {{ email }}. Он действует 15 минут. Письма нет — проверьте «Спам».{% endblocktranslate %}</p>
+    <form class="dir-form__form" method="post" novalidate>
+      {% csrf_token %}
+      {% include "classifieds/_field.html" with field=form.code %}
+      <button class="btn" type="submit">{% translate "Войти" %}</button>
+      <p class="dir-form__help"><a href="{% url 'immigration:login' %}">{% translate "Запросить новый код" %}</a></p>
+    </form>
+  </section>
+</div>
+{% endblock %}

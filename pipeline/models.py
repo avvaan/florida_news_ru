@@ -35,6 +35,8 @@ class AICall(models.Model):
         MODERATE_COMMENT = "moderate_comment", "проверка комментариев"
         DEDUP = "dedup", "проверка дублей"
         TRANSLATE = "translate", "перевод на украинский"
+        IMMIGRATION_TRIAGE = "imm_triage", "иммиграционный помощник: разбор вопроса"
+        IMMIGRATION_ANSWER = "imm_answer", "иммиграционный помощник: ответ"
 
     created_at = models.DateTimeField("время", default=timezone.now, db_index=True)
     purpose = models.CharField("задача", max_length=20, choices=Purpose.choices)

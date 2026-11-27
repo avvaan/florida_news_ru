@@ -46,6 +46,7 @@ urlpatterns += i18n_patterns(
     path("corrections/", core_views.corrections, name="core-corrections"),
     path("poisk/", core_views.search, name="core-search"),
     path("deti/", include("kids.urls")),
+    path("immigration/", include("immigration.urls")),
     path("", include("hubs.urls")),
     path("", include("news.urls")),
     prefix_default_language=False,
