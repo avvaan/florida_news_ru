@@ -33,6 +33,10 @@ class ArticleSourceSerializer(serializers.ModelSerializer):
         fields = ["name", "url", "title"]
 
 
+UK_HELP = ("Украинская версия поля для /uk/. Пусто — переведёт ИИ. Если прислать, ИИ её не трогает, "
+           "пока не поправят русский текст")
+
+
 class ArticleSerializer(serializers.ModelSerializer):
     region = serializers.SlugRelatedField(slug_field="slug", queryset=Region.objects.all(),
                                           required=False, allow_null=True)
@@ -56,7 +60,8 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = [
-            "id", "title", "slug", "teaser", "body", "for_you", "guide", "status", "region", "topic", "business_kind",
+            "id", "title", "slug", "teaser", "body", "for_you", "title_uk", "teaser_uk", "body_uk", "for_you_uk",
+            "guide", "status", "region", "topic", "business_kind",
             "tags", "sources", "author", "keep_indexed",
             "is_urgent", "is_sensitive", "score", "cover_image", "cover_manual", "cover_url",
             "photo", "photo_url", "photo_file", "photo_caption", "photo_credit", "photo_info",
@@ -67,7 +72,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         read_only_fields = ["slug", "review_reason", "verification", "revised_at", "created_at", "updated_at",
                             "telegram_posted_at", "cover_manual"]
         extra_kwargs = {"status": {"required": False},
-                        "gallery": {"required": False, "help_text": "Список id фото из медиатеки (заменяет галерею)"}}
+                        "gallery": {"required": False, "help_text": "Список id фото из медиатеки (заменяет галерею)"},
+                        **{f"{name}_uk": {"help_text": UK_HELP} for name in Article.TRANSLATED}}
 
     def get_url(self, obj) -> str:
         return f"{settings.SITE_URL}{obj.get_absolute_url()}"
@@ -107,6 +113,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         self._save_relations(article, tags, sources)
         if gallery is not None:
             article.gallery.set(gallery)
+        self._mark_uk(article, validated)
         return article
 
     @transaction.atomic
@@ -127,7 +134,17 @@ class ArticleSerializer(serializers.ModelSerializer):
         self._save_relations(article, tags, sources)
         if gallery is not None:
             article.gallery.set(gallery)
+        self._mark_uk(article, validated)
         return article
+
+    @staticmethod
+    def _mark_uk(article, validated):
+        """Украинский текст прислали сами — он перевод текущего русского: ИИ-переводчик его не перепишет,
+        пока не поправят русский оригинал. Прислали пустые поля — перевод снова за ИИ."""
+        sent = [validated[key] for name in Article.TRANSLATED if (key := f"{name}_uk") in validated]
+        if sent:
+            article.uk_hash = article.source_hash() if any(sent) else ""
+            article.save(update_fields=["uk_hash"])
 
     @staticmethod
     def _save_relations(article, tags, sources):

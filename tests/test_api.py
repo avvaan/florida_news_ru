@@ -59,6 +59,35 @@ def test_create_article_with_sources_tags_and_cover(api):
     assert data["published_at"] is not None
 
 
+def test_ukrainian_text_from_api_is_kept_until_russian_changes(api, client):
+    from core import translation
+
+    resp = api.post("/api/v1/articles/", {
+        "title": "Дорога из Майами в Орландо", "teaser": "Анонс", "body": "Текст по-русски.",
+        "title_uk": "Дорога з Маямі до Орландо", "teaser_uk": "Анонс укр.", "body_uk": "Текст українською.",
+        "status": "published",
+    }, format="json")
+    assert resp.status_code == 201, resp.json()
+    assert resp.json()["title_uk"] == "Дорога з Маямі до Орландо"
+    article = Article.objects.get(pk=resp.json()["id"])
+    assert not article.uk_outdated
+    assert all(article not in objs for _, objs in translation.pending(["article"]))
+    page = client.get(f"/uk{article.get_absolute_url()}").content.decode()
+    assert "Текст українською." in page and "Дорога з Маямі до Орландо" in page
+
+    # Поправили русский без украинского — перевод устарел и снова за ИИ.
+    api.patch(f"/api/v1/articles/{article.pk}/", {"body": "Новый текст."}, format="json")
+    article.refresh_from_db()
+    assert article.uk_outdated
+    # Прислали оба — снова актуален; прислали пустой украинский — снова за ИИ.
+    api.patch(f"/api/v1/articles/{article.pk}/", {"body": "Ещё текст.", "body_uk": "Ще текст."}, format="json")
+    article.refresh_from_db()
+    assert not article.uk_outdated and article.body_uk == "Ще текст."
+    api.patch(f"/api/v1/articles/{article.pk}/", {"title_uk": "", "teaser_uk": "", "body_uk": ""}, format="json")
+    article.refresh_from_db()
+    assert article.uk_outdated
+
+
 def test_bad_cover_is_rejected(api, article):
     resp = api.patch(f"/api/v1/articles/{article.pk}/", {"cover_image": "covers/nope"}, format="json")
     assert resp.status_code == 400 and "cover_image" in resp.json()
