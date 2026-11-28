@@ -135,6 +135,33 @@ def test_article_with_photo_video_gallery_renders(api, client):
     assert resp.json()["photo"] is None and resp.json()["gallery"] == [] and "/static/" in resp.json()["cover_url"]
 
 
+def test_inline_photos_in_article_body(api, client):
+    photo = MediaItem.objects.create(kind="photo", url="https://example.com/lighthouse.jpg", storage="external",
+                                     caption="Маяк", credit="Фото: Carol M. Highsmith / Library of Congress",
+                                     width=1600, height=1067)
+    video = MediaItem.objects.create(kind="video", url="https://youtu.be/x", storage="external")
+    body = (f"Первый абзац.\n\n[[photo:{photo.pk}|Маяк Джупитер-Инлет, 1860 год]]\n\n## Дальше\n\n"
+            f"[[photo:{photo.pk}]]\n\n[[photo:{video.pk}|видео сюда нельзя]]\n\n[[photo:999999|удалено]]\n\nКонец.")
+    body_uk = f"Перший абзац.\n\n[[photo:{photo.pk}|Маяк Юпітер-Інлет, 1860 рік]]\n\nКінець."
+    resp = api.post("/api/v1/articles/", {"title": "Дорога", "teaser": "Анонс", "body": body, "status": "published",
+                                          "title_uk": "Дорога", "teaser_uk": "Анонс", "body_uk": body_uk},
+                    format="json")
+    assert resp.status_code == 201, resp.json()
+    article = Article.objects.get(pk=resp.json()["id"])
+    assert [kind for kind, _ in article.blocks] == ["p", "img", "h", "img", "p"]
+    assert article.word_count == 5  # «Первый абзац. ## Дальше Конец.» — строки с фото не считаются
+
+    page = client.get(article.get_absolute_url()).content.decode()
+    assert page.count('class="story__inline"') == 2 and "[[photo" not in page
+    assert "Маяк Джупитер-Инлет, 1860 год · Фото: Carol M. Highsmith / Library of Congress" in page
+    assert "Маяк · Фото: Carol M. Highsmith" in page  # без подписи в тексте — подпись фото
+    assert 'width="1600" height="1067"' in page and 'loading="lazy"' in page
+    assert page.count("https://example.com/lighthouse.jpg") >= 3  # 2 в тексте + разметка NewsArticle
+
+    page_uk = client.get(f"/uk{article.get_absolute_url()}").content.decode()
+    assert "Маяк Юпітер-Інлет, 1860 рік · Фото: Carol M. Highsmith" in page_uk
+
+
 def test_article_photo_must_be_photo(api):
     video = MediaItem.objects.create(kind="video", url="https://youtu.be/x", storage="external")
     resp = api.post("/api/v1/articles/", {"title": "T", "teaser": "t", "body": "b", "photo": video.pk},

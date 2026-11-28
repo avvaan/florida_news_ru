@@ -1,3 +1,6 @@
+import re
+from dataclasses import dataclass
+
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -42,6 +45,20 @@ class Region(Translatable):
 # Google считает слабыми страницами, и они тянут вниз весь сайт. У Google News требования к длине нет,
 # а новость на 150–300 слов — нормальная заметка; при 350 в индексе оставалась 1 заметка из 711.
 MIN_INDEX_WORDS = 300  # 26.11.2026: 150 → 300 — меньше страниц в индексе, но без риска «тонкого» контента
+
+# Фото внутри текста заметки: отдельный абзац «[[photo:123|Подпись]]» (123 — id в медиатеке, подпись необязательна:
+# без неё берётся подпись фото). В украинском тексте — те же номера, подпись по-украински.
+INLINE_PHOTO_RE = re.compile(r"^\[\[photo:(\d+)(?:\|(.*?))?\]\]$", re.M | re.S)
+
+
+@dataclass(frozen=True)
+class InlinePhoto:
+    item: object  # gallery.MediaItem
+    caption: str
+
+    @property
+    def figcaption(self) -> str:
+        return " · ".join(part for part in (self.caption, self.item.credit) if part)
 
 # Бизнес — отдельный раздел /business/: свой дневной лимит и в общую ленту не попадает.
 BUSINESS = "business"
@@ -288,9 +305,24 @@ class Article(Translatable):
         return [p.strip() for p in self.loc("body").replace("\r\n", "\n").split("\n\n") if p.strip()]
 
     @property
-    def blocks(self) -> list[tuple[str, str]]:
-        """Абзацы для показа: ("h", текст) — подзаголовок (абзац с «## »), ("p", текст) — обычный абзац."""
-        return [("h", p[3:].strip()) if p.startswith("## ") else ("p", p) for p in self.paragraphs]
+    def blocks(self) -> list[tuple[str, object]]:
+        """Абзацы для показа: ("h", текст) — подзаголовок (абзац с «## »), ("p", текст) — обычный абзац,
+        ("img", InlinePhoto) — фото из медиатеки на месте абзаца «[[photo:<id>|подпись]]»."""
+        from gallery.models import MediaItem
+
+        paragraphs = self.paragraphs
+        ids = {int(m.group(1)) for p in paragraphs if (m := INLINE_PHOTO_RE.fullmatch(p))}
+        photos = MediaItem.objects.filter(pk__in=ids, kind=MediaItem.Kind.PHOTO).in_bulk() if ids else {}
+        result = []
+        for p in paragraphs:
+            if m := INLINE_PHOTO_RE.fullmatch(p):
+                if item := photos.get(int(m.group(1))):  # удалённое фото — абзац просто пропадает
+                    result.append(("img", InlinePhoto(item, (m.group(2) or "").strip() or item.caption)))
+            elif p.startswith("## "):
+                result.append(("h", p[3:].strip()))
+            else:
+                result.append(("p", p))
+        return result
 
     @property
     def for_you_points(self) -> list[str]:
@@ -298,7 +330,7 @@ class Article(Translatable):
 
     @property
     def word_count(self) -> int:
-        return len(self.body.split())
+        return len(INLINE_PHOTO_RE.sub("", self.body.replace("\r\n", "\n")).split())
 
     @property
     def is_indexable(self) -> bool:

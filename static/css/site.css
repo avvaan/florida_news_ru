@@ -337,6 +337,10 @@ span.chip:hover { background: var(--mist); color: var(--gulf-deep); }
 .story__body a { color: var(--gulf-deep); }
 .story__body h2 { margin-top: 1.6em; font-size: 1.25rem; line-height: 1.3; }
 .story__body h2 + p { margin-top: .6em; }
+.story__inline { margin: 1.4em 0; }
+.story__inline img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+.story__inline figcaption { margin-top: 8px; font-size: .85rem; line-height: 1.45; color: var(--muted); }
+.story__body h2 + .story__inline { margin-top: .8em; }
 
 .sources { margin-top: 32px; max-width: 68ch; background: var(--mist); border-radius: 10px; padding: 18px 20px; }
 .sources__h { font: 800 1.15rem/1.2 var(--font); letter-spacing: -.01em; color: var(--gulf-deep); }
