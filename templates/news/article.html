@@ -65,7 +65,7 @@
       </figure>
 
       <div class="story__body">
-        {% for kind, text in article.blocks %}{% if kind == "h" %}<h2>{{ text }}</h2>{% else %}<p>{{ text }}</p>{% endif %}{% endfor %}
+        {% for kind, text in article.blocks %}{% if kind == "h" %}<h2>{{ text }}</h2>{% elif kind == "img" %}<figure class="story__inline"><img src="{{ text.item|media_sized:1200 }}" alt="{{ text.item.alt|default:text.caption }}" loading="lazy" decoding="async"{% if text.item.width %} width="{{ text.item.width }}" height="{{ text.item.height }}"{% endif %}>{% if text.figcaption %}<figcaption>{{ text.figcaption }}</figcaption>{% endif %}</figure>{% else %}<p>{{ text }}</p>{% endif %}{% endfor %}
       </div>
 
       {% if article.video %}{% include "includes/video.html" with item=article.video %}{% endif %}
