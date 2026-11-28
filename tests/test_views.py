@@ -174,3 +174,41 @@ def test_merged_topics_share_pages(client):
     for gone in (">Происшествия<", ">Деньги<", ">Бизнес<", ">Куда сходить<", ">Ссылки и бизнесы<"):
         assert gone not in nav, gone
     assert nav.count('href="/afisha/"') == 1
+
+
+def test_featured_pick_right_of_lead_on_home_only(client):
+    from datetime import timedelta
+
+    from core.models import SiteSettings
+
+    now = timezone.now()
+    lead = Article.objects.create(title="Главная тема дня", teaser="t", body="b", score=9, status="published",
+                                  published_at=now - timedelta(hours=1))
+    pick = Article.objects.create(title="Из Майами в Орландо вдоль океана", teaser="t", body="b", score=1,
+                                  title_uk="З Маямі до Орландо вздовж океану", status="published",
+                                  published_at=now - timedelta(hours=2))
+    site = SiteSettings.load()
+    assert "Выбор редакции" not in client.get("/").content.decode()
+
+    site.featured_article = pick
+    site.save()
+    page = client.get("/").content.decode()
+    assert 'class="pick"' in page and "Выбор редакции" in page
+    assert page.count(pick.get_absolute_url()) == 2  # картинка и заголовок карточки, в ленте не повторяется
+    assert page.index('class="lead') < page.index('class="pick"') < page.index('id="digest-h"')
+    page_uk = client.get("/uk/").content.decode()
+    assert "Вибір редакції" in page_uk and "З Маямі до Орландо вздовж океану" in page_uk
+    assert 'class="pick"' not in client.get(reverse("news:topic", args=["weather"])).content.decode()
+
+    site.featured_until = now - timedelta(minutes=1)  # срок вышел
+    site.save()
+    assert 'class="pick"' not in client.get("/").content.decode()
+    site.featured_until = None
+    site.featured_article = lead  # сама главная тема — карточка не дублирует её
+    site.save()
+    assert 'class="pick"' not in client.get("/").content.decode()
+    pick.status = "rejected"
+    pick.save()
+    site.featured_article = pick
+    site.save()
+    assert 'class="pick"' not in client.get("/").content.decode()

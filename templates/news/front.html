@@ -48,6 +48,15 @@
     {% if ads.top %}<div class="promo-top promo-top--lead">{% include "includes/ad.html" with ad=ads.top wide=True %}</div>{% endif %}
 
     <aside class="digest" aria-labelledby="digest-h">
+      {% if featured %}
+      <article class="pick">
+        <a class="pick__img" href="{{ featured.get_absolute_url }}" tabindex="-1" aria-hidden="true">
+          <img src="{% cover featured %}" alt="" width="1200" height="675" loading="lazy" decoding="async">
+        </a>
+        <p class="pick__label">{% translate "Выбор редакции" %}</p>
+        <h2 class="pick__title"><a href="{{ featured.get_absolute_url }}">{{ featured.tr.title }}</a></h2>
+      </article>
+      {% endif %}
       <h2 class="digest__h" id="digest-h">{% translate "Самое важное за сутки" %}</h2>
       {% if most_important %}
       <ol class="digest__list">

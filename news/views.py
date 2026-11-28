@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy
 
 from ads.models import AdBanner
+from core.models import SiteSettings
 from guides.models import Guide
 from sources.models import WeatherAlert
 
@@ -71,6 +72,16 @@ def pick_lead(articles):
     return (urgent or sorted(recent, key=lambda a: -(a.score or 0)) or articles)[0]
 
 
+def featured_pick():
+    """Материал, который редакция поставила справа от главной темы (настройки сайта), если он ещё в силе."""
+    site = SiteSettings.load()
+    article, now = site.featured_article, timezone.now()
+    if (article and article.status == Article.Status.PUBLISHED and article.published_at
+            and article.published_at <= now and (site.featured_until is None or site.featured_until > now)):
+        return article
+    return None
+
+
 def front(request, region=None, topic=None, template="news/front.html", extra=None):
     """Главная и страницы регионов/тем: одна и та же лента с фильтрами."""
     region = region or Region.objects.filter(slug=request.GET.get("region")).first()
@@ -100,10 +111,20 @@ def front(request, region=None, topic=None, template="news/front.html", extra=No
         digest = {a.pk for a in most_important}
         feed = [a for a in feed if a.pk not in digest]
 
+    # Карточка редакции справа от главной темы — только на главной; саму заметку ниже не повторяем.
+    featured = featured_pick() if region is None and topic is None and first_page and lead else None
+    if featured and featured.pk == lead.pk:
+        featured = None
+    if featured:
+        top = [a for a in top if a.pk != featured.pk]
+        feed = [a for a in feed if a.pk != featured.pk]
+        most_important = [a for a in most_important if a.pk != featured.pk][:4]
+
     context = {
         "region": region,
         "topic": topic,
         "lead": lead,
+        "featured": featured,
         "top": top,
         "feed": feed,
         "page_obj": page,
