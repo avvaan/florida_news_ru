@@ -1,14 +1,14 @@
-{% load comments_tags %}
+{% load comments_tags i18n %}
 <form class="cmt-form dir-form__form" method="post" action="{{ action }}#comments">
   {% csrf_token %}
   {% if form.non_field_errors or form.stamp.errors %}<div class="dir-form__error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}{% for e in form.stamp.errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
   {{ form.stamp }}
-  <div class="dir-form__trap" aria-hidden="true"><label for="id_website">Сайт</label>{{ form.website }}</div>
+  <div class="dir-form__trap" aria-hidden="true"><label for="id_website">{% translate "Сайт" %}</label>{{ form.website }}</div>
   {% if form.rating %}
   <fieldset class="dir-form__field cmt-stars{% if form.rating.errors %} has-error{% endif %}">
-    <legend>Ваша оценка <span aria-hidden="true">*</span></legend>
-    <div class="cmt-stars__row">{% for radio in form.rating %}{{ radio.tag }}<label for="{{ radio.id_for_label }}" title="{{ radio.choice_label }} из 5"><span class="visually-hidden">{{ radio.choice_label }} из 5</span>★</label>{% endfor %}</div>
-    {% for e in form.rating.errors %}<p class="dir-form__field-error">Поставьте оценку от 1 до 5.</p>{% endfor %}
+    <legend>{% translate "Ваша оценка" %} <span aria-hidden="true">*</span></legend>
+    <div class="cmt-stars__row">{% for radio in form.rating %}{{ radio.tag }}<label for="{{ radio.id_for_label }}" title="{% blocktranslate trimmed with n=radio.choice_label %}{{ n }} из 5{% endblocktranslate %}"><span class="visually-hidden">{% blocktranslate trimmed with n=radio.choice_label %}{{ n }} из 5{% endblocktranslate %}</span>★</label>{% endfor %}</div>
+    {% for e in form.rating.errors %}<p class="dir-form__field-error">{% translate "Поставьте оценку от 1 до 5." %}</p>{% endfor %}
   </fieldset>
   {% endif %}
   <div class="cmt-form__row">
@@ -17,8 +17,8 @@
   </div>
   {% include "classifieds/_field.html" with field=form.text %}
   <div class="dir-form__field dir-form__check{% if form.agree.errors %} has-error{% endif %}">
-    <label>{{ form.agree }} <span>Пишу от себя, без оскорблений, рекламы, ссылок и чужих личных данных. Комментарий проверит автоматическая модерация.</span></label>
-    {% for e in form.agree.errors %}<p class="dir-form__field-error">Нужно подтвердить.</p>{% endfor %}
+    <label>{{ form.agree }} <span>{% translate "Пишу от себя, без оскорблений, рекламы, ссылок и чужих личных данных. Комментарий проверит автоматическая модерация." %}</span></label>
+    {% for e in form.agree.errors %}<p class="dir-form__field-error">{% translate "Нужно подтвердить." %}</p>{% endfor %}
   </div>
-  <button class="btn" type="submit">{% if form.rating %}Отправить отзыв{% else %}Отправить комментарий{% endif %}</button>
+  <button class="btn" type="submit">{% if form.rating %}{% translate "Отправить отзыв" %}{% else %}{% translate "Отправить комментарий" %}{% endif %}</button>
 </form>

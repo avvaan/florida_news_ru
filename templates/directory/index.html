@@ -1,34 +1,34 @@
 {% extends "base.html" %}
-{% load static news_extras %}
-{% block title %}Полезные ссылки и бизнесы Флориды для русскоязычных — {{ site_name }}{% endblock %}
-{% block description %}Официальные сайты Флориды по темам — документы, ураганы, налоги, медицина, школы — и проверенные бизнесы и приходы для русско- и украиноязычных: церкви, врачи, юристы, магазины.{% endblock %}
-{% block og %}{% include "includes/og.html" with title="Полезные ссылки и бизнесы — "|add:site_name description="Официальные сайты Флориды по темам и проверенные бизнесы и приходы для русско- и украиноязычных." url=request.path %}{% endblock %}
-{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% breadcrumbs_jsonld "Главная" home_url "Полезные ссылки и бизнесы" dir_url %}{% endblock %}
+{% load static news_extras i18n %}
+{% block title %}{% translate "Полезные ссылки и бизнесы Флориды для русскоязычных" %} — {{ site_name }}{% endblock %}
+{% block description %}{% translate "Официальные сайты Флориды по темам — документы, ураганы, налоги, медицина, школы — и проверенные бизнесы и приходы для русско- и украиноязычных: церкви, врачи, юристы, магазины." %}{% endblock %}
+{% block og %}{% translate "Полезные ссылки и бизнесы" as og_title %}{% translate "Официальные сайты Флориды по темам и проверенные бизнесы и приходы для русско- и украиноязычных." as og_description %}{% include "includes/og.html" with title=og_title|add:" — "|add:site_name description=og_description url=request.path %}{% endblock %}
+{% block head %}{% url 'news:home' as home_url %}{% url 'directory:index' as dir_url %}{% translate "Главная" as home_label %}{% translate "Полезные ссылки и бизнесы" as dir_label %}{% breadcrumbs_jsonld home_label home_url dir_label dir_url %}{% endblock %}
 {% block content %}
 <div class="wrap">
-  <nav class="crumbs" aria-label="Навигация">
-    <a href="{% url 'news:home' %}">Главная</a><span aria-hidden="true">/</span><span>Ссылки и бизнесы</span>
+  <nav class="crumbs" aria-label="{% translate "Навигация" %}">
+    <a href="{% url 'news:home' %}">{% translate "Главная" %}</a><span aria-hidden="true">/</span><span>{% translate "Ссылки и бизнесы" %}</span>
   </nav>
   <section class="story dir">
-    <h1 class="story__title">Полезные ссылки и бизнесы</h1>
-    <p class="story__lede">Проверенные места, где вас поймут по-русски и по-украински, и официальные сайты, которые нужны каждому жителю Флориды.</p>
-    <nav class="guides__nav" aria-label="Разделы справочника">
-      <a class="chip" href="#business">Рекомендации бизнесов</a>
-      <a class="chip" href="#links">Официальные ссылки</a>
-      {% for c in business_categories %}{% if c.listings.all %}<a class="chip" href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% endif %}{% endfor %}
+    <h1 class="story__title">{% translate "Полезные ссылки и бизнесы" %}</h1>
+    <p class="story__lede">{% translate "Проверенные места, где вас поймут по-русски и по-украински, и официальные сайты, которые нужны каждому жителю Флориды." %}</p>
+    <nav class="guides__nav" aria-label="{% translate "Разделы справочника" %}">
+      <a class="chip" href="#business">{% translate "Рекомендации бизнесов" %}</a>
+      <a class="chip" href="#links">{% translate "Официальные ссылки" %}</a>
+      {% for c in business_categories %}{% if c.listings.all %}<a class="chip" href="{{ c.get_absolute_url }}">{{ c.tr.name }}</a>{% endif %}{% endfor %}
     </nav>
 
     <section class="guides__section" id="business" aria-labelledby="business-h">
-      <div class="section-head"><h2 class="section-head__h" id="business-h">Рекомендации бизнесов</h2></div>
-      <p class="dir__intro">Приходы, врачи, юристы, магазины и мастера, где говорят по-русски или по-украински. Мы добавляем места после проверки; платное размещение всегда отмечено меткой «Партнёр».</p>
+      <div class="section-head"><h2 class="section-head__h" id="business-h">{% translate "Рекомендации бизнесов" %}</h2></div>
+      <p class="dir__intro">{% translate "Приходы, врачи, юристы, магазины и мастера, где говорят по-русски или по-украински. Мы добавляем места после проверки; платное размещение всегда отмечено меткой «Партнёр»." %}</p>
       <ul class="dir__cats">
         {% for c in business_categories %}
         {% with n=c.listings.all|length %}
         <li><a class="dir__cat{% if not n %} is-empty{% endif %}{% if c.icon %} has-icon{% endif %}" href="{{ c.get_absolute_url }}">
           {% if c.icon %}<span class="dir__icon"><img src="{% static c.icon %}" alt="" width="56" height="56" loading="lazy"></span>{% endif %}
-          <b>{{ c.name }}</b>
-          <span>{{ c.description }}</span>
-          <em>{% if n %}{{ n }} {{ n|plural_ru:"место,места,мест" }}{% else %}Пока пусто — предложите{% endif %}</em>
+          <b>{{ c.tr.name }}</b>
+          <span>{{ c.tr.description }}</span>
+          <em>{% if n %}{{ n }} {{ n|plural_ru:_("место,места,мест") }}{% else %}{% translate "Пока пусто — предложите" %}{% endif %}</em>
         </a></li>
         {% endwith %}
         {% endfor %}
@@ -37,18 +37,18 @@
     </section>
 
     <section class="guides__section" id="links" aria-labelledby="links-h">
-      <div class="section-head"><h2 class="section-head__h" id="links-h">Официальные ссылки</h2></div>
-      <p class="dir__intro">Только государственные сайты и сайты официальных программ. Остерегайтесь посредников, которые берут деньги за то, что на этих сайтах бесплатно.</p>
+      <div class="section-head"><h2 class="section-head__h" id="links-h">{% translate "Официальные ссылки" %}</h2></div>
+      <p class="dir__intro">{% translate "Только государственные сайты и сайты официальных программ. Остерегайтесь посредников, которые берут деньги за то, что на этих сайтах бесплатно." %}</p>
       <div class="dir__groups">
         {% for c in link_categories %}
         <section class="dir__group" aria-labelledby="lc-{{ c.slug }}">
-          <h3 class="dir__group-h" id="lc-{{ c.slug }}">{% if c.icon %}<span class="dir__icon dir__icon--sm"><img src="{% static c.icon %}" alt="" width="36" height="36" loading="lazy"></span>{% endif %}{{ c.name }}</h3>
+          <h3 class="dir__group-h" id="lc-{{ c.slug }}">{% if c.icon %}<span class="dir__icon dir__icon--sm"><img src="{% static c.icon %}" alt="" width="36" height="36" loading="lazy"></span>{% endif %}{{ c.tr.name }}</h3>
           <ul class="dir__links">
             {% for item in c.listings.all %}
             <li>
               <a class="dir__link" href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}<svg class="i" aria-hidden="true"><use href="#i-external"/></svg></a>
-              {% if item.description %}<p>{{ item.description }}</p>{% endif %}
-              <p class="dir__meta">{% if item.phone %}<a href="{{ item.phone_href }}">{{ item.phone }}</a>{% endif %}{% if item.guide %}<a href="{{ item.guide.get_absolute_url }}">Подробнее в гайде →</a>{% endif %}</p>
+              {% if item.description %}<p>{{ item.tr.description }}</p>{% endif %}
+              <p class="dir__meta">{% if item.phone %}<a href="{{ item.phone_href }}">{{ item.phone }}</a>{% endif %}{% if item.guide %}<a href="{{ item.guide.get_absolute_url }}">{% translate "Подробнее в гайде →" %}</a>{% endif %}</p>
             </li>
             {% endfor %}
           </ul>

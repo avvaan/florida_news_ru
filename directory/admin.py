@@ -2,6 +2,8 @@ from django.contrib import admin
 
 from django.contrib import messages
 
+from core.i18n import uk_fieldset
+
 from . import moderation
 from .models import Category, Listing, Submission
 
@@ -29,14 +31,16 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "city", "is_recommended", "is_partner", "from_owner", "is_active", "updated_at")
-    list_filter = ("category__kind", "category", "is_recommended", "is_partner", "from_owner", "is_active", "region")
+    list_filter = ("category__kind", "category", "specialty", "is_recommended", "is_partner", "from_owner", "is_active",
+                   "region")
     list_editable = ("is_recommended", "is_partner", "is_active")
     search_fields = ("name", "description", "city", "address", "editor_note")
     fieldsets = (
-        (None, {"fields": ("category", "name", "description", "url", "phone")}),
+        (None, {"fields": ("category", "specialty", "name", "description", "url", "phone")}),
         ("Где и когда", {"fields": ("address", "city", "region", "hours", "languages")}),
         ("Показ", {"fields": ("is_recommended", "is_partner", "is_active", "order", "guide_slug", "from_owner", "editor_note"),
                    "description": "Платное размещение обязательно отмечайте «партнёр»: читатели видят метку."}),
+        uk_fieldset(Listing),
     )
 
 

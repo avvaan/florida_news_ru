@@ -15,10 +15,11 @@ from guides.models import Guide
 from news.covers import candidates_for, fresh_choices, primary_pool, replacement
 from news.models import BUSINESS, Article, ArticleSource, Region, Story, Tag, Topic, neighbour_articles, neighbour_covers
 from social.services import has_trusted_source, run_social
+from sources.article_text import full_texts
 from sources.fetch import fetch_all
 from sources.models import Source, WeatherAlert
 
-from . import ai, prompts, toponyms
+from . import ai, facebook, prompts, toponyms
 from .budget import counted_articles_today, current_budget
 from .clustering import cluster_items
 from .decisions import decide
@@ -143,7 +144,10 @@ def classify_new(say: RunLog) -> int:
 
 def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
     items = story_items(story)
-    brief = prompts.story_brief(items)
+    texts = full_texts(items)
+    if texts:
+        say(f"«{story.title[:60]}»: полный текст статьи из {len(texts)} источн.")
+    brief = prompts.story_brief(items, texts)
     region = story.region.name if story.region else "Флорида"
     topic = story.topic.name if story.topic else "—"
 
@@ -194,6 +198,8 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
         publish_without_review=conf.publish_without_review,
         has_trusted_source=has_trusted_source(items),
         source_conflicts=verification.source_conflicts,
+        word_count=len(draft.body.split()),
+        min_words=conf.min_article_words,
         auto_publish_min_score=conf.auto_publish_min_score,
         min_confidence=conf.min_verifier_confidence,
     )
@@ -219,6 +225,7 @@ def write_article(story: Story, conf: SiteSettings, say: RunLog) -> Article:
             guide=next((g for g in guides if g.slug == draft.guide), None),
             region=story.region,
             topic=story.topic,
+            author=conf.default_author if conf.default_author_id and conf.default_author.is_active else None,
             business_kind=business_kind(story),
             is_urgent=story.is_urgent,
             is_sensitive=story.is_sensitive,
@@ -555,6 +562,10 @@ def publish_article(article: Article, *, say=log.info) -> Article:
         say(f"Telegram: {result}")
     except Exception as exc:  # noqa: BLE001 — сбой Telegram не отменяет публикацию на сайте
         say(f"Telegram: ошибка — {exc}")
+    try:
+        say(f"Facebook: {facebook.post_article(article)}")
+    except Exception as exc:  # noqa: BLE001 — сбой Facebook тоже не отменяет публикацию
+        say(f"Facebook: ошибка — {exc}")
     return article
 
 
@@ -619,6 +630,13 @@ def run_pipeline(*, fetch: bool = True, write: bool = True, run: PipelineRun | N
             stats["classified"] = classify_new(say)
             stats["written"] = write_pending(say)
             say(f"Отбор: {stats['classified']}, написано заметок: {stats['written']}")
+            try:
+                from core.translation import translate_pending
+
+                stats["translated_uk"] = translate_pending(say)
+            except Exception as exc:  # noqa: BLE001 — сбой перевода не мешает новостям
+                say(f"Перевод на украинский: сбой — {type(exc).__name__}: {exc}")
+                log.exception("Сбой перевода на украинский")
         stats["ai_cost_today"] = str(AICall.objects.today().total_cost())
     except Exception as exc:  # noqa: BLE001
         run.success = False

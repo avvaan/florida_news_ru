@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 
 from .models import Author, Page, SiteSettings
 
-admin.site.site_header = "Florida RU — редакция"
-admin.site.site_title = "Florida RU"
+admin.site.site_header = "TutFlorida — редакция"
+admin.site.site_title = "TutFlorida"
 admin.site.index_title = "Управление сайтом"
 
 
@@ -13,7 +13,7 @@ class AuthorAdmin(admin.ModelAdmin):
     list_display = ("name", "role", "is_active", "order")
     list_editable = ("is_active", "order")
     prepopulated_fields = {"slug": ("name",)}
-    fields = ("name", "slug", "role", "bio", "photo", "is_active", "order")
+    fields = ("name", "slug", "role", "bio", "role_uk", "bio_uk", "photo", "email", "links", "is_active", "order")
 
 
 @admin.register(SiteSettings)
@@ -22,7 +22,10 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ("Отбор и публикация", {"fields": (
             "min_score_to_write", "publish_without_review", "auto_publish_enabled", "auto_publish_min_score", "min_verifier_confidence",
         )}),
-        ("Лимиты расходов", {"fields": ("max_articles_per_day", "ai_budget_per_day_usd")}),
+        ("Качество и лимиты", {"fields": (
+            "max_articles_per_day", "max_business_per_day", "min_article_words", "default_author",
+            "ai_budget_per_day_usd",
+        )}),
         ("Сбор и склейка", {"fields": ("max_items_per_source", "cluster_window_hours", "cluster_similarity")}),
         ("Telegram", {"fields": ("telegram_enabled", "telegram_channel_url")}),
         ("Сайт", {"fields": ("contact_email", "adsense_enabled", "adsense_client")}),

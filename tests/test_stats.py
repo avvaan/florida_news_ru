@@ -83,15 +83,15 @@ def test_webdriver_is_a_bot_even_with_a_normal_browser():
 
 # --- Правила: откуда пришли ---------------------------------------------------------------
 
-HOSTS = {"florida-ru.com", "testserver"}
+HOSTS = {"tutflorida.com", "testserver"}
 
 
 @pytest.mark.parametrize("referrer, utm, expected", [
     ("", "", "прямой заход"),
     ("http://188.114.97.7/", "", "прямой заход"),  # IP Cloudflare — не сайт
     ("https://[2606:4700::6812:1]/", "", "прямой заход"),
-    ("https://florida-ru.com/guides/", "", ""),  # переход внутри сайта — не вход
-    ("https://www.florida-ru.com/", "", ""),
+    ("https://tutflorida.com/guides/", "", ""),  # переход внутри сайта — не вход
+    ("https://www.tutflorida.com/", "", ""),
     ("https://l.facebook.com/l.php?u=x", "", "facebook"),
     ("https://lm.facebook.com/", "", "facebook"),
     ("https://m.facebook.com/", "", "facebook"),
@@ -104,7 +104,7 @@ HOSTS = {"florida-ru.com", "testserver"}
     ("https://example.org/page", "", "example.org"),
     ("https://www.google.com/", "Telegram", "telegram"),  # метка utm важнее адреса
     ("", "whatsapp", "whatsapp"),
-    ("https://florida-ru.com/", "tg", "telegram"),
+    ("https://tutflorida.com/", "tg", "telegram"),
 ])
 def test_referrer_normalisation(referrer, utm, expected):
     assert normalize_source(referrer, utm, HOSTS) == expected
@@ -229,12 +229,13 @@ def test_admin_dashboard_page(admin_client):
     make_hit(today, "/guides/", source="facebook")
     make_hit(today, bot=True)
     DailyStat.objects.create(date=today - timedelta(days=3), views=300, visitors=290)
-    html = admin_client.get("/admin/stats/dailystat/?days=7").content.decode()
-    assert "Посещаемость сайта" in html and "Все гайды" in html and "Facebook" in html
-    assert "Отсеяно ботов сегодня: 1 (50%)" in html and "показать ботов" in html
+    raw = admin_client.get("/admin/stats/dailystat/?days=7").content.decode()  # по умолчанию — все, с ботами
+    assert "Посещаемость сайта" in raw and "Все гайды" in raw and "Facebook" in raw
+    assert "Ботов сегодня: 1 (50%) — учтены в цифрах" in raw and "скрыть ботов" in raw
+    people = admin_client.get("/admin/stats/dailystat/?days=7&bots=0")
+    html = people.content.decode()
+    assert people.status_code == 200 and "Отсеяно ботов сегодня: 1 (50%)" in html and "показать всех" in html
     assert "Просмотров на посетителя" in html and "старый счётчик, с ботами" in html
-    raw = admin_client.get("/admin/stats/dailystat/?days=7&bots=1")
-    assert raw.status_code == 200 and "скрыть ботов" in raw.content.decode()
     assert admin_client.get("/admin/stats/dailystat/?days=abc").status_code == 200
     assert admin_client.get("/admin/stats/hit/?is_bot__exact=1").status_code == 200
 
