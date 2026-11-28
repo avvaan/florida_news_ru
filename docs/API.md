@@ -45,6 +45,7 @@ OpenAPI — `GET /api/schema/` (с тем же ключом), интеракти
 | Опубликовать (и в Telegram, если включён) | `POST /articles/{id}/publish/` |
 | Снять / отклонить | `POST /articles/{id}/reject/` |
 | Отправить в Telegram | `POST /articles/{id}/telegram/` |
+| Отправить в Facebook (публикация отправляет сама; `dry-run` — на сервере нет ключей страницы) | `POST /articles/{id}/facebook/` |
 | Удалить | `DELETE /articles/{id}/` |
 
 Поля: `title` (до 120), `teaser` (анонс до 300), `body` (абзацы через пустую строку), `for_you`

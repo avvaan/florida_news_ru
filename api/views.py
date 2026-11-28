@@ -22,7 +22,7 @@ from core import translation
 from core.models import Page, SiteSettings
 from news.covers import cover_pools, describe
 from news.models import Article, Region, Topic
-from pipeline import ai
+from pipeline import ai, facebook
 from pipeline.budget import current_budget
 from pipeline.models import AICall, PipelineRun
 from pipeline.runner import AlreadyRunning, start_covers, start_pipeline
@@ -89,6 +89,23 @@ class ArticleViewSet(viewsets.ModelViewSet):
         except Exception as exc:  # noqa: BLE001
             return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
         return Response({"result": result})
+
+    @extend_schema(request=None, responses={200: dict})
+    @action(detail=True, methods=["post"])
+    def facebook(self, request, pk=None):
+        """Отправить опубликованную заметку на страницу Facebook (повторно не отправляет).
+
+        «dry-run» — на сервере не заданы FACEBOOK_PAGE_ID / FACEBOOK_PAGE_TOKEN, пост не ушёл."""
+        article = self.get_object()
+        if article.status != Article.Status.PUBLISHED:
+            return Response({"detail": "Сначала опубликуйте заметку"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            result = facebook.post_article(article)
+        except Exception as exc:  # noqa: BLE001
+            return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
+        article.refresh_from_db()
+        return Response({"result": result, "facebook_post_id": article.facebook_post_id,
+                         "facebook_posted_at": article.facebook_posted_at})
 
     @extend_schema(request=None, responses={200: s.ArticleSerializer, 429: dict, 502: dict})
     @action(detail=True, methods=["post"], url_path="pick-cover")
