@@ -106,6 +106,16 @@ class SiteSettings(models.Model):
     dmca_agent_phone = models.CharField("агент DMCA: телефон", max_length=40, blank=True)
     dmca_agent_email = models.EmailField("агент DMCA: e-mail", blank=True)
 
+    featured_article = models.ForeignKey(
+        "news.Article", verbose_name="материал справа от главной темы", null=True, blank=True,
+        on_delete=models.SET_NULL, related_name="+",
+        help_text="Карточка с картинкой над «Самым важным за сутки» на главной. Показывается, пока заметка "
+                  "опубликована и не наступил срок ниже; пусто — карточки нет",
+    )
+    featured_until = models.DateTimeField(
+        "показывать до", null=True, blank=True, help_text="Пусто — пока не уберут вручную",
+    )
+
     class Meta:
         verbose_name = "настройки"
         verbose_name_plural = "настройки"

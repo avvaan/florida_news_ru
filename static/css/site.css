@@ -255,6 +255,14 @@ span.chip:hover { background: var(--mist); color: var(--gulf-deep); }
 .feed__h::before, .digest__h::before, .sidebar__h::before {
   content: ""; width: 10px; height: 10px; border-radius: 2px; background: var(--gulf); flex: none;
 }
+.pick { margin-bottom: 24px; }
+.pick__img { display: block; overflow: hidden; border-radius: var(--radius); background: var(--mist); }
+.pick__img img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; transition: transform .6s var(--ease); }
+.pick:hover img { transform: scale(1.03); }
+.pick__label { margin-top: 12px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gulf-deep); }
+.pick__title { margin-top: 4px; font: 800 1.2rem/1.25 var(--font); letter-spacing: -.012em; }
+.pick__title a { text-decoration: none; }
+.pick__title a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--shallow); }
 .digest__list { counter-reset: d; }
 .digest__item {
   counter-increment: d; position: relative; display: grid; gap: 6px;

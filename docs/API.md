@@ -173,6 +173,7 @@ POST /api/v1/articles/
 | Подсказки из соцсетей | `GET /hints/?status=open`, `PATCH /hints/{id}/` `{"status": "dismissed"}` |
 | Погодные предупреждения | `GET /alerts/`, `PATCH /alerts/{id}/` `{"is_hidden": true}` |
 | Настройки сайта | `GET/PATCH /settings/` |
+| Материал справа от главной темы | `PATCH /settings/` `{"featured_article": <id заметки>, "featured_until": "2026-12-05T23:59:00-05:00"}` (`null` — убрать) |
 | Запустить сбор новостей сейчас | `POST /pipeline/run/` `{"fetch": true, "write": true}`, ход — `GET /pipeline/{id}/` |
 | Обложки-иллюстрации | `GET /covers/`; ИИ подберёт: `POST /articles/{id}/pick-cover/` |
 
