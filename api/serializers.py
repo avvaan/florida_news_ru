@@ -67,10 +67,11 @@ class ArticleSerializer(serializers.ModelSerializer):
             "photo", "photo_url", "photo_file", "photo_caption", "photo_credit", "photo_info",
             "video", "video_url", "video_file", "video_caption", "video_credit", "video_info",
             "gallery", "gallery_urls", "gallery_info", "review_reason",
-            "verification", "published_at", "revised_at", "created_at", "updated_at", "telegram_posted_at", "url",
+            "verification", "published_at", "revised_at", "created_at", "updated_at", "telegram_posted_at",
+            "facebook_post_id", "facebook_posted_at", "url",
         ]
         read_only_fields = ["slug", "review_reason", "verification", "revised_at", "created_at", "updated_at",
-                            "telegram_posted_at", "cover_manual"]
+                            "telegram_posted_at", "facebook_post_id", "facebook_posted_at", "cover_manual"]
         extra_kwargs = {"status": {"required": False},
                         "gallery": {"required": False, "help_text": "Список id фото из медиатеки (заменяет галерею)"},
                         **{f"{name}_uk": {"help_text": UK_HELP} for name in Article.TRANSLATED}}

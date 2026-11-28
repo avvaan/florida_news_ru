@@ -96,6 +96,8 @@ def test_bad_cover_is_rejected(api, article):
 def test_publish_reject_and_delete(api, article):
     assert api.post(f"/api/v1/articles/{article.pk}/publish/").json()["status"] == "published"
     assert api.post(f"/api/v1/articles/{article.pk}/telegram/").json()["result"] == "dry-run"
+    assert api.post(f"/api/v1/articles/{article.pk}/facebook/").json()["result"] == "dry-run"
+    assert api.get(f"/api/v1/articles/{article.pk}/").json()["facebook_posted_at"] is None
     assert api.post(f"/api/v1/articles/{article.pk}/reject/").json()["status"] == "rejected"
     assert api.delete(f"/api/v1/articles/{article.pk}/").status_code == 204
     assert not Article.objects.exists()
